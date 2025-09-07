@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VirtualGIF</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .techno-tab:hover { color: var(--light-color); }
+        .password-strength-text { font-size: 0.75rem; margin-top: 5px; text-align: right; height: 15px; }
+        .error-message { color: #ff4b4b; font-size: 0.75rem; margin-top: 5px; display: none; }
+        input.error { border-color: #ff4b4b !important; }
+        .techno-social-icon { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; margin-right: 10px; }
+        .google-icon, .facebook-icon { width: 18px; height: 18px; }
+        
+        /* MODALES */
+        .modal {
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background: rgba(15, 15, 26, 0.8); backdrop-filter: blur(6px); justify-content: center;
+            align-items: center; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.active { display: flex; opacity: 1; visibility: visible; }
+        .modal-content {
+            background: var(--card-bg); padding: 30px; border-radius: 14px; max-width: 400px; width: 90%;
+            border: 1px solid var(--border-color); text-align: center; animation: fadeIn 0.4s ease;
+            position: relative; margin: 0 auto; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            transform: translateY(20px); transition: transform 0.3s ease;
+        }
+        .modal.active .modal-content { transform: translateY(0); }
+        .modal-close {
+            position: absolute; top: 15px; right: 15px; background: none; border: none;
+            color: var(--gray-color); font-size: 1.2rem; cursor: pointer; transition: color 0.3s ease;
+        }
+        .modal-close:hover { color: var(--light-color); }
+    </style>
+</head>
+
+<body>
+    <div class="techno-container">
+        <div class="techno-card">
+            <!-- Logo -->
+            <div class="techno-logo">
+                <h1>VirtualGIF</h1>
+                <p>Ingresa a tu cuenta</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="techno-tabs">
+                <div class="techno-tab active" data-tab="login">Iniciar Sesión</div>
+                <div class="techno-tab" data-tab="register">Registrarse</div>
+            </div>
+
+            <!-- Login Form -->
+            <div class="techno-form-container active" id="login-form">
+                <div class="techno-form-group">
+                    <label for="login-email">Correo electrónico</label>
+                    <input type="email" id="login-email" placeholder="tu@email.com" required>
+                    <div class="error-message" id="login-email-error"></div>
+                </div>
+
+                <div class="techno-form-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                    <div class="error-message" id="login-password-error"></div>
+                </div>
+
+                <div class="techno-form-options">
+                    <a href="#" id="forgot-password" class="techno-link">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="button" id="login-btn" class="techno-btn techno-btn-primary">Iniciar sesión</button>
+
+                <div class="techno-separator"><span>o</span></div>
+
+                <div class="techno-social-buttons">
+                    <button class="techno-social-btn google" id="google-login">
+                        <span class="techno-social-icon">
+                            <svg class="google-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+                                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+                                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+                                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+                            </svg>
+                        </span>
+                        Continuar con Google
+                    </button>
+                    <button class="techno-social-btn facebook" id="facebook-login">
+                        <span class="techno-social-icon">
+                            <svg class="facebook-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                                <path fill="#3F51B5" d="M42,37c0,2.762-2.238,5-5,5H11c-2.761,0-5-2.238-5-5V11c0-2.762,2.239-5,5-5h26c2.762,0,5,2.238,5,5V37z" />
+                                <path fill="#FFF" d="M34.368,25H31v13h-5V25h-3v-4h3v-2.41c0.002-3.508,1.459-5.59,5.592-5.59H35v4h-2.287C31.104,17,31,17.6,31,18.723V21h4L34.368,25z" />
+                            </svg>
+                        </span>
+                        Continuar con Facebook
+                    </button>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div class="techno-form-container" id="register-form">
+                <div class="techno-form-group">
+                    <label for="username">Nombre de usuario</label>
+                    <input type="text" id="username" placeholder="Elige un nombre de usuario" required>
+                    <div class="error-message" id="username-error"></div>
+                </div>
+
+                <div class="techno-form-group">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" placeholder="tu@email.com" required>
+                    <div class="error-message" id="email-error"></div>
+                </div>
+
+                <div class="techno-form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="Crea una contraseña segura" required>
+                    <div class="techno-password-strength">
+                        <div class="techno-password-bar" id="password-strength-bar"></div>
+                    </div>
+                    <div class="password-strength-text" id="password-strength-text"></div>
+                    <div class="error-message" id="password-error"></div>
+                </div>
+
+                <div class="techno-form-group">
+                    <label for="confirm-password">Confirmar contraseña</label>
+                    <input type="password" id="confirm-password" placeholder="Repite tu contraseña" required>
+                    <div class="error-message" id="confirm-password-error"></div>
+                </div>
+
+                <div class="techno-terms">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">Acepto los <a href="https://www.e-droid.net/privacy.php?ida=3697656&idl=es" class="techno-link" target="_self">términos y condiciones</a></label>
+                    <div class="error-message" id="terms-error"></div>
+                </div>
+
+                <button type="button" id="register-btn" class="techno-btn techno-btn-primary">Crear cuenta</button>
+
+                <div class="techno-separator"><span>o</span></div>
+
+                <div class="techno-social-buttons">
+                    <button class="techno-social-btn google" id="google-register">
+                        <span class="techno-social-icon">
+                            <svg class="google-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                                <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z" />
+                                <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z" />
+                                <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z" />
+                                <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z" />
+                            </svg>
+                        </span>
+                        Registrarse con Google
+                    </button>
+                    <button class="techno-social-btn facebook" id="facebook-register">
+                        <span class="techno-social-icon">
+                            <svg class="facebook-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                                <path fill="#3F51B5" d="M42,37c0,2.762-2.238,5-5,5H11c-2.761,0-5-2.238-5-5V11c0-2.762,2.239-5,5-5h26c2.762,0,5,2.238,5,5V37z" />
+                                <path fill="#FFF" d="M34.368,25H31v13h-5V25h-3v-4h3v-2.41c0.002-3.508,1.459-5.59,5.592-5.59H35v4h-2.287C31.104,17,31,17.6,31,18.723V21h4L34.368,25z" />
+                            </svg>
+                        </span>
+                        Registrarse con Facebook
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="techno-footer">
+            <p>© 2026 VirtualGIF</p>
+            <div class="techno-footer-links">
+                <a href="https://www.e-droid.net/privacy.php?ida=3697656&idl=es" class="techno-link" target="_self">Términos & Condiciones</a>
+                <a href="https://www.e-droid.net/privacy.php?ida=3697656&idl=es" class="techno-link" target="_self">Política de Privacidad</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modales -->
+    <div id="email-verification-container" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h3>Verifica tu email</h3>
+            <p>Hemos enviado un enlace de verificación a tu correo electrónico.</p>
+            <button id="resend-verification" class="techno-btn techno-btn-primary">Reenviar verificación</button>
+            <button id="continue-to-dashboard" class="techno-btn techno-btn-secondary">Ya verifiqué mi email</button>
+        </div>
+    </div>
+
+    <div id="recovery-container" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h3>Recuperar Contraseña</h3>
+            <div class="techno-form-group">
+                <label for="recovery-email">Correo electrónico</label>
+                <input type="email" id="recovery-email" placeholder="tu@email.com" required>
+                <div class="error-message" id="recovery-email-error"></div>
+            </div>
+            <button id="send-recovery-email" class="techno-btn techno-btn-primary">Enviar enlace</button>
+            <button id="cancel-recovery" class="techno-btn techno-btn-secondary">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+
+    <!-- Nuestros archivos JS -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+
+    <!-- Script optimizado -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elementos DOM
+            const elements = {
+                tabs: document.querySelectorAll('.techno-tab'),
+                loginForm: document.getElementById('login-form'),
+                registerForm: document.getElementById('register-form'),
+                forgotPasswordLink: document.getElementById('forgot-password'),
+                recoveryModal: document.getElementById('recovery-container'),
+                cancelRecoveryBtn: document.getElementById('cancel-recovery'),
+                modalCloseButtons: document.querySelectorAll('.modal-close'),
+                passwordInput: document.getElementById('password'),
+                strengthBar: document.getElementById('password-strength-bar'),
+                strengthText: document.getElementById('password-strength-text'),
+                registerBtn: document.getElementById('register-btn'),
+                loginBtn: document.getElementById('login-btn'),
+                continueToDashboard: document.getElementById('continue-to-dashboard'),
+                resendVerification: document.getElementById('resend-verification'),
+                sendRecoveryEmail: document.getElementById('send-recovery-email')
+            };
+
+            // Cambio entre pestañas
+            elements.tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    elements.tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    if (tab.dataset.tab === 'login') {
+                        elements.loginForm.classList.add('active');
+                        elements.registerForm.classList.remove('active');
+                    } else {
+                        elements.registerForm.classList.add('active');
+                        elements.loginForm.classList.remove('active');
+                    }
+                });
+            });
+
+            // Modal de recuperación de contraseña
+            if (elements.forgotPasswordLink) {
+                elements.forgotPasswordLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    elements.recoveryModal.classList.add('active');
+                });
+            }
+
+            if (elements.cancelRecoveryBtn) {
+                elements.cancelRecoveryBtn.addEventListener('click', () => {
+                    elements.recoveryModal.classList.remove('active');
+                });
+            }
+
+            // Cerrar modales
+            elements.modalCloseButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    button.closest('.modal').classList.remove('active');
+                });
+            });
+
+            window.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('active');
+                }
+            });
+
+            // Fortaleza de contraseña
+            if (elements.passwordInput && elements.strengthBar && elements.strengthText) {
+                elements.passwordInput.addEventListener('input', checkPasswordStrength);
+                
+                function checkPasswordStrength() {
+                    const password = elements.passwordInput.value;
+                    let strength = 0;
+                    
+                    if (password.length >= 8) strength += 20;
+                    if (password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) strength += 20;
+                    if (password.match(/([0-9])/)) strength += 20;
+                    if (password.match(/([!,@,#,$,%,^,&,*,?,_,~])/)) strength += 20;
+                    if (password.length > 12) strength += 20;
+                    
+                    elements.strengthBar.style.width = strength + '%';
+                    
+                    let message = '';
+                    if (strength < 40) {
+                        elements.strengthBar.style.background = '#ff4b2b';
+                        message = 'Débil';
+                    } else if (strength < 80) {
+                        elements.strengthBar.style.background = '#ff7a18';
+                        message = 'Mediana';
+                    } else {
+                        elements.strengthBar.style.background = '#2bff4b';
+                        message = 'Fuerte';
+                    }
+                    
+                    elements.strengthText.textContent = message;
+                }
+            }
+
+            // Validación de formularios
+            if (elements.registerBtn) elements.registerBtn.addEventListener('click', validateRegisterForm);
+            if (elements.loginBtn) elements.loginBtn.addEventListener('click', validateLoginForm);
+
+            function validateField(elementId, errorId, validationFn) {
+                const element = document.getElementById(elementId);
+                const errorElement = document.getElementById(errorId);
+                const result = validationFn(element.value);
+                
+                if (result.isValid) {
+                    errorElement.style.display = 'none';
+                    element.classList.remove('error');
+                    return true;
+                } else {
+                    errorElement.textContent = result.message;
+                    errorElement.style.display = 'block';
+                    element.classList.add('error');
+                    return false;
+                }
+            }
+
+            function validateRegisterForm() {
+                const validations = [
+                    validateField('username', 'username-error', value => 
+                        !value.trim() ? {isValid: false, message: 'El nombre de usuario es requerido'} : {isValid: true}
+                    ),
+                    validateField('email', 'email-error', value => {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!value.trim()) return {isValid: false, message: 'El correo electrónico es requerido'};
+                        if (!emailRegex.test(value)) return {isValid: false, message: 'El formato del correo electrónico no es válido'};
+                        return {isValid: true};
+                    }),
+                    validateField('password', 'password-error', value => {
+                        if (!value) return {isValid: false, message: 'La contraseña es requerida'};
+                        if (value.length < 8) return {isValid: false, message: 'La contraseña debe tener al menos 8 caracteres'};
+                        return {isValid: true};
+                    }),
+                    validateField('confirm-password', 'confirm-password-error', value => {
+                        const password = document.getElementById('password').value;
+                        if (!value) return {isValid: false, message: 'Debes confirmar tu contraseña'};
+                        if (value !== password) return {isValid: false, message: 'Las contraseñas no coinciden'};
+                        return {isValid: true};
+                    })
+                ];
+
+                const terms = document.getElementById('terms');
+                const termsError = document.getElementById('terms-error');
+                if (!terms.checked) {
+                    termsError.textContent = 'Debes aceptar los términos y condiciones';
+                    termsError.style.display = 'block';
+                    validations.push(false);
+                } else {
+                    termsError.style.display = 'none';
+                }
+
+                if (validations.every(v => v === true)) {
+                    showNotification('¡Cuenta creada con éxito! Verifica tu email.', 'success');
+                    document.getElementById('email-verification-container').classList.add('active');
+                }
+            }
+
+            function validateLoginForm() {
+                const validations = [
+                    validateField('login-email', 'login-email-error', value => {
+                        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                        if (!value.trim()) return {isValid: false, message: 'El correo electrónico es requerido'};
+                        if (!emailRegex.test(value)) return {isValid: false, message: 'El formato del correo electrónico no es válido'};
+                        return {isValid: true};
+                    }),
+                    validateField('login-password', 'login-password-error', value => 
+                        !value ? {isValid: false, message: 'La contraseña es requerida'} : {isValid: true}
+                    )
+                ];
+
+                if (validations.every(v => v === true)) {
+                    showNotification('Inicio de sesión exitoso', 'success');
+                }
+            }
+
+            // Función para mostrar notificaciones
+            function showNotification(message, type = 'info') {
+                const notification = document.getElementById('notification');
+                notification.textContent = message;
+
+                const colors = {
+                    success: 'linear-gradient(90deg, #2bff4b, #00c9ff)',
+                    error: 'linear-gradient(90deg, #ff4b2b, #ff416c)',
+                    info: 'linear-gradient(90deg, var(--primary-color), var(--secondary-color))'
+                };
+
+                notification.style.background = colors[type] || colors.info;
+                notification.style.display = 'block';
+
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+            }
+
+            // Eventos adicionales
+            if (elements.continueToDashboard) {
+                elements.continueToDashboard.addEventListener('click', () => {
+                    document.getElementById('email-verification-container').classList.remove('active');
+                    showNotification('¡Bienvenido a VirtualGIF!', 'success');
+                });
+            }
+
+            if (elements.resendVerification) {
+                elements.resendVerification.addEventListener('click', () => {
+                    showNotification('Email de verificación reenviado', 'success');
+                });
+            }
+
+            if (elements.sendRecoveryEmail) {
+                elements.sendRecoveryEmail.addEventListener('click', () => {
+                    const recoveryEmail = document.getElementById('recovery-email');
+                    const recoveryEmailError = document.getElementById('recovery-email-error');
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+                    if (!recoveryEmail.value.trim()) {
+                        recoveryEmailError.textContent = 'El correo electrónico es requerido';
+                        recoveryEmailError.style.display = 'block';
+                        recoveryEmail.classList.add('error');
+                    } else if (!emailRegex.test(recoveryEmail.value)) {
+                        recoveryEmailError.textContent = 'El formato del correo electrónico no es válido';
+                        recoveryEmailError.style.display = 'block';
+                        recoveryEmail.classList.add('error');
+                    } else {
+                        recoveryEmailError.style.display = 'none';
+                        recoveryEmail.classList.remove('error');
+                        showNotification('Email de recuperación enviado', 'success');
+                        elements.recoveryModal.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>
