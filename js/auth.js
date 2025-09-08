@@ -1,29 +1,31 @@
 // Elementos DOM
-const registerForm = document.getElementById('register-form');
-const loginForm = document.getElementById('login-form');
-const userInfo = document.getElementById('user-info');
-const tabs = document.querySelectorAll('.tab');
-const registerBtn = document.getElementById('register-btn');
-const loginBtn = document.getElementById('login-btn');
-const logoutBtn = document.getElementById('logout-btn');
-const passwordInput = document.getElementById('password');
-const confirmPasswordInput = document.getElementById('confirm-password');
-const passwordStrengthBar = document.getElementById('password-strength-bar');
-const notification = document.getElementById('notification');
-const usernameInput = document.getElementById('username');
-const emailInput = document.getElementById('email');
-const loginEmailInput = document.getElementById('login-email');
-const loginPasswordInput = document.getElementById('login-password');
-const forgotPasswordLink = document.getElementById('forgot-password');
-const googleLoginBtn = document.getElementById('google-login');
-const facebookLoginBtn = document.getElementById('facebook-login');
-const appleLoginBtn = document.getElementById('apple-login');
-const emailVerificationContainer = document.getElementById('email-verification-container');
-const recoveryContainer = document.getElementById('recovery-container');
-const resendVerificationBtn = document.getElementById('resend-verification');
-const continueToDashboardBtn = document.getElementById('continue-to-dashboard');
-const cancelRecoveryBtn = document.getElementById('cancel-recovery');
-const sendRecoveryEmailBtn = document.getElementById('send-recovery-email');
+const DOM = {
+    registerForm: document.getElementById('register-form'),
+    loginForm: document.getElementById('login-form'),
+    userInfo: document.getElementById('user-info'),
+    tabs: document.querySelectorAll('.tab'),
+    registerBtn: document.getElementById('register-btn'),
+    loginBtn: document.getElementById('login-btn'),
+    logoutBtn: document.getElementById('logout-btn'),
+    passwordInput: document.getElementById('password'),
+    confirmPasswordInput: document.getElementById('confirm-password'),
+    passwordStrengthBar: document.getElementById('password-strength-bar'),
+    notification: document.getElementById('notification'),
+    usernameInput: document.getElementById('username'),
+    emailInput: document.getElementById('email'),
+    loginEmailInput: document.getElementById('login-email'),
+    loginPasswordInput: document.getElementById('login-password'),
+    forgotPasswordLink: document.getElementById('forgot-password'),
+    googleLoginBtn: document.getElementById('google-login'),
+    facebookLoginBtn: document.getElementById('facebook-login'),
+    appleLoginBtn: document.getElementById('apple-login'),
+    emailVerificationContainer: document.getElementById('email-verification-container'),
+    recoveryContainer: document.getElementById('recovery-container'),
+    resendVerificationBtn: document.getElementById('resend-verification'),
+    continueToDashboardBtn: document.getElementById('continue-to-dashboard'),
+    cancelRecoveryBtn: document.getElementById('cancel-recovery'),
+    sendRecoveryEmailBtn: document.getElementById('send-recovery-email')
+};
 
 // Variables
 let currentUser = null;
@@ -33,39 +35,41 @@ const overlay = document.createElement('div');
 overlay.className = 'overlay';
 document.body.appendChild(overlay);
 
+// Mensajes de error Firebase
+const firebaseErrors = {
+    'auth/email-already-in-use': 'Correo ya en uso',
+    'auth/invalid-email': 'Correo no válido',
+    'auth/weak-password': 'Contraseña débil',
+    'auth/user-not-found': 'Usuario no encontrado',
+    'auth/wrong-password': 'Contraseña incorrecta'
+};
+
 // Funciones auxiliares
 function showNotification(msg, isError = false) {
-    if (!notification) return;
-    
-    notification.textContent = msg;
-    notification.className = 'notification';
-    if (isError) notification.classList.add('error');
-    notification.classList.add('show');
-    setTimeout(() => {
-        notification.classList.remove('show');
-    }, 3000);
+    if (!DOM.notification) return;
+    DOM.notification.textContent = msg;
+    DOM.notification.className = 'notification';
+    if (isError) DOM.notification.classList.add('error');
+    DOM.notification.classList.add('show');
+    setTimeout(() => DOM.notification.classList.remove('show'), 3000);
 }
 
-function showModal(modal) {
-    if (!modal) return;
-    
-    overlay.style.display = 'block';
-    modal.classList.add('show');
-    setTimeout(() => {
-        modal.style.opacity = '1';
-        modal.style.transform = 'translate(-50%, -50%) scale(1)';
-    }, 10);
+function handleFirebaseError(error, defaultMsg) {
+    showNotification(firebaseErrors[error.code] || defaultMsg, true);
 }
 
-function hideModal(modal) {
+function setButtonState(btn, text, disabled = false) {
+    btn.disabled = disabled;
+    btn.textContent = text;
+}
+
+function toggleModal(modal, show = true) {
     if (!modal) return;
-    
-    overlay.style.display = 'none';
-    modal.style.opacity = '0';
-    modal.style.transform = 'translate(-50%, -50%) scale(0.9)';
-    setTimeout(() => {
-        modal.classList.remove('show');
-    }, 300);
+    overlay.style.display = show ? 'block' : 'none';
+    if (show) modal.classList.add('show');
+    modal.style.opacity = show ? '1' : '0';
+    modal.style.transform = show ? 'translate(-50%, -50%) scale(1)' : 'translate(-50%, -50%) scale(0.9)';
+    if (!show) setTimeout(() => modal.classList.remove('show'), 300);
 }
 
 // Enviar email de verificación
@@ -73,199 +77,119 @@ function sendEmailVerification(user) {
     user.sendEmailVerification()
         .then(() => {
             showNotification('Email de verificación enviado. Revisa tu bandeja de entrada.');
-            showModal(emailVerificationContainer);
+            toggleModal(DOM.emailVerificationContainer, true);
         })
-        .catch(error => {
-            console.error('Error al enviar email de verificación:', error);
-            showNotification('Error al enviar email de verificación', true);
-        });
+        .catch(error => handleFirebaseError(error, 'Error al enviar email de verificación'));
 }
 
-// Verificar si el email está verificado
+// Comprobar verificación de email
 function checkEmailVerification(user) {
     user.reload().then(() => {
         if (user.emailVerified) {
-            hideModal(emailVerificationContainer);
+            toggleModal(DOM.emailVerificationContainer, false);
             window.location.href = 'dashboard.html';
         } else {
             showNotification('Por favor, verifica tu email antes de continuar');
         }
-    }).catch(error => {
-        console.error('Error al recargar usuario:', error);
-        showNotification('Error al verificar el email', true);
-    });
+    }).catch(error => handleFirebaseError(error, 'Error al verificar el email'));
 }
 
 // Registro
-registerBtn.addEventListener('click', () => {
-    const username = usernameInput.value;
-    const email = emailInput.value;
-    const password = passwordInput.value;
-    const confirmPassword = confirmPasswordInput.value;
+DOM.registerBtn.addEventListener('click', async () => {
+    const username = DOM.usernameInput.value.trim();
+    const email = DOM.emailInput.value.trim();
+    const password = DOM.passwordInput.value;
+    const confirmPassword = DOM.confirmPasswordInput.value;
     const termsAccepted = document.getElementById('terms').checked;
 
-    if (!username || !email || !password || !confirmPassword) {
-        showNotification('Completa todos los campos', true);
-        return;
-    }
+    if (!username || !email || !password || !confirmPassword) return showNotification('Completa todos los campos', true);
+    if (password !== confirmPassword) return showNotification('Las contraseñas no coinciden', true);
+    if (password.length < 8) return showNotification('La contraseña debe tener al menos 8 caracteres', true);
+    if (!termsAccepted) return showNotification('Debes aceptar los términos', true);
 
-    if (password !== confirmPassword) {
-        showNotification('Las contraseñas no coinciden', true);
-        return;
-    }
+    setButtonState(DOM.registerBtn, 'Creando cuenta...', true);
 
-    if (password.length < 8) {
-        showNotification('La contraseña debe tener al menos 8 caracteres', true);
-        return;
-    }
+    try {
+        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        currentUser = user;
 
-    if (!termsAccepted) {
-        showNotification('Debes aceptar los términos y condiciones', true);
-        return;
-    }
-
-    registerBtn.disabled = true;
-    registerBtn.textContent = 'Creando cuenta...';
-
-    auth.createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-            const user = userCredential.user;
-            currentUser = user;
-            
-            // Actualizar perfil con el nombre de usuario
-            return user.updateProfile({
-                displayName: username
-            }).then(() => {
-                // Guardar usuario en Firestore
-                return db.collection('users').doc(user.uid).set({
-                    username: username,
-                    email: email,
-                    points: 100,
-                    level: 1,
-                    experience: 0,
-                    nextLevel: 200,
-                    joinDate: new Date(),
-                    lastLogin: new Date(),
-                    emailVerified: false
-                });
-            });
-        })
-        .then(() => {
-            // Enviar email de verificación
-            sendEmailVerification(currentUser);
-            showNotification('¡Cuenta creada con éxito!');
-        })
-        .catch(error => {
-            let msg = 'Error al crear la cuenta';
-            if (error.code === 'auth/email-already-in-use') msg = 'Correo ya en uso';
-            if (error.code === 'auth/invalid-email') msg = 'Correo no válido';
-            if (error.code === 'auth/weak-password') msg = 'Contraseña débil';
-            showNotification(msg, true);
-        })
-        .finally(() => {
-            registerBtn.disabled = false;
-            registerBtn.textContent = 'Crear cuenta';
+        await user.updateProfile({displayName: username});
+        await db.collection('users').doc(user.uid).set({
+            username, email, points: 100, level: 1, experience: 0,
+            nextLevel: 200, joinDate: new Date(), lastLogin: new Date(), emailVerified: false
         });
+
+        sendEmailVerification(user);
+        showNotification('¡Cuenta creada con éxito!');
+    } catch (e) {
+        handleFirebaseError(e, 'Error al crear la cuenta');
+    } finally {
+        setButtonState(DOM.registerBtn, 'Crear cuenta');
+    }
 });
 
 // Login
-loginBtn.addEventListener('click', () => {
-    const email = loginEmailInput.value;
-    const password = loginPasswordInput.value;
+DOM.loginBtn.addEventListener('click', async () => {
+    const email = DOM.loginEmailInput.value.trim();
+    const password = DOM.loginPasswordInput.value;
 
-    if (!email || !password) {
-        showNotification('Completa todos los campos', true);
-        return;
+    if (!email || !password) return showNotification('Completa todos los campos', true);
+
+    setButtonState(DOM.loginBtn, 'Iniciando sesión...', true);
+
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+        currentUser = user;
+
+        if (!user.emailVerified) {
+            showNotification('Por favor, verifica tu email antes de iniciar sesión', true);
+            sendEmailVerification(user);
+            throw new Error('Email no verificado');
+        }
+
+        await db.collection('users').doc(user.uid).update({lastLogin: new Date()});
+        window.location.href = 'dashboard.html';
+    } catch (e) {
+        if (e.message !== 'Email no verificado') handleFirebaseError(e, 'Error al iniciar sesión');
+    } finally {
+        setButtonState(DOM.loginBtn, 'Iniciar sesión');
     }
-
-    loginBtn.disabled = true;
-    loginBtn.textContent = 'Iniciando sesión...';
-
-    auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-            const user = userCredential.user;
-            
-            // Verificar si el email está verificado
-            if (!user.emailVerified) {
-                showNotification('Por favor, verifica tu email antes de iniciar sesión', true);
-                currentUser = user;
-                sendEmailVerification(user);
-                throw new Error('Email no verificado');
-            }
-
-            // Actualizar último login
-            return db.collection('users').doc(user.uid).update({
-                lastLogin: new Date()
-            });
-        })
-        .then(() => {
-            window.location.href = 'dashboard.html';
-        })
-        .catch(error => {
-            let msg = 'Error al iniciar sesión';
-            if (error.code === 'auth/user-not-found') msg = 'Usuario no encontrado';
-            if (error.code === 'auth/wrong-password') msg = 'Contraseña incorrecta';
-            if (error.message === 'Email no verificado') return; // Ya mostramos notificación
-            
-            showNotification(msg, true);
-        })
-        .finally(() => {
-            loginBtn.disabled = false;
-            loginBtn.textContent = 'Iniciar sesión';
-        });
 });
 
 // Reenviar verificación
-resendVerificationBtn.addEventListener('click', () => {
-    if (currentUser) {
-        resendVerificationBtn.disabled = true;
-        resendVerificationBtn.textContent = 'Enviando...';
-        
-        sendEmailVerification(currentUser);
-        
-        setTimeout(() => {
-            resendVerificationBtn.disabled = false;
-            resendVerificationBtn.textContent = 'Reenviar verificación';
-        }, 3000);
-    }
+DOM.resendVerificationBtn.addEventListener('click', () => {
+    if (!currentUser) return;
+    setButtonState(DOM.resendVerificationBtn, 'Enviando...', true);
+    sendEmailVerification(currentUser);
+    setTimeout(() => setButtonState(DOM.resendVerificationBtn, 'Reenviar verificación'), 3000);
 });
 
-// Continuar al dashboard (para usuarios que ya verificaron)
-continueToDashboardBtn.addEventListener('click', () => {
-    if (currentUser) {
-        checkEmailVerification(currentUser);
-    }
-});
+// Continuar al dashboard
+DOM.continueToDashboardBtn.addEventListener('click', () => currentUser && checkEmailVerification(currentUser));
 
 // Recuperar contraseña
 function recoverPassword() {
-    const email = document.getElementById('recovery-email').value;
+    const email = document.getElementById('recovery-email').value.trim();
     if (!email) return showNotification('Por favor, ingresa tu correo electrónico', true);
 
-    sendRecoveryEmailBtn.disabled = true;
-    sendRecoveryEmailBtn.textContent = 'Enviando...';
+    setButtonState(DOM.sendRecoveryEmailBtn, 'Enviando...', true);
 
     auth.sendPasswordResetEmail(email)
         .then(() => {
             showNotification('Enlace de recuperación enviado');
-            hideModal(recoveryContainer);
+            toggleModal(DOM.recoveryContainer, false);
         })
-        .catch(error => {
-            let msg = 'Error al enviar el email de recuperación';
-            if (error.code === 'auth/user-not-found') msg = 'No existe una cuenta con este correo';
-            showNotification(msg, true);
-        })
-        .finally(() => {
-            sendRecoveryEmailBtn.disabled = false;
-            sendRecoveryEmailBtn.textContent = 'Enviar enlace de recuperación';
-        });
+        .catch(e => handleFirebaseError(e, 'Error al enviar el email de recuperación'))
+        .finally(() => setButtonState(DOM.sendRecoveryEmailBtn, 'Enviar enlace de recuperación'));
 }
 
 // Tabs
-tabs.forEach(tab => {
+DOM.tabs.forEach(tab => {
     tab.addEventListener('click', () => {
-        const tabId = tab.getAttribute('data-tab');
-        tabs.forEach(t => t.classList.remove('active'));
+        const tabId = tab.dataset.tab;
+        DOM.tabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
         document.getElementById(`${tabId}-form`).classList.add('active');
@@ -273,66 +197,48 @@ tabs.forEach(tab => {
 });
 
 // Forgot password
-forgotPasswordLink.addEventListener('click', e => {
-    e.preventDefault();
-    showModal(recoveryContainer);
-});
+DOM.forgotPasswordLink.addEventListener('click', e => { e.preventDefault(); toggleModal(DOM.recoveryContainer, true); });
+DOM.cancelRecoveryBtn.addEventListener('click', () => toggleModal(DOM.recoveryContainer, false));
+DOM.sendRecoveryEmailBtn.addEventListener('click', recoverPassword);
 
-cancelRecoveryBtn.addEventListener('click', () => hideModal(recoveryContainer));
-sendRecoveryEmailBtn.addEventListener('click', recoverPassword);
+// Social logins (pendientes)
+[DOM.googleLoginBtn, DOM.facebookLoginBtn, DOM.appleLoginBtn].forEach(btn => 
+    btn.addEventListener('click', () => showNotification(`Login con ${btn.id.split('-')[0]} (pendiente)`))
+);
 
-// Login con redes sociales
-googleLoginBtn.addEventListener('click', () => showNotification('Login con Google (pendiente)'));
-facebookLoginBtn.addEventListener('click', () => showNotification('Login con Facebook (pendiente)'));
-appleLoginBtn.addEventListener('click', () => showNotification('Login con Apple (pendiente)'));
-
-// Verificar fortaleza de la contraseña
-if (passwordInput) {
-    passwordInput.addEventListener('input', function () {
+// Password strength
+if (DOM.passwordInput) {
+    DOM.passwordInput.addEventListener('input', function () {
         const password = this.value;
         let strength = 0;
-
         if (password.length >= 8) strength += 25;
         if (password.match(/([a-z].*[A-Z])|([A-Z].*[a-z])/)) strength += 25;
         if (password.match(/([0-9])/)) strength += 25;
         if (password.match(/([!,@,#,$,%,^,&,*,?,_,~])/)) strength += 25;
 
-        if (passwordStrengthBar) {
-            passwordStrengthBar.style.width = strength + '%';
-
-            if (strength < 50) {
-                passwordStrengthBar.style.backgroundColor = '#e74c3c';
-            } else if (strength < 75) {
-                passwordStrengthBar.style.backgroundColor = '#f39c12';
-            } else {
-                passwordStrengthBar.style.backgroundColor = '#2ecc71';
-            }
+        if (DOM.passwordStrengthBar) {
+            DOM.passwordStrengthBar.style.width = strength + '%';
+            DOM.passwordStrengthBar.style.backgroundColor = strength < 50 ? '#e74c3c' : strength < 75 ? '#f39c12' : '#2ecc71';
         }
     });
 }
 
-// Verificar autenticación y redirigir
-auth.onAuthStateChanged((user) => {
+// Auth state
+auth.onAuthStateChanged(user => {
     if (user && user.emailVerified && window.location.pathname.includes('index.html')) {
         window.location.href = 'dashboard.html';
     }
-    
-    // Ocultar user-info si no hay usuario (para logout)
-    if (!user && userInfo) {
-        userInfo.classList.remove('active');
-    }
+    if (!user && DOM.userInfo) DOM.userInfo.classList.remove('active');
 });
 
-// Cerrar modal al hacer clic en overlay
+// Modales y overlay
 overlay.addEventListener('click', () => {
-    hideModal(emailVerificationContainer);
-    hideModal(recoveryContainer);
+    toggleModal(DOM.emailVerificationContainer, false);
+    toggleModal(DOM.recoveryContainer, false);
 });
-
-// Cerrar modales con ESC key
-document.addEventListener('keydown', (e) => {
+document.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
-        hideModal(emailVerificationContainer);
-        hideModal(recoveryContainer);
+        toggleModal(DOM.emailVerificationContainer, false);
+        toggleModal(DOM.recoveryContainer, false);
     }
 });
