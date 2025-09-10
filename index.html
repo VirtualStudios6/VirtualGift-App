@@ -671,17 +671,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    $('login-btn')?.addEventListener('click', ()=>{
-        const v=[validateField('login-email','login-email-error',emailValidation),
-                 validateField('login-password','login-password-error',v=>v?{isValid:true}:{isValid:false,message:'Contraseña requerida'})];
-        if(v.every(v=>v===true)) {
-            setLoading($('login-btn'), true);
+$('login-btn')?.addEventListener('click', ()=>{
+    const v=[validateField('login-email','login-email-error',emailValidation),
+             validateField('login-password','login-password-error',v=>v?{isValid:true}:{isValid:false,message:'Contraseña requerida'})];
+    if(v.every(v=>v===true)) {
+        setLoading($('login-btn'), true);
+        setTimeout(() => {
+            showNotification('Inicio de sesión exitoso','success');
+            setLoading($('login-btn'), false);
+            
+            // Redirigir a la sección Inicio después del login exitoso
             setTimeout(() => {
-                showNotification('Inicio de sesión exitoso','success');
-                setLoading($('login-btn'), false);
-            }, 1500);
-        }
-    });
+                window.location.href = "go:Inicio";
+            }, 500); // Pequeña pausa para que se vea la notificación
+        }, 1500);
+    }
+});
 
     $('continue-to-dashboard')?.addEventListener('click', ()=>{$('email-verification-container').classList.remove('active'); showNotification('¡Bienvenido a VirtualGIF!','success');});
     $('resend-verification')?.addEventListener('click', ()=>showNotification('Email de verificación reenviado','success'));
