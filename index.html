@@ -680,10 +680,10 @@ $('login-btn')?.addEventListener('click', ()=>{
             showNotification('Inicio de sesión exitoso','success');
             setLoading($('login-btn'), false);
             
-            // Redirigir a la sección Inicio después del login exitoso
             setTimeout(() => {
-                window.location.href = "go:Inicio";
-            }, 500); // Pequeña pausa para que se vea la notificación
+                // Esta línea debe usar targetUrl, no "go:Inicio" fijo
+                window.location.href = targetUrl;
+            }, 500);
         }, 1500);
     }
 });
