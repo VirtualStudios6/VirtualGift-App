@@ -598,6 +598,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const qsa = sel => document.querySelectorAll(sel);
 
     const tabs = qsa('.techno-tab'), loginForm=$('login-form'), registerForm=$('register-form'), recoveryModal=$('recovery-container'), notification=$('notification');
+    
+    // Variable para la redirección
+    let targetUrl = "go:Inicio"; // Valor por defecto
 
     // Cambiar pestañas
     tabs.forEach(tab=>tab.addEventListener('click', ()=>{
@@ -664,29 +667,42 @@ document.addEventListener('DOMContentLoaded', () => {
         if(v.every(v=>v===true)) {
             setLoading($('register-btn'), true);
             setTimeout(() => {
-                $('email-verification-container').class.classList.add('active');
+                $('email-verification-container').classList.add('active');
                 showNotification('¡Cuenta creada con éxito! Verifica tu email.','success');
                 setLoading($('register-btn'), false);
             }, 1500);
         }
     });
 
-$('login-btn')?.addEventListener('click', ()=>{
-    const v=[validateField('login-email','login-email-error',emailValidation),
-             validateField('login-password','login-password-error',v=>v?{isValid:true}:{isValid:false,message:'Contraseña requerida'})];
-    if(v.every(v=>v===true)) {
-        setLoading($('login-btn'), true);
-        setTimeout(() => {
-            showNotification('Inicio de sesión exitoso','success');
-            setLoading($('login-btn'), false);
-            
+    // LOGIN CORREGIDO - con redirección dinámica
+    $('login-btn')?.addEventListener('click', ()=>{
+        // OBTENER EL PARÁMETRO REDIRECT DENTRO DEL CLICK
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirectParam = urlParams.get('redirect');
+        
+        if (redirectParam) {
+            targetUrl = redirectParam;
+            console.log("Redirección detectada:", targetUrl);
+        } else {
+            targetUrl = "go:Inicio";
+            console.log("Redirección por defecto:", targetUrl);
+        }
+        
+        const v=[validateField('login-email','login-email-error',emailValidation),
+                 validateField('login-password','login-password-error',v=>v?{isValid:true}:{isValid:false,message:'Contraseña requerida'})];
+        if(v.every(v=>v===true)) {
+            setLoading($('login-btn'), true);
             setTimeout(() => {
-                // Esta línea debe usar targetUrl, no "go:Inicio" fijo
-                window.location.href = targetUrl;
-            }, 500);
-        }, 1500);
-    }
-});
+                showNotification('Inicio de sesión exitoso','success');
+                setLoading($('login-btn'), false);
+                
+                setTimeout(() => {
+                    console.log("Ejecutando redirección a:", targetUrl);
+                    window.location.href = targetUrl;
+                }, 500);
+            }, 1500);
+        }
+    });
 
     $('continue-to-dashboard')?.addEventListener('click', ()=>{$('email-verification-container').classList.remove('active'); showNotification('¡Bienvenido a VirtualGIF!','success');});
     $('resend-verification')?.addEventListener('click', ()=>showNotification('Email de verificación reenviado','success'));
