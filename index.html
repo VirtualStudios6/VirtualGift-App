@@ -600,7 +600,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabs = qsa('.techno-tab'), loginForm=$('login-form'), registerForm=$('register-form'), recoveryModal=$('recovery-container'), notification=$('notification');
     
     // Variable para la redirección
-    let targetUrl = "go:Inicio"; // Valor por defecto
+    let targetUrl = "index.html"; // Valor por defecto
 
     // Cambiar pestañas
     tabs.forEach(tab=>tab.addEventListener('click', ()=>{
@@ -684,7 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
             targetUrl = redirectParam;
             console.log("Redirección detectada:", targetUrl);
         } else {
-            targetUrl = "go:Inicio";
+            targetUrl = "index.html";
             console.log("Redirección por defecto:", targetUrl);
         }
         

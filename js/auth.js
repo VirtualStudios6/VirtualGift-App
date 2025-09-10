@@ -82,19 +82,22 @@ function sendEmailVerification(user) {
         .catch(error => handleFirebaseError(error, 'Error al enviar email de verificación'));
 }
 
-// Comprobar verificación de email
-function checkEmailVerification(user) {
+// Comprobar verificación de email (MODIFICADA)
+function checkEmailVerification(user, targetUrl = 'dashboard.html') {
     user.reload().then(() => {
         if (user.emailVerified) {
             toggleModal(DOM.emailVerificationContainer, false);
-            window.location.href = 'dashboard.html';
+            // Redirigir a la URL objetivo
+            window.location.href = targetUrl;
+            // Limpiar el storage
+            sessionStorage.removeItem('redirectAfterVerification');
         } else {
             showNotification('Por favor, verifica tu email antes de continuar');
         }
     }).catch(error => handleFirebaseError(error, 'Error al verificar el email'));
 }
 
-// Registro
+// Registro (MODIFICADO)
 DOM.registerBtn.addEventListener('click', async () => {
     const username = DOM.usernameInput.value.trim();
     const email = DOM.emailInput.value.trim();
@@ -106,6 +109,11 @@ DOM.registerBtn.addEventListener('click', async () => {
     if (password !== confirmPassword) return showNotification('Las contraseñas no coinciden', true);
     if (password.length < 8) return showNotification('La contraseña debe tener al menos 8 caracteres', true);
     if (!termsAccepted) return showNotification('Debes aceptar los términos', true);
+
+    // OBTENER EL PARÁMETRO REDIRECT (NUEVO)
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectParam = urlParams.get('redirect');
+    let targetUrl = redirectParam || 'dashboard.html';
 
     setButtonState(DOM.registerBtn, 'Creando cuenta...', true);
 
@@ -122,6 +130,9 @@ DOM.registerBtn.addEventListener('click', async () => {
 
         sendEmailVerification(user);
         showNotification('¡Cuenta creada con éxito!');
+        
+        // GUARDAR REDIRECCIÓN PARA DESPUÉS DE VERIFICACIÓN (NUEVO)
+        sessionStorage.setItem('redirectAfterVerification', targetUrl);
     } catch (e) {
         handleFirebaseError(e, 'Error al crear la cuenta');
     } finally {
@@ -129,12 +140,17 @@ DOM.registerBtn.addEventListener('click', async () => {
     }
 });
 
-// Login
+// Login (MODIFICADO)
 DOM.loginBtn.addEventListener('click', async () => {
     const email = DOM.loginEmailInput.value.trim();
     const password = DOM.loginPasswordInput.value;
 
     if (!email || !password) return showNotification('Completa todos los campos', true);
+
+    // OBTENER EL PARÁMETRO REDIRECT (NUEVO)
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectParam = urlParams.get('redirect');
+    let targetUrl = redirectParam || 'dashboard.html';
 
     setButtonState(DOM.loginBtn, 'Iniciando sesión...', true);
 
@@ -150,7 +166,9 @@ DOM.loginBtn.addEventListener('click', async () => {
         }
 
         await db.collection('users').doc(user.uid).update({lastLogin: new Date()});
-        window.location.href = 'dashboard.html';
+        
+        // REDIRIGIR A LA URL OBJETIVO (NUEVO)
+        window.location.href = targetUrl;
     } catch (e) {
         if (e.message !== 'Email no verificado') handleFirebaseError(e, 'Error al iniciar sesión');
     } finally {
@@ -166,8 +184,15 @@ DOM.resendVerificationBtn.addEventListener('click', () => {
     setTimeout(() => setButtonState(DOM.resendVerificationBtn, 'Reenviar verificación'), 3000);
 });
 
-// Continuar al dashboard
-DOM.continueToDashboardBtn.addEventListener('click', () => currentUser && checkEmailVerification(currentUser));
+// Continuar al dashboard (MODIFICADO)
+DOM.continueToDashboardBtn.addEventListener('click', () => {
+    if (!currentUser) return;
+    
+    // Obtener la URL de redirección guardada o usar dashboard por defecto
+    const targetUrl = sessionStorage.getItem('redirectAfterVerification') || 'dashboard.html';
+    
+    checkEmailVerification(currentUser, targetUrl);
+});
 
 // Recuperar contraseña
 function recoverPassword() {
@@ -226,6 +251,7 @@ if (DOM.passwordInput) {
 // Auth state
 auth.onAuthStateChanged(user => {
     if (user && user.emailVerified && window.location.pathname.includes('index.html')) {
+        // Redirigir a dashboard o a la página por defecto
         window.location.href = 'dashboard.html';
     }
     if (!user && DOM.userInfo) DOM.userInfo.classList.remove('active');
@@ -242,3 +268,23 @@ document.addEventListener('keydown', e => {
         toggleModal(DOM.recoveryContainer, false);
     }
 });
+
+// FUNCIÓN PARA REDIRIGIR AL DASHBOARD DESDE OTRAS PÁGINAS (NUEVO)
+function redirectToDashboard() {
+    // Verificar si Firebase Auth está inicializado
+    if (typeof auth === 'undefined') {
+        console.error('Firebase Auth no está inicializado');
+        window.location.href = 'index.html?redirect=dashboard.html';
+        return;
+    }
+    
+    const user = auth.currentUser;
+    
+    // Si ya está autenticado y verificado, va directo al dashboard
+    if (user && user.emailVerified) {
+        window.location.href = 'dashboard.html';
+    } else {
+        // Si no, va al login con redirección al dashboard
+        window.location.href = 'index.html?redirect=dashboard.html';
+    }
+}
