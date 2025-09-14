@@ -8,19 +8,19 @@
     --light-color: #fff;
     --gray-color: #a1a1aa;
     --border-color: rgba(255, 255, 255, 0.1);
-    
+
     /* Espaciado */
     --spacing-xs: 0.25rem;
     --spacing-sm: 0.5rem;
     --spacing-md: 1rem;
     --spacing-lg: 1.5rem;
     --spacing-xl: 2rem;
-    
+
     /* Bordes */
     --border-radius-sm: 4px;
     --border-radius-md: 8px;
     --border-radius-lg: 16px;
-    
+
     /* Transiciones */
     --transition-fast: 0.15s ease;
     --transition-normal: 0.3s ease;
@@ -445,6 +445,7 @@ body {
         opacity: 0;
         transform: translateY(15px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -456,6 +457,7 @@ body {
         opacity: 0;
         transform: translateY(30px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -466,6 +468,7 @@ body {
     0% {
         transform: rotate(0deg);
     }
+
     100% {
         transform: rotate(360deg);
     }
@@ -473,6 +476,7 @@ body {
 
 /* Reduced motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -488,11 +492,11 @@ body {
     .techno-card {
         padding: var(--spacing-lg) var(--spacing-md);
     }
-    
+
     .modal-content {
         padding: var(--spacing-lg) var(--spacing-md);
     }
-    
+
     .modal-content h3 {
         font-size: 1.2rem;
     }
@@ -503,7 +507,7 @@ body {
     .techno-tabs {
         flex-direction: column;
     }
-    
+
     .techno-social-btn {
         font-size: 0.8rem;
     }

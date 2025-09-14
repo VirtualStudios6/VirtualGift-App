@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VirtualGIF</title>
+    <title>VirtualGIF - Login</title>
     <style>
         :root {
             --primary-color: #ff007a;
@@ -59,7 +59,6 @@
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(12px);
             animation: fadeIn 0.6s ease;
-            text-align: center;
         }
 
         .logo-image {
@@ -70,6 +69,11 @@
             object-fit: cover;
         }
 
+        .techno-logo {
+            text-align: center;
+            margin-bottom: var(--spacing-xl);
+        }
+
         .techno-logo h1 {
             font-size: 1.8rem;
             font-weight: 700;
@@ -78,9 +82,10 @@
         }
 
         .techno-logo p {
-            font-size: 0.9rem;
+            font-size: 1rem;
             color: var(--gray-color);
-            margin-bottom: var(--spacing-xl);
+            margin: 0;
+            font-weight: 500;
         }
 
         .techno-tabs {
@@ -203,6 +208,7 @@
             justify-content: center;
             gap: var(--spacing-sm);
             position: relative;
+            margin-bottom: var(--spacing-md);
         }
 
         .techno-btn:disabled,
@@ -262,7 +268,7 @@
         .techno-separator {
             display: flex;
             align-items: center;
-            margin: var(--spacing-xl) 0;
+            margin: var(--spacing-lg) 0;
             font-size: 0.85rem;
             color: var(--gray-color);
         }
@@ -315,7 +321,7 @@
 
         .techno-footer {
             text-align: center;
-            margin-top: var(--spacing-lg);
+            margin-top: var(--spacing-xl);
             font-size: 0.75rem;
             color: var(--gray-color);
         }
@@ -434,7 +440,6 @@
             display: flex;
             flex-direction: column;
             gap: var(--spacing-sm);
-            margin-top: var(--spacing-md);
         }
 
         @keyframes fadeIn {
@@ -460,269 +465,429 @@
         }
 
         @keyframes spin {
-           0% {
+            from {
                 transform: rotate(0deg);
             }
-            100% {
+            to {
                 transform: rotate(360deg);
             }
         }
 
+        /* Reduced motion for accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+            
+            .techno-card,
+            .modal-content {
+                animation: none;
+            }
+        }
+
+        /* Responsive */
         @media (max-width: 480px) {
             .techno-card {
                 padding: var(--spacing-lg) var(--spacing-md);
             }
-            
+
             .modal-content {
                 padding: var(--spacing-lg) var(--spacing-md);
             }
-            
+
             .modal-content h3 {
                 font-size: 1.2rem;
             }
-            
+
             .logo-image {
                 width: 60px;
                 height: 60px;
             }
-            
+
             .techno-logo h1 {
                 font-size: 1.5rem;
+            }
+        }
+
+        /* Very small devices */
+        @media (max-width: 350px) {
+            .techno-tabs {
+                flex-direction: column;
+            }
+            
+            .techno-social-btn {
+                font-size: 0.8rem;
+            }
+            
+            .techno-logo h1 {
+                font-size: 1.3rem;
+            }
+            
+            .techno-logo p {
+                font-size: 0.9rem;
+            }
+            
+            body {
+                padding: 10px;
             }
         }
     </style>
 </head>
 <body>
-<div class="techno-container">
-    <div class="techno-card">
-        <div class="techno-logo">
-            <img src="images/logo-virtual-login.png" alt="VirtualGIF Logo" class="logo-image">
-            <h1>VirtualGIF</h1>
-            <p>Ingresa a tu cuenta</p>
-        </div>
-        <div class="techno-tabs">
-            <div class="techno-tab active" data-tab="login">Iniciar Sesión</div>
-            <div class="techno-tab" data-tab="register">Registrarse</div>
+    <div class="techno-container">
+        <div class="techno-card">
+            <div class="techno-logo">
+                <img src="https://placehold.co/80x80/ff007a/ffffff?text=VG" alt="VirtualGIF Logo" class="logo-image">
+                <h1>VirtualGIF</h1>
+                <p>Ingresa a tu cuenta</p>
+            </div>
+            
+            <div class="techno-tabs">
+                <button class="techno-tab active" data-tab="login">Iniciar Sesión</button>
+                <button class="techno-tab" data-tab="register">Registrarse</button>
+            </div>
+
+            <div class="techno-form-container active" id="login-form">
+                <div class="techno-form-group">
+                    <label for="login-email">Correo electrónico</label>
+                    <input type="email" id="login-email" placeholder="tu@email.com" required>
+                    <div class="error-message" id="login-email-error"></div>
+                </div>
+                
+                <div class="techno-form-group">
+                    <label for="login-password">Contraseña</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                    <div class="error-message" id="login-password-error"></div>
+                </div>
+                
+                <div class="techno-form-options">
+                    <a href="#" id="forgot-password" class="techno-link">¿Olvidaste tu contraseña?</a>
+                </div>
+                
+                <button id="login-btn" class="techno-btn techno-btn-primary">
+                    <span class="btn-text">Iniciar sesión</span>
+                    <span class="btn-loading" aria-hidden="true"></span>
+                </button>
+                
+                <div class="techno-separator"><span>o</span></div>
+                
+                <div class="social-buttons-container">
+                    <button class="techno-social-btn google" id="google-login">
+                        <span class="techno-social-icon">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16.5 9.18179C16.5 8.54998 16.4455 7.94089 16.3455 7.36359H9V10.845H13.2455C13.035 11.97 12.3455 12.9232 11.3 13.5563V15.5636H13.9636C15.4682 14.1682 16.5 11.9918 16.5 9.18179Z" fill="#4285F4" />
+                                <path d="M9 17C11.235 17 13.1182 16.2445 14.4636 14.9636L11.8 12.9563C11.0636 13.4563 10.1091 13.7727 9 13.7727C6.88182 13.7727 5.10909 12.3454 4.49091 10.4272H1.71818V12.4909C3.10909 15.2182 5.82727 17 9 17Z" fill="#34A853" />
+                                <path d="M4.49091 10.4273C4.29091 9.82727 4.18182 9.18182 4.18182 8.5C4.18182 7.81818 4.29091 7.17273 4.49091 6.57273V4.50909H1.71818C1.00909 5.99091 0.5 7.68182 0.5 9.5C0.5 11.3182 1.00909 13.0091 1.71818 14.4909L4.49091 12.4273V10.4273Z" fill="#FBBC05" />
+                                <path d="M9 3.22727C10.1909 3.22727 11.2545 3.62727 12.1091 4.39091L14.5273 1.97273C13.1091 0.663636 11.2273 0 9 0C5.82727 0 3.10909 1.78182 1.71818 4.50909L4.49091 6.57273C5.10909 4.65455 6.88182 3.22727 9 3.22727Z" fill="#EA4335" />
+                            </svg>
+                        </span>
+                        Continuar con Google
+                    </button>
+                    
+                    <button class="techno-social-btn facebook" id="facebook-login">
+                        <span class="techno-social-icon">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17 9.05556C17 4.55556 13.3333 1 9 1C4.66667 1 1 4.55556 1 9.05556C1 13.1667 4.05556 16.5556 8.05556 17V11.5H5.83333V9.05556H8.05556V7.11111C8.05556 4.94444 9.38889 3.72222 11.3333 3.72222C12.2778 3.72222 13.2778 3.88889 13.2778 3.88889V5.88889H12.1667C11.0556 5.88889 10.7222 6.55556 10.7222 7.22222V9.05556H13.1667L12.7778 11.5H10.7222V17C14.7222 16.5556 17 13.1667 17 9.05556Z" fill="#1877F2" />
+                            </svg>
+                        </span>
+                        Continuar con Facebook
+                    </button>
+                </div>
+            </div>
+
+            <div class="techno-form-container" id="register-form">
+                <div class="techno-form-group">
+                    <label for="username">Nombre de usuario</label>
+                    <input type="text" id="username" placeholder="Elige un nombre de usuario" required>
+                    <div class="error-message" id="username-error"></div>
+                </div>
+                
+                <div class="techno-form-group">
+                    <label for="email">Correo electrónico</label>
+                    <input type="email" id="email" placeholder="tu@email.com" required>
+                    <div class="error-message" id="email-error"></div>
+                </div>
+                
+                <div class="techno-form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" placeholder="Crea una contraseña segura" required>
+                    <div class="techno-password-strength">
+                        <div class="techno-password-bar" id="password-strength-bar"></div>
+                    </div>
+                    <div class="password-strength-text" id="password-strength-text"></div>
+                    <div class="error-message" id="password-error"></div>
+                </div>
+                
+                <div class="techno-form-group">
+                    <label for="confirm-password">Confirmar contraseña</label>
+                    <input type="password" id="confirm-password" placeholder="Repite tu contraseña" required>
+                    <div class="error-message" id="confirm-password-error"></div>
+                </div>
+                
+                <div class="techno-terms">
+                    <input type="checkbox" id="terms" required>
+                    <label for="terms">Acepto los <a href="#" class="techno-link">términos y condiciones</a></label>
+                    <div class="error-message" id="terms-error"></div>
+                </div>
+                
+                <button id="register-btn" class="techno-btn techno-btn-primary">
+                    <span class="btn-text">Crear cuenta</span>
+                    <span class="btn-loading" aria-hidden="true"></span>
+                </button>
+                
+                <div class="techno-separator"><span>o</span></div>
+                
+                <div class="social-buttons-container">
+                    <button class="techno-social-btn google" id="google-register">
+                        <span class="techno-social-icon">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M16.5 9.18179C16.5 8.54998 16.4455 7.94089 16.3455 7.36359H9V10.845H13.2455C13.035 11.97 12.3455 12.9232 11.3 13.5563V15.5636H13.9636C15.4682 14.1682 16.5 11.9918 16.5 9.18179Z" fill="#4285F4" />
+                                <path d="M9 17C11.235 17 13.1182 16.2445 14.4636 14.9636L11.8 12.9563C11.0636 13.4563 10.1091 13.7727 9 13.7727C6.88182 13.7727 5.10909 12.3454 4.49091 10.4272H1.71818V12.4909C3.10909 15.2182 5.82727 17 9 17Z" fill="#34A853" />
+                                <path d="M4.49091 10.4273C4.29091 9.82727 4.18182 9.18182 4.18182 8.5C4.18182 7.81818 4.29091 7.17273 4.49091 6.57273V4.50909H1.71818C1.00909 5.99091 0.5 7.68182 0.5 9.5C0.5 11.3182 1.00909 13.0091 1.71818 14.4909L4.49091 12.4273V10.4273Z" fill="#FBBC05" />
+                                <path d="M9 3.22727C10.1909 3.22727 11.2545 3.62727 12.1091 4.39091L14.5273 1.97273C13.1091 0.663636 11.2273 0 9 0C5.82727 0 3.10909 1.78182 1.71818 4.50909L4.49091 6.57273C5.10909 4.65455 6.88182 3.22727 9 3.22727Z" fill="#EA4335" />
+                            </svg>
+                        </span>
+                        Registrarse con Google
+                    </button>
+                    
+                    <button class="techno-social-btn facebook" id="facebook-register">
+                        <span class="techno-social-icon">
+                            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M17 9.05556C17 4.55556 13.3333 1 9 1C4.66667 1 1 4.55556 1 9.05556C1 13.1667 4.05556 16.5556 8.05556 17V11.5H5.83333V9.05556H8.05556V7.11111C8.05556 4.94444 9.38889 3.72222 11.3333 3.72222C12.2778 3.72222 13.2778 3.88889 13.2778 3.88889V5.88889H12.1667C11.0556 5.88889 10.7222 6.55556 10.7222 7.22222V9.05556H13.1667L12.7778 11.5H10.7222V17C14.7222 16.5556 17 13.1667 17 9.05556Z" fill="#1877F2" />
+                            </svg>
+                        </span>
+                        Registrarse con Facebook
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- Login Form -->
-        <div class="techno-form-container active" id="login-form">
-            <div class="techno-form-group">
-                <label for="login-email">Correo electrónico</label>
-                <input type="email" id="login-email" placeholder="tu@email.com" required>
-                <div class="error-message" id="login-email-error"></div>
-            </div>
-            <div class="techno-form-group">
-                <label for="login-password">Contraseña</label>
-                <input type="password" id="login-password" placeholder="••••••••" required>
-                <div class="error-message" id="login-password-error"></div>
-            </div>
-            <div class="techno-form-options"><a href="#" id="forgot-password" class="techno-link">¿Olvidaste tu contraseña?</a></div>
-            <button id="login-btn" class="techno-btn techno-btn-primary">
-                <span class="btn-text">Iniciar sesión</span>
-                <span class="btn-loading" aria-hidden="true"></span>
-            </button>
-            <div class="techno-separator"><span>o</span></div>
-            <div class="social-buttons-container">
-                <button class="techno-social-btn google" id="google-login">
-                    <span class="techno-social-icon">
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16.5 9.18179C16.5 8.54998 16.4455 7.94089 16.3455 7.36359H9V10.845H13.2455C13.035 11.97 12.3455 12.9232 11.3 13.5563V15.5636H13.9636C15.4682 14.1682 16.5 11.9918 16.5 9.18179Z" fill="#4285F4"/>
-                            <path d="M9 17C11.235 17 13.1182 16.2445 14.4636 14.9636L11.8 12.9563C11.0636 13.4563 10.1091 13.7727 9 13.7727C6.88182 13.7727 5.10909 12.3454 4.49091 10.4272H1.71818V12.4909C3.10909 15.2182 5.82727 17 9 17Z" fill="#34A853"/>
-                            <path d="M4.49091 10.4273C4.29091 9.82727 4.18182 9.18182 4.18182 8.5C4.18182 7.81818 4.29091 7.17273 4.49091 6.57273V4.50909H1.71818C1.00909 5.99091 0.5 7.68182 0.5 9.5C0.5 11.3182 1.00909 13.0091 1.71818 14.4909L4.49091 12.4273V10.4273Z" fill="#FBBC05"/>
-                            <path d="M9 3.22727C10.1909 3.22727 11.2545 3.62727 12.1091 4.39091L14.5273 1.97273C13.1091 0.663636 11.2273 0 9 0C5.82727 0 3.10909 1.78182 1.71818 4.50909L4.49091 6.57273C5.10909 4.65455 6.88182 3.22727 9 3.22727Z" fill="#EA4335"/>
-                        </svg>
-                    </span>
-                    Continuar con Google
-                </button>
-                <button class="techno-social-btn facebook" id="facebook-login">
-                    <span class="techno-social-icon">
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M17 9.05556C17 4.55556 13.3333 1 9 1C4.66667 1 1 4.55556 1 9.05556C1 13.1667 4.05556 16.5556 8.05556 17V11.5H5.83333V9.05556H8.05556V7.11111C8.05556 4.94444 9.38889 3.72222 11.3333 3.72222C12.2778 3.72222 13.2778 3.88889 13.2778 3.88889V5.88889H12.1667C11.0556 5.88889 10.7222 6.55556 10.7222 7.22222V9.05556H13.1667L12.7778 11.5H10.7222V17C14.7222 16.5556 17 13.1667 17 9.05556Z" fill="#1877F2"/>
-                        </svg>
-                    </span>
-                    Continuar con Facebook
-                </button>
-            </div>
-        </div>
-
-        <!-- Register Form -->
-        <div class="techno-form-container" id="register-form">
-            <div class="techno-form-group"><label for="username">Nombre de usuario</label><input type="text" id="username" placeholder="Elige un nombre de usuario" required><div class="error-message" id="username-error"></div></div>
-            <div class="techno-form-group"><label for="email">Correo electrónico</label><input type="email" id="email" placeholder="tu@email.com" required><div class="error-message" id="email-error"></div></div>
-            <div class="techno-form-group"><label for="password">Contraseña</label><input type="password" id="password" placeholder="Crea una contraseña segura" required><div class="techno-password-strength"><div class="techno-password-bar" id="password-strength-bar"></div></div><div class="password-strength-text" id="password-strength-text"></div><div class="error-message" id="password-error"></div></div>
-            <div class="techno-form-group"><label for="confirm-password">Confirmar contraseña</label><input type="password" id="confirm-password" placeholder="Repite tu contraseña" required><div class="error-message" id="confirm-password-error"></div></div>
-            <div class="techno-terms"><input type="checkbox" id="terms" required><label for="terms">Acepto los <a href="#" class="techno-link">términos y condiciones</a></label><div class="error-message" id="terms-error"></div></div>
-            <button id="register-btn" class="techno-btn techno-btn-primary">
-                <span class="btn-text">Crear cuenta</span>
-                <span class="btn-loading" aria-hidden="true"></span>
-            </button>
-            <div class="techno-separator"><span>o</span></div>
-            <div class="social-buttons-container">
-                <button class="techno-social-btn google" id="google-register">
-                    <span class="techno-social-icon">
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M16.5 9.18179C16.5 8.54998 16.4455 7.94089 16.3455 7.36359H9V10.845H13.2455C13.035 11.97 12.3455 12.9232 11.3 13.5563V15.5636H13.9636C15.4682 14.1682 16.5 11.9918 16.5 9.18179Z" fill="#4285F4"/>
-                            <path d="M9 17C11.235 17 13.1182 16.2445 14.4636 14.9636L11.8 12.9563C11.0636 13.4563 10.1091 13.7727 9 13.7727C6.88182 13.7727 5.10909 12.3454 4.49091 10.4272H1.71818V12.4909C3.10909 15.2182 5.82727 17 9 17Z" fill="#34A853"/>
-                            <path d="M4.49091 10.4273C4.29091 9.82727 4.18182 9.18182 4.18182 8.5C4.18182 7.81818 4.29091 7.17273 4.49091 6.57273V4.50909H1.71818C1.00909 5.99091 0.5 7.68182 0.5 9.5C0.5 11.3182 1.00909 13.0091 1.71818 14.4909L4.49091 12.4273V10.4273Z" fill="#FBBC05"/>
-                            <path d="M9 3.22727C10.1909 3.22727 11.2545 3.62727 12.1091 4.39091L14.5273 1.97273C13.1091 0.663636 11.2273 0 9 0C5.82727 0 3.10909 1.78182 1.71818 4.50909L4.49091 6.57273C5.10909 4.65455 6.88182 3.22727 9 3.22727Z" fill="#EA4335"/>
-                        </svg>
-                    </span>
-                    Registrarse con Google
-                </button>
-                <button class="techno-social-btn facebook" id="facebook-register">
-                    <span class="techno-social-icon">
-                        <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M17 9.05556C17 4.55556 13.3333 1 9 1C4.66667 1 1 4.55556 1 9.05556C1 13.1667 4.05556 16.5556 8.05556 17V11.5H5.83333V9.05556H8.05556V7.11111C8.05556 4.94444 9.38889 3.72222 11.3333 3.72222C12.2778 3.72222 13.2778 3.88889 13.2778 3.88889V5.88889H12.1667C11.0556 5.88889 10.7222 6.55556 10.7222 7.22222V9.05556H13.1667L12.7778 11.5H10.7222V17C14.7222 16.5556 17 13.1667 17 9.05556Z" fill="#1877F2"/>
-                        </svg>
-                    </span>
-                    Registrarse con Facebook
-                </button>
+        <div class="techno-footer">
+            <p>© 2026 VirtualGIF</p>
+            <div class="techno-footer-links">
+                <a href="#" class="techno-link">Términos & Condiciones</a>
+                <a href="#" class="techno-link" target="_self">Política de Privacidad</a>
             </div>
         </div>
     </div>
 
-    <div class="techno-footer"><p>© 2026 VirtualGIF</p><div class="techno-footer-links"><a href="#" class="techno-link">Términos & Condiciones</a><a href="https://www.e-droid.net/privacy.php?ida=3697656&idl=es" class="techno-link" target="_self">Política de Privacidad</a></div></div>
-</div>
-
-<!-- Modales -->
-<div id="email-verification-container" class="modal"><div class="modal-content"><button class="modal-close">&times;</button><h3>Verifica tu email</h3><p>Hemos enviado un enlace de verificación a tu correo electrónico.</p><button id="resend-verification" class="techno-btn techno-btn-primary">Reenviar verificación</button><button id="continue-to-dashboard" class="techno-btn techno-btn-secondary">Ya verifiqué mi email</button></div></div>
-<div id="recovery-container" class="modal"><div class="modal-content"><button class="modal-close">&times;</button><h3>Recuperar Contraseña</h3><div class="techno-form-group"><label for="recovery-email">Correo electrónico</label><input type="email" id="recovery-email" placeholder="tu@email.com" required><div class="error-message" id="recovery-email-error"></div></div><button id="send-recovery-email" class="techno-btn techno-btn-primary">Enviar enlace</button><button id="cancel-recovery" class="techno-btn techno-btn-secondary">Cancelar</button></div></div>
-
-<div id="notification" class="notification"></div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const $ = id => document.getElementById(id);
-    const qs = sel => document.querySelector(sel);
-    const qsa = sel => document.querySelectorAll(sel);
-
-    const tabs = qsa('.techno-tab'), loginForm=$('login-form'), registerForm=$('register-form'), recoveryModal=$('recovery-container'), notification=$('notification');
+    <div id="email-verification-container" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h3>Verifica tu email</h3>
+            <p>Hemos enviado un enlace de verificación a tu correo electrónico.</p>
+            <button id="resend-verification" class="techno-btn techno-btn-primary">Reenviar verificación</button>
+            <button id="continue-to-dashboard" class="techno-btn techno-btn-secondary">Ya verifiqué mi email</button>
+        </div>
+    </div>
     
-    // Variable para la redirección
-    let targetUrl = "index.html"; // Valor por defecto
+    <div id="recovery-container" class="modal">
+        <div class="modal-content">
+            <button class="modal-close">&times;</button>
+            <h3>Recuperar Contraseña</h3>
+            <div class="techno-form-group">
+                <label for="recovery-email">Correo electrónico</label>
+                <input type="email" id="recovery-email" placeholder="tu@email.com" required>
+                <div class="error-message" id="recovery-email-error"></div>
+            </div>
+            <button id="send-recovery-email" class="techno-btn techno-btn-primary">Enviar enlace</button>
+            <button id="cancel-recovery" class="techno-btn techno-btn-secondary">Cancelar</button>
+        </div>
+    </div>
 
-    // Cambiar pestañas
-    tabs.forEach(tab=>tab.addEventListener('click', ()=>{
-        tabs.forEach(t=>t.classList.remove('active')); 
-        tab.classList.add('active');
-        loginForm.classList.toggle('active', tab.dataset.tab==='login');
-        registerForm.classList.toggle('active', tab.dataset.tab==='register');
-    }));
+    <div id="notification" class="notification"></div>
 
-    // Modales
-    qs('#forgot-password')?.addEventListener('click', e=>{
-        e.preventDefault(); 
-        recoveryModal.classList.add('active');
-    });
-    
-    $('cancel-recovery')?.addEventListener('click', ()=>recoveryModal.classList.remove('active'));
-    qsa('.modal-close').forEach(btn=>btn.addEventListener('click', ()=>btn.closest('.modal').classList.remove('active')));
-    window.addEventListener('click', e=>e.target.classList.contains('modal')&&e.target.classList.remove('active'));
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const $ = id => document.getElementById(id);
+            const qs = sel => document.querySelector(sel);
+            const qsa = sel => document.querySelectorAll(sel);
 
-    // Fortaleza contraseña
-    const passwordInput=$('password'), strengthBar=$('password-strength-bar'), strengthText=$('password-strength-text');
-    passwordInput?.addEventListener('input', ()=>{
-        const val=passwordInput.value, s=[val.length>=8, /([a-z].*[A-Z])|([A-Z].*[a-z])/.test(val), /[0-9]/.test(val), /[!,@,#,$,%,^,&,*,?,_,~]/.test(val), val.length>12].filter(Boolean).length*20;
-        strengthBar.style.width=s+'%';
-        const msg=s<40?'Débil':s<80?'Mediana':'Fuerte';
-        strengthBar.style.background=s<40?'#ff4b2b':s<80?'#ff7a18':'#2bff4b';
-        strengthText.textContent=msg;
-    });
+            const tabs = qsa('.techno-tab'), 
+                  loginForm = $('login-form'), 
+                  registerForm = $('register-form'), 
+                  recoveryModal = $('recovery-container'), 
+                  notification = $('notification');
 
-    const validateField=(id,errorId,fn)=>{
-        const el=$(id), err=$(errorId), r=fn(el.value);
-        if(r.isValid){err.style.display='none'; el.classList.remove('error'); return true;}
-        err.textContent=r.message; err.style.display='block'; el.classList.add('error'); return false;
-    };
+            // Cambiar pestañas
+            tabs.forEach(tab => tab.addEventListener('click', () => {
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                loginForm.classList.toggle('active', tab.dataset.tab === 'login');
+                registerForm.classList.toggle('active', tab.dataset.tab === 'register');
+            }));
 
-    const emailValidation=value=>{const re=/^[^\s@]+@[^\s@]+\.[^\s@]+$/; if(!value.trim())return {isValid:false,message:'El correo electrónico es requerido'}; if(!re.test(value))return {isValid:false,message:'Formato de correo inválido'}; return {isValid:true};};
+            // Modales
+            qs('#forgot-password')?.addEventListener('click', e => {
+                e.preventDefault();
+                recoveryModal.classList.add('active');
+            });
 
-    const showNotification=(msg,type='info')=>{
-        const c={'success':'linear-gradient(90deg,#2bff4b,#00c9ff)','error':'linear-gradient(90deg,#ff4b2b,#ff416c)','info':'linear-gradient(90deg,var(--primary-color),var(--secondary-color))'}; 
-        notification.textContent=msg; 
-        notification.style.background=c[type]||c.info; 
-        notification.style.display='block'; 
-        setTimeout(()=>notification.style.display='none',3000);
-    };
+            $('cancel-recovery')?.addEventListener('click', () => recoveryModal.classList.remove('active'));
+            qsa('.modal-close').forEach(btn => btn.addEventListener('click', () => btn.closest('.modal').classList.remove('active')));
+            window.addEventListener('click', e => e.target.classList.contains('modal') && e.target.classList.remove('active'));
 
-    const setLoading = (btn, isLoading) => {
-        if (isLoading) {
-            btn.classList.add('loading');
-            btn.disabled = true;
-        } else {
-            btn.classList.remove('loading');
-            btn.disabled = false;
-        }
-    };
+            // Fortaleza contraseña
+            const passwordInput = $('password'), 
+                  strengthBar = $('password-strength-bar'), 
+                  strengthText = $('password-strength-text');
+                  
+            passwordInput?.addEventListener('input', () => {
+                const val = passwordInput.value, 
+                      s = [val.length >= 8, 
+                           /([a-z].*[A-Z])|([A-Z].*[a-z])/.test(val), 
+                           /[0-9]/.test(val), 
+                           /[!,@,#,$,%,^,&,*,?,_,~]/.test(val), 
+                           val.length > 12].filter(Boolean).length * 20;
+                strengthBar.style.width = s + '%';
+                const msg = s < 40 ? 'Débil' : s < 80 ? 'Mediana' : 'Fuerte';
+                strengthBar.style.background = s < 40 ? '#ff4b2b' : s < 80 ? '#ff7a18' : '#2bff4b';
+                strengthText.textContent = msg;
+            });
 
-    $('register-btn')?.addEventListener('click', ()=>{
-        const v=[validateField('username','username-error',v=>v.trim()?{isValid:true}:{isValid:false,message:'El nombre de usuario es requerido'}),
-                 validateField('email','email-error',emailValidation),
-                 validateField('password','password-error',v=>v.length>=8?{isValid:true}:{isValid:false,message:'Mínimo 8 caracteres'}),
-                 validateField('confirm-password','confirm-password-error',v=>v===$('password').value?{isValid:true}:{isValid:false,message:'Contraseñas no coinciden'})];
+            const validateField = (id, errorId, fn) => {
+                const el = $(id), err = $(errorId), r = fn(el.value);
+                if (r.isValid) { 
+                    err.style.display = 'none'; 
+                    el.classList.remove('error'); 
+                    return true; 
+                }
+                err.textContent = r.message; 
+                err.style.display = 'block'; 
+                el.classList.add('error'); 
+                return false;
+            };
 
-        const terms=$('terms'), tErr=$('terms-error');
-        if(!terms.checked){tErr.textContent='Debes aceptar los términos'; tErr.style.display='block'; v.push(false);} else tErr.style.display='none';
-        if(v.every(v=>v===true)) {
-            setLoading($('register-btn'), true);
-            setTimeout(() => {
-                $('email-verification-container').classList.add('active');
-                showNotification('¡Cuenta creada con éxito! Verifica tu email.','success');
-                setLoading($('register-btn'), false);
-            }, 1500);
-        }
-    });
+            const emailValidation = value => { 
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; 
+                if (!value.trim()) return { isValid: false, message: 'El correo electrónico es requerido' }; 
+                if (!re.test(value)) return { isValid: false, message: 'Formato de correo inválido' }; 
+                return { isValid: true }; 
+            };
 
-    // LOGIN CORREGIDO - con redirección dinámica
-    $('login-btn')?.addEventListener('click', ()=>{
-        // OBTENER EL PARÁMETRO REDIRECT DENTRO DEL CLICK
-        const urlParams = new URLSearchParams(window.location.search);
-        const redirectParam = urlParams.get('redirect');
-        
-        if (redirectParam) {
-            targetUrl = redirectParam;
-            console.log("Redirección detectada:", targetUrl);
-        } else {
-            targetUrl = "index.html";
-            console.log("Redirección por defecto:", targetUrl);
-        }
-        
-        const v=[validateField('login-email','login-email-error',emailValidation),
-                 validateField('login-password','login-password-error',v=>v?{isValid:true}:{isValid:false,message:'Contraseña requerida'})];
-        if(v.every(v=>v===true)) {
-            setLoading($('login-btn'), true);
-            setTimeout(() => {
-                showNotification('Inicio de sesión exitoso','success');
-                setLoading($('login-btn'), false);
+            const showNotification = (msg, type = 'info') => {
+                const c = { 
+                    'success': 'linear-gradient(90deg,#2bff4b,#00c9ff)', 
+                    'error': 'linear-gradient(90deg,#ff4b2b,#ff416c)', 
+                    'info': 'linear-gradient(90deg,var(--primary-color),var(--secondary-color))' 
+                };
+                notification.textContent = msg;
+                notification.style.background = c[type] || c.info;
+                notification.style.display = 'block';
+                setTimeout(() => notification.style.display = 'none', 3000);
+            };
+
+            const setLoading = (btn, isLoading) => {
+                if (isLoading) {
+                    btn.classList.add('loading');
+                    btn.disabled = true;
+                } else {
+                    btn.classList.remove('loading');
+                    btn.disabled = false;
+                }
+            };
+
+            $('register-btn')?.addEventListener('click', () => {
+                const v = [
+                    validateField('username', 'username-error', v => v.trim() ? { isValid: true } : { isValid: false, message: 'El nombre de usuario es requerido' }),
+                    validateField('email', 'email-error', emailValidation),
+                    validateField('password', 'password-error', v => v.length >= 8 ? { isValid: true } : { isValid: false, message: 'Mínimo 8 caracteres' }),
+                    validateField('confirm-password', 'confirm-password-error', v => v === $('password').value ? { isValid: true } : { isValid: false, message: 'Contraseñas no coinciden' })
+                ];
+
+                const terms = $('terms'), tErr = $('terms-error');
+                if (!terms.checked) { 
+                    tErr.textContent = 'Debes aceptar los términos'; 
+                    tErr.style.display = 'block'; 
+                    v.push(false); 
+                } else {
+                    tErr.style.display = 'none';
+                }
                 
-                setTimeout(() => {
-                    console.log("Ejecutando redirección a:", targetUrl);
-                    window.location.href = targetUrl;
-                }, 500);
-            }, 1500);
-        }
-    });
+                if (v.every(v => v === true)) {
+                    setLoading($('register-btn'), true);
+                    setTimeout(() => {
+                        $('email-verification-container').classList.add('active');
+                        showNotification('¡Cuenta creada con éxito! Verifica tu email.', 'success');
+                        setLoading($('register-btn'), false);
+                    }, 1500);
+                }
+            });
 
-    $('continue-to-dashboard')?.addEventListener('click', ()=>{$('email-verification-container').classList.remove('active'); showNotification('¡Bienvenido a VirtualGIF!','success');});
-    $('resend-verification')?.addEventListener('click', ()=>showNotification('Email de verificación reenviado','success'));
+            // LOGIN
+            document.getElementById('login-btn')?.addEventListener('click', () => {
+                const v = [
+                    validateField('login-email', 'login-email-error', emailValidation),
+                    validateField('login-password', 'login-password-error', v => v ? { isValid: true } : { isValid: false, message: 'Contraseña requerida' })
+                ];
 
-    $('send-recovery-email')?.addEventListener('click', ()=>{
-        const email=$('recovery-email'), err=$('recovery-email-error'), r=email.value.trim(), re=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if(!r){err.textContent='El correo electrónico es requerido'; err.style.display='block'; email.classList.add('error');}
-        else if(!re.test(r)){err.textContent='Formato inválido'; err.style.display='block'; email.classList.add('error');}
-        else{
-            err.style.display='none'; 
-            email.classList.remove('error'); 
-            setLoading($('send-recovery-email'), true);
-            setTimeout(() => {
-                showNotification('Email de recuperación enviado','success'); 
-                recoveryModal.classList.remove('active');
-                setLoading($('send-recovery-email'), false);
-            }, 1500);
-        }
-    });
-});
-</script>
+                // Simulación de un login exitoso
+                const emailInput = document.getElementById('login-email').value;
+                const passwordInput = document.getElementById('login-password').value;
+
+                // VALIDACIÓN DE EJEMPLO
+                const usuarioEjemplo = "test@virtualgift.com";
+                const passEjemplo = "123456";
+
+                if (v.every(v => v === true) && emailInput === usuarioEjemplo && passwordInput === passEjemplo) {
+                    setLoading(document.getElementById('login-btn'), true);
+
+                    setTimeout(() => {
+                        showNotification('Inicio de sesión exitoso', 'success');
+                        setLoading(document.getElementById('login-btn'), false);
+
+                        setTimeout(() => {
+                            // Redirige a la sección 'Inicio' de tu app
+                            alert("Redirigiendo a la app...");
+                            // window.location.href = "go:Inicio";
+                        }, 500);
+                    }, 1500);
+                } else {
+                    showNotification('Correo o contraseña incorrectos', 'error');
+                }
+            });
+
+            $('continue-to-dashboard')?.addEventListener('click', () => { 
+                $('email-verification-container').classList.remove('active'); 
+                showNotification('¡Bienvenido a VirtualGIF!', 'success'); 
+            });
+            
+            $('resend-verification')?.addEventListener('click', () => {
+                showNotification('Email de verificación reenviado', 'success');
+            });
+
+            $('send-recovery-email')?.addEventListener('click', () => {
+                const email = $('recovery-email'), 
+                      err = $('recovery-email-error'), 
+                      r = email.value.trim(), 
+                      re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                
+                if (!r) { 
+                    err.textContent = 'El correo electrónico es requerido'; 
+                    err.style.display = 'block'; 
+                    email.classList.add('error'); 
+                } else if (!re.test(r)) { 
+                    err.textContent = 'Formato inválido'; 
+                    err.style.display = 'block'; 
+                    email.classList.add('error'); 
+                } else {
+                    err.style.display = 'none';
+                    email.classList.remove('error');
+                    setLoading($('send-recovery-email'), true);
+                    
+                    setTimeout(() => {
+                        showNotification('Email de recuperación enviado', 'success');
+                        recoveryModal.classList.remove('active');
+                        setLoading($('send-recovery-email'), false);
+                    }, 1500);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
