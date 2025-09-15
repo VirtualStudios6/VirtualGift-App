@@ -11,7 +11,7 @@
   --text-muted: #94a3b8;
   --border: #334155;
   --error: #f43f5e;
-  
+
   /* Espaciado */
   --spacing-xs: 5px;
   --spacing-sm: 10px;
@@ -19,11 +19,11 @@
   --spacing-lg: 20px;
   --spacing-xl: 25px;
   --spacing-2xl: 30px;
-  
+
   /* Bordes */
   --border-radius: 12px;
   --border-radius-lg: 22px;
-  
+
   /* Sombras */
   --shadow-card: 0 8px 40px rgba(0,0,0,0.6);
   --shadow-recovery: 0 8px 30px rgba(0,0,0,0.5);
@@ -434,8 +434,35 @@ footer {
   }
 }
 
-/* Responsive */
-@container (max-width: 350px) {
+/* --- Cambios para el Responsive --- */
+
+/* Ajusta el padding de la tarjeta para pantallas pequeñas */
+@media (max-width: 480px) {
+  .auth-card {
+    padding: var(--spacing-xl) var(--spacing-md);
+  }
+  
+  body {
+    padding: var(--spacing-sm);
+  }
+}
+
+/* Ajusta los botones sociales y el divisor para más espacio */
+.divider {
+  text-align: center;
+  margin: var(--spacing-lg) 0; /* Mayor espacio arriba y abajo */
+  position: relative;
+}
+
+.social-login {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md); /* Aumento de espacio entre los botones */
+  margin-top: var(--spacing-md); /* Separación del divisor */
+}
+
+/* Responsive del footer */
+@media (max-width: 350px) {
   .recovery-buttons {
     flex-direction: column;
   }
@@ -443,16 +470,6 @@ footer {
   .footer-links {
     flex-direction: column;
     gap: var(--spacing-xs);
-  }
-}
-
-@media (max-width: 480px) {
-  .auth-card {
-    padding: var(--spacing-lg);
-  }
-  
-  body {
-    padding: var(--spacing-sm);
   }
 }
 
