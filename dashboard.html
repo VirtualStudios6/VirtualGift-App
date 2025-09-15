@@ -1,178 +1,212 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VirtualGIF - Dashboard</title>
-    <link rel="stylesheet" href="css/dashboard.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VirtualGift - Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
-    <div class="dashboard-container">
-        <!-- Header -->
-        <header class="dashboard-header">
-            <div class="header-left">
-                <h1>VirtualGIF</h1>
-                <p>Sistema de Recompensas</p>
-            </div>
-            <div class="header-right">
-                <div class="user-welcome">
-                    <span>Hola, <strong id="user-display-name">Usuario</strong></span>
-                    <button id="logout-btn" class="btn-logout">Cerrar sesión</button>
-                </div>
-            </div>
-        </header>
+  <div class="dashboard-container">
 
-        <!-- Panel de usuario -->
-        <section class="user-panel">
-            <div class="user-stats">
-                <div class="stat-card">
-                    <div class="stat-icon">🎯</div>
-                    <div class="stat-info">
-                        <h3 id="user-points">0</h3>
-                        <p>Puntos acumulados</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">📊</div>
-                    <div class="stat-info">
-                        <h3 id="user-level">1</h3>
-                        <p>Nivel actual</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">🏆</div>
-                    <div class="stat-info">
-                        <h3 id="user-rank">#0</h3>
-                        <p>Ranking global</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="progress-container">
-                <h3>Progreso al siguiente nivel</h3>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="level-progress"></div>
-                </div>
-                <span class="progress-text" id="progress-text">0/100 puntos</span>
-            </div>
-        </section>
-
-        <!-- Sistema de recompensas -->
-        <section class="rewards-section">
-            <h2>Gana Puntos</h2>
-            <div class="rewards-grid">
-                <div class="reward-card">
-                    <div class="reward-icon">📺</div>
-                    <h3>Ver Anuncios</h3>
-                    <p>Gana 25 puntos por cada anuncio visto</p>
-                    <button class="btn-reward" id="watch-ad-btn">Ver Anuncio</button>
-                    <div class="ad-progress-container">
-                        <div class="ad-progress-bar">
-                            <div class="ad-progress-fill" id="ad-progress"></div>
-                        </div>
-                        <span id="ad-timer">30s</span>
-                    </div>
-                </div>
-
-                <div class="reward-card">
-                    <div class="reward-icon">📱</div>
-                    <h3>App Móvil</h3>
-                    <p>Instala nuestra app y gana 100 puntos</p>
-                    <button class="btn-reward" id="install-app-btn">Instalar App</button>
-                </div>
-
-                <div class="reward-card">
-                    <div class="reward-icon">👥</div>
-                    <h3>Referir Amigos</h3>
-                    <p>Gana 50 puntos por cada amigo referido</p>
-                    <button class="btn-reward" id="refer-friend-btn">Referir Amigo</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tienda de recompensas -->
-        <section class="store-section">
-            <h2>Canjea Tus Puntos</h2>
-            <div class="store-grid" id="rewards-store">
-                <!-- Las recompensas se cargarán dinámicamente -->
-                <div class="store-item">
-                    <div class="store-item-icon">🎁</div>
-                    <h3>GIF Exclusivo</h3>
-                    <p>Desbloquea un GIF exclusivo para tu perfil</p>
-                    <div class="store-item-cost">150 puntos</div>
-                    <button class="btn-redeem">Canjear</button>
-                </div>
-                <div class="store-item">
-                    <div class="store-item-icon">⭐</div>
-                    <h3>Estrellas Doradas</h3>
-                    <p>Paquete de estrellas doradas para tus GIFs</p>
-                    <div class="store-item-cost">250 puntos</div>
-                    <button class="btn-redeem">Canjear</button>
-                </div>
-                <div class="store-item">
-                    <div class="store-item-icon">🚀</div>
-                    <h3>Boost de Visibilidad</h3>
-                    <p>Aumenta la visibilidad de tus GIFs por 24h</p>
-                    <div class="store-item-cost">500 puntos</div>
-                    <button class="btn-redeem">Canjear</button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Historial de actividades -->
-        <section class="activity-section">
-            <h2>Tu Actividad Reciente</h2>
-            <div class="activity-list" id="activity-list">
-                <!-- Las actividades se cargarán dinámicamente -->
-                <div class="activity-item">
-                    <div class="activity-content">
-                        <div class="activity-icon">📺</div>
-                        <div class="activity-text">Viste un anuncio y ganaste 25 puntos</div>
-                    </div>
-                    <div class="activity-points positive">+25</div>
-                    <div class="activity-date">Hace 2 horas</div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-content">
-                        <div class="activity-icon">👥</div>
-                        <div class="activity-text">Referiste a un amigo y ganaste 50 puntos</div>
-                    </div>
-                    <div class="activity-points positive">+50</div>
-                    <div class="activity-date">Ayer</div>
-                </div>
-                <div class="activity-item">
-                    <div class="activity-content">
-                        <div class="activity-icon">🎁</div>
-                        <div class="activity-text">Canjeaste un GIF Exclusivo</div>
-                    </div>
-                    <div class="activity-points negative">-150</div>
-                    <div class="activity-date">Hace 3 días</div>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <!-- Modal para recompensas -->
-    <div class="modal" id="reward-modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2 id="modal-title">Recompensa</h2>
-            <p id="modal-description">Descripción de la recompensa</p>
-            <div class="modal-actions">
-                <button id="modal-cancel" class="btn-secondary">Cancelar</button>
-                <button id="modal-confirm" class="btn-primary">Cerrar</button>
-            </div>
+    <!-- Header -->
+    <header class="dashboard-header">
+      <div class="header-left">
+        <h1>VirtualGift</h1>
+        <p>Sistema de Recompensas</p>
+      </div>
+      <div class="header-right">
+        <div class="user-welcome">
+          <span>Hola, <strong id="user-display-name">capuchina</strong></span>
+          <button id="logout-btn" class="btn">Cerrar sesión</button>
         </div>
-    </div>
+      </div>
+    </header>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    
-    <!-- Nuestros archivos JS -->
-    <script src="js/firebase-config.js"></script>
-    <script src="js/dashboard.js"></script>
-    <script src="js/rewards.js"></script>
+    <!-- Panel de usuario -->
+    <section class="user-panel">
+      <div class="user-stats">
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-info">
+            <h3 id="user-points">100</h3>
+            <p>Puntos acumulados</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📊</div>
+          <div class="stat-info">
+            <h3 id="user-level">1</h3>
+            <p>Nivel actual</p>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🏆</div>
+          <div class="stat-info">
+            <h3 id="user-rank">#0</h3>
+            <p>Ranking global</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="progress-container">
+        <h3>Progreso al siguiente nivel</h3>
+        <div class="progress-bar">
+          <div class="progress-fill" id="level-progress" style="width: 0%"></div>
+        </div>
+        <span class="progress-text" id="progress-text">0/200 puntos</span>
+      </div>
+    </section>
+
+    <!-- Ruleta como enlace -->
+    <section class="wheel-container">
+      <h2>Gira la Ruleta y Gana Puntos</h2>
+      <div class="wheel-preview">
+        <img src="images/ruleta-preview.png" alt="Ruleta de premios" style="width: 150px; height: 150px;">
+      </div>
+      <a href="ruleta.html" class="btn spin-btn">Jugar en la Ruleta</a>
+      <p>Tienes <span id="spins-remaining">3</span> giros restantes hoy</p>
+    </section>
+
+    <!-- Sistema de recompensas -->
+    <section class="rewards-section">
+      <h2>Gana Más Puntos</h2>
+      <div class="rewards-grid">
+        <div class="reward-card">
+          <div class="reward-icon">📺</div>
+          <h3>Ver Anuncios</h3>
+          <p>Gana 25 puntos por cada anuncio visto</p>
+          <button class="btn" id="watch-ad-btn">Ver Anuncio</button>
+        </div>
+
+        <div class="reward-card">
+          <div class="reward-icon">👥</div>
+          <h3>Referir Amigos</h3>
+          <p>Gana 50 puntos por cada amigo referido</p>
+          <button class="btn" id="refer-friend-btn">Referir Amigo</button>
+        </div>
+
+        <div class="reward-card">
+          <div class="reward-icon">✅</div>
+          <h3>Tareas Diarias</h3>
+          <p>Completa tareas y gana hasta 100 puntos</p>
+          <button class="btn" id="daily-tasks-btn">Ver Tareas</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tienda de recompensas -->
+    <section class="store-section">
+      <h2>Canjea Tus Puntos</h2>
+      <div class="store-grid">
+        <div class="store-item">
+          <div class="store-item-icon"><i class="fab fa-paypal"></i></div>
+          <h3>PayPal</h3>
+          <p>$5 USD por 500 puntos</p>
+          <div class="store-item-cost">500 puntos</div>
+          <button class="btn btn-redeem">Canjear</button>
+        </div>
+        
+        <div class="store-item">
+          <div class="store-item-icon"><i class="fas fa-gift"></i></div>
+          <h3>Gift Card Amazon</h3>
+          <p>$10 de regalo para Amazon</p>
+          <div class="store-item-cost">900 puntos</div>
+          <button class="btn btn-redeem">Canjear</button>
+        </div>
+        
+        <div class="store-item">
+          <div class="store-item-icon"><i class="fas fa-ticket-alt"></i></div>
+          <h3>Tarjeta de Regalo</h3>
+          <p>Elige entre múltiples opciones</p>
+          <div class="store-item-cost">750 puntos</div>
+          <button class="btn btn-redeem">Canjear</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Historial de actividades -->
+    <section class="activity-section">
+      <h2>Tu Actividad Reciente</h2>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-content">
+            <div class="activity-icon">🎡</div>
+            <div class="activity-text">Giraste la ruleta y ganaste 25 puntos</div>
+          </div>
+          <div class="activity-points positive">+25</div>
+          <div class="activity-date">Hace 1 hora</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-content">
+            <div class="activity-icon">📺</div>
+            <div class="activity-text">Viste un anuncio y ganaste 25 puntos</div>
+          </div>
+          <div class="activity-points positive">+25</div>
+          <div class="activity-date">Hace 2 horas</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-content">
+            <div class="activity-icon">👥</div>
+            <div class="activity-text">Referiste a un amigo y ganaste 50 puntos</div>
+          </div>
+          <div class="activity-points positive">+50</div>
+          <div class="activity-date">Ayer</div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-content">
+            <div class="activity-icon"><i class="fab fa-paypal"></i></div>
+            <div class="activity-text">Canjeaste puntos por PayPal</div>
+          </div>
+          <div class="activity-points negative">-500</div>
+          <div class="activity-date">Hace 3 días</div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Modal para recompensas -->
+  <div class="modal" id="reward-modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2 id="modal-title">¡Felicidades!</h2>
+      <p id="modal-description">Has ganado 25 puntos girando la ruleta.</p>
+      <div class="modal-actions">
+        <button class="btn" id="modal-confirm">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+  
+  <!-- Nuestros archivos JS -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/rewards.js"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Actualizar barra de progreso
+      const userPoints = parseInt(document.getElementById('user-points').textContent);
+      const progressFill = document.getElementById('level-progress');
+      const progressText = document.getElementById('progress-text');
+      
+      const progressPercentage = Math.min((userPoints / 200) * 100, 100);
+      progressFill.style.width = `${progressPercentage}%`;
+      progressText.textContent = `${userPoints}/200 puntos`;
+
+      // Modal de recompensas
+      const modal = document.getElementById('reward-modal');
+      const modalConfirm = document.getElementById('modal-confirm');
+      const closeModal = document.querySelector('.close-modal');
+      closeModal.addEventListener('click', () => { modal.style.display = 'none'; });
+      modalConfirm.addEventListener('click', () => { modal.style.display = 'none'; });
+    });
+  </script>
 </body>
 </html>

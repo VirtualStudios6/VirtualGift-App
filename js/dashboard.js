@@ -552,4 +552,23 @@ document.addEventListener('DOMContentLoaded', function() {
     if (currentUser && userData.points !== undefined) {
         loadRewardsStore();
     }
+    
+});
+document.addEventListener('DOMContentLoaded', function() {
+  const userPointsElem = document.getElementById('user-points');
+  let userPoints = parseInt(localStorage.getItem('vg_userPoints') || userPointsElem.textContent);
+  userPointsElem.textContent = userPoints.toLocaleString();
+
+  const progressFill = document.getElementById('level-progress');
+  const progressText = document.getElementById('progress-text');
+  const progressPercentage = Math.min((userPoints / 200) * 100, 100);
+  progressFill.style.width = `${progressPercentage}%`;
+  progressText.textContent = `${userPoints}/200 puntos`;
+
+  // Modal del dashboard
+  const modal = document.getElementById('reward-modal');
+  const modalConfirm = document.getElementById('modal-confirm');
+  const closeModal = document.querySelector('.close-modal');
+  closeModal.addEventListener('click', () => { modal.style.display = 'none'; });
+  modalConfirm.addEventListener('click', () => { modal.style.display = 'none'; });
 });

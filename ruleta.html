@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VirtualGift - Ruleta de Premios</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="css/ruleta.css">
+</head>
+<body>
+  <div class="ruleta-container">
+    <!-- Header -->
+    <header class="ruleta-header">
+      <button class="back-btn" id="back-btn">
+        <i class="fas fa-arrow-left"></i> Volver al Dashboard
+      </button>
+      <div class="points-display">
+        <span>Tus puntos: <strong id="current-points">100</strong></span>
+      </div>
+    </header>
+
+    <!-- Ruleta de premios -->
+    <section class="wheel-section">
+      <h2>Gira la Ruleta y Gana Puntos</h2>
+      <div class="wheel">
+        <div class="wheel-pointer"></div>
+        <div class="wheel-inner" id="wheel"></div>
+      </div>
+      <button class="btn spin-btn" id="spin-btn">Girar (5 puntos)</button>
+      <p class="spins-info">Tienes <span id="spins-remaining">3</span> giros restantes hoy</p>
+    </section>
+
+    <!-- Premios disponibles -->
+    <section class="prizes-section">
+      <h3>Premios Disponibles</h3>
+      <div class="prizes-grid">
+        <div class="prize-item">
+          <div class="prize-icon">10</div>
+          <p>10 puntos</p>
+        </div>
+        <div class="prize-item">
+          <div class="prize-icon">25</div>
+          <p>25 puntos</p>
+        </div>
+        <div class="prize-item">
+          <div class="prize-icon">50</div>
+          <p>50 puntos</p>
+        </div>
+        <div class="prize-item">
+          <div class="prize-icon">75</div>
+          <p>75 puntos</p>
+        </div>
+        <div class="prize-item">
+          <div class="prize-icon">100</div>
+          <p>100 puntos</p>
+        </div>
+        <div class="prize-item">
+          <div class="prize-icon">5</div>
+          <p>5 puntos</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Historial de giros -->
+    <section class="history-section">
+      <h3>Tu Historial de Giros</h3>
+      <div class="history-list" id="history-list">
+        <!-- El historial se cargará dinámicamente -->
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal para recompensas -->
+  <div class="modal" id="reward-modal">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <h2 id="modal-title">¡Felicidades!</h2>
+      <p id="modal-description">Has ganado 25 puntos girando la ruleta.</p>
+      <div class="modal-actions">
+        <button class="btn" id="modal-confirm">Aceptar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/ruleta.js"></script>
+</body>
+</html>

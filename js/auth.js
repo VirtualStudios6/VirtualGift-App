@@ -1,62 +1,85 @@
-// Función de validación
+// ----------------------------
+// DOM References
+// ----------------------------
+const DOM = {
+  loginForm: document.getElementById('login-form'),
+  registerForm: document.getElementById('register-form'),
+  loginBtn: document.getElementById('login-btn'),
+  registerBtn: document.getElementById('register-btn'),
+  notification: document.getElementById('notification'),
+  username: document.getElementById('username'),
+  email: document.getElementById('email'),
+  password: document.getElementById('password'),
+  confirmPassword: document.getElementById('confirm-password'),
+  loginEmail: document.getElementById('login-email'),
+  loginPassword: document.getElementById('login-password'),
+  forgotPasswordLink: document.getElementById('forgot-password'),
+  recoveryContainer: document.getElementById('recovery-container'),
+  recoveryEmail: document.getElementById('recovery-email'),
+  sendRecoveryEmailBtn: document.getElementById('send-recovery-email'),
+  cancelRecoveryBtn: document.getElementById('cancel-recovery'),
+  showRegister: document.getElementById('show-register'),
+  showLogin: document.getElementById('show-login'),
+  termsCheckbox: document.getElementById('terms')
+};
+
+let currentUser = null;
+
+// ----------------------------
+// Notification
+// ----------------------------
+function showNotification(message, type = 'success') {
+  DOM.notification.textContent = message;
+  DOM.notification.className = `notification show ${type}`;
+  setTimeout(() => DOM.notification.classList.remove('show'), 3500);
+}
+
+// ----------------------------
+// Validation
+// ----------------------------
 function validateField(input, errorId, message, condition) {
-  const errorElement = document.getElementById(errorId);
+  const errorEl = document.getElementById(errorId);
   if (!condition) {
-    if (errorElement) errorElement.textContent = message;
+    errorEl && (errorEl.textContent = message);
     input.classList.add('invalid');
     return false;
   } else {
-    if (errorElement) errorElement.textContent = '';
+    errorEl && (errorEl.textContent = '');
     input.classList.remove('invalid');
     return true;
   }
 }
 
-// DOM
-const DOM = {
-  registerForm: document.getElementById('register-form'),
-  loginForm: document.getElementById('login-form'),
-  tabs: document.querySelectorAll('.tab'),
-  registerBtn: document.getElementById('register-btn'),
-  loginBtn: document.getElementById('login-btn'),
-  notification: document.getElementById('notification'),
-  usernameInput: document.getElementById('username'),
-  emailInput: document.getElementById('email'),
-  passwordInput: document.getElementById('password'),
-  confirmPasswordInput: document.getElementById('confirm-password'),
-  loginEmailInput: document.getElementById('login-email'),
-  loginPasswordInput: document.getElementById('login-password'),
-  forgotPasswordLink: document.getElementById('forgot-password'),
-  resendVerificationBtn: document.getElementById('resend-verification'),
-  continueToDashboardBtn: document.getElementById('continue-to-dashboard'),
-  recoveryEmail: document.getElementById('recovery-email'),
-  sendRecoveryEmailBtn: document.getElementById('send-recovery-email'),
-  cancelRecoveryBtn: document.getElementById('cancel-recovery')
-};
+// ----------------------------
+// Form Toggle
+// ----------------------------
+DOM.showRegister.addEventListener('click', e => {
+  e.preventDefault();
+  DOM.loginForm.classList.remove('active');
+  DOM.registerForm.classList.add('active');
+});
 
-let currentUser = null;
+DOM.showLogin.addEventListener('click', e => {
+  e.preventDefault();
+  DOM.registerForm.classList.remove('active');
+  DOM.loginForm.classList.add('active');
+});
 
-// Notificación
-function showNotification(msg, isError = false) {
-  DOM.notification.textContent = msg;
-  DOM.notification.className = 'notification show';
-  if (isError) DOM.notification.classList.add('error');
-  setTimeout(() => DOM.notification.classList.remove('show'), 3000);
-}
-
-// Registro
+// ----------------------------
+// Registration
+// ----------------------------
 DOM.registerBtn.addEventListener('click', async () => {
-  const username = DOM.usernameInput.value.trim();
-  const email = DOM.emailInput.value.trim();
-  const password = DOM.passwordInput.value;
-  const confirmPassword = DOM.confirmPasswordInput.value;
-  const termsAccepted = document.getElementById('terms').checked;
+  const username = DOM.username.value.trim();
+  const email = DOM.email.value.trim();
+  const password = DOM.password.value;
+  const confirmPass = DOM.confirmPassword.value;
+  const termsAccepted = DOM.termsCheckbox.checked;
 
-  const validUser = validateField(DOM.usernameInput, 'username-error', 'Elige un nombre de usuario', username !== '');
-  const validEmail = validateField(DOM.emailInput, 'email-error', 'Correo inválido', /\S+@\S+\.\S+/.test(email));
-  const validPass = validateField(DOM.passwordInput, 'password-error', 'Mínimo 8 caracteres', password.length >= 8);
-  const validConfirm = validateField(DOM.confirmPasswordInput, 'confirm-password-error', 'No coinciden', password === confirmPassword);
-  const validTerms = validateField(document.getElementById('terms'), 'terms-error', 'Debes aceptar los términos', termsAccepted);
+  const validUser = validateField(DOM.username, 'username-error', 'Elige un nombre de usuario', username !== '');
+  const validEmail = validateField(DOM.email, 'email-error', 'Correo inválido', /\S+@\S+\.\S+/.test(email));
+  const validPass = validateField(DOM.password, 'password-error', 'Mínimo 8 caracteres', password.length >= 8);
+  const validConfirm = validateField(DOM.confirmPassword, 'confirm-password-error', 'No coinciden', password === confirmPass);
+  const validTerms = validateField(DOM.termsCheckbox, 'terms-error', 'Debes aceptar los términos', termsAccepted);
 
   if (!(validUser && validEmail && validPass && validConfirm && validTerms)) return;
 
@@ -64,67 +87,75 @@ DOM.registerBtn.addEventListener('click', async () => {
     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
     const user = userCredential.user;
     currentUser = user;
+
     await user.updateProfile({ displayName: username });
     await db.collection('users').doc(user.uid).set({
       username, email, points: 100, level: 1, experience: 0,
       nextLevel: 200, joinDate: new Date(), lastLogin: new Date()
     });
+
     await user.sendEmailVerification();
     showNotification('Cuenta creada. Verifica tu correo.');
-  } catch (e) {
-    showNotification('Error al registrar: ' + e.message, true);
+  } catch (error) {
+    console.error(error);
+    showNotification(error.message || 'Error al registrar', 'error');
   }
 });
 
+// ----------------------------
 // Login
+// ----------------------------
 DOM.loginBtn.addEventListener('click', async () => {
-  const email = DOM.loginEmailInput.value.trim();
-  const password = DOM.loginPasswordInput.value;
-  if (!email || !password) return showNotification('Completa todos los campos', true);
+  const email = DOM.loginEmail.value.trim();
+  const password = DOM.loginPassword.value;
+
+  if (!email || !password) return showNotification('Completa todos los campos', 'error');
 
   try {
     const userCredential = await auth.signInWithEmailAndPassword(email, password);
     const user = userCredential.user;
-    if (!user.emailVerified) {
-      showNotification('Verifica tu correo antes de entrar', true);
-      return;
-    }
+
+    if (!user.emailVerified) return showNotification('Verifica tu correo antes de entrar', 'error');
+
     await db.collection('users').doc(user.uid).update({ lastLogin: new Date() });
     window.location.href = 'dashboard.html';
-  } catch (e) {
-    showNotification('Error: ' + e.message, true);
+  } catch (error) {
+    console.error(error);
+    showNotification(error.message || 'Error al iniciar sesión', 'error');
   }
 });
 
-// Recuperar
+// ----------------------------
+// Password Recovery
+// ----------------------------
+DOM.forgotPasswordLink.addEventListener('click', e => {
+  e.preventDefault();
+  DOM.recoveryContainer.classList.add('show');
+});
+
 DOM.sendRecoveryEmailBtn.addEventListener('click', async () => {
   const email = DOM.recoveryEmail.value.trim();
-  if (!email) return showNotification('Ingresa tu correo', true);
+  if (!email) return showNotification('Ingresa tu correo', 'error');
+
   try {
     await auth.sendPasswordResetEmail(email);
     showNotification('Correo de recuperación enviado');
-    document.getElementById('recovery-container').classList.remove('show');
-  } catch (e) {
-    showNotification('Error: ' + e.message, true);
+    DOM.recoveryContainer.classList.remove('show');
+  } catch (error) {
+    console.error(error);
+    showNotification(error.message || 'Error al enviar correo', 'error');
   }
 });
+
 DOM.cancelRecoveryBtn.addEventListener('click', () => {
-  document.getElementById('recovery-container').classList.remove('show');
+  DOM.recoveryContainer.classList.remove('show');
 });
 
-// Tabs
-DOM.tabs.forEach(tab => {
-  tab.addEventListener('click', () => {
-    DOM.tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-    document.getElementById(`${tab.dataset.tab}-form`).classList.add('active');
-  });
-});
-
-// Fuerza de contraseña
-DOM.passwordInput.addEventListener('input', () => {
-  const pass = DOM.passwordInput.value;
+// ----------------------------
+// Password Strength
+// ----------------------------
+DOM.password.addEventListener('input', () => {
+  const pass = DOM.password.value;
   let strength = 0;
   if (pass.length >= 8) strength += 25;
   if (/[a-z]/.test(pass) && /[A-Z]/.test(pass)) strength += 25;
@@ -132,6 +163,6 @@ DOM.passwordInput.addEventListener('input', () => {
   if (/[^A-Za-z0-9]/.test(pass)) strength += 25;
 
   const bar = document.getElementById('password-strength-bar');
-  bar.style.width = strength + '%';
-  bar.style.background = strength < 50 ? '#ff4d4d' : strength < 75 ? '#f39c12' : '#2ecc71';
+  bar.style.width = `${strength}%`;
+  bar.style.background = strength < 50 ? '#f43f5e' : strength < 75 ? '#f59e0b' : '#10b981';
 });

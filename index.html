@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VirtualGift - Login</title>
+  <title>VirtualGift - Iniciar Sesión</title>
   <link rel="stylesheet" href="css/styles.css">
+  <!-- Firebase -->
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -12,76 +13,88 @@
   <script defer src="js/auth.js"></script>
 </head>
 <body>
-  <div class="container">
-    <div class="logo">
-      <img src="images/logo-virtual-login.png" alt="VirtualGift Logo">
-    </div>
-
-    <!-- Tabs -->
-    <div class="tabs">
-      <button class="tab active" data-tab="login">Iniciar Sesión</button>
-      <button class="tab" data-tab="register">Registrarse</button>
-    </div>
-
-    <!-- Login Form -->
-    <form id="login-form" class="form-container active">
-      <input type="email" id="login-email" placeholder="Correo electrónico" required>
-      <input type="password" id="login-password" placeholder="Contraseña" required>
-      <span id="login-error" class="error-msg"></span>
-      <button type="button" id="login-btn">Iniciar sesión</button>
-      <a href="#" id="forgot-password">¿Olvidaste tu contraseña?</a>
-    </form>
-
-    <!-- Register Form -->
-    <form id="register-form" class="form-container">
-      <input type="text" id="username" placeholder="Nombre de usuario" required>
-      <span id="username-error" class="error-msg"></span>
-
-      <input type="email" id="email" placeholder="Correo electrónico" required>
-      <span id="email-error" class="error-msg"></span>
-
-      <input type="password" id="password" placeholder="Contraseña" required>
-      <span id="password-error" class="error-msg"></span>
-
-      <div class="password-strength">
-        <div id="password-strength-bar"></div>
+  <div class="auth-container">
+    <div class="auth-card">
+      <!-- Logo -->
+      <div class="logo">
+        <img src="images/logo-virtual-login.png" alt="Logo de VirtualGift">
       </div>
 
-      <input type="password" id="confirm-password" placeholder="Confirmar contraseña" required>
-      <span id="confirm-password-error" class="error-msg"></span>
+      <!-- Bienvenida -->
+      <h2 class="welcome">Bienvenido a <span>VirtualGift</span></h2>
 
-      <label class="terms">
-        <input type="checkbox" id="terms"> Acepto los términos y condiciones
-      </label>
-      <span id="terms-error" class="error-msg"></span>
+      <!-- Login -->
+      <form id="login-form" class="form active">
+        <label>Correo electrónico</label>
+        <input type="email" id="login-email" placeholder="Ingresa tu correo" required>
 
-      <button type="button" id="register-btn">Crear cuenta</button>
-    </form>
+        <label>Contraseña</label>
+        <input type="password" id="login-password" placeholder="********" required>
 
-    <!-- Social login -->
-    <div class="social-login">
-      <button id="google-login">Google</button>
-      <button id="facebook-login">Facebook</button>
-      <button id="apple-login">Apple</button>
+        <a href="#" id="forgot-password" class="forgot">¿Olvidaste tu contraseña?</a>
+
+        <button type="button" id="login-btn" class="btn gradient">Iniciar Sesión</button>
+
+        <p class="switch-form">¿No tienes cuenta? 
+          <a href="#" id="show-register">Regístrate</a>
+        </p>
+      </form>
+
+      <!-- Registro -->
+      <form id="register-form" class="form">
+        <label>Nombre de usuario</label>
+        <input type="text" id="username" placeholder="Elige un nombre de usuario" required>
+        <span id="username-error" class="error-msg"></span>
+
+        <label>Correo electrónico</label>
+        <input type="email" id="email" placeholder="tucorreo@ejemplo.com" required>
+        <span id="email-error" class="error-msg"></span>
+
+        <label>Contraseña</label>
+        <input type="password" id="password" placeholder="********" required>
+        <span id="password-error" class="error-msg"></span>
+        <div class="password-strength">
+          <div id="password-strength-bar"></div>
+        </div>
+
+        <label>Confirmar contraseña</label>
+        <input type="password" id="confirm-password" placeholder="********" required>
+        <span id="confirm-password-error" class="error-msg"></span>
+
+        <label class="terms">
+          <input type="checkbox" id="terms"> Acepto los Términos y Condiciones
+        </label>
+        <span id="terms-error" class="error-msg"></span>
+
+        <button type="button" id="register-btn" class="btn gradient">Registrarse</button>
+
+        <p class="switch-form">¿Ya tienes una cuenta? 
+          <a href="#" id="show-login">Inicia Sesión</a>
+        </p>
+      </form>
+
+      <!-- Separador -->
+      <div class="divider"><span>o</span></div>
+
+      <!-- Login social -->
+      <div class="social-login">
+        <button id="google-login" class="btn social">Continuar con Google</button>
+        <button id="Facebook-login" class="btn social">Continuar con Facebook</button>
+      </div>
+
+      <!-- Pie de página -->
+      <footer>
+        <p>© 2026 VIRTUALGIFT</p>
+        <div class="footer-links">
+          <a href="#">Términos y Condiciones</a>
+          <a href="#">Política de Privacidad</a>
+          <a href="#">Aviso Legal</a>
+        </div>
+      </footer>
     </div>
-
-    <!-- Notification -->
-    <div id="notification" class="notification"></div>
   </div>
 
-  <!-- Modal Verificación -->
-  <div id="email-verification-container" class="modal">
-    <p>Revisa tu correo para verificar tu cuenta</p>
-    <button id="resend-verification">Reenviar verificación</button>
-    <button id="continue-to-dashboard">Continuar</button>
-  </div>
-
-  <!-- Modal Recuperar -->
-  <div id="recovery-container" class="modal">
-    <h3>Recuperar contraseña</h3>
-    <input type="email" id="recovery-email" placeholder="Tu correo">
-    <button id="send-recovery-email">Enviar enlace de recuperación</button>
-    <button id="cancel-recovery">Cancelar</button>
-  </div>
+  <!-- Notificación -->
+  <div id="notification" class="notification"></div>
 </body>
 </html>
