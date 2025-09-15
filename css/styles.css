@@ -1,4 +1,6 @@
-/* CSS Variables */
+/* ------------------------------
+   VARIABLES CSS
+------------------------------ */
 :root {
   /* Colores */
   --primary: #f43f5e;
@@ -11,6 +13,7 @@
   --text-muted: #94a3b8;
   --border: #334155;
   --error: #f43f5e;
+  --success: #10b981;
 
   /* Espaciado */
   --spacing-xs: 5px;
@@ -31,7 +34,9 @@
   --glow-hover: 0 0 25px rgba(244,63,94,0.8), 0 0 40px rgba(249,115,22,0.6);
 }
 
-/* Reset */
+/* ------------------------------
+   RESET Y TIPOGRAFÍA
+------------------------------ */
 * {
   margin: 0;
   padding: 0;
@@ -50,12 +55,13 @@ body {
   position: relative;
 }
 
-/* Container */
+/* ------------------------------
+   CONTAINER PRINCIPAL
+------------------------------ */
 .auth-container {
   width: 100%;
   max-width: 400px;
   position: relative;
-  container-type: inline-size;
 }
 
 .auth-card {
@@ -68,30 +74,36 @@ body {
   animation: fadeIn 0.6s ease;
   position: relative;
   z-index: 1;
+  will-change: transform, opacity;
 }
 
-/* Logo */
+/* ------------------------------
+   LOGO Y BIENVENIDA
+------------------------------ */
 .logo img {
   width: 70px;
   margin-bottom: var(--spacing-md);
 }
 
-/* Welcome */
 .welcome {
   font-size: 1.3em;
   font-weight: 500;
   margin-bottom: 18px;
   color: var(--text-primary);
 }
+
 .welcome span {
   color: var(--primary);
 }
 
-/* Forms */
+/* ------------------------------
+   FORMULARIOS
+------------------------------ */
 .form {
   display: none;
   text-align: left;
 }
+
 .form.active {
   display: block;
 }
@@ -124,7 +136,9 @@ input:focus-visible {
   outline-offset: 2px;
 }
 
-/* Buttons */
+/* ------------------------------
+   BOTONES
+------------------------------ */
 .btn {
   width: 100%;
   padding: 13px;
@@ -135,7 +149,7 @@ input:focus-visible {
   margin: var(--spacing-sm) 0;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   font-size: 0.95em;
-  will-change: transform;
+  will-change: transform, filter;
 }
 
 .btn:focus-visible {
@@ -144,23 +158,12 @@ input:focus-visible {
 }
 
 .btn.gradient {
-  /* Versión de respaldo con un color sólido */
-  background-color: var(--primary);
-  
-  /* Prefijos de navegador para compatibilidad */
-  background: -webkit-linear-gradient(90deg, var(--primary), var(--secondary)); /* Para Chrome/Safari */
-  background: -moz-linear-gradient(90deg, var(--primary), var(--secondary)); /* Para Firefox */
-  background: -o-linear-gradient(90deg, var(--primary), var(--secondary)); /* Para Opera */
-  
-  /* Versión estándar */
   background: linear-gradient(90deg, var(--primary), var(--secondary));
-  
   color: var(--text-primary);
   position: relative;
   overflow: hidden;
   box-shadow: var(--glow-primary);
   animation: glowPulse 2.5s infinite;
-  will-change: transform, filter;
 }
 
 .btn.gradient:hover {
@@ -172,25 +175,24 @@ input:focus-visible {
   background: rgba(15,23,42,0.8);
   border: 1px solid var(--border);
   color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .btn.social:hover {
   background: rgba(30,41,59,0.9);
 }
 
-/* Animación glow optimizada */
-@keyframes glowPulse {
-  0%, 100% { 
-    filter: drop-shadow(0 0 10px rgba(244,63,94,0.5)) 
-            drop-shadow(0 0 20px rgba(249,115,22,0.3)); 
-  }
-  50% { 
-    filter: drop-shadow(0 0 20px rgba(244,63,94,0.8)) 
-            drop-shadow(0 0 35px rgba(249,115,22,0.5)); 
-  }
+.social-icon {
+  width: 18px;
+  height: 18px;
 }
 
-/* Links */
+/* ------------------------------
+   LINKS
+------------------------------ */
 .forgot {
   display: block;
   text-align: right;
@@ -223,7 +225,9 @@ input:focus-visible {
   color: var(--secondary);
 }
 
-/* Divider */
+/* ------------------------------
+   DIVIDER
+------------------------------ */
 .divider {
   text-align: center;
   margin: var(--spacing-lg) 0;
@@ -248,7 +252,9 @@ input:focus-visible {
   z-index: -1;
 }
 
-/* Errors */
+/* ------------------------------
+   MENSAJES DE ERROR Y PASSWORD
+------------------------------ */
 .error-msg {
   color: var(--error);
   font-size: 0.75em;
@@ -256,7 +262,6 @@ input:focus-visible {
   display: block;
 }
 
-/* Password strength */
 .password-strength {
   width: 100%;
   height: 5px;
@@ -270,10 +275,13 @@ input:focus-visible {
   height: 100%;
   width: 0;
   border-radius: 4px;
-  transition: width 0.3s ease, background-color 0.3s ease;
+  transition: width 0.3s ease, background 0.3s ease;
+  background: linear-gradient(90deg, #f43f5e, #f97316);
 }
 
-/* Terms checkbox */
+/* ------------------------------
+   CHECKBOX TÉRMINOS
+------------------------------ */
 .terms {
   display: flex;
   align-items: center;
@@ -287,7 +295,9 @@ input:focus-visible {
   margin: 0;
 }
 
-/* Footer */
+/* ------------------------------
+   FOOTER
+------------------------------ */
 footer {
   margin-top: var(--spacing-lg);
   font-size: 0.7em;
@@ -296,7 +306,7 @@ footer {
 
 .footer-links {
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
   gap: var(--spacing-sm);
   margin-top: 6px;
   flex-wrap: wrap;
@@ -312,7 +322,9 @@ footer {
   color: var(--primary);
 }
 
-/* Notification */
+/* ------------------------------
+   NOTIFICACIÓN
+------------------------------ */
 .notification {
   position: fixed;
   bottom: var(--spacing-lg);
@@ -340,11 +352,13 @@ footer {
 }
 
 .notification.success {
-  background: #10b981;
-  border-color: #10b981;
+  background: var(--success);
+  border-color: var(--success);
 }
 
-/* Recovery Container */
+/* ------------------------------
+   RECOVERY OVERLAY
+------------------------------ */
 .recovery-overlay {
   display: none;
   position: fixed;
@@ -352,9 +366,10 @@ footer {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0,0,0,0.5);
   backdrop-filter: blur(5px);
   z-index: 9;
+  cursor: pointer;
 }
 
 .recovery-overlay.show {
@@ -421,85 +436,55 @@ footer {
   padding: var(--spacing-sm);
 }
 
-/* Animaciones */
+/* ------------------------------
+   ANIMACIONES
+------------------------------ */
 @keyframes fadeIn {
-  from { 
-    opacity: 0; 
-    transform: translateY(15px); 
-  }
-  to { 
-    opacity: 1; 
-    transform: translateY(0); 
-  }
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-/* Responsive */
+@keyframes glowPulse {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(244,63,94,0.5)) drop-shadow(0 0 20px rgba(249,115,22,0.3)); }
+  50% { filter: drop-shadow(0 0 20px rgba(244,63,94,0.8)) drop-shadow(0 0 35px rgba(249,115,22,0.5)); }
+}
+
+/* ------------------------------
+   RESPONSIVE
+------------------------------ */
+@media (max-width: 768px) {
+  .auth-card { padding: var(--spacing-xl) var(--spacing-md); }
+}
+
 @media (max-width: 480px) {
-  .auth-card {
-    padding: var(--spacing-xl) var(--spacing-md);
-  }
-  
-  body {
-    padding: var(--spacing-sm);
-  }
+  body { padding: var(--spacing-sm); }
 }
 
-.divider {
-  text-align: center;
-  margin: var(--spacing-lg) 0;
-  position: relative;
-}
-
-.social-login {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  margin-top: var(--spacing-md);
-}
-
-/* Responsive del footer */
 @media (max-width: 350px) {
-  .recovery-buttons {
-    flex-direction: column;
-  }
-  
-  .footer-links {
-    flex-direction: column;
-    gap: var(--spacing-xs);
-  }
+  .recovery-buttons { flex-direction: column; }
+  .footer-links { flex-direction: column; gap: var(--spacing-xs); }
 }
 
-/* Accesibilidad */
+/* ------------------------------
+   ACCESIBILIDAD
+------------------------------ */
 @media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
 
 @media (prefers-contrast: high) {
-  .btn.social {
-    border: 2px solid var(--border);
-  }
-  
-  input {
-    border: 2px solid var(--border);
-  }
+  .btn.social { border: 2px solid var(--border); }
+  input { border: 2px solid var(--border); }
 }
 
-/* Dark theme support (opcional) */
+/* ------------------------------
+   THEME LIGHT OPCIONAL
+------------------------------ */
 @media (prefers-color-scheme: light) {
   :root {
     --bg-primary: #f8fafc;
