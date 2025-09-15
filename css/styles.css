@@ -144,7 +144,17 @@ input:focus-visible {
 }
 
 .btn.gradient {
+  /* Versión de respaldo con un color sólido */
+  background-color: var(--primary);
+  
+  /* Prefijos de navegador para compatibilidad */
+  background: -webkit-linear-gradient(90deg, var(--primary), var(--secondary)); /* Para Chrome/Safari */
+  background: -moz-linear-gradient(90deg, var(--primary), var(--secondary)); /* Para Firefox */
+  background: -o-linear-gradient(90deg, var(--primary), var(--secondary)); /* Para Opera */
+  
+  /* Versión estándar */
   background: linear-gradient(90deg, var(--primary), var(--secondary));
+  
   color: var(--text-primary);
   position: relative;
   overflow: hidden;
@@ -216,7 +226,7 @@ input:focus-visible {
 /* Divider */
 .divider {
   text-align: center;
-  margin: 18px 0;
+  margin: var(--spacing-lg) 0;
   position: relative;
 }
 
@@ -434,9 +444,7 @@ footer {
   }
 }
 
-/* --- Cambios para el Responsive --- */
-
-/* Ajusta el padding de la tarjeta para pantallas pequeñas */
+/* Responsive */
 @media (max-width: 480px) {
   .auth-card {
     padding: var(--spacing-xl) var(--spacing-md);
@@ -447,18 +455,17 @@ footer {
   }
 }
 
-/* Ajusta los botones sociales y el divisor para más espacio */
 .divider {
   text-align: center;
-  margin: var(--spacing-lg) 0; /* Mayor espacio arriba y abajo */
+  margin: var(--spacing-lg) 0;
   position: relative;
 }
 
 .social-login {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md); /* Aumento de espacio entre los botones */
-  margin-top: var(--spacing-md); /* Separación del divisor */
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-md);
 }
 
 /* Responsive del footer */
