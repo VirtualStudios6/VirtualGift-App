@@ -46,7 +46,8 @@ const DOM = {
   forgotPasswordLink: document.getElementById('forgot-password'),
   showRegister: document.getElementById('show-register'),
   showLogin: document.getElementById('show-login'),
-  passwordStrengthBar: document.getElementById('password-strength-bar')
+  passwordStrengthBar: document.getElementById('password-strength-bar'),
+  googleLoginBtn: document.getElementById('google-login')
 };
 
 // ----------------------------
@@ -57,13 +58,14 @@ const State = {
   isLoading: false,
   setLoading(loading) {
     this.isLoading = loading;
-    const buttons = [DOM.loginBtn, DOM.registerBtn, DOM.sendRecoveryEmailBtn];
+    const buttons = [DOM.loginBtn, DOM.registerBtn, DOM.sendRecoveryEmailBtn, DOM.googleLoginBtn];
     buttons.forEach(btn => {
       if (btn) {
         btn.disabled = loading;
         btn.textContent = loading ? 
           (btn === DOM.loginBtn ? 'Iniciando...' : 
-           btn === DOM.registerBtn ? 'Registrando...' : 'Enviando...') :
+           btn === DOM.registerBtn ? 'Registrando...' : 
+           btn === DOM.sendRecoveryEmailBtn ? 'Enviando...' : 'Iniciando...') :
           btn.dataset.originalText || btn.textContent;
         if (!btn.dataset.originalText && !loading) {
           btn.dataset.originalText = btn.textContent;
@@ -326,6 +328,52 @@ const PasswordStrengthIndicator = {
 };
 
 // ----------------------------
+// Google Sign-In
+// ----------------------------
+if(DOM.googleLoginBtn){
+  DOM.googleLoginBtn.addEventListener('click', async () => {
+    if(State.isLoading) return;
+    State.setLoading(true);
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    try {
+      const result = await firebase.auth().signInWithPopup(provider);
+      const user = result.user;
+
+      // Guardar o actualizar usuario en Firestore
+      const userRef = firebase.firestore().collection('users').doc(user.uid);
+      const doc = await userRef.get();
+      if(!doc.exists){
+        await userRef.set({
+          username: user.displayName || 'Usuario',
+          email: user.email,
+          points: CONFIG.INITIAL_USER_POINTS,
+          level: CONFIG.INITIAL_USER_LEVEL,
+          experience: CONFIG.INITIAL_USER_EXPERIENCE,
+          nextLevel: CONFIG.NEXT_LEVEL_THRESHOLD,
+          joinDate: firebase.firestore.FieldValue.serverTimestamp(),
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+          emailVerified: user.emailVerified
+        });
+      } else {
+        await userRef.update({
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+
+      State.currentUser = user;
+      NotificationManager.success(`Bienvenido, ${user.displayName}`);
+      setTimeout(()=> window.location.href='dashboard.html', 1000);
+    } catch(error){
+      console.error('Error Google Sign-In:', error);
+      NotificationManager.error(Utils.getFirebaseErrorMessage(error));
+    } finally{
+      State.setLoading(false);
+    }
+  });
+}
+
+// ----------------------------
 // Eventos
 // ----------------------------
 function setupEventListeners(){
@@ -367,7 +415,7 @@ function init(){
     return;
   }
   setupEventListeners();
-  [DOM.loginBtn, DOM.registerBtn, DOM.sendRecoveryEmailBtn].forEach(btn=>btn.dataset.originalText=btn.textContent);
+  [DOM.loginBtn, DOM.registerBtn, DOM.sendRecoveryEmailBtn, DOM.googleLoginBtn].forEach(btn=>btn.dataset.originalText=btn?.textContent);
   console.log('Auth system initialized successfully');
 }
 
