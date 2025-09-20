@@ -77,9 +77,14 @@
         <input type="password" id="confirm-password" placeholder="********" required>
         <span id="confirm-password-error" class="error-msg"></span>
 
-        <label class="terms" for="terms">
-          <input type="checkbox" id="terms"> Acepto los Términos y Condiciones
-        </label>
+        <!-- Términos con interruptor compacto -->
+        <div class="terms">
+          <label class="toggle-switch small">
+            <input type="checkbox" id="terms">
+            <span class="toggle-slider"></span>
+          </label>
+          <label for="terms">Acepto los Términos y Condiciones</label>
+        </div>
         <span id="terms-error" class="error-msg"></span>
 
         <button type="button" id="register-btn" class="btn gradient">Registrarse</button>
@@ -102,15 +107,12 @@
         </button>
       </div>
 
-      <!-- Pie de página -->
+      <!-- Pie de página actualizado -->
       <footer>
         <p>© 2026 VIRTUALGIFT</p>
         <div class="footer-links">
           <a href="#">Términos y Condiciones</a>
-          <div class="footer-group">
-            <a href="#">Política de Privacidad</a>
-            <a href="#">Aviso Legal</a>
-          </div>
+          <a href="#">Política de Privacidad</a>
         </div>
       </footer>
     </div>
@@ -122,25 +124,18 @@
   <script>
     // JavaScript optimizado para Android
     document.addEventListener('DOMContentLoaded', function() {
-      // Asegurar fondo oscuro inmediato
       document.documentElement.style.backgroundColor = '#0f172a';
       document.body.style.backgroundColor = '#0f172a';
       
-      // Fix para viewport height dinámico
       const setVH = () => {
         let vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
-        
-        // También ajustar el body
         document.body.style.minHeight = `${window.innerHeight}px`;
       };
-      
-      // Llamar inmediatamente y en eventos
       setVH();
       window.addEventListener('resize', setVH);
       window.addEventListener('orientationchange', setVH);
       
-      // Prevenir zoom en inputs en iOS
       const inputs = document.querySelectorAll('input');
       inputs.forEach(input => {
         input.addEventListener('focus', function() {
@@ -149,20 +144,17 @@
               'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
           }
         });
-        
         input.addEventListener('blur', function() {
           document.querySelector('meta[name=viewport]').setAttribute('content', 
             'width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover');
         });
       });
       
-      // Mejorar el toque en dispositivos móviles
       const buttons = document.querySelectorAll('.btn');
       buttons.forEach(button => {
         button.addEventListener('touchstart', function() {
           this.style.transform = 'scale(0.98)';
         });
-        
         button.addEventListener('touchend', function() {
           setTimeout(() => {
             this.style.transform = '';
@@ -170,7 +162,6 @@
         });
       });
 
-      // Funcionalidad de formularios (básica)
       const showRegister = document.getElementById('show-register');
       const showLogin = document.getElementById('show-login');
       const loginForm = document.getElementById('login-form');
@@ -217,15 +208,13 @@
 </body>
 <script>
   const discordBtn = document.getElementById('discord-login');
-
   discordBtn.addEventListener('click', () => {
     const clientId = '1417729368825794640';
     const redirectUri = encodeURIComponent('https://virtualstudios6.github.io/VirtualGift-App/index.html');
     const scope = encodeURIComponent('identify email');
     const responseType = 'code';
     const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
-
-    // Redirigir a Discord para autorizar
     window.location.href = discordUrl;
   });
 </script>
+</html>

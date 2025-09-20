@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Términos y Condiciones de VirtualGift - Gana puntos y canjea recompensas">
+  <meta name="keywords" content="términos, condiciones, privacidad, puntos, recompensas, regalos virtuales">
+  <meta name="author" content="VirtualGift">
+  
+  <!-- Open Graph / Social Media -->
+  <meta property="og:title" content="Términos y Condiciones - VirtualGift">
+  <meta property="og:description" content="Términos y Condiciones del sistema de recompensas VirtualGift">
+  <meta property="og:type" content="website">
+  
+  <!-- Security -->
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+  
+  <title>Términos y Condiciones - VirtualGift</title>
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  
+  <style>
+    :root {
+      --primary-color: #f43f5e;
+      --secondary-color: #f97316;
+      --accent-color: #3b82f6;
+      --dark-bg: #0f172a;
+      --darker-bg: #020617;
+      --card-bg: #1e293b;
+      --text-color: #f1f5f9;
+      --gray-color: #cbd5e1;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --error-color: #ef4444;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(180deg, var(--dark-bg), var(--darker-bg));
+      color: var(--text-color);
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    /* Header styles */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 30px;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .logo img {
+      width: 40px;
+      height: 40px;
+    }
+    
+    .logo h1 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+    
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background-color: var(--card-bg);
+      color: var(--text-color);
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+    
+    .back-btn:hover {
+      background-color: var(--primary-color);
+      transform: translateY(-2px);
+    }
+    
+    /* Content styles */
+    .terms-container {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 40px;
+      margin-bottom: 40px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    
+    .terms-header {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    
+    .terms-header h2 {
+      font-size: 32px;
+      margin-bottom: 10px;
+      color: var(--text-color);
+    }
+    
+    .last-updated {
+      color: var(--gray-color);
+      font-size: 14px;
+    }
+    
+    .terms-content {
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 20px;
+    }
+    
+    .terms-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .terms-content::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+    }
+    
+    .terms-content::-webkit-scrollbar-thumb {
+      background: var(--primary-color);
+      border-radius: 10px;
+    }
+    
+    .terms-section {
+      margin-bottom: 30px;
+    }
+    
+    .terms-section h3 {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: var(--secondary-color);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .terms-section h3 i {
+      font-size: 18px;
+      color: var(--primary-color);
+    }
+    
+    .terms-section p, .terms-section ul {
+      margin-bottom: 15px;
+      color: var(--gray-color);
+    }
+    
+    .terms-section ul {
+      padding-left: 20px;
+    }
+    
+    .terms-section li {
+      margin-bottom: 8px;
+    }
+    
+    .highlight {
+      color: var(--secondary-color);
+      font-weight: 600;
+    }
+    
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 20px 0;
+      color: var(--gray-color);
+      font-size: 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .terms-container {
+        padding: 20px;
+      }
+      
+      .terms-header h2 {
+        font-size: 24px;
+      }
+      
+      .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <img src="images/logo-small.png" alt="VirtualGift">
+        <h1>VirtualGift</h1>
+      </div>
+      <a href="dashboard.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        Volver al Dashboard
+      </a>
+    </header>
+
+    <!-- Terms Content -->
+    <div class="terms-container">
+      <div class="terms-header">
+        <h2>Términos y Condiciones de Uso</h2>
+        <p class="last-updated">Última actualización: 15 de Enero, 2024</p>
+      </div>
+      
+      <div class="terms-content">
+        <div class="terms-section">
+          <h3><i class="fas fa-file-contract"></i> 1. Aceptación de los Términos</h3>
+          <p>Al acceder y utilizar los servicios de VirtualGift, usted acepta estar sujeto a estos Términos y Condiciones de uso, a nuestra Política de Privacidad y a todas las leyes y regulaciones aplicables. Si no está de acuerdo con alguno de estos términos, le queda prohibido usar o acceder a nuestros servicios.</p>
+        </div>
+        
+        <div class="terms-section">
+          <h3><i class="fas fa-user-check"></i> 2. Elegibilidad</h3>
+          <p>Para utilizar nuestros servicios, debe:</p>
+          <ul>
+            <li>Tener al menos 18 años de edad o la mayoría de edad legal en su jurisdicción.</li>
+            <li>Proporcionar información precisa y completa durante el registro.</li>
+            <li>Ser responsable de mantener la confidencialidad de su cuenta y contraseña.</li>
+            <li>Aceptar responsabilidad por todas las actividades que ocurran bajo su cuenta.</li>
+          </ul>
+        </div>
+        
+        <div class="terms-section">
+          <h3><i class="fas fa-coins"></i> 3. Sistema de Puntos y Recompensas</h3>
+          <p>VirtualGift opera un sistema de recompensas donde los usuarios pueden acumular puntos a través de diversas actividades y canjearlos por premios:</p>
+          <ul>
+            <li>Los puntos tienen <span class="highlight">valor promocional</span> y no constituyen dinero real, propiedad ni ningún otro valor negociable.</li>
+            <li>Nos reservamos el derecho de modificar, cancelar o limitar el programa de puntos en cualquier momento.</li>
+            <li>Los puntos pueden expirar después de un período de inactividad de 12 meses.</li>
+            <li>El canje de puntos está sujeto a disponibilidad y podemos establecer límites en las recompensas.</li>
+          </ul>
+        </div>
+        
+        <div class="terms-section">
+          <h3><i class="fas fa-ban"></i> 4. Conducta Prohibida</h3>
+          <p>Queda estrictamente prohibido:</p>
+          <ul>
+            <li>Crear múltiples cuentas para acumular puntos fraudulentamente.</li>
+            <li>Utilizar métodos automatizados o scripts para interactuar con nuestros servicios.</li>
+            <li>Manipular, hackear o interferir con el normal funcionamiento de la plataforma.</li>
+            <li>Participar en cualquier actividad fraudulenta o engañosa.</li>
+            <li>Violar cualquier ley o regulación aplicable mientras utiliza nuestros servicios.</li>
+          </ul>
+          <p>El incumplimiento de estas normas puede resultar en la terminación inmediata de su cuenta y la pérdida de todos los puntos acumulados.</p>
+        </div>
+        
+        <div class="terms-section">
+          <h3><i class="fas fa-gavel"></i> 5. Limitación de Responsabilidad</h3>
+          <p>VirtualGift no será responsable por:</p>
+          <ul>
+            <li>Daños directos, indirectos, incidentales, especiales o consecuentes que resulten del uso o la imposibilidad de utilizar nuestros servicios.</li>
+            <li>Interrupciones del servicio, errores, omisiones o interrupciones en la disponibilidad.</li>
+            <li>Pérdida de puntos, datos o beneficios como resultado de dichas interrupciones.</li>
+            <li>La exactitud, integridad o actualidad de la información proporcionada a través de nuestros servicios.</li>
+          </ul>
+        </div>
+        
+        <div class="terms-section">
+          <h3><i class="fas fa-exchange-alt"></i> 6. Canje de Recompensas</h3>
+          <p>Al canjear puntos por recompensas:</p>
+          <ul>
+            <li>Las recompensas están sujetas a disponibilidad y pueden cambiar sin previo aviso.</li>
+            <li>Una vez canjeados, los puntos no son reembolsables ni transferibles.</li>
+            <li>Algunas recompensas pueden tener condiciones adicionales o restricciones.</li>
+            <li>Nos reservamos el derecho de rechazar el canje de puntos si sospechamos de actividad fraudulenta.</li>
+          </ul>
+        </div>
+        
+        <div class="terms-section">
+          <h3><i class="fas fa-shield-alt"></i> 7. Propiedad Intelectual</h3>
+          <p>Todos los materiales, marcas, logotipos, diseños y contenido presentes en VirtualGift son propiedad de VirtualGift o de sus licenciantes y están protegidos por las leyes de propiedad intelectual. Queda prohibida su reproducción, distribución o modificación sin autorización previa por escrito.</p>
+        </div>
+        
+        <div class="terms-section">
+          <h3><i class="fas fa-exclamation-circle"></i> 8. Modificaciones de los Términos</h3>
+          <p>Nos reservamos el derecho de modificar estos Términos y Condiciones en cualquier momento. Las modificaciones entrarán en vigor inmediatamente después de su publicación en la plataforma. El uso continuado de nuestros servicios después de dichos cambios constituirá su aceptación de los términos revisados.</p>
+        </div>
+        
+        <div class="terms-section">
+          <h3><i class="fas fa-balance-scale"></i> 9. Ley Aplicable y Jurisdicción</h3>
+          <p>Estos Términos y Condiciones se regirán e interpretarán de acuerdo con las leyes de España. Cualquier disputa relacionada con estos términos estará sujeta a la jurisdicción exclusiva de los tribunales de Madrid, España.</p>
+        </div>
+        
+        <div class="terms-section">
+          <h3><i class="fas fa-envelope"></i> 10. Contacto</h3>
+          <p>Si tiene alguna pregunta sobre estos Términos y Condiciones, puede contactarnos a través de:</p>
+          <ul>
+            <li>Email: legal@virtualgift.com</li>
+            <li>Formulario de contacto en nuestro sitio web</li>
+            <li>Dirección postal: VirtualGift S.L., Calle Ejemplo 123, Madrid, España</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>&copy; 2024 VirtualGift. Todos los derechos reservados.</p>
+    </footer>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Añadir año actual al copyright
+      const yearElement = document.querySelector('footer p');
+      if (yearElement) {
+        const currentYear = new Date().getFullYear();
+        yearElement.innerHTML = `&copy; ${currentYear} VirtualGift. Todos los derechos reservados.`;
+      }
+      
+      // Smooth scroll para enlaces internos
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

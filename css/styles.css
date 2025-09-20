@@ -255,7 +255,7 @@ input::placeholder {
   background: linear-gradient(90deg, var(--primary), var(--secondary));
 }
 
-/* Términos */
+/* Términos - Interruptor (Toggle Switch) */
 .terms {
   display: flex;
   align-items: center;
@@ -266,21 +266,64 @@ input::placeholder {
   cursor: pointer;
   text-align: center;
   padding: 8px;
-}
-.terms input[type="checkbox"] { 
-  width: auto; 
-  margin: 0; 
-  min-width: 16px;
-  height: 16px;
-  flex-shrink: 0;
-}
-.terms label {
-  margin: 0;
-  flex: 1;
-  text-align: left;
+  flex-wrap: wrap;
 }
 
-/* Footer */
+/* Ocultar el checkbox original */
+.terms input[type="checkbox"] {
+  display: none;
+}
+
+/* Estilo del interruptor (toggle switch) mejorado */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 26px;
+  min-width: 52px;
+  flex-shrink: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: var(--border);
+  transition: all 0.35s ease;
+  border-radius: 26px;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px; width: 20px;
+  left: 3px; bottom: 3px;
+  background: #fff;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+}
+
+/* Estado activo */
+input:checked + .toggle-slider {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  box-shadow: var(--glow-primary);
+}
+
+input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+  background: #fff;
+  box-shadow: 0 0 10px rgba(255,255,255,0.8);
+}
+
+/* Efecto hover */
+.toggle-switch:hover .toggle-slider {
+  filter: brightness(1.1);
+}
+
+
+/* Footer - Centrado en todas las pantallas */
 footer { 
   margin-top: var(--spacing); 
   font-size: 0.7em; 
@@ -443,6 +486,13 @@ footer p {
 
   .logo img { width: 60px; }
   .welcome { font-size: 1.2em; margin-bottom: 15px; }
+  
+  /* Centrar términos en móvil */
+  .terms {
+    justify-content: flex-start;
+    text-align: left;
+    padding: 10px 0;
+  }
 }
 
 @media (max-width: 480px) {
@@ -462,20 +512,20 @@ footer p {
   
   .footer-links {
     flex-direction: row;
-    justify-content: space-between;
-    gap: 5px;
+    justify-content: center;
+    gap: 10px;
     text-align: center;
     align-items: center;
     width: 100%;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
   }
   
   .footer-links a {
-    padding: 8px 2px;
+    padding: 8px 5px;
     min-width: auto;
     text-align: center;
     font-size: 0.75em;
-    flex: 1;
+    flex: 0 0 auto;
   }
   
   /* Centrar términos en móvil */
@@ -500,10 +550,10 @@ footer p {
   
   .footer-links {
     font-size: 0.65em;
-    gap: 2px;
-    justify-content: space-around;
+    gap: 5px;
+    justify-content: center;
   }
-  .footer-links a { font-size: 0.7em; padding: 8px 1px; }
+  .footer-links a { font-size: 0.7em; padding: 6px 3px; }
   .terms { font-size: 0.8em; padding: 8px 0; }
 }
 
