@@ -66,28 +66,26 @@
       font-weight: bold;
     }
 
-    /* Responsive para móviles */
+    /* Responsive para móviles - mantener horizontal */
     @media (max-width: 480px) {
       .footer-links {
-        flex-direction: column;
         gap: 0.5rem;
-      }
-
-      .footer-links a:not(:last-child)::after {
-        display: none;
+        justify-content: center;
       }
 
       .footer-links a {
-        width: 100%;
-        text-align: center;
-        padding: 0.75rem;
-        background-color: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 0.8rem;
+        padding: 0.5rem 0.5rem;
       }
 
       footer {
         margin-top: 1.5rem;
         padding-top: 1rem;
+      }
+
+      footer p {
+        font-size: 0.8rem;
+        margin-bottom: 0.75rem;
       }
     }
 
