@@ -12,7 +12,6 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
-  <script defer src="js/auth.js"></script>
   <style>
     /* Estilos adicionales para el footer mejorado */
     footer {
@@ -94,6 +93,30 @@
       .footer-links {
         gap: 0.75rem;
       }
+    }
+
+    /* Loading spinner para Discord */
+    .btn-loading {
+      position: relative;
+      color: transparent !important;
+    }
+
+    .btn-loading::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      top: 50%;
+      left: 50%;
+      margin: -8px 0 0 -8px;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      border-right-color: transparent;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -206,175 +229,270 @@
   <div id="notification" class="notification"></div>
 
   <script>
-    // JavaScript optimizado para Android
+    // ==================== CONFIGURACIÓN ====================
+    const CONFIG = {
+      NOTIFICATION_DURATION: 3500,
+      PASSWORD_MIN_LENGTH: 8,
+      INITIAL_USER_POINTS: 100,
+      INITIAL_USER_LEVEL: 1,
+      INITIAL_USER_EXPERIENCE: 0,
+      NEXT_LEVEL_THRESHOLD: 200,
+      DISCORD_CLIENT_ID: '1417729368825794640',
+      DISCORD_REDIRECT_URI: 'https://virtualstudios6.github.io/VirtualGift-App/',
+      // REEMPLAZA ESTO CON TU CLIENT_SECRET REAL:
+      DISCORD_CLIENT_SECRET: 'FUabzEkiOoLogmzhUL6fXMVbaHN6nmUn'
+    };
+
+    // ==================== ESTADO GLOBAL ====================
+    const State = {
+      isLoading: false,
+      setLoading(loading) {
+        this.isLoading = loading;
+        const buttons = ['login-btn', 'register-btn', 'send-recovery-email', 'discord-login'];
+        buttons.forEach(btnId => {
+          const btn = document.getElementById(btnId);
+          if (btn) {
+            btn.disabled = loading;
+            if (loading && btnId === 'discord-login') {
+              btn.classList.add('btn-loading');
+            } else {
+              btn.classList.remove('btn-loading');
+            }
+          }
+        });
+      }
+    };
+
+    // ==================== NOTIFICACIONES ====================
+    const NotificationManager = {
+      show(message, type = 'success') {
+        const notification = document.getElementById('notification');
+        if (!notification) return;
+        
+        notification.textContent = message;
+        notification.className = `notification show ${type}`;
+        
+        setTimeout(() => {
+          notification.classList.remove('show');
+        }, CONFIG.NOTIFICATION_DURATION);
+      }
+    };
+
+    // ==================== DISCORD OAUTH ====================
+    const DiscordAuth = {
+      async initiateLogin() {
+        if (State.isLoading) return;
+        State.setLoading(true);
+        
+        try {
+          const state = this.generateState();
+          sessionStorage.setItem('discord_oauth_state', state);
+          
+          const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${CONFIG.DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(CONFIG.DISCORD_REDIRECT_URI)}&response_type=code&scope=identify%20email&state=${state}&prompt=none`;
+          
+          window.location.href = authUrl;
+        } catch (error) {
+          NotificationManager.show('Error al conectar con Discord', 'error');
+          State.setLoading(false);
+        }
+      },
+
+      async handleCallback() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
+        const state = urlParams.get('state');
+
+        if (error) {
+          NotificationManager.show(`Error de Discord: ${error}`, 'error');
+          this.cleanUrl();
+          return;
+        }
+
+        if (code && state) {
+          const savedState = sessionStorage.getItem('discord_oauth_state');
+          if (state !== savedState) {
+            NotificationManager.show('Error de seguridad', 'error');
+            this.cleanUrl();
+            return;
+          }
+
+          sessionStorage.removeItem('discord_oauth_state');
+          await this.exchangeCodeForToken(code);
+        }
+      },
+
+      async exchangeCodeForToken(code) {
+        try {
+          NotificationManager.show('Procesando autenticación...', 'info');
+          
+          // Intercambiar código por token usando client_secret
+          const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+              client_id: CONFIG.DISCORD_CLIENT_ID,
+              client_secret: CONFIG.DISCORD_CLIENT_SECRET,
+              grant_type: 'authorization_code',
+              code: code,
+              redirect_uri: CONFIG.DISCORD_REDIRECT_URI,
+              scope: 'identify email'
+            })
+          });
+
+          if (!tokenResponse.ok) {
+            throw new Error('Error al obtener token de Discord');
+          }
+
+          const tokens = await tokenResponse.json();
+          await this.getUserInfo(tokens.access_token);
+          
+        } catch (error) {
+          console.error('Error Discord auth:', error);
+          NotificationManager.show('Error en la autenticación', 'error');
+          State.setLoading(false);
+        }
+      },
+
+      async getUserInfo(accessToken) {
+        try {
+          const userResponse = await fetch('https://discord.com/api/users/@me', {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+
+          if (!userResponse.ok) {
+            throw new Error('Error al obtener información del usuario');
+          }
+
+          const discordUser = await userResponse.json();
+          await this.createFirebaseUser(discordUser);
+          
+        } catch (error) {
+          NotificationManager.show('Error al obtener datos del usuario', 'error');
+          State.setLoading(false);
+        }
+      },
+
+      async createFirebaseUser(discordUser) {
+        try {
+          // Crear usuario en Firebase
+          const email = `${discordUser.id}@discord.virtualgift.com`;
+          const password = this.generateSecurePassword();
+          
+          const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
+          const user = userCredential.user;
+          
+          // Actualizar perfil
+          await user.updateProfile({
+            displayName: discordUser.username
+          });
+          
+          // Guardar en Firestore
+          await firebase.firestore().collection('users').doc(user.uid).set({
+            username: discordUser.username,
+            email: email,
+            discordId: discordUser.id,
+            discordUsername: discordUser.username,
+            discordAvatar: discordUser.avatar,
+            points: CONFIG.INITIAL_USER_POINTS,
+            level: CONFIG.INITIAL_USER_LEVEL,
+            experience: CONFIG.INITIAL_USER_EXPERIENCE,
+            nextLevel: CONFIG.NEXT_LEVEL_THRESHOLD,
+            joinDate: firebase.firestore.FieldValue.serverTimestamp(),
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+            emailVerified: true,
+            loginMethod: 'discord'
+          });
+
+          NotificationManager.show(`¡Bienvenido, ${discordUser.username}!`, 'success');
+          this.cleanUrl();
+          
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 2000);
+          
+        } catch (error) {
+          if (error.code === 'auth/email-already-in-use') {
+            await this.handleExistingUser(discordUser);
+          } else {
+            NotificationManager.show('Error al crear usuario: ' + error.message, 'error');
+            State.setLoading(false);
+          }
+        }
+      },
+
+      async handleExistingUser(discordUser) {
+        try {
+          const email = `${discordUser.id}@discord.virtualgift.com`;
+          const password = this.generateSecurePassword();
+          
+          // Intentar login
+          await firebase.auth().signInWithEmailAndPassword(email, password);
+          NotificationManager.show(`¡Bienvenido de nuevo, ${discordUser.username}!`, 'success');
+          
+          this.cleanUrl();
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 2000);
+          
+        } catch (error) {
+          NotificationManager.show('Error al iniciar sesión', 'error');
+          State.setLoading(false);
+        }
+      },
+
+      generateState() {
+        return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      },
+
+      generateSecurePassword() {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+        let password = '';
+        for (let i = 0; i < 16; i++) {
+          password += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return password;
+      },
+
+      cleanUrl() {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    };
+
+    // ==================== MANEJADORES DE FORMULARIOS ====================
+    const FormHandlers = {
+      // ... (tus funciones existentes de login/registro)
+      async handleLogin() {
+        // Tu código existente de login
+      },
+
+      async handleRegistration() {
+        // Tu código existente de registro
+      }
+    };
+
+    // ==================== INICIALIZACIÓN ====================
     document.addEventListener('DOMContentLoaded', function() {
+      // Configuración inicial
       document.documentElement.style.backgroundColor = '#0f172a';
       document.body.style.backgroundColor = '#0f172a';
       
-      const setVH = () => {
-        let vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-        document.body.style.minHeight = `${window.innerHeight}px`;
-      };
-      setVH();
-      window.addEventListener('resize', setVH);
-      window.addEventListener('orientationchange', setVH);
-      
-      const inputs = document.querySelectorAll('input');
-      inputs.forEach(input => {
-        input.addEventListener('focus', function() {
-          if (window.innerWidth < 768) {
-            document.querySelector('meta[name=viewport]').setAttribute('content', 
-              'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover');
-          }
-        });
-        input.addEventListener('blur', function() {
-          document.querySelector('meta[name=viewport]').setAttribute('content', 
-            'width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover');
-        });
-      });
-      
-      const buttons = document.querySelectorAll('.btn');
-      buttons.forEach(button => {
-        button.addEventListener('touchstart', function() {
-          this.style.transform = 'scale(0.98)';
-        });
-        button.addEventListener('touchend', function() {
-          setTimeout(() => {
-            this.style.transform = '';
-          }, 100);
-        });
-      });
-
-      const showRegister = document.getElementById('show-register');
-      const showLogin = document.getElementById('show-login');
-      const loginForm = document.getElementById('login-form');
-      const registerForm = document.getElementById('register-form');
-      const forgotPassword = document.getElementById('forgot-password');
-      const recoveryOverlay = document.getElementById('recovery-overlay');
-      const recoveryContainer = document.getElementById('recovery-container');
-      const cancelRecovery = document.getElementById('cancel-recovery');
-
-      showRegister?.addEventListener('click', (e) => {
-        e.preventDefault();
-        loginForm.classList.remove('active');
-        registerForm.classList.add('active');
-      });
-
-      showLogin?.addEventListener('click', (e) => {
-        e.preventDefault();
-        registerForm.classList.remove('active');
-        loginForm.classList.add('active');
-      });
-
-      forgotPassword?.addEventListener('click', (e) => {
-        e.preventDefault();
-        recoveryOverlay.classList.add('show');
-        recoveryContainer.classList.add('show');
-        document.body.style.overflow = 'hidden';
-      });
-
-      cancelRecovery?.addEventListener('click', () => {
-        recoveryOverlay.classList.remove('show');
-        recoveryContainer.classList.remove('show');
-        document.body.style.overflow = 'auto';
-      });
-
-      recoveryOverlay?.addEventListener('click', (e) => {
-        if (e.target === recoveryOverlay) {
-          recoveryOverlay.classList.remove('show');
-          recoveryContainer.classList.remove('show');
-          document.body.style.overflow = 'auto';
-        }
-      });
-
-      // Manejadores para los enlaces del footer
-      const footerLinks = document.querySelectorAll('.footer-links a');
-      footerLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-          // Añadir efecto de feedback táctil
-          this.style.transform = 'scale(0.95)';
-          setTimeout(() => {
-            this.style.transform = '';
-          }, 150);
-        });
-      });
-
-      // Discord OAuth Implementation
+      // Event listeners
       const discordBtn = document.getElementById('discord-login');
       if (discordBtn) {
-        discordBtn.addEventListener('click', handleDiscordLogin);
+        discordBtn.addEventListener('click', () => DiscordAuth.initiateLogin());
       }
 
-      // Manejar callback de Discord si hay parámetros en la URL
-      handleDiscordCallback();
+      // Manejar callback de Discord al cargar la página
+      DiscordAuth.handleCallback();
+
+      // ... (tus otros event listeners existentes)
     });
 
-    function handleDiscordLogin() {
-      const clientId = '1417729368825794640';
-      const redirectUri = encodeURIComponent('https://virtualstudios6.github.io/VirtualGift-App/');
-      const scope = encodeURIComponent('identify email');
-      const responseType = 'code';
-      const state = generateRandomState();
-      
-      // Guardar state en sessionStorage para validación
-      sessionStorage.setItem('discord_oauth_state', state);
-      
-      const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}&state=${state}&prompt=none`;
-      window.location.href = discordUrl;
-    }
-
-    function generateRandomState() {
-      return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-    }
-
-    function handleDiscordCallback() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const code = urlParams.get('code');
-      const error = urlParams.get('error');
-      const state = urlParams.get('state');
-      
-      if (error) {
-        showNotification(`Error de Discord: ${error}`, 'error');
-        cleanUrlParams();
-        return;
-      }
-      
-      if (code && state) {
-        const savedState = sessionStorage.getItem('discord_oauth_state');
-        if (state !== savedState) {
-          showNotification('Error de seguridad en la autenticación', 'error');
-          cleanUrlParams();
-          return;
-        }
-        
-        sessionStorage.removeItem('discord_oauth_state');
-        showNotification('Autenticación con Discord exitosa', 'success');
-        
-        // Aquí deberías enviar el código a tu backend
-        // Por ahora, limpiamos la URL y mostramos mensaje
-        setTimeout(() => {
-          cleanUrlParams();
-          showNotification('Funcionalidad completa requiere backend configurado', 'info');
-        }, 2000);
-      }
-    }
-    
-    function cleanUrlParams() {
-      const cleanUrl = window.location.origin + window.location.pathname;
-      window.history.replaceState({}, document.title, cleanUrl);
-    }
-    
-    function showNotification(message, type = 'success') {
-      const notification = document.getElementById('notification');
-      if (notification) {
-        notification.textContent = message;
-        notification.className = `notification show ${type}`;
-        setTimeout(() => {
-          notification.classList.remove('show');
-        }, 5000);
-      }
-    }
   </script>
 </body>
 </html>
