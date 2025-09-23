@@ -297,22 +297,84 @@
           setTimeout(() => {
             this.style.transform = '';
           }, 150);
-          
-          // El navegador manejará automáticamente la navegación por el href
         });
       });
+
+      // Discord OAuth Implementation
+      const discordBtn = document.getElementById('discord-login');
+      if (discordBtn) {
+        discordBtn.addEventListener('click', handleDiscordLogin);
+      }
+
+      // Manejar callback de Discord si hay parámetros en la URL
+      handleDiscordCallback();
     });
+
+    function handleDiscordLogin() {
+      const clientId = '1417729368825794640';
+      const redirectUri = encodeURIComponent('https://virtualstudios6.github.io/VirtualGift-App/');
+      const scope = encodeURIComponent('identify email');
+      const responseType = 'code';
+      const state = generateRandomState();
+      
+      // Guardar state en sessionStorage para validación
+      sessionStorage.setItem('discord_oauth_state', state);
+      
+      const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}&state=${state}&prompt=none`;
+      window.location.href = discordUrl;
+    }
+
+    function generateRandomState() {
+      return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    }
+
+    function handleDiscordCallback() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const error = urlParams.get('error');
+      const state = urlParams.get('state');
+      
+      if (error) {
+        showNotification(`Error de Discord: ${error}`, 'error');
+        cleanUrlParams();
+        return;
+      }
+      
+      if (code && state) {
+        const savedState = sessionStorage.getItem('discord_oauth_state');
+        if (state !== savedState) {
+          showNotification('Error de seguridad en la autenticación', 'error');
+          cleanUrlParams();
+          return;
+        }
+        
+        sessionStorage.removeItem('discord_oauth_state');
+        showNotification('Autenticación con Discord exitosa', 'success');
+        
+        // Aquí deberías enviar el código a tu backend
+        // Por ahora, limpiamos la URL y mostramos mensaje
+        setTimeout(() => {
+          cleanUrlParams();
+          showNotification('Funcionalidad completa requiere backend configurado', 'info');
+        }, 2000);
+      }
+    }
+    
+    function cleanUrlParams() {
+      const cleanUrl = window.location.origin + window.location.pathname;
+      window.history.replaceState({}, document.title, cleanUrl);
+    }
+    
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      if (notification) {
+        notification.textContent = message;
+        notification.className = `notification show ${type}`;
+        setTimeout(() => {
+          notification.classList.remove('show');
+        }, 5000);
+      }
+    }
   </script>
 </body>
-<script>
-  const discordBtn = document.getElementById('discord-login');
-  discordBtn.addEventListener('click', () => {
-    const clientId = '1417729368825794640';
-    const redirectUri = encodeURIComponent('https://virtualstudios6.github.io/VirtualGift-App/index.html');
-    const scope = encodeURIComponent('identify email');
-    const responseType = 'code';
-    const discordUrl = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
-    window.location.href = discordUrl;
-  });
-</script>
 </html>

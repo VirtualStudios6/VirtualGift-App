@@ -23,6 +23,15 @@ const VALIDATION_PATTERNS = {
 };
 
 // ----------------------------
+// Discord OAuth Configuration
+// ----------------------------
+const DISCORD_CONFIG = {
+  clientId: '1417729368825794640',
+  redirectUri: 'https://virtualstudios6.github.io/VirtualGift-App/',
+  scope: 'identify email'
+};
+
+// ----------------------------
 // DOM References
 // ----------------------------
 const DOM = {
@@ -47,7 +56,8 @@ const DOM = {
   showRegister: document.getElementById('show-register'),
   showLogin: document.getElementById('show-login'),
   passwordStrengthBar: document.getElementById('password-strength-bar'),
-  googleLoginBtn: document.getElementById('google-login')
+  googleLoginBtn: document.getElementById('google-login'),
+  discordLoginBtn: document.getElementById('discord-login')
 };
 
 // ----------------------------
@@ -58,14 +68,15 @@ const State = {
   isLoading: false,
   setLoading(loading) {
     this.isLoading = loading;
-    const buttons = [DOM.loginBtn, DOM.registerBtn, DOM.sendRecoveryEmailBtn, DOM.googleLoginBtn];
+    const buttons = [DOM.loginBtn, DOM.registerBtn, DOM.sendRecoveryEmailBtn, DOM.googleLoginBtn, DOM.discordLoginBtn];
     buttons.forEach(btn => {
       if (btn) {
         btn.disabled = loading;
         btn.textContent = loading ? 
           (btn === DOM.loginBtn ? 'Iniciando...' : 
            btn === DOM.registerBtn ? 'Registrando...' : 
-           btn === DOM.sendRecoveryEmailBtn ? 'Enviando...' : 'Iniciando...') :
+           btn === DOM.sendRecoveryEmailBtn ? 'Enviando...' : 
+           btn === DOM.discordLoginBtn ? 'Conectando...' : 'Iniciando...') :
           btn.dataset.originalText || btn.textContent;
         if (!btn.dataset.originalText && !loading) {
           btn.dataset.originalText = btn.textContent;
@@ -113,6 +124,9 @@ const Utils = {
       'auth/network-request-failed': 'Error de conexión'
     };
     return messages[error.code] || error.message || 'Error desconocido';
+  },
+  generateRandomState() {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
 };
 
@@ -129,7 +143,8 @@ const NotificationManager = {
     this.timeout = setTimeout(() => DOM.notification.classList.remove('show'), CONFIG.NOTIFICATION_DURATION);
   },
   success(msg) { this.show(msg, 'success'); },
-  error(msg) { this.show(msg, 'error'); }
+  error(msg) { this.show(msg, 'error'); },
+  info(msg) { this.show(msg, 'info'); }
 };
 
 // ----------------------------
@@ -203,6 +218,80 @@ const FirebaseManager = {
   },
   async sendPasswordReset(email) {
     await firebase.auth().sendPasswordResetEmail(email);
+  }
+};
+
+// ----------------------------
+// Discord OAuth Manager
+// ----------------------------
+const DiscordAuthManager = {
+  initiateLogin() {
+    if (State.isLoading) return;
+    
+    State.setLoading(true);
+    const state = Utils.generateRandomState();
+    sessionStorage.setItem('discord_oauth_state', state);
+    
+    const authUrl = new URL('https://discord.com/api/oauth2/authorize');
+    authUrl.searchParams.set('client_id', DISCORD_CONFIG.clientId);
+    authUrl.searchParams.set('redirect_uri', encodeURIComponent(DISCORD_CONFIG.redirectUri));
+    authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('scope', DISCORD_CONFIG.scope);
+    authUrl.searchParams.set('state', state);
+    authUrl.searchParams.set('prompt', 'none');
+    
+    window.location.href = authUrl.toString();
+  },
+  
+  async handleCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const error = urlParams.get('error');
+    const state = urlParams.get('state');
+    
+    if (error) {
+      NotificationManager.error(`Error de Discord: ${error}`);
+      this.cleanUrlParams();
+      return;
+    }
+    
+    if (code && state) {
+      const savedState = sessionStorage.getItem('discord_oauth_state');
+      if (state !== savedState) {
+        NotificationManager.error('Error de seguridad en la autenticación');
+        this.cleanUrlParams();
+        return;
+      }
+      
+      sessionStorage.removeItem('discord_oauth_state');
+      NotificationManager.success('Autenticación con Discord exitosa');
+      
+      try {
+        // Aquí deberías enviar el código a tu backend
+        // Esta es una implementación temporal
+        await this.handleDiscordSuccess();
+      } catch (error) {
+        console.error('Error en autenticación Discord:', error);
+        NotificationManager.error('Error al procesar la autenticación');
+      } finally {
+        this.cleanUrlParams();
+      }
+    }
+  },
+  
+  async handleDiscordSuccess() {
+    // Implementación temporal - aquí deberías integrar con tu backend
+    NotificationManager.info('Para una integración completa, configura el backend de Discord OAuth');
+    
+    // Simular éxito y posible redirección
+    setTimeout(() => {
+      // window.location.href = 'dashboard.html';
+    }, 2000);
+  },
+  
+  cleanUrlParams() {
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
   }
 };
 
@@ -374,6 +463,15 @@ if(DOM.googleLoginBtn){
 }
 
 // ----------------------------
+// Discord Sign-In
+// ----------------------------
+if(DOM.discordLoginBtn){
+  DOM.discordLoginBtn.addEventListener('click', () => {
+    DiscordAuthManager.initiateLogin();
+  });
+}
+
+// ----------------------------
 // Eventos
 // ----------------------------
 function setupEventListeners(){
@@ -415,7 +513,13 @@ function init(){
     return;
   }
   setupEventListeners();
-  [DOM.loginBtn, DOM.registerBtn, DOM.sendRecoveryEmailBtn, DOM.googleLoginBtn].forEach(btn=>btn.dataset.originalText=btn?.textContent);
+  [DOM.loginBtn, DOM.registerBtn, DOM.sendRecoveryEmailBtn, DOM.googleLoginBtn, DOM.discordLoginBtn].forEach(btn=>{
+    if(btn) btn.dataset.originalText=btn.textContent;
+  });
+  
+  // Manejar callback de Discord al cargar la página
+  DiscordAuthManager.handleCallback();
+  
   console.log('Auth system initialized successfully');
 }
 
