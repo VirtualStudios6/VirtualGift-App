@@ -56,19 +56,21 @@ function showNotification(message, isError = false) {
     }, 3000);
 }
 
+// Función para ocultar el overlay de carga y mostrar el dashboard
+function hideLoadingOverlay() {
+    const loading = document.getElementById('loading-overlay');
+    const dashboardContent = document.getElementById('dashboard-content');
+    if (loading) loading.style.display = 'none';
+    if (dashboardContent) dashboardContent.style.display = 'block';
+}
+
 // Mostrar modal
 function showModal(title, description, onConfirm) {
     modalTitle.textContent = title;
     modalDescription.textContent = description;
-    
-    // Configurar acción de confirmación
     modalConfirm.onclick = onConfirm;
-    
-    // Mostrar modal y overlay
     rewardModal.classList.add('show');
     overlay.style.display = 'block';
-    
-    // Añadir clase para animación
     setTimeout(() => {
         rewardModal.style.display = 'block';
     }, 10);
@@ -78,7 +80,6 @@ function showModal(title, description, onConfirm) {
 function hideModal() {
     rewardModal.classList.remove('show');
     overlay.style.display = 'none';
-    
     setTimeout(() => {
         rewardModal.style.display = 'none';
     }, 300);
@@ -90,58 +91,43 @@ function loadUserData(user) {
         .then(doc => {
             if (doc.exists) {
                 userData = doc.data();
-                
-                // Mostrar el nombre de usuario real
                 if (userDisplayName) {
                     userDisplayName.textContent = userData.username || user.displayName || 'Usuario';
                 }
-                
-                // Mostrar puntos
                 if (userPoints) {
                     userPoints.textContent = userData.points || 0;
                 }
-                
-                // Mostrar nivel
                 if (userLevel) {
                     userLevel.textContent = userData.level || 1;
                 }
-                
-                // Mostrar progreso de nivel
                 if (levelProgress && progressText) {
                     const experience = userData.experience || 0;
                     const nextLevel = userData.nextLevel || 200;
                     const progressPercent = (experience / nextLevel) * 100;
-                    
                     levelProgress.style.width = Math.min(progressPercent, 100) + '%';
                     progressText.textContent = `${experience}/${nextLevel} puntos`;
                 }
-                
-                // Calcular ranking (esto es un ejemplo, necesitarías una colección de usuarios ordenada)
                 if (userRank) {
-                    // Esto es temporal - en una implementación real necesitarías consultar todos los usuarios
                     userRank.textContent = '#0'; 
                 }
-                
-                // Actualizar estado de botones basado en puntos
                 updateRewardButtons();
+                hideLoadingOverlay(); // OCULTA EL LOADING AQUÍ
+                loadRewardsStore();   // Carga la tienda cuando ya tienes los datos
             } else {
-                // Si no existe en Firestore, usar datos básicos
                 if (userDisplayName) {
                     userDisplayName.textContent = user.displayName || 'Usuario';
                 }
-                
-                // Crear documento inicial para el usuario
                 createInitialUserData(user);
+                hideLoadingOverlay();
             }
         })
         .catch(error => {
             console.error('Error al obtener datos del usuario:', error);
             showNotification('Error al cargar datos del usuario', true);
-            
-            // Mostrar datos básicos si falla Firestore
             if (userDisplayName) {
                 userDisplayName.textContent = user.displayName || 'Usuario';
             }
+            hideLoadingOverlay();
         });
 }
 
@@ -157,7 +143,6 @@ function createInitialUserData(user) {
         joined: firebase.firestore.FieldValue.serverTimestamp(),
         lastLogin: firebase.firestore.FieldValue.serverTimestamp()
     };
-    
     db.collection('users').doc(user.uid).set(initialData)
         .then(() => {
             userData = initialData;
@@ -175,24 +160,19 @@ function updateUIWithUserData() {
     if (userDisplayName) {
         userDisplayName.textContent = userData.username || 'Usuario';
     }
-    
     if (userPoints) {
         userPoints.textContent = userData.points || 0;
     }
-    
     if (userLevel) {
         userLevel.textContent = userData.level || 1;
     }
-    
     if (levelProgress && progressText) {
         const experience = userData.experience || 0;
         const nextLevel = userData.nextLevel || 200;
         const progressPercent = (experience / nextLevel) * 100;
-        
         levelProgress.style.width = Math.min(progressPercent, 100) + '%';
         progressText.textContent = `${experience}/${nextLevel} puntos`;
     }
-    
     updateRewardButtons();
 }
 
@@ -206,25 +186,18 @@ function updateRewardButtons() {
 function addUserPoints(points, activityDescription) {
     const newPoints = (userData.points || 0) + points;
     const newExperience = (userData.experience || 0) + points;
-    
-    // Verificar si subió de nivel
     let levelUp = false;
     let newLevel = userData.level || 1;
     let newNextLevel = userData.nextLevel || 100;
-    
     if (newExperience >= newNextLevel) {
         levelUp = true;
         newLevel++;
-        newNextLevel = newNextLevel * 2; // Doblamos la experiencia necesaria para el siguiente nivel
+        newNextLevel = newNextLevel * 2;
     }
-    
-    // Actualizar datos locales
     userData.points = newPoints;
     userData.experience = newExperience;
     userData.level = newLevel;
     userData.nextLevel = newNextLevel;
-    
-    // Actualizar Firestore
     db.collection('users').doc(currentUser.uid).update({
         points: newPoints,
         experience: newExperience,
@@ -233,13 +206,8 @@ function addUserPoints(points, activityDescription) {
         lastLogin: firebase.firestore.FieldValue.serverTimestamp()
     })
     .then(() => {
-        // Registrar actividad
         registerActivity(activityDescription, points);
-        
-        // Actualizar UI
         updateUIWithUserData();
-        
-        // Mostrar notificación
         if (levelUp) {
             showNotification(`¡Felicidades! Has subido al nivel ${newLevel}`, false);
         } else {
@@ -259,10 +227,8 @@ function registerActivity(description, points) {
         points: points,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
     };
-    
     db.collection('users').doc(currentUser.uid).collection('activities').add(activity)
         .then(() => {
-            // Actualizar lista de actividades
             loadRecentActivities();
         })
         .catch(error => {
@@ -274,24 +240,20 @@ function registerActivity(description, points) {
 function loadRecentActivities() {
     const activityList = document.getElementById('activity-list');
     if (!activityList) return;
-    
     db.collection('users').doc(currentUser.uid).collection('activities')
         .orderBy('timestamp', 'desc')
         .limit(5)
         .get()
         .then(snapshot => {
-            activityList.innerHTML = ''; // Limpiar lista
-            
+            activityList.innerHTML = '';
             if (snapshot.empty) {
                 activityList.innerHTML = '<div class="activity-item">No hay actividades recientes</div>';
                 return;
             }
-            
             snapshot.forEach(doc => {
                 const activity = doc.data();
                 const date = activity.timestamp ? activity.timestamp.toDate() : new Date();
                 const formattedDate = formatDate(date);
-                
                 const activityItem = document.createElement('div');
                 activityItem.className = 'activity-item';
                 activityItem.innerHTML = `
@@ -304,7 +266,6 @@ function loadRecentActivities() {
                     </div>
                     <div class="activity-date">${formattedDate}</div>
                 `;
-                
                 activityList.appendChild(activityItem);
             });
         })
@@ -328,7 +289,6 @@ function formatDate(date) {
     const now = new Date();
     const diffTime = Math.abs(now - date);
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    
     if (diffDays === 0) {
         return 'Hoy';
     } else if (diffDays === 1) {
@@ -345,46 +305,31 @@ function simulateAdView() {
     if (adInterval) {
         clearInterval(adInterval);
     }
-    
-    // Mostrar contador de progreso
     const adProgressContainer = document.querySelector('.ad-progress-container');
     if (adProgressContainer) {
         adProgressContainer.style.display = 'block';
     }
-    
     let timeLeft = 30;
     adTimer.textContent = `${timeLeft}s`;
     adProgress.style.width = '0%';
-    
-    // Deshabilitar botón durante la reproducción
     if (watchAdBtn) {
         watchAdBtn.disabled = true;
         watchAdBtn.textContent = 'Reproduciendo...';
     }
-    
     adInterval = setInterval(() => {
         timeLeft--;
-        
-        // Actualizar progreso
         const progressPercent = ((30 - timeLeft) / 30) * 100;
         adProgress.style.width = `${progressPercent}%`;
         adTimer.textContent = `${timeLeft}s`;
-        
         if (timeLeft <= 0) {
             clearInterval(adInterval);
-            
-            // Ocultar contador de progreso
             if (adProgressContainer) {
                 adProgressContainer.style.display = 'none';
             }
-            
-            // Rehabilitar botón
             if (watchAdBtn) {
                 watchAdBtn.disabled = false;
                 watchAdBtn.textContent = 'Ver Anuncio';
             }
-            
-            // Añadir puntos
             addUserPoints(25, 'Viste un anuncio');
         }
     }, 1000);
@@ -408,7 +353,6 @@ if (logoutBtn) {
                         console.error('Error al cerrar sesión:', error);
                         showNotification('Error al cerrar sesión', true);
                     });
-                
                 hideModal();
             }
         );
@@ -426,7 +370,6 @@ if (installAppBtn) {
             'Instalar App Móvil',
             'Al instalar nuestra app móvil ganarás 100 puntos. ¿Quieres continuar?',
             function() {
-                // Simular instalación (en una app real esto abriría el store)
                 addUserPoints(100, 'Instalaste la app móvil');
                 hideModal();
             }
@@ -440,7 +383,6 @@ if (referFriendBtn) {
             'Referir Amigo',
             'Comparte tu código de referido con amigos y gana 50 puntos por cada uno que se registre. Tu código es: ' + currentUser.uid.substring(0, 8).toUpperCase(),
             function() {
-                // Copiar código al portapapeles
                 navigator.clipboard.writeText(currentUser.uid.substring(0, 8).toUpperCase())
                     .then(() => {
                         showNotification('Código copiado al portapapeles');
@@ -448,7 +390,6 @@ if (referFriendBtn) {
                     .catch(err => {
                         console.error('Error al copiar:', err);
                     });
-                
                 hideModal();
             }
         );
@@ -474,8 +415,6 @@ overlay.addEventListener('click', hideModal);
 auth.onAuthStateChanged((user) => {
     if (user) {
         currentUser = user;
-        
-        // Verificar si el email está verificado
         if (!user.emailVerified) {
             showNotification('Por favor, verifica tu email para acceder al dashboard', true);
             setTimeout(() => {
@@ -485,12 +424,9 @@ auth.onAuthStateChanged((user) => {
             }, 2000);
             return;
         }
-        
-        // Usuario autenticado y verificado - cargar datos
         loadUserData(user);
         loadRecentActivities();
     } else {
-        // Usuario no autenticado - redirigir al login
         window.location.href = 'index.html';
     }
 });
@@ -499,19 +435,14 @@ auth.onAuthStateChanged((user) => {
 function loadRewardsStore() {
     const rewardsStore = document.getElementById('rewards-store');
     if (!rewardsStore) return;
-    
-    // Datos de ejemplo para la tienda
     const rewards = [
         { icon: '🎁', title: 'GIF Exclusivo', description: 'Desbloquea un GIF exclusivo para tu perfil', cost: 150 },
         { icon: '⭐', title: 'Estrellas Doradas', description: 'Paquete de estrellas doradas para tus GIFs', cost: 250 },
         { icon: '🚀', title: 'Boost de Visibilidad', description: 'Aumenta la visibilidad de tus GIFs por 24h', cost: 500 }
     ];
-    
-    rewardsStore.innerHTML = ''; // Limpiar tienda
-    
+    rewardsStore.innerHTML = '';
     rewards.forEach(reward => {
         const canAfford = (userData.points || 0) >= reward.cost;
-        
         const rewardElement = document.createElement('div');
         rewardElement.className = 'store-item';
         rewardElement.innerHTML = `
@@ -523,8 +454,6 @@ function loadRewardsStore() {
                 ${canAfford ? 'Canjear' : 'Puntos insuficientes'}
             </button>
         `;
-        
-        // Añadir evento de clic al botón
         const redeemBtn = rewardElement.querySelector('.btn-redeem');
         if (redeemBtn && canAfford) {
             redeemBtn.addEventListener('click', function() {
@@ -532,43 +461,17 @@ function loadRewardsStore() {
                     'Canjear Recompensa',
                     `¿Quieres canjear "${reward.title}" por ${reward.cost} puntos?`,
                     function() {
-                        // Restar puntos
                         addUserPoints(-reward.cost, `Canjeaste: ${reward.title}`);
                         hideModal();
                     }
                 );
             });
         }
-        
         rewardsStore.appendChild(rewardElement);
     });
 }
 
-// Inicializar la aplicación cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Dashboard cargado correctamente');
-    
-    // Una vez que los datos del usuario estén cargados, cargar la tienda
-    if (currentUser && userData.points !== undefined) {
-        loadRewardsStore();
-    }
-    
-});
-document.addEventListener('DOMContentLoaded', function() {
-  const userPointsElem = document.getElementById('user-points');
-  let userPoints = parseInt(localStorage.getItem('vg_userPoints') || userPointsElem.textContent);
-  userPointsElem.textContent = userPoints.toLocaleString();
-
-  const progressFill = document.getElementById('level-progress');
-  const progressText = document.getElementById('progress-text');
-  const progressPercentage = Math.min((userPoints / 200) * 100, 100);
-  progressFill.style.width = `${progressPercentage}%`;
-  progressText.textContent = `${userPoints}/200 puntos`;
-
-  // Modal del dashboard
-  const modal = document.getElementById('reward-modal');
-  const modalConfirm = document.getElementById('modal-confirm');
-  const closeModal = document.querySelector('.close-modal');
-  closeModal.addEventListener('click', () => { modal.style.display = 'none'; });
-  modalConfirm.addEventListener('click', () => { modal.style.display = 'none'; });
+    // La tienda se carga desde loadUserData cuando los datos estén listos
+    // Si tienes lógica propia aquí, mantenla.
 });
