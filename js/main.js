@@ -169,13 +169,19 @@ const FormManager = {
     State.setLoading(true);
 
     try {
-      await firebase.auth().signInWithEmailAndPassword(email, password);
+      const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+      const user = userCredential.user;
+      if (!user.emailVerified) {
+        NotificationManager.show('Verifica tu email antes de continuar', 'error');
+        await firebase.auth().signOut();
+        State.setLoading(false);
+        return;
+      }
       NotificationManager.show('¡Inicio de sesión exitoso!', 'success');
-
-      // Redirigir al dashboard después de un breve delay
+      // Redirigir a welcome.html después de login exitoso
       setTimeout(() => {
-        window.location.href = 'dashboard.html';
-      }, 1500);
+        window.location.href = 'welcome.html';
+      }, 1200);
 
     } catch (error) {
       console.error('Error al iniciar sesión:', error);
@@ -258,10 +264,11 @@ const FormManager = {
 
       NotificationManager.show('¡Cuenta creada exitosamente! Se ha enviado un correo de verificación', 'success');
 
-      // Redirigir al dashboard después de un breve delay
-      setTimeout(() => {
-        window.location.href = 'dashboard.html';
-      }, 2000);
+      // Por seguridad, pide verificar el correo antes de acceder.
+      await firebase.auth().signOut();
+
+      // Si quieres dejar pasar aunque no haya verificado, descomenta la línea de abajo (NO recomendado):
+      // setTimeout(() => { window.location.href = 'welcome.html'; }, 2000);
 
     } catch (error) {
       console.error('Error al registrar usuario:', error);
@@ -439,8 +446,8 @@ const DiscordAuth = {
       this.cleanUrl();
 
       setTimeout(() => {
-        window.location.href = 'dashboard.html';
-      }, 2000);
+        window.location.href = 'welcome.html';
+      }, 1200);
 
     } catch (error) {
       if (error.code === 'auth/email-already-in-use') {
@@ -463,8 +470,8 @@ const DiscordAuth = {
 
       this.cleanUrl();
       setTimeout(() => {
-        window.location.href = 'dashboard.html';
-      }, 2000);
+        window.location.href = 'welcome.html';
+      }, 1200);
 
     } catch (error) {
       NotificationManager.show('Error al iniciar sesión', 'error');
