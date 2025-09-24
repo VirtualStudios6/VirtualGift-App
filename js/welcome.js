@@ -1,5 +1,3 @@
-// Asegúrate de que el script de Firebase y firebase-config.js están cargados antes de este archivo
-
 document.addEventListener('DOMContentLoaded', function() {
     // Referencias a elementos del DOM
     const userNameElem    = document.getElementById('userName');
@@ -12,12 +10,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Verifica sesión de usuario
     auth.onAuthStateChanged(async function(user) {
         if (!user) {
-            // No autenticado, redirige al login
             window.location.href = 'index.html';
             return;
         }
         if (!user.emailVerified) {
-            // No verificado, redirige y cierra sesión
             alert('Por favor, verifica tu email para acceder.');
             await auth.signOut();
             window.location.href = 'index.html';
@@ -33,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (doc.exists) {
                     userData = doc.data();
                 } else {
-                    // Usuario nuevo, crea documento inicial
+                    // Usuario nuevo
                     isNewUser = true;
                     userData = {
                         username: user.displayName || 'Usuario',
@@ -51,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Mostrar nombre
                 userNameElem.textContent = userData.username || user.displayName || 'Usuario';
 
-                // Mensaje y título si es nuevo
+                // Mensaje si es nuevo
                 if (isNewUser) {
                     welcomeTitle.textContent = '¡Bienvenido!';
                     welcomeMessage.textContent = '¡Bienvenido por primera vez! Estás a punto de comenzar una increíble aventura llena de recompensas y diversión.';
@@ -59,7 +55,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // Animar puntos
                 animatePoints(userData.points || 0);
-
             })
             .catch(error => {
                 console.error('Error al recuperar datos:', error);
@@ -86,26 +81,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }, duration / steps);
     }
 
-    // Botón continuar
-    continueBtn.addEventListener('click', continueToDashboard);
-
-    function continueToDashboard() {
+    // Botón continuar (solo efecto visual, NO redirección forzada)
+    continueBtn.addEventListener('click', () => {
         continueBtn.classList.add('loading');
-        continueBtn.innerHTML = 'Cargando...';
+        continueBtn.innerHTML = 'Cargando... <i class="fas fa-spinner fa-spin"></i>';
         setTimeout(() => {
-            window.location.href = 'dashboard.html';
-        }, 1000);
-    }
+            continueBtn.classList.remove('loading');
+            continueBtn.innerHTML = 'Continuar <i class="fas fa-arrow-right"></i>';
+            // ⚡ Importante: aquí NO redirigimos manualmente.
+            // El botón ya tiene href="go:Inicio" en el HTML.
+        }, 800);
+    });
 
     // Efecto hover de partículas
     continueBtn.addEventListener('mouseenter', createParticles);
-
-    // Enter para continuar
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && document.activeElement !== continueBtn) {
-            continueToDashboard();
-        }
-    });
 
     // Escalado container
     container.addEventListener('mouseenter', () => container.style.transform = 'scale(1.02)');

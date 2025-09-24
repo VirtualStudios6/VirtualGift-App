@@ -8,11 +8,15 @@
     <link rel="stylesheet" href="css/welcome.css">
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    
     <!-- Firebase scripts -->
     <script defer src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+    <!-- Tu configuración de Firebase -->
     <script defer src="js/firebase-config.js"></script>
+    <!-- Script de bienvenida -->
+    <script defer src="js/welcome.js"></script>
 </head>
 <body>
     <!-- Fondo animado -->
@@ -24,40 +28,37 @@
 
     <!-- Container principal -->
     <main>
-      <div class="welcome-container" tabindex="0" aria-label="Bienvenida">
-          <div class="sparkle"></div>
-          <div class="sparkle"></div>
-          <div class="sparkle"></div>
-          <div class="sparkle"></div>
+        <div class="welcome-container" tabindex="0" aria-label="Bienvenida">
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
+            <div class="sparkle"></div>
 
-          <div class="welcome-icon">
-              <i class="fas fa-crown" aria-hidden="true"></i>
-          </div>
+            <div class="welcome-icon">
+                <i class="fas fa-crown" aria-hidden="true"></i>
+            </div>
 
-          <h1 class="welcome-title">¡Bienvenido!</h1>
-          <h2 class="welcome-subtitle" id="userName">Usuario</h2>
-          
-          <p class="welcome-message" id="welcome-message">
-              Nos alegra verte, Continúa tu aventura y descubre todas las recompensas que te esperan.
-          </p>
+            <h1 class="welcome-title">¡Bienvenido!</h1>
+            <h2 class="welcome-subtitle" id="userName">Usuario</h2>
 
-          <div class="points-display" aria-label="Tus puntos disponibles">
-              <div class="points-icon">
-                  <i class="fas fa-coins" aria-hidden="true"></i>
-              </div>
-              <div class="points-amount" id="userPoints">1,250</div>
-              <div class="points-label">Puntos disponibles</div>
-          </div>
+            <p class="welcome-message" id="welcome-message">
+                Nos alegra verte, Continúa tu aventura y descubre todas las recompensas que te esperan.
+            </p>
 
-          <!-- Botón modificado para ir a la sección "Inicio" de AppCreator24 -->
-          <a href="go:Inicio" class="continue-btn" id="continue-btn" aria-label="Continuar al Inicio">
-              Continuar
-              <i class="fas fa-arrow-right" aria-hidden="true"></i>
-          </a>
-      </div>
+            <div class="points-display" aria-label="Tus puntos disponibles">
+                <div class="points-icon">
+                    <i class="fas fa-coins" aria-hidden="true"></i>
+                </div>
+                <div class="points-amount" id="userPoints">1,250</div>
+                <div class="points-label">Puntos disponibles</div>
+            </div>
+
+            <!-- Botón para ir a la sección "Inicio" de AppCreator24 -->
+            <a href="go:Inicio" class="continue-btn" id="continue-btn" aria-label="Continuar al Inicio">
+                Continuar
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
     </main>
-
-    <!-- No necesitas welcome.js para este botón, puedes quitarlo si no manejas JS en esta página -->
-    <!-- <script src="js/welcome.js"></script> -->
 </body>
 </html>
