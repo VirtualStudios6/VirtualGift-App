@@ -96,26 +96,92 @@ label {
   font-weight: 500;
 }
 
+/* CORRECIÓN PRINCIPAL: Estilos de input mejorados */
 input {
   width: 100%;
   padding: 10px;
   border-radius: var(--border-radius);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border) !important;
   background: rgba(15, 23, 42, 0.95) !important;
   color: var(--text-primary);
   margin-bottom: 10px;
-  outline: none;
+  outline: none !important;
   transition: border 0.2s ease, box-shadow 0.2s ease;
   font-size: 16px;
   min-height: 44px;
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
+  box-shadow: none !important;
 }
 
-input:focus {
-  border: 2px solid var(--primary);
-  box-shadow: var(--glow-primary);
+/* Remover TODOS los estilos de validación del navegador */
+input:invalid,
+input:valid,
+input:required,
+input:optional {
+  box-shadow: none !important;
+  border: 1px solid var(--border) !important;
+  outline: none !important;
+}
+
+/* Estado focus - SOLO nuestro estilo personalizado */
+input:focus,
+input:focus-visible,
+input:focus-within {
+  border: 2px solid var(--primary) !important;
+  box-shadow: var(--glow-primary) !important;
+  outline: none !important;
+}
+
+/* Cuando está escribiendo - mantener el estilo de focus */
+input:not(:placeholder-shown) {
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+input:not(:placeholder-shown):focus {
+  border: 2px solid var(--primary) !important;
+  box-shadow: var(--glow-primary) !important;
+}
+
+/* Remover estilos autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px rgba(15, 23, 42, 0.95) inset !important;
+  -webkit-text-fill-color: var(--text-primary) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+input:-webkit-autofill:focus {
+  border: 2px solid var(--primary) !important;
+  box-shadow: var(--glow-primary) !important;
+}
+
+/* Remover outline de todos los elementos */
+input, button, *:focus {
+  outline: none !important;
+}
+
+/* Asegurar que no haya estilos del navegador que interfieran */
+input[type="email"],
+input[type="password"],
+input[type="text"] {
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="text"]:focus {
+  border: 2px solid var(--primary) !important;
+  box-shadow: var(--glow-primary) !important;
+  outline: none !important;
 }
 
 input::placeholder {
