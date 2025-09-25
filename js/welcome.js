@@ -7,6 +7,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const continueBtn     = document.getElementById('continue-btn');
     const container       = document.querySelector('.welcome-container');
 
+    // Lista de mensajes aleatorios
+    const mensajes = [
+        "😊 Nos alegra verte. Continúa tu aventura y gana más recompensas 🎁",
+        "🚀 Prepárate para jugar, ganar y llevarte grandes recompensas.",
+        "🎁 Hoy tenemos muchas recompensas para ti. ¿Qué esperas para entrar? 🤩",
+        "👾 Nos alegra verte de nuevo. ¡La suerte y las recompensas te esperan! 🍀",
+        "🔥 ¿Listo para otra ronda? Sigue explorando y consigue más recompensas 🏆"
+    ];
+
     // Verifica sesión de usuario
     auth.onAuthStateChanged(async function(user) {
         if (!user) {
@@ -51,6 +60,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (isNewUser) {
                     welcomeTitle.textContent = '¡Bienvenido!';
                     welcomeMessage.textContent = '¡Bienvenido por primera vez! Estás a punto de comenzar una increíble aventura llena de recompensas y diversión.';
+                } else {
+                    // Si no es nuevo → mensaje aleatorio
+                    const mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];
+                    welcomeMessage.textContent = mensajeAleatorio;
                 }
 
                 // Animar puntos
@@ -60,6 +73,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.error('Error al recuperar datos:', error);
                 userNameElem.textContent = user.displayName || 'Usuario';
                 animatePoints(0);
+
+                // En caso de error, también mostramos un mensaje aleatorio
+                const mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];
+                welcomeMessage.textContent = mensajeAleatorio;
             });
     });
 

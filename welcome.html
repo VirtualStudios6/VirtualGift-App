@@ -15,7 +15,7 @@
     <script defer src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
     <!-- Tu configuración de Firebase -->
     <script defer src="js/firebase-config.js"></script>
-    <!-- Script de bienvenida -->
+    <!-- Script de bienvenida con mensaje aleatorio -->
     <script defer src="js/welcome.js"></script>
 </head>
 <body>
@@ -41,8 +41,9 @@
             <h1 class="welcome-title">¡Bienvenido!</h1>
             <h2 class="welcome-subtitle" id="userName">Usuario</h2>
 
+            <!-- Aquí se pondrá el mensaje aleatorio -->
             <p class="welcome-message" id="welcome-message">
-                Nos alegra verte, Continúa tu aventura y descubre todas las recompensas que te esperan.
+                <!-- El texto se insertará desde welcome.js -->
             </p>
 
             <div class="points-display" aria-label="Tus puntos disponibles">

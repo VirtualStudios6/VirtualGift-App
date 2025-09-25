@@ -37,41 +37,6 @@
       width: 100%;
     }
     
-    .header {
-      text-align: center;
-      padding: 20px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      margin-bottom: 30px;
-    }
-    
-    .header h1 {
-      font-size: clamp(24px, 5vw, 32px);
-      font-weight: 700;
-      color: var(--text-color);
-      margin: 0;
-    }
-    
-    .back-button {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--primary-color);
-      color: white;
-      text-decoration: none;
-      padding: 12px 24px;
-      border-radius: 8px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      transition: all 0.3s ease;
-      border: none;
-      cursor: pointer;
-    }
-    
-    .back-button:hover {
-      background: #e11d48;
-      transform: translateY(-2px);
-    }
-    
     .terms-container {
       background-color: var(--card-bg);
       border-radius: 12px;
@@ -176,23 +141,12 @@
         font-size: 18px;
       }
       
-      .back-button {
-        width: 100%;
-        justify-content: center;
-        padding: 15px;
-        font-size: 16px;
-      }
-      
       .terms-section ul {
         padding-left: 15px;
       }
     }
     
     @media (max-width: 480px) {
-      .header {
-        padding: 15px 0;
-      }
-      
       .terms-header {
         margin-bottom: 20px;
       }
@@ -209,19 +163,20 @@
         font-size: 14px;
       }
     }
+    
+    @media (max-width: 360px) {
+      .terms-container {
+        padding: 15px 10px;
+      }
+      
+      .terms-section h3 {
+        font-size: 15px;
+      }
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <header class="header">
-      <h1>VirtualGift</h1>
-      <!-- Botón para volver al login -->
-      <button class="back-button" onclick="window.history.back()">
-        <i class="fas fa-arrow-left"></i>
-        Volver al Login
-      </button>
-    </header>
-
     <div class="terms-container">
       <div class="terms-header">
         <h2>Términos de Servicio</h2>
@@ -338,17 +293,5 @@
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
-  
-  <script>
-    // Función alternativa para volver atrás si el historial está vacío
-    function goBack() {
-      if (document.referrer.includes(window.location.hostname)) {
-        window.history.back();
-      } else {
-        // Si no hay historial, redirigir a una página de login por defecto
-        window.location.href = '/login'; // Cambia esta ruta según tu necesidad
-      }
-    }
-  </script>
 </body>
 </html>
