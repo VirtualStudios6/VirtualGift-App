@@ -222,6 +222,9 @@ main {
     max-width: 320px;
     margin: 0 auto;
     display: inline-block;
+
+    /* FIX: quitar rayita del enlace */
+    text-decoration: none;
 }
 
 .continue-btn::before {
