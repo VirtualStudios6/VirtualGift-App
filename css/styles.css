@@ -1,21 +1,34 @@
-/* Variables CSS */
+/* Variables CSS – VirtualGift */
 :root {
-  --primary: #f43f5e;
-  --secondary: #f97316;
-  --bg-primary: #0f172a;
-  --bg-secondary: #020617;
-  --bg-card: #1e293b;
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --border: #334155;
-  --error: #f43f5e;
-  --success: #10b981;
+  /* Acentos */
+  --primary: #8d17fb;        /* morado principal */
+  --secondary: #70189b;      /* morado profundo (hover/fin de gradiente) */
+
+  /* Fondos */
+  --bg-primary: #020515;     /* fondo app */
+  --bg-secondary: #06011c;   /* degradado de fondo */
+  --bg-card: #1c1f2f;        /* tarjetas / contenedores */
+
+  /* Texto */
+  --text-primary: #dcefff;   /* texto principal */
+  --text-secondary: #b6c6d9; /* texto secundario */
+  --text-muted: #8ea2b8;     /* placeholders / ayudas */
+
+  /* Bordes y líneas */
+  --border: #293244;
+
+  /* Estados */
+  --error: #f43f5e;   /* puedes ajustar si quieres morado para error */
+  --success: #28d27d; /* sugerido en guía */
+
+  /* Espaciado y formas */
   --spacing: 15px;
   --border-radius: 12px;
+
+  /* Sombras y brillos */
   --shadow-card: 0 6px 25px rgba(0,0,0,0.5);
-  --glow-primary: 0 0 12px rgba(244,63,94,0.6), 0 0 20px rgba(249,115,22,0.4);
-  --glow-hover: 0 0 20px rgba(244,63,94,0.8), 0 0 35px rgba(249,115,22,0.6);
+  --glow-primary: 0 0 12px rgba(141,23,251,0.45), 0 0 20px rgba(112,24,155,0.35);
+  --glow-hover: 0 0 20px rgba(141,23,251,0.6), 0 0 35px rgba(112,24,155,0.5);
 }
 
 /* Reset y Base */
@@ -53,7 +66,7 @@ body {
 
 .auth-card {
   background: var(--bg-card) !important;
-  border: 1px solid rgba(51, 65, 85, 0.5);
+  border: 1px solid rgba(41, 50, 68, 0.6);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: 22px;
@@ -96,13 +109,13 @@ label {
   font-weight: 500;
 }
 
-/* CORRECIÓN PRINCIPAL: Estilos de input mejorados */
+/* Inputs */
 input {
   width: 100%;
   padding: 10px;
   border-radius: var(--border-radius);
   border: 1px solid var(--border) !important;
-  background: rgba(15, 23, 42, 0.95) !important;
+  background: rgba(16, 7, 21, 0.95) !important; /* #100715 con opacidad */
   color: var(--text-primary);
   margin-bottom: 10px;
   outline: none !important;
@@ -115,7 +128,7 @@ input {
   box-shadow: none !important;
 }
 
-/* Remover TODOS los estilos de validación del navegador */
+/* Remover estilos nativos de validación */
 input:invalid,
 input:valid,
 input:required,
@@ -125,7 +138,7 @@ input:optional {
   outline: none !important;
 }
 
-/* Estado focus - SOLO nuestro estilo personalizado */
+/* Focus accesible personalizado (morado) */
 input:focus,
 input:focus-visible,
 input:focus-within {
@@ -134,7 +147,7 @@ input:focus-within {
   outline: none !important;
 }
 
-/* Cuando está escribiendo - mantener el estilo de focus */
+/* Mientras escribe */
 input:not(:placeholder-shown) {
   border: 1px solid var(--border) !important;
   box-shadow: none !important;
@@ -145,29 +158,28 @@ input:not(:placeholder-shown):focus {
   box-shadow: var(--glow-primary) !important;
 }
 
-/* Remover estilos autofill */
+/* Autofill */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px rgba(15, 23, 42, 0.95) inset !important;
+  -webkit-box-shadow: 0 0 0 30px rgba(16, 7, 21, 0.95) inset !important;
   -webkit-text-fill-color: var(--text-primary) !important;
   border: 1px solid var(--border) !important;
   box-shadow: none !important;
   outline: none !important;
 }
-
 input:-webkit-autofill:focus {
   border: 2px solid var(--primary) !important;
   box-shadow: var(--glow-primary) !important;
 }
 
-/* Remover outline de todos los elementos */
+/* Outline global limpio */
 input, button, *:focus {
   outline: none !important;
 }
 
-/* Asegurar que no haya estilos del navegador que interfieran */
+/* Tipos de input */
 input[type="email"],
 input[type="password"],
 input[type="text"] {
@@ -175,13 +187,11 @@ input[type="text"] {
   box-shadow: none !important;
   outline: none !important;
 }
-
 input[type="email"]:focus,
 input[type="password"]:focus,
 input[type="text"]:focus {
   border: 2px solid var(--primary) !important;
   box-shadow: var(--glow-primary) !important;
-  outline: none !important;
 }
 
 input::placeholder {
@@ -221,9 +231,9 @@ input::placeholder {
 }
 
 .btn.social {
-  background: rgba(15,23,42,0.9) !important;
+  background: rgba(28, 31, 47, 0.9) !important; /* #1c1f2f con opacidad */
   border: 1px solid var(--border);
-  color: #e2e8f0;
+  color: #e7f0ff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -231,7 +241,7 @@ input::placeholder {
 }
 
 .btn.social:hover { 
-  background: rgba(30,41,59,0.9) !important; 
+  background: rgba(28, 31, 47, 1) !important; 
 }
 
 .social-icon { 
@@ -258,9 +268,7 @@ input::placeholder {
   border-right-color: transparent;
   animation: spin 1s linear infinite;
 }
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
 /* Links */
 .forgot {
@@ -358,11 +366,9 @@ input::placeholder {
 }
 
 /* Ocultar el checkbox original */
-.terms input[type="checkbox"] {
-  display: none;
-}
+.terms input[type="checkbox"] { display: none; }
 
-/* Estilo del interruptor (toggle switch) mejorado */
+/* Toggle */
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -398,24 +404,21 @@ input:checked + .toggle-slider {
   background: linear-gradient(90deg, var(--primary), var(--secondary));
   box-shadow: var(--glow-primary);
 }
-
 input:checked + .toggle-slider:before {
   transform: translateX(26px);
   background: #fff;
   box-shadow: 0 0 10px rgba(255,255,255,0.8);
 }
 
-/* Efecto hover */
-.toggle-switch:hover .toggle-slider {
-  filter: brightness(1.1);
-}
+/* Hover del toggle */
+.toggle-switch:hover .toggle-slider { filter: brightness(1.1); }
 
-/* Footer actualizado */
+/* Footer */
 footer { 
   text-align: center;
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  border-top: 1px solid rgba(220,239,255,0.1);
   font-size: 0.7em; 
   color: var(--text-muted);
   width: 100%;
@@ -424,7 +427,7 @@ footer p {
   text-align: center;
   margin: 0 0 1rem 0;
   font-size: 0.875rem;
-  color: rgba(255,255,255,0.6);
+  color: rgba(220,239,255,0.6);
   margin-bottom: 8px;
 }
 .footer-links {
@@ -437,7 +440,7 @@ footer p {
   width: 100%;
 }
 .footer-links a { 
-  color: rgba(255,255,255,0.8);
+  color: rgba(220,239,255,0.8);
   text-decoration: none; 
   font-size: 0.875rem;
   padding: 0.5rem 0.75rem;
@@ -450,19 +453,19 @@ footer p {
 .footer-links a:hover,
 .footer-links a:focus { 
   color: #fff; 
-  background-color: rgba(255,255,255,0.1);
+  background-color: rgba(141,23,251,0.12);
   transform: translateY(-1px);
 }
 .footer-links a:active {
   transform: translateY(0);
-  background-color: rgba(255,255,255,0.15);
+  background-color: rgba(141,23,251,0.18);
 }
 /* Separador visual entre enlaces */
 .footer-links a:not(:last-child)::after {
   content: '•';
   position: absolute;
   right: -0.5rem;
-  color: rgba(255,255,255,0.4);
+  color: rgba(220,239,255,0.4);
   font-weight: bold;
 }
 
@@ -487,15 +490,9 @@ footer p {
   display: block; 
   animation: slideUp 0.3s ease; 
 }
-.notification.error { 
-  background: var(--error); 
-}
-.notification.success { 
-  background: var(--success); 
-}
-.notification.info {
-  background-color: #3b82f6;
-}
+.notification.error { background: var(--error); }
+.notification.success { background: var(--success); }
+.notification.info { background-color: #1e293b; }
 
 /* Recovery */
 .recovery-overlay {
@@ -534,9 +531,7 @@ footer p {
   max-width: 350px;
 }
 .recovery-container.active,
-.recovery-container.show { 
-  display: block; 
-}
+.recovery-container.show { display: block; }
 .recovery-container h3 { 
   margin-bottom: 10px; 
   color: var(--text-primary); 
@@ -555,37 +550,21 @@ footer p {
   margin-top: 1rem;
   flex-direction: column;
 }
-.recovery-buttons .btn {
-  flex: 1;
-}
+.recovery-buttons .btn { flex: 1; }
 
 /* Animaciones */
 @keyframes fadeIn { 
-  from { 
-    opacity: 0; 
-    transform: translateY(15px);
-  } 
-  to { 
-    opacity: 1; 
-    transform: translateY(0);
-  } 
+  from { opacity: 0; transform: translateY(15px); } 
+  to   { opacity: 1; transform: translateY(0); } 
 }
 @keyframes slideUp { 
-  from { 
-    opacity: 0; 
-    transform: translateX(-50%) translateY(20px);
-  } 
-  to { 
-    opacity: 1; 
-    transform: translateX(-50%) translateY(0);
-  } 
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); } 
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); } 
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-  html, body {
-    background-attachment: scroll !important;
-  }
+  html, body { background-attachment: scroll !important; }
   
   body {
     padding: 15px;
@@ -596,8 +575,8 @@ footer p {
   
   .auth-card { 
     padding: 25px 20px;
-    background: #1e293b !important;
-    border: 1px solid #334155;
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border);
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     backdrop-filter: none;
   }
@@ -605,15 +584,12 @@ footer p {
   .logo img { width: 60px; }
   .welcome { font-size: 1.2em; margin-bottom: 15px; }
   
-  /* Centrar términos en móvil */
   .terms {
     justify-content: flex-start;
     text-align: left;
     padding: 10px 0;
   }
-  .footer-links {
-    gap: 0.75rem;
-  }
+  .footer-links { gap: 0.75rem; }
 }
 
 @media (max-width: 480px) {
@@ -649,7 +625,6 @@ footer p {
     flex: 0 0 auto;
   }
   
-  /* Centrar términos en móvil */
   .terms {
     justify-content: flex-start;
     text-align: left;

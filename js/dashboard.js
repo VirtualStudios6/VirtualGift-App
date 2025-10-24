@@ -1,88 +1,174 @@
+// dashboard.js - Código mejorado y optimizado para móviles
+
 // Elementos DOM específicos del dashboard
 const userDisplayName = document.getElementById('user-display-name');
 const userPoints = document.getElementById('user-points');
-const userLevel = document.getElementById('user-level');
-const userRank = document.getElementById('user-rank');
-const levelProgress = document.getElementById('level-progress');
-const progressText = document.getElementById('progress-text');
 const logoutBtn = document.getElementById('logout-btn');
+const spinsRemaining = document.getElementById('spins-remaining');
 
 // Referencias a elementos de recompensas
 const watchAdBtn = document.getElementById('watch-ad-btn');
-const installAppBtn = document.getElementById('install-app-btn');
-const referFriendBtn = document.getElementById('refer-friend-btn');
-const adProgress = document.getElementById('ad-progress');
-const adTimer = document.getElementById('ad-timer');
 
-// Referencias al modal
+// Referencias a modales
 const rewardModal = document.getElementById('reward-modal');
+const confirmModal = document.getElementById('confirm-modal');
 const modalTitle = document.getElementById('modal-title');
 const modalDescription = document.getElementById('modal-description');
-const modalCancel = document.getElementById('modal-cancel');
-const modalConfirm = document.getElementById('modal-confirm');
-
-// Overlay para modales
-const overlay = document.createElement('div');
-overlay.className = 'overlay';
-document.body.appendChild(overlay);
+const confirmTitle = document.getElementById('confirm-title');
+const confirmDescription = document.getElementById('confirm-description');
 
 // Estado de la aplicación
 let currentUser = null;
 let userData = {};
 let adInterval = null;
+let confirmCallback = null;
 
-// Mostrar notificación (crear elemento si no existe)
-let notification = document.getElementById('notification');
-if (!notification) {
-    notification = document.createElement('div');
-    notification.id = 'notification';
-    notification.className = 'notification';
-    document.body.appendChild(notification);
+// Inicializar la aplicación cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    initApplication();
+});
+
+function initApplication() {
+    initEventListeners();
+    initCollapsibleSections();
+    verifyAuthentication();
 }
 
-// Mostrar notificación
-function showNotification(message, isError = false) {
-    notification.textContent = message;
-    notification.className = 'notification';
-    
-    if (isError) {
-        notification.classList.add('error');
+// Inicializar event listeners
+function initEventListeners() {
+    // Logout
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', handleLogout);
     }
+
+    // Botón de ver anuncio
+    if (watchAdBtn) {
+        watchAdBtn.addEventListener('click', () => handleRewardAction('ad', 25, 'Ver Anuncio'));
+    }
+
+    // Botones de canjeo
+    const redeemButtons = document.querySelectorAll('.btn-redeem');
+    redeemButtons.forEach(btn => {
+        btn.addEventListener('click', handleRedeemClick);
+    });
+
+    // Cerrar modales
+    const closeButtons = document.querySelectorAll('.close-modal');
+    closeButtons.forEach(btn => {
+        btn.addEventListener('click', closeAllModals);
+    });
+
+    // Modal confirmations
+    const confirmCancel = document.getElementById('confirm-cancel');
+    const confirmAccept = document.getElementById('confirm-accept');
+    const modalConfirm = document.getElementById('modal-confirm');
+
+    if (confirmCancel) confirmCancel.addEventListener('click', closeAllModals);
+    if (confirmAccept) confirmAccept.addEventListener('click', handleConfirmAccept);
+    if (modalConfirm) modalConfirm.addEventListener('click', closeAllModals);
+
+    // Clic fuera del modal para cerrar
+    document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) {
+            closeAllModals();
+        }
+    });
+
+    // Tecla Escape para cerrar modales
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeAllModals();
+        }
+    });
+
+    // Prevenir zoom en inputs en iOS
+    preventZoomOnFocus();
+}
+
+function preventZoomOnFocus() {
+    if (/iPhone|iPad|iPod/.test(navigator.userAgent)) {
+        const inputs = document.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('focus', () => {
+                document.body.style.zoom = '0.8';
+            });
+            input.addEventListener('blur', () => {
+                document.body.style.zoom = '1';
+            });
+        });
+    }
+}
+
+// Inicializar secciones colapsables
+function initCollapsibleSections() {
+    const sectionHeaders = document.querySelectorAll('.section-header');
     
-    notification.classList.add('show');
-    
-    setTimeout(() => {
-        notification.classList.remove('show');
-    }, 3000);
+    sectionHeaders.forEach(header => {
+        header.addEventListener('click', function(e) {
+            toggleCollapsibleSection(this);
+        });
+        
+        header.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleCollapsibleSection(this);
+            }
+        });
+    });
+
+    // NO abrir ninguna sección por defecto - todas colapsadas
 }
 
-// Función para ocultar el overlay de carga y mostrar el dashboard
-function hideLoadingOverlay() {
-    const loading = document.getElementById('loading-overlay');
-    const dashboardContent = document.getElementById('dashboard-content');
-    if (loading) loading.style.display = 'none';
-    if (dashboardContent) dashboardContent.style.display = 'block';
+function toggleCollapsibleSection(header, forceOpen = false) {
+    const section = header.parentElement;
+    const content = section.querySelector('.collapsible-content');
+    const icon = header.querySelector('.toggle-icon');
+    const isExpanded = section.getAttribute('aria-expanded') === 'true';
+    const shouldExpand = forceOpen ? true : !isExpanded;
+
+    // Actualizar atributos ARIA
+    section.setAttribute('aria-expanded', shouldExpand);
+    header.setAttribute('aria-expanded', shouldExpand);
+
+    // Animación suave
+    if (content) {
+        if (shouldExpand) {
+            content.style.maxHeight = content.scrollHeight + 'px';
+        } else {
+            content.style.maxHeight = '0';
+        }
+    }
+
+    // Rotar ícono
+    if (icon) {
+        icon.style.transform = shouldExpand ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+
+    // Feedback táctil para móviles
+    if ('vibrate' in navigator) {
+        navigator.vibrate(50);
+    }
 }
 
-// Mostrar modal
-function showModal(title, description, onConfirm) {
-    modalTitle.textContent = title;
-    modalDescription.textContent = description;
-    modalConfirm.onclick = onConfirm;
-    rewardModal.classList.add('show');
-    overlay.style.display = 'block';
-    setTimeout(() => {
-        rewardModal.style.display = 'block';
-    }, 10);
-}
-
-// Ocultar modal
-function hideModal() {
-    rewardModal.classList.remove('show');
-    overlay.style.display = 'none';
-    setTimeout(() => {
-        rewardModal.style.display = 'none';
-    }, 300);
+// Verificar autenticación
+function verifyAuthentication() {
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            currentUser = user;
+            if (!user.emailVerified) {
+                showNotification('Por favor, verifica tu email para acceder al dashboard', true);
+                setTimeout(() => {
+                    auth.signOut().then(() => {
+                        window.location.href = 'index.html';
+                    });
+                }, 2000);
+                return;
+            }
+            loadUserData(user);
+        } else {
+            window.location.href = 'index.html';
+        }
+    });
 }
 
 // Cargar datos del usuario
@@ -91,67 +177,46 @@ function loadUserData(user) {
         .then(doc => {
             if (doc.exists) {
                 userData = doc.data();
-                if (userDisplayName) {
-                    userDisplayName.textContent = userData.username || user.displayName || 'Usuario';
-                }
-                if (userPoints) {
-                    userPoints.textContent = userData.points || 0;
-                }
-                if (userLevel) {
-                    userLevel.textContent = userData.level || 1;
-                }
-                if (levelProgress && progressText) {
-                    const experience = userData.experience || 0;
-                    const nextLevel = userData.nextLevel || 200;
-                    const progressPercent = (experience / nextLevel) * 100;
-                    levelProgress.style.width = Math.min(progressPercent, 100) + '%';
-                    progressText.textContent = `${experience}/${nextLevel} puntos`;
-                }
-                if (userRank) {
-                    userRank.textContent = '#0'; 
-                }
-                updateRewardButtons();
-                hideLoadingOverlay(); // OCULTA EL LOADING AQUÍ
-                loadRewardsStore();   // Carga la tienda cuando ya tienes los datos
-            } else {
-                if (userDisplayName) {
-                    userDisplayName.textContent = user.displayName || 'Usuario';
-                }
-                createInitialUserData(user);
+                updateUIWithUserData();
                 hideLoadingOverlay();
+                loadRewardsStore();
+            } else {
+                createInitialUserData(user);
             }
         })
         .catch(error => {
             console.error('Error al obtener datos del usuario:', error);
             showNotification('Error al cargar datos del usuario', true);
-            if (userDisplayName) {
-                userDisplayName.textContent = user.displayName || 'Usuario';
-            }
-            hideLoadingOverlay();
+            createInitialUserData(user); // Crear datos por defecto
         });
 }
 
-// Crear datos iniciales para un nuevo usuario
+// Crear datos iniciales para nuevo usuario
 function createInitialUserData(user) {
     const initialData = {
         username: user.displayName || 'Usuario',
         email: user.email,
-        points: 0,
-        level: 1,
-        experience: 0,
-        nextLevel: 100,
+        points: 100, // Puntos iniciales de bienvenida
+        spins: 3, // Giros iniciales
         joined: firebase.firestore.FieldValue.serverTimestamp(),
-        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
+        level: 1
     };
+
     db.collection('users').doc(user.uid).set(initialData)
         .then(() => {
             userData = initialData;
             updateUIWithUserData();
-            showNotification('¡Bienvenido a VirtualGIF! Tu cuenta ha sido creada.');
+            hideLoadingOverlay();
+            showNotification('¡Bienvenido a VirtualGift! Tu cuenta ha sido creada.');
         })
         .catch(error => {
             console.error('Error al crear datos iniciales:', error);
             showNotification('Error al crear perfil de usuario', true);
+            // Usar datos locales como fallback
+            userData = initialData;
+            updateUIWithUserData();
+            hideLoadingOverlay();
         });
 }
 
@@ -161,317 +226,375 @@ function updateUIWithUserData() {
         userDisplayName.textContent = userData.username || 'Usuario';
     }
     if (userPoints) {
-        userPoints.textContent = userData.points || 0;
+        animateNumberChange(userPoints, userData.points || 0);
     }
-    if (userLevel) {
-        userLevel.textContent = userData.level || 1;
-    }
-    if (levelProgress && progressText) {
-        const experience = userData.experience || 0;
-        const nextLevel = userData.nextLevel || 200;
-        const progressPercent = (experience / nextLevel) * 100;
-        levelProgress.style.width = Math.min(progressPercent, 100) + '%';
-        progressText.textContent = `${experience}/${nextLevel} puntos`;
+    if (spinsRemaining) {
+        spinsRemaining.textContent = userData.spins || 3;
     }
     updateRewardButtons();
 }
 
-// Actualizar estado de los botones de recompensas
-function updateRewardButtons() {
-    // Aquí puedes añadir lógica para habilitar/deshabilitar botones
-    // basado en los puntos del usuario o otros criterios
+// Animación suave para cambios de números
+function animateNumberChange(element, newValue) {
+    const oldValue = parseInt(element.textContent) || 0;
+    if (oldValue === newValue) return;
+
+    const difference = newValue - oldValue;
+    const duration = 800;
+    const startTime = performance.now();
+
+    const animate = (currentTime) => {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Easing function
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const currentValue = oldValue + (difference * easeOutQuart);
+
+        element.textContent = Math.round(currentValue);
+
+        if (progress < 1) {
+            requestAnimationFrame(animate);
+        }
+    };
+
+    requestAnimationFrame(animate);
 }
 
-// Añadir puntos al usuario
-function addUserPoints(points, activityDescription) {
-    const newPoints = (userData.points || 0) + points;
-    const newExperience = (userData.experience || 0) + points;
-    let levelUp = false;
-    let newLevel = userData.level || 1;
-    let newNextLevel = userData.nextLevel || 100;
-    if (newExperience >= newNextLevel) {
-        levelUp = true;
-        newLevel++;
-        newNextLevel = newNextLevel * 2;
-    }
-    userData.points = newPoints;
-    userData.experience = newExperience;
-    userData.level = newLevel;
-    userData.nextLevel = newNextLevel;
-    db.collection('users').doc(currentUser.uid).update({
-        points: newPoints,
-        experience: newExperience,
-        level: newLevel,
-        nextLevel: newNextLevel,
-        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-    })
-    .then(() => {
-        registerActivity(activityDescription, points);
-        updateUIWithUserData();
-        if (levelUp) {
-            showNotification(`¡Felicidades! Has subido al nivel ${newLevel}`, false);
-        } else {
-            showNotification(`+${points} puntos! ${activityDescription}`, false);
-        }
-    })
-    .catch(error => {
-        console.error('Error al actualizar puntos:', error);
-        showNotification('Error al actualizar puntos', true);
+// Actualizar estado de los botones
+function updateRewardButtons() {
+    const points = userData.points || 0;
+    const redeemButtons = document.querySelectorAll('.btn-redeem');
+    
+    redeemButtons.forEach(btn => {
+        const cost = parseInt(btn.getAttribute('data-cost')) || 0;
+        btn.disabled = points < cost;
+        btn.innerHTML = points < cost ? 
+            '<i class="fas fa-lock"></i><span>Puntos insuficientes</span>' : 
+            '<i class="fas fa-exchange-alt"></i><span>Canjear</span>';
     });
 }
 
-// Registrar actividad
-function registerActivity(description, points) {
-    const activity = {
-        description: description,
-        points: points,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
-    db.collection('users').doc(currentUser.uid).collection('activities').add(activity)
-        .then(() => {
-            loadRecentActivities();
-        })
-        .catch(error => {
-            console.error('Error al registrar actividad:', error);
-        });
-}
+// Manejar acciones de recompensa
+function handleRewardAction(type, points, description) {
+    let modalTitle, modalDescription, actionFunction;
 
-// Cargar actividades recientes
-function loadRecentActivities() {
-    const activityList = document.getElementById('activity-list');
-    if (!activityList) return;
-    db.collection('users').doc(currentUser.uid).collection('activities')
-        .orderBy('timestamp', 'desc')
-        .limit(5)
-        .get()
-        .then(snapshot => {
-            activityList.innerHTML = '';
-            if (snapshot.empty) {
-                activityList.innerHTML = '<div class="activity-item">No hay actividades recientes</div>';
-                return;
-            }
-            snapshot.forEach(doc => {
-                const activity = doc.data();
-                const date = activity.timestamp ? activity.timestamp.toDate() : new Date();
-                const formattedDate = formatDate(date);
-                const activityItem = document.createElement('div');
-                activityItem.className = 'activity-item';
-                activityItem.innerHTML = `
-                    <div class="activity-content">
-                        <div class="activity-icon">${getActivityIcon(activity.description)}</div>
-                        <div class="activity-text">${activity.description}</div>
-                    </div>
-                    <div class="activity-points ${activity.points > 0 ? 'positive' : 'negative'}">
-                        ${activity.points > 0 ? '+' : ''}${activity.points}
-                    </div>
-                    <div class="activity-date">${formattedDate}</div>
-                `;
-                activityList.appendChild(activityItem);
-            });
-        })
-        .catch(error => {
-            console.error('Error al cargar actividades:', error);
-            activityList.innerHTML = '<div class="activity-item">Error al cargar actividades</div>';
-        });
-}
-
-// Obtener icono para la actividad
-function getActivityIcon(description) {
-    if (description.includes('anuncio')) return '📺';
-    if (description.includes('referido')) return '👥';
-    if (description.includes('app')) return '📱';
-    if (description.includes('canje')) return '🎁';
-    return '✅';
-}
-
-// Formatear fecha
-function formatDate(date) {
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) {
-        return 'Hoy';
-    } else if (diffDays === 1) {
-        return 'Ayer';
-    } else if (diffDays < 7) {
-        return `Hace ${diffDays} días`;
-    } else {
-        return date.toLocaleDateString();
+    if (type === 'ad') {
+        modalTitle = 'Ver Anuncio';
+        modalDescription = `Al ver este anuncio ganarás ${points} puntos. ¿Quieres continuar?`;
+        actionFunction = simulateAdView;
     }
+
+    showConfirmModal(
+        modalTitle,
+        modalDescription,
+        actionFunction
+    );
 }
 
 // Simular visualización de anuncio
 function simulateAdView() {
-    if (adInterval) {
-        clearInterval(adInterval);
-    }
-    const adProgressContainer = document.querySelector('.ad-progress-container');
-    if (adProgressContainer) {
-        adProgressContainer.style.display = 'block';
-    }
-    let timeLeft = 30;
-    adTimer.textContent = `${timeLeft}s`;
-    adProgress.style.width = '0%';
+    const points = 25;
+    
+    // Deshabilitar botón temporalmente
     if (watchAdBtn) {
         watchAdBtn.disabled = true;
-        watchAdBtn.textContent = 'Reproduciendo...';
+        watchAdBtn.classList.add('loading');
+        watchAdBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Reproduciendo...</span>';
     }
-    adInterval = setInterval(() => {
-        timeLeft--;
-        const progressPercent = ((30 - timeLeft) / 30) * 100;
-        adProgress.style.width = `${progressPercent}%`;
-        adTimer.textContent = `${timeLeft}s`;
-        if (timeLeft <= 0) {
-            clearInterval(adInterval);
-            if (adProgressContainer) {
-                adProgressContainer.style.display = 'none';
-            }
+
+    // Simular progreso de anuncio
+    let progress = 0;
+    const duration = 5000; // 5 segundos para móviles (más rápido)
+    
+    const progressInterval = setInterval(() => {
+        progress += 100;
+        if (progress >= duration) {
+            clearInterval(progressInterval);
+            
+            // Recompensar al usuario
+            addUserPoints(points, 'Viste un anuncio');
+            
+            // Restaurar botón
             if (watchAdBtn) {
-                watchAdBtn.disabled = false;
-                watchAdBtn.textContent = 'Ver Anuncio';
+                setTimeout(() => {
+                    watchAdBtn.disabled = false;
+                    watchAdBtn.classList.remove('loading');
+                    watchAdBtn.innerHTML = '<i class="fas fa-play"></i><span>Ver Anuncio</span>';
+                }, 1000);
             }
-            addUserPoints(25, 'Viste un anuncio');
+
+            // Feedback táctil
+            if ('vibrate' in navigator) {
+                navigator.vibrate([100, 50, 100]);
+            }
         }
-    }, 1000);
+    }, 100);
 }
 
-// Cerrar sesión
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', function() {
-        showModal(
-            'Cerrar sesión', 
-            '¿Estás seguro de que quieres cerrar tu sesión?',
-            function() {
-                auth.signOut()
-                    .then(() => {
-                        showNotification('Sesión cerrada correctamente');
-                        setTimeout(() => {
-                            window.location.href = 'index.html';
-                        }, 1500);
-                    })
-                    .catch((error) => {
-                        console.error('Error al cerrar sesión:', error);
-                        showNotification('Error al cerrar sesión', true);
-                    });
-                hideModal();
-            }
-        );
-    });
+// Manejar clic en canjear
+function handleRedeemClick(event) {
+    const button = event.currentTarget;
+    const cost = parseInt(button.getAttribute('data-cost'));
+    const reward = button.getAttribute('data-reward');
+    const rewardName = getRewardName(reward);
+
+    if ((userData.points || 0) < cost) {
+        showNotification(`Necesitas ${cost} puntos para canjear este premio`, true);
+        return;
+    }
+
+    showConfirmModal(
+        'Confirmar Canje',
+        `¿Quieres canjear "${rewardName}" por ${cost} puntos?`,
+        () => processRedeem(reward, cost, rewardName)
+    );
 }
 
-// Configurar botones de recompensas
-if (watchAdBtn) {
-    watchAdBtn.addEventListener('click', simulateAdView);
-}
-
-if (installAppBtn) {
-    installAppBtn.addEventListener('click', function() {
-        showModal(
-            'Instalar App Móvil',
-            'Al instalar nuestra app móvil ganarás 100 puntos. ¿Quieres continuar?',
-            function() {
-                addUserPoints(100, 'Instalaste la app móvil');
-                hideModal();
-            }
-        );
-    });
-}
-
-if (referFriendBtn) {
-    referFriendBtn.addEventListener('click', function() {
-        showModal(
-            'Referir Amigo',
-            'Comparte tu código de referido con amigos y gana 50 puntos por cada uno que se registre. Tu código es: ' + currentUser.uid.substring(0, 8).toUpperCase(),
-            function() {
-                navigator.clipboard.writeText(currentUser.uid.substring(0, 8).toUpperCase())
-                    .then(() => {
-                        showNotification('Código copiado al portapapeles');
-                    })
-                    .catch(err => {
-                        console.error('Error al copiar:', err);
-                    });
-                hideModal();
-            }
-        );
-    });
-}
-
-// Configurar cierre del modal
-if (modalCancel) {
-    modalCancel.addEventListener('click', hideModal);
-}
-
-if (rewardModal) {
-    const closeModalBtn = rewardModal.querySelector('.close-modal');
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', hideModal);
+// Procesar canje de premio
+function processRedeem(reward, cost, rewardName) {
+    addUserPoints(-cost, `Canjeaste: ${rewardName}`);
+    showNotification(`¡Felicidades! Canjeaste ${rewardName}`, false);
+    
+    // Aquí podrías agregar lógica específica para cada tipo de premio
+    switch (reward) {
+        case 'paypal':
+            // Procesar transferencia PayPal
+            break;
+        case 'amazon':
+            // Enviar gift card de Amazon
+            break;
+        case 'gift-card':
+            // Procesar tarjeta de regalo
+            break;
     }
 }
 
-// Cerrar modal al hacer clic fuera de él
-overlay.addEventListener('click', hideModal);
+// Obtener nombre del premio
+function getRewardName(rewardType) {
+    const rewards = {
+        'paypal': 'PayPal $5',
+        'amazon': 'Gift Card Amazon $10',
+        'gift-card': 'Tarjeta de Regalo'
+    };
+    return rewards[rewardType] || 'Premio';
+}
 
-// Verificar autenticación al cargar el dashboard
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        currentUser = user;
-        if (!user.emailVerified) {
-            showNotification('Por favor, verifica tu email para acceder al dashboard', true);
-            setTimeout(() => {
-                auth.signOut().then(() => {
-                    window.location.href = 'index.html';
+// Añadir/quitar puntos al usuario
+function addUserPoints(points, activityDescription) {
+    const newPoints = Math.max(0, (userData.points || 0) + points);
+    userData.points = newPoints;
+
+    // Actualizar Firebase
+    if (currentUser) {
+        db.collection('users').doc(currentUser.uid).update({
+            points: newPoints,
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .catch(error => {
+            console.error('Error al actualizar puntos:', error);
+            // Continuar con actualización local aunque falle Firebase
+        });
+    }
+
+    // Actualizar UI inmediatamente
+    updateUIWithUserData();
+    
+    // Mostrar notificación de éxito
+    if (points > 0) {
+        showRewardModal(points, activityDescription);
+    }
+}
+
+// Mostrar modal de recompensa
+function showRewardModal(points, description) {
+    const modal = document.getElementById('reward-modal');
+    const title = document.getElementById('modal-title');
+    const desc = document.getElementById('modal-description');
+    const pointsElement = document.getElementById('modal-description');
+
+    if (modal && title && pointsElement) {
+        title.textContent = '¡Recompensa Obtenida!';
+        pointsElement.innerHTML = `Has ganado <span class="points-earned">${points}</span> puntos por ${description.toLowerCase()}.`;
+        showModal(modal);
+    }
+}
+
+// Mostrar modal de confirmación
+function showConfirmModal(title, description, callback) {
+    const modal = document.getElementById('confirm-modal');
+    
+    if (modal && confirmTitle && confirmDescription) {
+        confirmTitle.textContent = title;
+        confirmDescription.textContent = description;
+        confirmCallback = callback;
+        showModal(modal);
+    }
+}
+
+// Manejar aceptación de confirmación
+function handleConfirmAccept() {
+    if (confirmCallback) {
+        confirmCallback();
+        confirmCallback = null;
+    }
+    closeAllModals();
+}
+
+// Mostrar modal
+function showModal(modal) {
+    document.body.classList.add('modal-open');
+    modal.style.display = 'flex';
+    
+    setTimeout(() => {
+        modal.classList.add('show');
+        trapFocus(modal);
+    }, 10);
+}
+
+// Cerrar todos los modales
+function closeAllModals() {
+    const modals = document.querySelectorAll('.modal');
+    modals.forEach(modal => {
+        modal.classList.remove('show');
+        setTimeout(() => {
+            modal.style.display = 'none';
+        }, 300);
+    });
+    
+    document.body.classList.remove('modal-open');
+    confirmCallback = null;
+}
+
+// Trap focus dentro del modal para accesibilidad
+function trapFocus(modal) {
+    const focusableElements = modal.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    
+    if (focusableElements.length > 0) {
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+
+        const focusHandler = (e) => {
+            if (e.key === 'Tab') {
+                if (e.shiftKey) {
+                    if (document.activeElement === firstElement) {
+                        e.preventDefault();
+                        lastElement.focus();
+                    }
+                } else {
+                    if (document.activeElement === lastElement) {
+                        e.preventDefault();
+                        firstElement.focus();
+                    }
+                }
+            }
+        };
+
+        modal.addEventListener('keydown', focusHandler);
+        firstElement.focus();
+
+        // Limpiar event listener cuando se cierre el modal
+        modal._focusHandler = focusHandler;
+    }
+}
+
+// Ocultar overlay de carga
+function hideLoadingOverlay() {
+    const loading = document.getElementById('loading-overlay');
+    if (loading) {
+        loading.classList.add('fade-out');
+        setTimeout(() => {
+            loading.style.display = 'none';
+        }, 500);
+    }
+}
+
+// Manejar logout
+function handleLogout() {
+    showConfirmModal(
+        'Cerrar sesión', 
+        '¿Estás seguro de que quieres cerrar tu sesión?',
+        () => {
+            auth.signOut()
+                .then(() => {
+                    showNotification('Sesión cerrada correctamente');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                })
+                .catch((error) => {
+                    console.error('Error al cerrar sesión:', error);
+                    showNotification('Error al cerrar sesión', true);
                 });
-            }, 2000);
-            return;
         }
-        loadUserData(user);
-        loadRecentActivities();
-    } else {
-        window.location.href = 'index.html';
-    }
-});
+    );
+}
+
+// Mostrar notificación toast
+function showNotification(message, isError = false) {
+    // Usar el sistema de toast del CSS mejorado
+    const toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${isError ? 'error' : 'success'}`;
+    toast.innerHTML = `
+        <i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i>
+        <span>${message}</span>
+    `;
+
+    toastContainer.appendChild(toast);
+
+    // Auto-remover después de 4 segundos
+    setTimeout(() => {
+        toast.style.animation = 'slideInRight 0.3s ease reverse';
+        setTimeout(() => {
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
+            }
+        }, 300);
+    }, 4000);
+}
 
 // Cargar tienda de recompensas
 function loadRewardsStore() {
-    const rewardsStore = document.getElementById('rewards-store');
-    if (!rewardsStore) return;
-    const rewards = [
-        { icon: '🎁', title: 'GIF Exclusivo', description: 'Desbloquea un GIF exclusivo para tu perfil', cost: 150 },
-        { icon: '⭐', title: 'Estrellas Doradas', description: 'Paquete de estrellas doradas para tus GIFs', cost: 250 },
-        { icon: '🚀', title: 'Boost de Visibilidad', description: 'Aumenta la visibilidad de tus GIFs por 24h', cost: 500 }
-    ];
-    rewardsStore.innerHTML = '';
-    rewards.forEach(reward => {
-        const canAfford = (userData.points || 0) >= reward.cost;
-        const rewardElement = document.createElement('div');
-        rewardElement.className = 'store-item';
-        rewardElement.innerHTML = `
-            <div class="store-item-icon">${reward.icon}</div>
-            <h3>${reward.title}</h3>
-            <p>${reward.description}</p>
-            <div class="store-item-cost">${reward.cost} puntos</div>
-            <button class="btn-redeem" ${!canAfford ? 'disabled' : ''}>
-                ${canAfford ? 'Canjear' : 'Puntos insuficientes'}
-            </button>
-        `;
-        const redeemBtn = rewardElement.querySelector('.btn-redeem');
-        if (redeemBtn && canAfford) {
-            redeemBtn.addEventListener('click', function() {
-                showModal(
-                    'Canjear Recompensa',
-                    `¿Quieres canjear "${reward.title}" por ${reward.cost} puntos?`,
-                    function() {
-                        addUserPoints(-reward.cost, `Canjeaste: ${reward.title}`);
-                        hideModal();
-                    }
-                );
+    const storeGrid = document.querySelector('.store-grid');
+    if (!storeGrid) return;
+
+    // Los items ya están en el HTML, solo actualizar el estado
+    updateRewardButtons();
+}
+
+// Manejar cambios de orientación
+function handleOrientationChange() {
+    window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+            // Reajustar alturas de secciones colapsables
+            const expandedSections = document.querySelectorAll('.collapsible[aria-expanded="true"]');
+            expandedSections.forEach(section => {
+                const content = section.querySelector('.collapsible-content');
+                if (content) {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                }
             });
-        }
-        rewardsStore.appendChild(rewardElement);
+        }, 300);
     });
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    // La tienda se carga desde loadUserData cuando los datos estén listos
-    // Si tienes lógica propia aquí, mantenla.
+// Inicializar manejo de orientación
+handleOrientationChange();
+
+// Manejar errores globales
+window.addEventListener('error', (event) => {
+    console.error('Error global:', event.error);
+    showNotification('Ha ocurrido un error inesperado', true);
 });
+
+// Exportar funciones para uso global (si es necesario)
+window.Dashboard = {
+    addUserPoints,
+    showNotification,
+    closeAllModals
+};

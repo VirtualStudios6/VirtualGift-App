@@ -29,215 +29,212 @@
   </div>
 
   <div class="dashboard-container">
-    <!-- Header -->
+    <!-- Header móvil mejorado -->
     <header class="dashboard-header" role="banner">
-      <div class="header-left">
-        <h1>
-          <img src="images/logo-small.png" alt="VirtualGift" class="header-logo" width="32" height="32">
-          VirtualGift
-        </h1>
-        <p>Sistema de Recompensas</p>
-      </div>
-      <div class="header-right">
-        <div class="user-welcome">
-          <span>Hola, <strong id="user-display-name" class="user-name">Cargando...</strong></span>
-          <button id="logout-btn" class="btn" type="button" aria-label="Cerrar sesión">
-            <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-            Cerrar sesión
-          </button>
+      <div class="header-content">
+        <div class="header-left">
+          <h1>
+            <span class="logo-icon">🎁</span>
+            VirtualGift
+          </h1>
+          <p class="header-subtitle">Sistema de Recompensas</p>
+        </div>
+        <div class="header-right">
+          <div class="user-welcome">
+            <span class="welcome-text">Hola, <strong id="user-display-name" class="user-name">Cargando...</strong></span>
+          </div>
         </div>
       </div>
     </header>
 
-    <!-- Main content -->
+    <!-- Main content optimizado para móviles -->
     <main id="main-content" role="main">
-      <!-- User stats panel -->
+      <!-- User stats panel simplificado -->
       <section class="user-panel" aria-labelledby="user-stats-heading">
         <div class="user-stats">
           <div class="stat-card" role="region" aria-label="Puntos acumulados">
-            <div class="stat-icon" aria-hidden="true">🎯</div>
+            <div class="stat-icon" aria-hidden="true">
+              <i class="fas fa-coins"></i>
+            </div>
             <div class="stat-info">
               <h3 id="user-points" aria-live="polite">100</h3>
               <p>Puntos acumulados</p>
             </div>
+            <div class="stat-badge">Disponible</div>
           </div>
-          <div class="stat-card" role="region" aria-label="Nivel actual">
-            <div class="stat-icon" aria-hidden="true">📊</div>
-            <div class="stat-info">
-              <h3 id="user-level" aria-live="polite">1</h3>
-              <p>Nivel actual</p>
-            </div>
-          </div>
-          <div class="stat-card" role="region" aria-label="Ranking global">
-            <div class="stat-icon" aria-hidden="true">🏆</div>
-            <div class="stat-info">
-              <h3 id="user-rank" aria-live="polite">#0</h3>
-              <p>Ranking global</p>
-            </div>
-          </div>
-        </div>
-        <div class="progress-container" role="region" aria-labelledby="progress-heading">
-          <h3 id="progress-heading">Progreso al siguiente nivel</h3>
-          <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-labelledby="progress-heading">
-            <div class="progress-fill" id="level-progress" style="width: 0%"></div>
-          </div>
-          <span class="progress-text" id="progress-text" aria-live="polite">0/200 puntos</span>
         </div>
       </section>
 
-      <!-- Wheel section -->
-      <section class="wheel-container" aria-labelledby="wheel-heading">
-        <h2 id="wheel-heading">Gira la Ruleta y Gana Puntos</h2>
-        <div class="wheel-preview">
-          <img 
-            src="images/ruleta-preview.png" 
-            alt="Vista previa de la ruleta de premios con diferentes colores" 
-            width="150" 
-            height="150"
-            loading="lazy"
-          >
-        </div>
-        <a href="ruleta.html" class="btn spin-btn" role="button">
-          <i class="fas fa-play" aria-hidden="true"></i>
-          Jugar en la Ruleta
-        </a>
-        <p>Tienes <span id="spins-remaining" class="highlight" aria-live="polite">3</span> giros restantes hoy</p>
-      </section>
-
-      <!-- Rewards system -->
-      <section class="rewards-section" aria-labelledby="rewards-heading">
-        <h2 id="rewards-heading">Gana Más Puntos</h2>
-        <div class="rewards-grid" role="list">
-          <article class="reward-card" role="listitem">
-            <div class="reward-icon" aria-hidden="true">📺</div>
-            <h3>Ver Anuncios</h3>
-            <p>Gana 25 puntos por cada anuncio visto</p>
-            <button class="btn" id="watch-ad-btn" type="button" data-points="25">
-              <i class="fas fa-play" aria-hidden="true"></i>
-              Ver Anuncio
-            </button>
-          </article>
-          <article class="reward-card" role="listitem">
-            <div class="reward-icon" aria-hidden="true">👥</div>
-            <h3>Referir Amigos</h3>
-            <p>Gana 50 puntos por cada amigo referido</p>
-            <button class="btn" id="refer-friend-btn" type="button" data-points="50">
-              <i class="fas fa-share" aria-hidden="true"></i>
-              Referir Amigo
-            </button>
-          </article>
-          <article class="reward-card" role="listitem">
-            <div class="reward-icon" aria-hidden="true">✅</div>
-            <h3>Tareas Diarias</h3>
-            <p>Completa tareas y gana hasta 100 puntos</p>
-            <button class="btn" id="daily-tasks-btn" type="button" data-points="100">
-              <i class="fas fa-tasks" aria-hidden="true"></i>
-              Ver Tareas
-            </button>
-          </article>
-        </div>
-      </section>
-
-      <!-- Store section -->
-      <section class="store-section" aria-labelledby="store-heading">
-        <h2 id="store-heading">Canjea Tus Puntos</h2>
-        <div class="store-grid" role="list">
-          <article class="store-item" role="listitem" data-cost="500">
-            <div class="store-item-icon" aria-hidden="true">
-              <i class="fab fa-paypal"></i>
+      <!-- Wheel section optimizada y colapsable -->
+      <section class="wheel-section collapsible" aria-labelledby="wheel-heading" aria-expanded="false">
+        <h2 id="wheel-heading" class="section-header" role="button" aria-expanded="false" tabindex="0">
+          <i class="fas fa-sync-alt section-icon" aria-hidden="true"></i>
+          <span>Ruleta de Premios</span>
+          <i class="fas fa-chevron-down toggle-icon" aria-hidden="true"></i>
+        </h2>
+        <div class="collapsible-content">
+          <div class="wheel-content">
+            <div class="spins-info">
+              <div class="spins-counter">
+                <i class="fas fa-sync-alt"></i>
+                <span>Giros disponibles: <strong id="spins-remaining" aria-live="polite">3</strong></span>
+              </div>
+              <p class="wheel-description">Gira la ruleta diariamente y gana puntos extra. ¡Hasta 100 puntos por giro!</p>
             </div>
-            <h3>PayPal</h3>
-            <p>$5 USD transferidos a tu cuenta PayPal</p>
-            <div class="store-item-cost" aria-label="Costo: 500 puntos">
-              <i class="fas fa-coins" aria-hidden="true"></i>
-              500 puntos
+            
+            <div class="wheel-actions">
+              <a href="ruleta.html" class="btn spin-btn" role="button">
+                <i class="fas fa-play" aria-hidden="true"></i>
+                <span>Jugar en la Ruleta</span>
+              </a>
             </div>
-            <button class="btn btn-redeem" type="button" data-reward="paypal" data-cost="500">
-              <i class="fas fa-exchange-alt" aria-hidden="true"></i>
-              Canjear
-            </button>
-          </article>
-          <article class="store-item" role="listitem" data-cost="900">
-            <div class="store-item-icon" aria-hidden="true">
-              <i class="fas fa-gift"></i>
-            </div>
-            <h3>Gift Card Amazon</h3>
-            <p>Tarjeta de regalo de $10 para Amazon</p>
-            <div class="store-item-cost" aria-label="Costo: 900 puntos">
-              <i class="fas fa-coins" aria-hidden="true"></i>
-              900 puntos
-            </div>
-            <button class="btn btn-redeem" type="button" data-reward="amazon" data-cost="900">
-              <i class="fas fa-exchange-alt" aria-hidden="true"></i>
-              Canjear
-            </button>
-          </article>
-          <article class="store-item" role="listitem" data-cost="750">
-            <div class="store-item-icon" aria-hidden="true">
-              <i class="fas fa-ticket-alt"></i>
-            </div>
-            <h3>Tarjeta de Regalo</h3>
-            <p>Elige entre múltiples opciones disponibles</p>
-            <div class="store-item-cost" aria-label="Costo: 750 puntos">
-              <i class="fas fa-coins" aria-hidden="true"></i>
-              750 puntos
-            </div>
-            <button class="btn btn-redeem" type="button" data-reward="gift-card" data-cost="750">
-              <i class="fas fa-exchange-alt" aria-hidden="true"></i>
-              Canjear
-            </button>
-          </article>
-        </div>
-      </section>
-
-      <!-- Activity section -->
-      <section class="activity-section" aria-labelledby="activity-heading">
-        <h2 id="activity-heading">Tu Actividad Reciente</h2>
-        <div class="activity-list" role="log" aria-live="polite" aria-label="Lista de actividades recientes">
-          <div class="activity-placeholder" aria-hidden="true">
-            <p>Cargando actividades recientes...</p>
           </div>
         </div>
+      </section>
+
+      <!-- Rewards system optimizado -->
+      <section class="rewards-section collapsible" aria-labelledby="rewards-heading" aria-expanded="false">
+        <h2 id="rewards-heading" class="section-header" role="button" aria-expanded="false" tabindex="0">
+          <i class="fas fa-gift section-icon" aria-hidden="true"></i>
+          <span>Gana Más Puntos</span>
+          <i class="fas fa-chevron-down toggle-icon" aria-hidden="true"></i>
+        </h2>
+        <div class="collapsible-content">
+          <div class="rewards-grid" role="list">
+            <article class="reward-card" role="listitem">
+              <div class="reward-icon" aria-hidden="true">
+                <i class="fas fa-tv"></i>
+              </div>
+              <h3>Ver Anuncios</h3>
+              <p>Gana 25 puntos por cada anuncio visto</p>
+              <div class="reward-points">+25 pts</div>
+              <button class="btn reward-btn" id="watch-ad-btn" type="button" data-points="25">
+                <i class="fas fa-play" aria-hidden="true"></i>
+                <span>Ver Anuncio</span>
+              </button>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Store section optimizada -->
+      <section class="store-section collapsible" aria-labelledby="store-heading" aria-expanded="false">
+        <h2 id="store-heading" class="section-header" role="button" aria-expanded="false" tabindex="0">
+          <i class="fas fa-shopping-bag section-icon" aria-hidden="true"></i>
+          <span>Canjea Tus Puntos</span>
+          <i class="fas fa-chevron-down toggle-icon" aria-hidden="true"></i>
+        </h2>
+        <div class="collapsible-content">
+          <div class="store-grid" role="list">
+            <article class="store-item" role="listitem" data-cost="500">
+              <div class="store-item-icon" aria-hidden="true">
+                <i class="fab fa-paypal"></i>
+              </div>
+              <div class="store-item-content">
+                <h3>PayPal $5</h3>
+                <p>Transferencia directa a tu cuenta PayPal</p>
+                <div class="store-item-cost" aria-label="Costo: 500 puntos">
+                  <i class="fas fa-coins" aria-hidden="true"></i>
+                  <span>500 puntos</span>
+                </div>
+              </div>
+              <button class="btn btn-redeem" type="button" data-reward="paypal" data-cost="500">
+                <i class="fas fa-exchange-alt" aria-hidden="true"></i>
+                <span>Canjear</span>
+              </button>
+            </article>
+            
+            <article class="store-item" role="listitem" data-cost="900">
+              <div class="store-item-icon" aria-hidden="true">
+                <i class="fas fa-gift"></i>
+              </div>
+              <div class="store-item-content">
+                <h3>Amazon $10</h3>
+                <p>Tarjeta de regalo de $10 para Amazon</p>
+                <div class="store-item-cost" aria-label="Costo: 900 puntos">
+                  <i class="fas fa-coins" aria-hidden="true"></i>
+                  <span>900 puntos</span>
+                </div>
+              </div>
+              <button class="btn btn-redeem" type="button" data-reward="amazon" data-cost="900">
+                <i class="fas fa-exchange-alt" aria-hidden="true"></i>
+                <span>Canjear</span>
+              </button>
+            </article>
+            
+            <article class="store-item" role="listitem" data-cost="750">
+              <div class="store-item-icon" aria-hidden="true">
+                <i class="fas fa-ticket-alt"></i>
+              </div>
+              <div class="store-item-content">
+                <h3>Tarjeta Regalo</h3>
+                <p>Elige entre múltiples opciones disponibles</p>
+                <div class="store-item-cost" aria-label="Costo: 750 puntos">
+                  <i class="fas fa-coins" aria-hidden="true"></i>
+                  <span>750 puntos</span>
+                </div>
+              </div>
+              <button class="btn btn-redeem" type="button" data-reward="gift-card" data-cost="750">
+                <i class="fas fa-exchange-alt" aria-hidden="true"></i>
+                <span>Canjear</span>
+              </button>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Logout section at bottom -->
+      <section class="logout-section">
+        <button id="logout-btn" class="btn btn-logout" type="button" aria-label="Cerrar sesión">
+          <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+          <span>Cerrar Sesión</span>
+        </button>
       </section>
     </main>
   </div>
 
-  <!-- Toast notifications -->
+  <!-- Toast notifications mejoradas -->
   <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- Modal for rewards -->
+  <!-- Modal para recompensas -->
   <div class="modal" id="reward-modal" role="dialog" aria-labelledby="modal-title" aria-describedby="modal-description" aria-hidden="true">
     <div class="modal-content">
       <button class="close-modal" type="button" aria-label="Cerrar modal">
         <i class="fas fa-times" aria-hidden="true"></i>
       </button>
+      <div class="modal-icon success">
+        <i class="fas fa-trophy"></i>
+      </div>
       <h2 id="modal-title">¡Felicidades!</h2>
-      <p id="modal-description">Has ganado puntos.</p>
+      <p id="modal-description">Has ganado <span class="points-earned">0</span> puntos.</p>
       <div class="modal-actions">
-        <button class="btn" id="modal-confirm" type="button">
+        <button class="btn modal-btn" id="modal-confirm" type="button">
           <i class="fas fa-check" aria-hidden="true"></i>
-          Aceptar
+          <span>Aceptar</span>
         </button>
       </div>
     </div>
   </div>
 
-  <!-- Confirmation modal -->
+  <!-- Modal de confirmación -->
   <div class="modal" id="confirm-modal" role="dialog" aria-labelledby="confirm-title" aria-describedby="confirm-description" aria-hidden="true">
     <div class="modal-content">
       <button class="close-modal" type="button" aria-label="Cerrar modal">
         <i class="fas fa-times" aria-hidden="true"></i>
       </button>
+      <div class="modal-icon warning">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
       <h2 id="confirm-title">Confirmar acción</h2>
       <p id="confirm-description">¿Estás seguro de que quieres realizar esta acción?</p>
       <div class="modal-actions">
         <button class="btn btn-secondary" id="confirm-cancel" type="button">
           <i class="fas fa-times" aria-hidden="true"></i>
-          Cancelar
+          <span>Cancelar</span>
         </button>
-        <button class="btn" id="confirm-accept" type="button">
+        <button class="btn modal-btn" id="confirm-accept" type="button">
           <i class="fas fa-check" aria-hidden="true"></i>
-          Confirmar
+          <span>Confirmar</span>
         </button>
       </div>
     </div>
