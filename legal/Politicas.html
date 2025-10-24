@@ -6,6 +6,7 @@
   <meta name="description" content="Política de Privacidad de VirtualGift - Protección y uso de datos personales">
   <meta name="keywords" content="privacidad, datos, política, seguridad, protección de datos">
   <meta name="author" content="VirtualGift">
+  <meta name="theme-color" content="#06011c">
   
   <!-- Open Graph -->
   <meta property="og:title" content="Política de Privacidad - VirtualGift">
@@ -24,19 +25,18 @@
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <style>
     :root {
-      --primary-color: #f43f5e;
-      --secondary-color: #f97316;
-      --accent-color: #3b82f6;
-      --dark-bg: #0f172a;
-      --darker-bg: #020617;
-      --card-bg: #1e293b;
-      --text-color: #f1f5f9;
-      --gray-color: #cbd5e1;
+      --primary-color: #8d17fb;      /* Morado principal VirtualGift */
+      --secondary-color: #70189b;    /* Morado profundo (hover / subtítulos) */
+      --accent-color: #8d17fb;       /* Enlaces y acentos */
+      --dark-bg: #020515;            /* Fondo principal */
+      --darker-bg: #06011c;          /* Fondo degradado */
+      --card-bg: #1c1f2f;            /* Tarjeta / contenedor */
+      --text-color: #dcefff;         /* Texto principal */
+      --gray-color: #b6c6d9;         /* Texto secundario */
+      --border-color: #293244;       /* Líneas y bordes suaves */
     }
     
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -57,10 +57,11 @@
     
     .terms-container {
       background-color: var(--card-bg);
-      border-radius: 12px;
+      border-radius: 16px;
       padding: clamp(20px, 4vw, 40px);
       margin-bottom: 30px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-color);
     }
     
     .terms-header {
@@ -79,14 +80,12 @@
       font-size: clamp(12px, 3vw, 14px);
     }
     
-    .terms-section {
-      margin-bottom: 25px;
-    }
+    .terms-section { margin-bottom: 25px; }
     
     .terms-section h3 {
       font-size: clamp(18px, 4vw, 20px);
       margin-bottom: 12px;
-      color: var(--secondary-color);
+      color: var(--primary-color);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -96,7 +95,7 @@
     .terms-section h4 {
       font-size: clamp(16px, 3.5vw, 18px);
       margin: 15px 0 10px 0;
-      color: var(--accent-color);
+      color: var(--secondary-color);
     }
     
     .terms-section p, .terms-section ul {
@@ -105,131 +104,87 @@
       font-size: clamp(14px, 3vw, 16px);
     }
     
-    .terms-section ul {
-      padding-left: 20px;
-    }
-    
-    .terms-section li {
-      margin-bottom: 6px;
-      line-height: 1.5;
-    }
+    .terms-section ul { padding-left: 20px; }
+    .terms-section li { margin-bottom: 6px; line-height: 1.5; }
     
     .footer {
       text-align: center;
       padding: 20px 0;
       color: var(--gray-color);
       font-size: clamp(12px, 3vw, 14px);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid rgba(220,239,255,0.1);
     }
     
     .table-container {
       overflow-x: auto;
       margin: 15px 0;
       border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: rgba(0,0,0,0.15);
     }
     
     table {
       width: 100%;
       border-collapse: collapse;
-      background: rgba(0, 0, 0, 0.2);
       min-width: 600px;
+      background: rgba(28,31,47,0.5);
     }
     
     th, td {
       padding: clamp(10px, 2vw, 12px) clamp(12px, 2vw, 15px);
       text-align: left;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      border-bottom: 1px solid rgba(220,239,255,0.1);
       font-size: clamp(13px, 3vw, 15px);
+      color: var(--gray-color);
     }
     
     th {
-      background: rgba(0, 0, 0, 0.3);
-      color: var(--secondary-color);
+      background: rgba(141,23,251,0.12);
+      color: var(--text-color);
       font-weight: 600;
       white-space: nowrap;
+      border-bottom: 1px solid rgba(141,23,251,0.35);
     }
     
-    tr:hover {
-      background: rgba(255, 255, 255, 0.05);
-    }
+    tr:hover { background: rgba(141,23,251,0.06); }
     
     .highlight {
-      background: rgba(59, 130, 246, 0.1);
+      background: rgba(141, 23, 251, 0.08);
       padding: clamp(12px, 3vw, 15px);
-      border-left: 4px solid var(--accent-color);
+      border-left: 4px solid var(--primary-color);
       margin: 12px 0;
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: clamp(14px, 3vw, 16px);
+      color: var(--text-color);
     }
     
     a {
       color: var(--accent-color);
       text-decoration: none;
     }
+    a:hover { color: var(--secondary-color); text-decoration: underline; }
     
-    a:hover {
-      text-decoration: underline;
-    }
-    
-    /* Mejoras específicas para móviles */
+    /* Móviles */
     @media (max-width: 768px) {
-      .container {
-        padding: 10px;
-      }
-      
-      .terms-container {
-        padding: 20px 15px;
-        border-radius: 8px;
-      }
-      
-      .terms-section h3 {
-        gap: 6px;
-      }
-      
-      .terms-section h3 i {
-        font-size: 18px;
-      }
-      
-      .terms-section ul {
-        padding-left: 15px;
-      }
-      
-      .table-container {
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
+      .container { padding: 10px; }
+      .terms-container { padding: 20px 15px; border-radius: 10px; }
+      .terms-section h3 { gap: 6px; }
+      .terms-section h3 i { font-size: 18px; }
+      .terms-section ul { padding-left: 15px; }
+      .table-container { border: 1px solid var(--border-color); }
     }
     
     @media (max-width: 480px) {
-      .terms-header {
-        margin-bottom: 20px;
-      }
-      
-      .terms-section {
-        margin-bottom: 20px;
-      }
-      
-      .terms-section h3 {
-        font-size: 16px;
-      }
-      
-      .terms-section p, .terms-section ul {
-        font-size: 14px;
-      }
-      
-      th, td {
-        padding: 8px 10px;
-        font-size: 13px;
-      }
+      .terms-header { margin-bottom: 20px; }
+      .terms-section { margin-bottom: 20px; }
+      .terms-section h3 { font-size: 16px; }
+      .terms-section p, .terms-section ul { font-size: 14px; }
+      th, td { padding: 8px 10px; font-size: 13px; }
     }
     
     @media (max-width: 360px) {
-      .terms-container {
-        padding: 15px 10px;
-      }
-      
-      .terms-section h3 {
-        font-size: 15px;
-      }
+      .terms-container { padding: 15px 10px; }
+      .terms-section h3 { font-size: 15px; }
     }
   </style>
 </head>

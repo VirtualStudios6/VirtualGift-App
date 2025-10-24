@@ -3,17 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#06011c">
   <title>Términos de Servicio - VirtualGift</title>
+
   <style>
     :root {
-      --primary-color: #f43f5e;
-      --secondary-color: #f97316;
-      --accent-color: #3b82f6;
-      --dark-bg: #0f172a;
-      --darker-bg: #020617;
-      --card-bg: #1e293b;
-      --text-color: #f1f5f9;
-      --gray-color: #cbd5e1;
+      --primary-color: #8d17fb;      /* Morado principal */
+      --secondary-color: #70189b;    /* Morado profundo */
+      --accent-color: #1e293b;       /* Azul oscuro/acento */
+      --dark-bg: #020515;            /* Fondo principal */
+      --darker-bg: #06011c;          /* Fondo degradado */
+      --card-bg: #1c1f2f;            /* Tarjeta / contenedor */
+      --text-color: #dcefff;         /* Texto principal */
+      --gray-color: #b6c6d9;         /* Texto secundario */
+      --border-color: #293244;       /* Líneas suaves */
     }
     
     * {
@@ -39,10 +42,11 @@
     
     .terms-container {
       background-color: var(--card-bg);
-      border-radius: 12px;
+      border-radius: 16px;
       padding: clamp(20px, 4vw, 40px);
       margin-bottom: 30px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-color);
     }
     
     .terms-header {
@@ -68,7 +72,7 @@
     .terms-section h3 {
       font-size: clamp(18px, 4vw, 20px);
       margin-bottom: 12px;
-      color: var(--secondary-color);
+      color: var(--primary-color);
       display: flex;
       align-items: center;
       gap: 8px;
@@ -78,7 +82,7 @@
     .terms-section h4 {
       font-size: clamp(16px, 3.5vw, 18px);
       margin: 15px 0 10px 0;
-      color: var(--accent-color);
+      color: var(--secondary-color);
     }
     
     .terms-section p, .terms-section ul {
@@ -101,25 +105,27 @@
       padding: 20px 0;
       color: var(--gray-color);
       font-size: clamp(12px, 3vw, 14px);
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: 1px solid rgba(220,239,255,0.1);
     }
     
     .highlight {
-      background: rgba(59, 130, 246, 0.1);
-      padding: clamp(12px, 3vw, 15px);
-      border-left: 4px solid var(--accent-color);
-      margin: 12px 0;
-      border-radius: 4px;
-      font-size: clamp(14px, 3vw, 16px);
-    }
-    
-    .warning {
-      background: rgba(244, 63, 94, 0.1);
+      background: rgba(141, 23, 251, 0.08);
       padding: clamp(12px, 3vw, 15px);
       border-left: 4px solid var(--primary-color);
       margin: 12px 0;
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: clamp(14px, 3vw, 16px);
+      color: var(--text-color);
+    }
+    
+    .warning {
+      background: rgba(112, 24, 155, 0.08);
+      padding: clamp(12px, 3vw, 15px);
+      border-left: 4px solid var(--secondary-color);
+      margin: 12px 0;
+      border-radius: 6px;
+      font-size: clamp(14px, 3vw, 16px);
+      color: var(--text-color);
     }
     
     /* Mejoras específicas para móviles */
@@ -130,7 +136,7 @@
       
       .terms-container {
         padding: 20px 15px;
-        border-radius: 8px;
+        border-radius: 10px;
       }
       
       .terms-section h3 {
@@ -191,10 +197,10 @@
       <div class="terms-section">
         <h3><i class="fas fa-user-check"></i> 2. Elegibilidad y Cuenta</h3>
         <ul>
-          <li>Debe tener al menos <strong>16 años</strong> (o la edad de consentimiento en su país) para utilizar VirtualGift</li>
-          <li><strong>Una cuenta por persona</strong> - Cuentas múltiples resultarán en descalificación permanente</li>
-          <li>Debe proporcionar información precisa y actualizada al registrarse</li>
-          <li>Es responsable de mantener la confidencialidad de su cuenta y contraseña</li>
+          <li>Debe tener al menos <strong>16 años</strong> (o la edad de consentimiento en su país) para utilizar VirtualGift.</li>
+          <li><strong>Una cuenta por persona</strong> — Cuentas múltiples resultarán en descalificación permanente.</li>
+          <li>Debe proporcionar información precisa y actualizada al registrarse.</li>
+          <li>Es responsable de mantener la confidencialidad de su cuenta y contraseña.</li>
         </ul>
         
         <div class="warning">
@@ -207,23 +213,23 @@
         
         <h4>3.1 Participación en Sorteos</h4>
         <ul>
-          <li>La participación en sorteos es gratuita a menos que se especifique lo contrario</li>
-          <li>Cada sorteo tiene reglas específicas publicadas en la aplicación</li>
-          <li>Nos reservamos el derecho de cancelar o modificar sorteos en cualquier momento</li>
+          <li>La participación en sorteos es gratuita a menos que se especifique lo contrario.</li>
+          <li>Cada sorteo tiene reglas específicas publicadas en la aplicación.</li>
+          <li>Nos reservamos el derecho de cancelar o modificar sorteos en cualquier momento.</li>
         </ul>
 
         <h4>3.2 Entrega de Premios</h4>
         <ul>
-          <li>Los premios se entregarán dentro de los <strong>30 días</strong> posteriores a la verificación del ganador</li>
-          <li>El ganador debe responder dentro de <strong>7 días</strong> al ser notificado</li>
-          <li>Los premios no son transferibles ni canjeables por efectivo</li>
-          <li>Somos responsables únicamente por la entrega del premio, no por su calidad o funcionamiento</li>
+          <li>Los premios se entregarán dentro de los <strong>30 días</strong> posteriores a la verificación del ganador.</li>
+          <li>El ganador debe responder dentro de <strong>7 días</strong> al ser notificado.</li>
+          <li>Los premios no son transferibles ni canjeables por efectivo.</li>
+          <li>Somos responsables únicamente por la entrega del premio, no por su calidad o funcionamiento.</li>
         </ul>
 
         <h4>3.3 Impuestos y Responsabilidades</h4>
         <ul>
-          <li>El ganador es responsable de cualquier impuesto aplicable sobre premios</li>
-          <li>VirtualGift no se hace responsable por premios perdidos, robados o dañados durante el envío</li>
+          <li>El ganador es responsable de cualquier impuesto aplicable sobre premios.</li>
+          <li>VirtualGift no se hace responsable por premios perdidos, robados o dañados durante el envío.</li>
         </ul>
       </div>
 
@@ -231,12 +237,12 @@
         <h3><i class="fas fa-ban"></i> 4. Conducta Prohibida</h3>
         <p>No puede utilizar VirtualGift para:</p>
         <ul>
-          <li>Crear cuentas múltiples o falsas</li>
-          <li>Utilizar bots, scripts o métodos automatizados</li>
-          <li>Manipular o interferir con el sistema de sorteos</li>
-          <li>Acosar, intimidar o amenazar a otros usuarios</li>
-          <li>Publicar contenido ofensivo, ilegal o inapropiado</li>
-          <li>Realizar actividades fraudulentas</li>
+          <li>Crear cuentas múltiples o falsas.</li>
+          <li>Utilizar bots, scripts o métodos automatizados.</li>
+          <li>Manipular o interferir con el sistema de sorteos.</li>
+          <li>Acosar, intimidar o amenazar a otros usuarios.</li>
+          <li>Publicar contenido ofensivo, ilegal o inapropiado.</li>
+          <li>Realizar actividades fraudulentas.</li>
         </ul>
       </div>
 
@@ -251,10 +257,10 @@
           <p><strong>VirtualGift se proporciona "TAL CUAL" y "SEGÚN DISPONIBILIDAD".</strong> No garantizamos que la aplicación esté libre de errores o que esté siempre disponible.</p>
         </div>
         <ul>
-          <li>No somos responsables por pérdidas indirectas o daños consecuentes</li>
-          <li>La responsabilidad máxima de VirtualGift es de <strong>$100 USD</strong></li>
-          <li>No garantizamos la ganancia de premios</li>
-          <li>Los sorteos están sujetos a disponibilidad y pueden cambiar sin previo aviso</li>
+          <li>No somos responsables por pérdidas indirectas o daños consecuentes.</li>
+          <li>La responsabilidad máxima de VirtualGift es de <strong>$100 USD</strong>.</li>
+          <li>No garantizamos la ganancia de premios.</li>
+          <li>Los sorteos están sujetos a disponibilidad y pueden cambiar sin previo aviso.</li>
         </ul>
       </div>
 
@@ -262,10 +268,10 @@
         <h3><i class="fas fa-gavel"></i> 7. Terminación</h3>
         <p>Podemos suspender o terminar su cuenta en cualquier momento por:</p>
         <ul>
-          <li>Violación de estos términos</li>
-          <li>Actividad fraudulenta</li>
-          <li>Comportamiento abusivo hacia otros usuarios</li>
-          <li>Cualquier actividad que dañe la integridad de nuestra plataforma</li>
+          <li>Violación de estos términos.</li>
+          <li>Actividad fraudulenta.</li>
+          <li>Comportamiento abusivo hacia otros usuarios.</li>
+          <li>Cualquier actividad que dañe la integridad de nuestra plataforma.</li>
         </ul>
       </div>
 
