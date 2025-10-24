@@ -222,21 +222,18 @@ const FirebaseManager = {
 };
 
 // ----------------------------
-// Discord OAuth Manager (SOLUCIÓN COMPLETA)
+// Discord OAuth Manager (simulado)
 // ----------------------------
 const DiscordAuthManager = {
   async initiateLogin() {
     if (State.isLoading) return;
-    
     State.setLoading(true);
     NotificationManager.info('Conectando con Discord...');
-    
     try {
       // Simular autenticación exitosa después de 2 segundos
       setTimeout(() => {
         this.simulateDiscordLogin();
       }, 2000);
-      
     } catch (error) {
       NotificationManager.error('Error al conectar con Discord');
       State.setLoading(false);
@@ -264,12 +261,7 @@ const DiscordAuthManager = {
       const user = userCredential.user;
       
       // Actualizar perfil del usuario
-      await user.updateProfile({
-        displayName: discordUser.username
-      });
-      
-      // Marcar email como verificado
-      await user.updateProfile({});
+      await user.updateProfile({ displayName: discordUser.username });
       
       // Guardar información adicional en Firestore
       await firebase.firestore().collection('users').doc(user.uid).set({
@@ -290,16 +282,14 @@ const DiscordAuthManager = {
       State.currentUser = user;
       NotificationManager.success(`¡Bienvenido, ${discordUser.username}!`);
       
-      // Redirigir al dashboard después de 2 segundos
-      setTimeout(() => {
-        window.location.href = 'dashboard.html';
-      }, 2000);
+      // Redirección unificada
+      setTimeout(() => Session.afterSignInRedirect(), 800);
       
     } catch (error) {
       console.error('Error en login Discord:', error);
       
       if (error.code === 'auth/email-already-in-use') {
-        // Intentar login automático si el usuario ya existe
+        // Intentar login automático si el usuario ya existe (demo)
         await this.handleExistingUser();
       } else {
         NotificationManager.error('Error en la autenticación: ' + error.message);
@@ -311,12 +301,11 @@ const DiscordAuthManager = {
   
   async handleExistingUser() {
     try {
-      // Generar email basado en patrón Discord
+      // Demo: crear nuevo usuario con otro correo
       const randomId = Math.floor(1000000000 + Math.random() * 9000000000);
       const firebaseEmail = `discord_${randomId}@virtualgift.app`;
       const firebasePassword = this.generateSecurePassword();
       
-      // Crear nuevo usuario con email diferente
       const userCredential = await firebase.auth().createUserWithEmailAndPassword(firebaseEmail, firebasePassword);
       const user = userCredential.user;
       
@@ -325,9 +314,7 @@ const DiscordAuthManager = {
         id: randomId.toString()
       };
       
-      await user.updateProfile({
-        displayName: discordUser.username
-      });
+      await user.updateProfile({ displayName: discordUser.username });
       
       await firebase.firestore().collection('users').doc(user.uid).set({
         username: discordUser.username,
@@ -344,11 +331,9 @@ const DiscordAuthManager = {
       });
       
       State.currentUser = user;
-      NotificationManager.success(`¡Bienvenido, ${discordUser.username}!`);
+      NotificationManager.success(`¡Bienvenido, ${discordUser.username}}!`);
       
-      setTimeout(() => {
-        window.location.href = 'dashboard.html';
-      }, 2000);
+      setTimeout(() => Session.afterSignInRedirect(), 800);
       
     } catch (error) {
       NotificationManager.error('Error al crear usuario: ' + error.message);
@@ -367,7 +352,6 @@ const DiscordAuthManager = {
   handleCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
-    
     if (code) {
       NotificationManager.success('Autenticación con Discord exitosa');
       this.cleanUrlParams();
@@ -427,7 +411,7 @@ const FormHandlers = {
       const user = await FirebaseManager.signInUser(email, password);
       State.currentUser = user;
       NotificationManager.success('Inicio de sesión exitoso');
-      setTimeout(()=> window.location.href='dashboard.html', 1000);
+      Session.afterSignInRedirect();
     } catch (error) {
       NotificationManager.error(Utils.getFirebaseErrorMessage(error));
     } finally { State.setLoading(false); }
@@ -535,8 +519,8 @@ if(DOM.googleLoginBtn){
       }
 
       State.currentUser = user;
-      NotificationManager.success(`Bienvenido, ${user.displayName}`);
-      setTimeout(()=> window.location.href='dashboard.html', 1000);
+      NotificationManager.success(`Bienvenido, ${user.displayName || 'Gamer'}`);
+      Session.afterSignInRedirect();
     } catch(error){
       console.error('Error Google Sign-In:', error);
       NotificationManager.error(Utils.getFirebaseErrorMessage(error));
@@ -554,6 +538,66 @@ if(DOM.discordLoginBtn){
     DiscordAuthManager.initiateLogin();
   });
 }
+
+// ----------------------------
+// Manejo de Sesión / Redirects
+// ----------------------------
+const ROUTES = {
+  login: 'index.html',     // Ajusta si tu archivo de login tiene otro nombre
+  welcome: 'welcome.html'
+};
+
+const Session = {
+  init() {
+    // 0) Atajo: si el flag existe, evita el parpadeo del login
+    if (localStorage.getItem('vg_logged') === '1') {
+      if (!location.pathname.endsWith(ROUTES.welcome)) {
+        location.replace(ROUTES.welcome);
+        return;
+      }
+    }
+
+    // 1) Persistencia LOCAL y lenguaje
+    try {
+      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+      firebase.auth().useDeviceLanguage();
+    } catch (e) {
+      console.warn('No se pudo establecer persistencia:', e);
+    }
+
+    // 2) Observador de sesión
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        localStorage.setItem('vg_logged', '1');
+
+        // Si estás en el login o raíz, redirige a welcome
+        const inLogin =
+          location.pathname.endsWith(ROUTES.login) ||
+          location.pathname.endsWith('/') ||
+          location.pathname.includes('VirtualGift-App/index');
+
+        if (inLogin) {
+          location.replace(ROUTES.welcome);
+        }
+      } else {
+        localStorage.removeItem('vg_logged');
+        if (location.pathname.endsWith(ROUTES.welcome)) {
+          location.replace(ROUTES.login);
+        }
+      }
+    });
+  },
+
+  afterSignInRedirect() {
+    localStorage.setItem('vg_logged', '1');
+    location.replace(ROUTES.welcome);
+  },
+
+  afterSignOutRedirect() {
+    localStorage.removeItem('vg_logged');
+    location.replace(ROUTES.login);
+  }
+};
 
 // ----------------------------
 // Eventos
@@ -596,13 +640,24 @@ function init(){
     NotificationManager.error('Error de configuración. Recarga la página');
     return;
   }
+
+  // Inicializa manejo de sesión y redirecciones
+  Session.init();
+
   setupEventListeners();
-  
   // Manejar callback de Discord al cargar la página
   DiscordAuthManager.handleCallback();
-  
   console.log('Auth system initialized successfully');
 }
 
 if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', init);
 else init();
+
+// ----------------------------
+// Helper de Logout (opcional)
+// ----------------------------
+function vgSignOut() {
+  firebase.auth().signOut()
+    .catch(()=>{})
+    .finally(() => Session.afterSignOutRedirect());
+}
