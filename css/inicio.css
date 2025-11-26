@@ -1,0 +1,498 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: #0a0a0f;
+    color: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    padding-bottom: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+}
+
+/* Estilos para app nativa */
+@media (max-width: 768px) {
+    body {
+        padding-bottom: 80px;
+    }
+}
+
+/* Header */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background-color: #0a0a0f;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 15px 16px;
+    }
+}
+
+@media (min-width: 769px) {
+    .header {
+        padding: 25px 40px;
+    }
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-icon {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    color: white;
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+    border-radius: 4px;
+}
+
+.logo-text {
+    font-weight: bold;
+    font-size: 18px;
+    color: white;
+}
+
+.logo-studios {
+    color: #9ca3af;
+    margin-left: 2px;
+}
+
+.header-icons {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.icon-users,
+.icon-notification,
+.icon-coin {
+    width: 40px;
+    height: 40px;
+    background-color: #1f1f2e;
+    border-radius: 50%;
+    position: relative;
+}
+
+.icon-coin {
+    background-color: #fbbf24;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #ef4444;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Sections */
+.section {
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .section {
+        padding: 16px;
+    }
+}
+
+@media (min-width: 769px) {
+    .section {
+        padding: 30px 40px;
+    }
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+}
+
+.section-link {
+    color: #6366f1;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.section-subtitle {
+    color: #9ca3af;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.live-badge {
+    background-color: #ef4444;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* News Grid */
+.news-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+}
+
+@media (min-width: 769px) {
+    .news-grid {
+        gap: 16px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        overflow-x: visible;
+    }
+}
+
+.news-grid::-webkit-scrollbar {
+    height: 4px;
+}
+
+.news-grid::-webkit-scrollbar-thumb {
+    background-color: #374151;
+    border-radius: 2px;
+}
+
+.news-card {
+    flex-shrink: 0;
+    width: 120px;
+}
+
+@media (min-width: 769px) {
+    .news-card {
+        width: 100%;
+    }
+}
+
+.news-image {
+    width: 120px;
+    height: 120px;
+    background-color: #4b5563;
+    border-radius: 16px;
+    margin-bottom: 8px;
+}
+
+@media (min-width: 769px) {
+    .news-image {
+        width: 100%;
+        height: 160px;
+    }
+}
+
+.news-label {
+    font-size: 13px;
+    text-align: center;
+    color: #e5e7eb;
+}
+
+/* Banner Sorteos */
+.banner-container {
+    position: relative;
+}
+
+.banner-sorteos {
+    width: 100%;
+    height: 200px;
+    background-color: #4b5563;
+    border-radius: 20px;
+}
+
+@media (min-width: 769px) {
+    .banner-sorteos {
+        height: 300px;
+    }
+}
+
+.banner-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.dot {
+    width: 8px;
+    height: 8px;
+    background-color: #374151;
+    border-radius: 50%;
+}
+
+.dot.active {
+    background-color: #6366f1;
+}
+
+/* Skins Grid */
+.skins-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+}
+
+@media (min-width: 769px) {
+    .skins-grid {
+        gap: 16px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        overflow-x: visible;
+    }
+}
+
+.skins-grid::-webkit-scrollbar {
+    height: 4px;
+}
+
+.skins-grid::-webkit-scrollbar-thumb {
+    background-color: #374151;
+    border-radius: 2px;
+}
+
+.skin-card {
+    flex-shrink: 0;
+    width: 160px;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border-radius: 16px;
+    padding: 12px;
+    position: relative;
+}
+
+@media (min-width: 769px) {
+    .skin-card {
+        width: 100%;
+    }
+}
+
+.skin-badge,
+.emote-badge {
+    background-color: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.skin-image,
+.emote-image {
+    width: 100%;
+    height: 160px;
+    background-color: #4b5563;
+    border-radius: 12px;
+    margin-bottom: 8px;
+}
+
+.skin-name,
+.emote-name,
+.game-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+}
+
+/* Emotes Grid */
+.emotes-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+}
+
+@media (min-width: 769px) {
+    .emotes-grid {
+        gap: 16px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        overflow-x: visible;
+    }
+}
+
+.emotes-grid::-webkit-scrollbar {
+    height: 4px;
+}
+
+.emotes-grid::-webkit-scrollbar-thumb {
+    background-color: #374151;
+    border-radius: 2px;
+}
+
+.emote-card {
+    flex-shrink: 0;
+    width: 160px;
+    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    border-radius: 16px;
+    padding: 12px;
+}
+
+@media (min-width: 769px) {
+    .emote-card {
+        width: 100%;
+    }
+}
+
+.rating {
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+/* Popular Banner */
+.popular-banner {
+    width: 100%;
+    height: 250px;
+    background-color: #4b5563;
+    border-radius: 20px;
+}
+
+@media (min-width: 769px) {
+    .popular-banner {
+        height: 350px;
+    }
+}
+
+/* Games Grid */
+.games-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 10px;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    scrollbar-width: thin;
+}
+
+@media (min-width: 769px) {
+    .games-grid {
+        gap: 16px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        overflow-x: visible;
+    }
+}
+
+.games-grid::-webkit-scrollbar {
+    height: 4px;
+}
+
+.games-grid::-webkit-scrollbar-thumb {
+    background-color: #374151;
+    border-radius: 2px;
+}
+
+.game-card {
+    flex-shrink: 0;
+    width: 160px;
+    background-color: #1f1f2e;
+    border-radius: 16px;
+    padding: 12px;
+    position: relative;
+}
+
+@media (min-width: 769px) {
+    .game-card {
+        width: 100%;
+    }
+}
+
+.playing-badge {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 10px;
+    display: inline-block;
+    margin-bottom: 8px;
+}
+
+.game-image {
+    width: 100%;
+    height: 160px;
+    background-color: #4b5563;
+    border-radius: 12px;
+    margin-bottom: 8px;
+}
+
+/* Mejoras táctiles para móvil */
+@media (max-width: 768px) {
+    .news-card,
+    .skin-card,
+    .emote-card,
+    .game-card {
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .news-card:active,
+    .skin-card:active,
+    .emote-card:active,
+    .game-card:active {
+        transform: scale(0.95);
+    }
+}
+
+/* Mejoras para web */
+@media (min-width: 769px) {
+    .news-card,
+    .skin-card,
+    .emote-card,
+    .game-card {
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .news-card:hover,
+    .skin-card:hover,
+    .emote-card:hover,
+    .game-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+}
