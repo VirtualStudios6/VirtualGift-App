@@ -556,3 +556,69 @@ body {
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
 }
+/* Carousel Sorteos */
+.carousel-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+@media (min-width: 769px) {
+    .carousel-container {
+        border-radius: 20px;
+    }
+}
+
+.carousel-wrapper {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    touch-action: pan-y;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    height: 180px;
+    background-color: #4b5563;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+@media (min-width: 769px) {
+    .carousel-slide {
+        height: 300px;
+        border-radius: 20px;
+    }
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.carousel-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #374151;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.carousel-dot.active {
+    background-color: #6366f1;
+    width: 24px;
+    border-radius: 4px;
+}
+
+.carousel-dot:hover {
+    background-color: #4b5563;
+}
