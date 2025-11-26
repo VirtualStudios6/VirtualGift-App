@@ -16,14 +16,12 @@ body {
     overflow-x: hidden;
 }
 
-/* Estilos para app nativa */
 @media (max-width: 768px) {
     body {
         padding-bottom: 80px;
     }
 }
 
-/* Header */
 .header {
     display: flex;
     justify-content: space-between;
@@ -53,19 +51,6 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-}
-
-.logo-icon {
-    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-    color: white;
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    font-size: 20px;
-    border-radius: 4px;
 }
 
 .logo-image {
@@ -129,7 +114,6 @@ body {
     justify-content: center;
 }
 
-/* Sections */
 .section {
     padding: 20px;
 }
@@ -180,7 +164,6 @@ body {
     font-weight: bold;
 }
 
-/* News Grid */
 .news-grid {
     display: flex;
     gap: 10px;
@@ -253,7 +236,6 @@ body {
     line-height: 1.2;
 }
 
-/* Banner Sorteos */
 .banner-container {
     position: relative;
 }
@@ -290,7 +272,6 @@ body {
     background-color: #6366f1;
 }
 
-/* Skins Grid */
 .skins-grid {
     display: flex;
     gap: 10px;
@@ -391,7 +372,6 @@ body {
     }
 }
 
-/* Emotes Grid */
 .emotes-grid {
     display: flex;
     gap: 10px;
@@ -447,7 +427,6 @@ body {
     }
 }
 
-/* Popular Banner */
 .popular-banner {
     width: 100%;
     height: 200px;
@@ -462,7 +441,6 @@ body {
     }
 }
 
-/* Games Grid */
 .games-grid {
     display: flex;
     gap: 10px;
@@ -543,7 +521,6 @@ body {
     }
 }
 
-/* Mejoras táctiles para móvil */
 @media (max-width: 768px) {
     .news-card,
     .skin-card,
@@ -562,7 +539,6 @@ body {
     }
 }
 
-/* Mejoras para web */
 @media (min-width: 769px) {
     .news-card,
     .skin-card,
