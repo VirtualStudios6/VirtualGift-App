@@ -107,7 +107,7 @@ class Carousel {
     startAutoplay() {
         this.autoplayInterval = setInterval(() => {
             this.nextSlide();
-        }, 13000); // Cambia cada 13 segundos
+        }, 18000); // Cambia cada 18 segundos
     }
     
     stopAutoplay() {

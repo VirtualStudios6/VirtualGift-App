@@ -236,40 +236,72 @@ body {
     line-height: 1.2;
 }
 
-.banner-container {
+/* Carousel Sorteos */
+.carousel-container {
     position: relative;
-}
-
-.banner-sorteos {
-    width: 100%;
-    height: 180px;
-    background-color: #4b5563;
+    overflow: hidden;
     border-radius: 16px;
 }
 
 @media (min-width: 769px) {
-    .banner-sorteos {
+    .carousel-container {
+        border-radius: 20px;
+    }
+}
+
+.carousel-wrapper {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    touch-action: pan-y;
+    cursor: grab;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    height: 180px;
+    background-color: #4b5563;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+@media (min-width: 769px) {
+    .carousel-slide {
         height: 300px;
         border-radius: 20px;
     }
 }
 
-.banner-dots {
+.carousel-slide img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.carousel-dots {
     display: flex;
     justify-content: center;
     gap: 8px;
     margin-top: 12px;
 }
 
-.dot {
+.carousel-dot {
     width: 8px;
     height: 8px;
     background-color: #374151;
     border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-.dot.active {
+.carousel-dot.active {
     background-color: #6366f1;
+    width: 24px;
+    border-radius: 4px;
+}
+
+.carousel-dot:hover {
+    background-color: #4b5563;
 }
 
 .skins-grid {
@@ -303,7 +335,7 @@ body {
 .skin-card {
     flex-shrink: 0;
     width: 140px;
-    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    background-color: #1f1f2e;
     border-radius: 14px;
     padding: 10px;
     position: relative;
@@ -344,6 +376,17 @@ body {
     background-color: #4b5563;
     border-radius: 10px;
     margin-bottom: 6px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.skin-image img,
+.emote-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 @media (min-width: 769px) {
@@ -403,7 +446,7 @@ body {
 .emote-card {
     flex-shrink: 0;
     width: 140px;
-    background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+    background-color: #1f1f2e;
     border-radius: 14px;
     padding: 10px;
 }
@@ -555,70 +598,4 @@ body {
         transform: translateY(-5px);
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
-}
-/* Carousel Sorteos */
-.carousel-container {
-    position: relative;
-    overflow: hidden;
-    border-radius: 16px;
-}
-
-@media (min-width: 769px) {
-    .carousel-container {
-        border-radius: 20px;
-    }
-}
-
-.carousel-wrapper {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-    touch-action: pan-y;
-}
-
-.carousel-slide {
-    min-width: 100%;
-    height: 180px;
-    background-color: #4b5563;
-    border-radius: 16px;
-    overflow: hidden;
-}
-
-@media (min-width: 769px) {
-    .carousel-slide {
-        height: 300px;
-        border-radius: 20px;
-    }
-}
-
-.carousel-slide img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-}
-
-.carousel-dots {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 12px;
-}
-
-.carousel-dot {
-    width: 8px;
-    height: 8px;
-    background-color: #374151;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.carousel-dot.active {
-    background-color: #6366f1;
-    width: 24px;
-    border-radius: 4px;
-}
-
-.carousel-dot:hover {
-    background-color: #4b5563;
 }
