@@ -9,7 +9,7 @@ body {
     color: #ffffff;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     padding-bottom: 40px;
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -19,6 +19,13 @@ body {
 @media (max-width: 768px) {
     body {
         padding-bottom: 80px;
+        max-width: 1200px;
+    }
+}
+
+@media (min-width: 769px) {
+    body {
+        padding-bottom: 60px;
     }
 }
 
@@ -43,7 +50,11 @@ body {
 
 @media (min-width: 769px) {
     .header {
-        padding: 25px 40px;
+        padding: 30px 60px;
+        max-width: 1600px;
+        margin: 0 auto;
+        left: 0;
+        right: 0;
     }
 }
 
@@ -62,8 +73,8 @@ body {
 
 @media (min-width: 769px) {
     .logo-image {
-        width: 45px;
-        height: 45px;
+        width: 50px;
+        height: 50px;
     }
 }
 
@@ -71,6 +82,12 @@ body {
     font-weight: bold;
     font-size: 18px;
     color: white;
+}
+
+@media (min-width: 769px) {
+    .logo-text {
+        font-size: 22px;
+    }
 }
 
 .logo-studios {
@@ -92,10 +109,68 @@ body {
     background-color: #1f1f2e;
     border-radius: 50%;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+@media (min-width: 769px) {
+    .icon-users,
+    .icon-notification,
+    .icon-coin {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .icon-users:hover,
+    .icon-notification:hover,
+    .icon-coin:hover {
+        background-color: #2a2a3e;
+        transform: scale(1.05);
+    }
+}
+
+.icon-users svg,
+.icon-notification svg,
+.icon-coin svg {
+    width: 20px;
+    height: 20px;
+    fill: white;
+}
+
+@media (min-width: 769px) {
+    .icon-users svg,
+    .icon-notification svg,
+    .icon-coin svg {
+        width: 22px;
+        height: 22px;
+    }
 }
 
 .icon-coin {
-    background-color: #fbbf24;
+    background-color: transparent;
+    width: 40px;
+    height: 40px;
+}
+
+@media (min-width: 769px) {
+    .icon-coin {
+        width: 45px;
+        height: 45px;
+    }
+}
+
+.icon-coin:hover {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    transform: scale(1.1) !important;
+}
+
+.icon-coin svg {
+    width: 100% !important;
+    height: 100% !important;
+    fill: none;
 }
 
 .notification-badge {
@@ -126,7 +201,9 @@ body {
 
 @media (min-width: 769px) {
     .section {
-        padding: 30px 40px;
+        padding: 40px 60px;
+        max-width: 1600px;
+        margin: 0 auto;
     }
 }
 
@@ -143,16 +220,40 @@ body {
     color: white;
 }
 
+@media (min-width: 769px) {
+    .section-title {
+        font-size: 26px;
+    }
+}
+
 .section-link {
     color: #6366f1;
     text-decoration: none;
     font-size: 14px;
 }
 
+@media (min-width: 769px) {
+    .section-link {
+        font-size: 16px;
+        transition: color 0.3s ease;
+    }
+    
+    .section-link:hover {
+        color: #818cf8;
+    }
+}
+
 .section-subtitle {
     color: #9ca3af;
     font-size: 14px;
     margin-bottom: 12px;
+}
+
+@media (min-width: 769px) {
+    .section-subtitle {
+        font-size: 16px;
+        margin-bottom: 16px;
+    }
 }
 
 .live-badge {
@@ -162,6 +263,14 @@ body {
     border-radius: 4px;
     font-size: 12px;
     font-weight: bold;
+}
+
+@media (min-width: 769px) {
+    .live-badge {
+        padding: 6px 16px;
+        font-size: 13px;
+        border-radius: 6px;
+    }
 }
 
 .news-grid {
@@ -178,7 +287,7 @@ body {
     .news-grid {
         gap: 16px;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        grid-template-columns: repeat(8, 1fr);
         overflow-x: visible;
     }
 }
@@ -224,7 +333,7 @@ body {
 @media (min-width: 769px) {
     .news-image {
         width: 100%;
-        height: 160px;
+        height: 150px;
         border-radius: 16px;
     }
 }
@@ -234,6 +343,13 @@ body {
     text-align: center;
     color: #e5e7eb;
     line-height: 1.2;
+}
+
+@media (min-width: 769px) {
+    .news-label {
+        font-size: 12px;
+        margin-top: 8px;
+    }
 }
 
 /* Carousel Sorteos */
@@ -266,7 +382,7 @@ body {
 
 @media (min-width: 769px) {
     .carousel-slide {
-        height: 300px;
+        height: 420px;
         border-radius: 20px;
     }
 }
@@ -285,6 +401,13 @@ body {
     margin-top: 12px;
 }
 
+@media (min-width: 769px) {
+    .carousel-dots {
+        gap: 10px;
+        margin-top: 16px;
+    }
+}
+
 .carousel-dot {
     width: 8px;
     height: 8px;
@@ -294,10 +417,24 @@ body {
     transition: all 0.3s ease;
 }
 
+@media (min-width: 769px) {
+    .carousel-dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
 .carousel-dot.active {
     background-color: #6366f1;
     width: 24px;
     border-radius: 4px;
+}
+
+@media (min-width: 769px) {
+    .carousel-dot.active {
+        width: 32px;
+        border-radius: 5px;
+    }
 }
 
 .carousel-dot:hover {
@@ -316,9 +453,9 @@ body {
 
 @media (min-width: 769px) {
     .skins-grid {
-        gap: 16px;
+        gap: 20px;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         overflow-x: visible;
     }
 }
@@ -344,8 +481,8 @@ body {
 @media (min-width: 769px) {
     .skin-card {
         width: 100%;
-        border-radius: 16px;
-        padding: 12px;
+        border-radius: 18px;
+        padding: 16px;
     }
 }
 
@@ -363,8 +500,8 @@ body {
 @media (min-width: 769px) {
     .skin-badge,
     .emote-badge {
-        padding: 4px 8px;
-        font-size: 10px;
+        padding: 5px 10px;
+        font-size: 11px;
         border-radius: 12px;
     }
 }
@@ -392,9 +529,9 @@ body {
 @media (min-width: 769px) {
     .skin-image,
     .emote-image {
-        height: 160px;
-        border-radius: 12px;
-        margin-bottom: 8px;
+        height: 200px;
+        border-radius: 14px;
+        margin-bottom: 10px;
     }
 }
 
@@ -411,7 +548,7 @@ body {
     .skin-name,
     .emote-name,
     .game-name {
-        font-size: 13px;
+        font-size: 14px;
     }
 }
 
@@ -427,9 +564,9 @@ body {
 
 @media (min-width: 769px) {
     .emotes-grid {
-        gap: 16px;
+        gap: 24px;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         overflow-x: visible;
     }
 }
@@ -454,8 +591,8 @@ body {
 @media (min-width: 769px) {
     .emote-card {
         width: 100%;
-        border-radius: 16px;
-        padding: 12px;
+        border-radius: 18px;
+        padding: 16px;
     }
 }
 
@@ -466,7 +603,8 @@ body {
 
 @media (min-width: 769px) {
     .rating {
-        font-size: 14px;
+        font-size: 15px;
+        margin-top: 6px;
     }
 }
 
@@ -479,8 +617,8 @@ body {
 
 @media (min-width: 769px) {
     .popular-banner {
-        height: 350px;
-        border-radius: 20px;
+        height: 450px;
+        border-radius: 24px;
     }
 }
 
@@ -496,9 +634,9 @@ body {
 
 @media (min-width: 769px) {
     .games-grid {
-        gap: 16px;
+        gap: 24px;
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
         overflow-x: visible;
     }
 }
@@ -524,8 +662,8 @@ body {
 @media (min-width: 769px) {
     .game-card {
         width: 100%;
-        border-radius: 16px;
-        padding: 12px;
+        border-radius: 18px;
+        padding: 16px;
     }
 }
 
@@ -541,10 +679,10 @@ body {
 
 @media (min-width: 769px) {
     .playing-badge {
-        padding: 4px 8px;
-        font-size: 10px;
+        padding: 5px 10px;
+        font-size: 11px;
         border-radius: 12px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
     }
 }
 
@@ -558,9 +696,9 @@ body {
 
 @media (min-width: 769px) {
     .game-image {
-        height: 160px;
-        border-radius: 12px;
-        margin-bottom: 8px;
+        height: 200px;
+        border-radius: 14px;
+        margin-bottom: 10px;
     }
 }
 
