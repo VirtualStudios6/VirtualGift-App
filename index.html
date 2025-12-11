@@ -44,7 +44,7 @@
 
         <a href="#" id="forgot-password" class="forgot">¿Olvidaste tu contraseña?</a>
 
-        <button type="button" id="login-btn" class="btn gradient">Iniciar Sesión</button>
+        <button type="submit" id="login-btn" class="btn gradient">Iniciar Sesión</button>
 
         <p class="switch-form">¿No tienes cuenta? 
           <a href="#" id="show-register">Regístrate</a>
@@ -136,7 +136,7 @@
   <!-- SCRIPT GENERAL -->
   <script src="js/main.js"></script>
 
-  <!-- SCRIPT LOGIN GOOGLE -->
+  <!-- SCRIPT LOGIN GOOGLE Y FACEBOOK -->
   <script>
     // Mostrar notificación
     function showNotification(message, type = 'info') {
@@ -153,6 +153,66 @@
       return window.auth && window.db && typeof firebase !== 'undefined';
     }
 
+    // ============ FACEBOOK LOGIN ============
+    async function loginWithFacebook() {
+      try {
+        const facebookBtn = document.getElementById('facebook-login');
+        if (facebookBtn) {
+          facebookBtn.classList.add('btn-loading');
+          facebookBtn.disabled = true;
+        }
+
+        if (!isFirebaseReady()) {
+          throw new Error('Firebase no está listo');
+        }
+
+        const provider = new firebase.auth.FacebookAuthProvider();
+        const result = await window.auth.signInWithPopup(provider);
+        const user = result.user;
+
+        // Guardar en Firestore
+        await window.db.collection('users').doc(user.uid).set({
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          provider: 'facebook',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        console.log("✅ Login exitoso con Facebook");
+        showNotification('¡Bienvenido ' + user.displayName + '!', 'success');
+        
+        setTimeout(() => {
+          window.location.href = "/home.html";
+        }, 1200);
+
+      } catch (error) {
+        console.error("❌ Error Facebook:", error.code, error.message);
+        
+        const facebookBtn = document.getElementById('facebook-login');
+        if (facebookBtn) {
+          facebookBtn.classList.remove('btn-loading');
+          facebookBtn.disabled = false;
+        }
+
+        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+          let errorMsg = 'Error al iniciar sesión con Facebook';
+          
+          if (error.code === 'auth/account-exists-with-different-credential') {
+            errorMsg = 'Esta cuenta ya existe con otro proveedor (Google)';
+          } else if (error.code === 'auth/operation-not-allowed') {
+            errorMsg = 'Facebook Sign-In no está habilitado en Firebase';
+          } else if (error.message) {
+            errorMsg = error.message;
+          }
+          
+          showNotification(errorMsg, 'error');
+        }
+      }
+    }
+
+    // ============ GOOGLE LOGIN ============
     // Manejar respuesta de Google con One Tap
     async function handleCredentialResponse(response) {
       try {
@@ -295,7 +355,6 @@
       
       try {
         // Inicializar Google Identity Services (One Tap)
-        // IMPORTANTE: Reemplaza con tu Client ID de Google Cloud Console
         google.accounts.id.initialize({
           client_id: "575320766274-ciqdapfh76uati50bad4d70c5cgsapvo.apps.googleusercontent.com",
           callback: handleCredentialResponse,
@@ -318,8 +377,6 @@
           customBtn.addEventListener("click", function(e) {
             e.preventDefault();
             console.log("🔘 Click en botón Google");
-            
-            // Usar directamente el método popup (más confiable que One Tap)
             loginWithGooglePopup();
           });
         }
@@ -329,6 +386,18 @@
       } catch (error) {
         console.error("❌ Error al inicializar Google:", error);
         showNotification('Error al cargar Google Sign-In', 'error');
+      }
+    }
+
+    // Inicializar Facebook Login
+    function initFacebookLogin() {
+      const facebookBtn = document.getElementById('facebook-login');
+      if (facebookBtn) {
+        facebookBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          console.log("🔘 Click en botón Facebook");
+          loginWithFacebook();
+        });
       }
     }
 
@@ -349,11 +418,18 @@
           console.log("✅ Firebase listo");
           console.log("✅ Google API listo");
           initGoogleSignIn();
+          initFacebookLogin();
         } else if (attempts >= maxAttempts) {
           clearInterval(checkReady);
           console.error("❌ Timeout esperando Firebase o Google");
           if (!firebaseOK) console.error("❌ Firebase no está listo");
           if (!googleOK) console.error("❌ Google API no está listo");
+          
+          // Aún así inicializar Facebook si Firebase está listo
+          if (firebaseOK) {
+            initFacebookLogin();
+          }
+          
           showNotification('Error: Servicios no disponibles', 'error');
         }
       }, 100);
