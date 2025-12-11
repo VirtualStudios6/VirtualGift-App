@@ -148,28 +148,43 @@
       }, 3000);
     }
 
-    // Manejar respuesta de Google
+    // Verificar si Firebase está disponible
+    function isFirebaseReady() {
+      return window.auth && window.db && typeof firebase !== 'undefined';
+    }
+
+    // Manejar respuesta de Google con One Tap
     async function handleCredentialResponse(response) {
       try {
-        // Mostrar loading en el botón
         const googleBtn = document.getElementById('google-login-custom');
-        const originalText = googleBtn.innerHTML;
-        googleBtn.classList.add('btn-loading');
-        googleBtn.disabled = true;
+        if (googleBtn) {
+          googleBtn.classList.add('btn-loading');
+          googleBtn.disabled = true;
+        }
 
-        // Decodificar el token JWT de Google
+        // Decodificar token
         const data = JSON.parse(atob(response.credential.split('.')[1]));
-        console.log("Usuario de Google:", data);
+        console.log("✅ Usuario Google:", data.name, data.email);
 
-        // Crear credencial de Firebase con el token de Google
+        // Esperar a que Firebase esté listo
+        if (!isFirebaseReady()) {
+          await new Promise(resolve => {
+            const check = setInterval(() => {
+              if (isFirebaseReady()) {
+                clearInterval(check);
+                resolve();
+              }
+            }, 100);
+          });
+        }
+
+        // Autenticar con Firebase
         const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
-        
-        // Iniciar sesión en Firebase
-        const result = await firebase.auth().signInWithCredential(credential);
+        const result = await window.auth.signInWithCredential(credential);
         const user = result.user;
 
-        // Guardar datos adicionales en Firestore
-        await firebase.firestore().collection('users').doc(user.uid).set({
+        // Guardar en Firestore
+        await window.db.collection('users').doc(user.uid).set({
           displayName: user.displayName,
           email: user.email,
           photoURL: user.photoURL,
@@ -178,89 +193,168 @@
           lastLogin: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
 
-        showNotification('¡Inicio de sesión exitoso!', 'success');
+        console.log("✅ Usuario guardado en Firestore");
+        showNotification('¡Bienvenido ' + data.name + '!', 'success');
         
-        // Redirigir después de un pequeño delay
         setTimeout(() => {
           window.location.href = "/home.html";
-        }, 1000);
+        }, 1200);
 
       } catch (error) {
-        console.error("Error al iniciar sesión con Google:", error);
+        console.error("❌ Error:", error.code, error.message);
         
-        // Restaurar botón
         const googleBtn = document.getElementById('google-login-custom');
-        googleBtn.classList.remove('btn-loading');
-        googleBtn.disabled = false;
-        
-        // Mostrar error específico
-        let errorMessage = 'Error al iniciar sesión con Google';
-        if (error.code === 'auth/popup-closed-by-user') {
-          errorMessage = 'Inicio de sesión cancelado';
-        } else if (error.code === 'auth/network-request-failed') {
-          errorMessage = 'Error de conexión. Verifica tu internet';
+        if (googleBtn) {
+          googleBtn.classList.remove('btn-loading');
+          googleBtn.disabled = false;
         }
         
-        showNotification(errorMessage, 'error');
+        let errorMsg = 'Error al iniciar sesión';
+        
+        if (error.code === 'auth/popup-closed-by-user') {
+          errorMsg = 'Inicio de sesión cancelado';
+        } else if (error.code === 'auth/unauthorized-domain') {
+          errorMsg = 'Dominio no autorizado';
+          console.error("🔧 Solución: Ve a Firebase Console → Authentication → Settings → Authorized domains");
+          console.error("🔧 Agrega: localhost, 127.0.0.1 y tu dominio");
+        } else if (error.code === 'auth/invalid-credential') {
+          errorMsg = 'Credencial inválida. Verifica la configuración de Google OAuth';
+        } else if (error.message) {
+          errorMsg = error.message;
+        }
+        
+        showNotification(errorMsg, 'error');
       }
     }
 
-    // Inicializar cuando el DOM esté listo
-    window.addEventListener('load', function() {
-      // Esperar a que Firebase esté inicializado
-      const initGoogle = setInterval(() => {
-        if (typeof firebase !== 'undefined' && firebase.auth) {
-          clearInterval(initGoogle);
+    // Login con Popup (método alternativo más confiable)
+    async function loginWithGooglePopup() {
+      try {
+        const googleBtn = document.getElementById('google-login-custom');
+        if (googleBtn) {
+          googleBtn.classList.add('btn-loading');
+          googleBtn.disabled = true;
+        }
+
+        if (!isFirebaseReady()) {
+          throw new Error('Firebase no está listo');
+        }
+
+        const provider = new firebase.auth.GoogleAuthProvider();
+        provider.addScope('profile');
+        provider.addScope('email');
+
+        const result = await window.auth.signInWithPopup(provider);
+        const user = result.user;
+
+        // Guardar en Firestore
+        await window.db.collection('users').doc(user.uid).set({
+          displayName: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          provider: 'google',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        console.log("✅ Login exitoso con popup");
+        showNotification('¡Bienvenido ' + user.displayName + '!', 'success');
+        
+        setTimeout(() => {
+          window.location.href = "/home.html";
+        }, 1200);
+
+      } catch (error) {
+        console.error("❌ Error popup:", error.code, error.message);
+        
+        const googleBtn = document.getElementById('google-login-custom');
+        if (googleBtn) {
+          googleBtn.classList.remove('btn-loading');
+          googleBtn.disabled = false;
+        }
+
+        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+          let errorMsg = 'Error al iniciar sesión';
           
-          // Inicializar Google Identity Services
-          google.accounts.id.initialize({
-            client_id: "575320766274-ciqdapfh76uati50bad4d70c5cgsapvo.apps.googleusercontent.com",
-            callback: handleCredentialResponse,
-            auto_select: false,
-            cancel_on_tap_outside: true
-          });
+          if (error.code === 'auth/unauthorized-domain') {
+            errorMsg = 'Dominio no autorizado en Firebase';
+          } else if (error.code === 'auth/operation-not-allowed') {
+            errorMsg = 'Google Sign-In no está habilitado en Firebase';
+          } else if (error.message) {
+            errorMsg = error.message;
+          }
+          
+          showNotification(errorMsg, 'error');
+        }
+      }
+    }
 
-          // Renderizar el botón oculto (mantiene la funcionalidad)
-          google.accounts.id.renderButton(
-            document.getElementById("googleBtn"),
-            { theme: "outline", size: "large" }
-          );
+    // Inicializar cuando Firebase esté listo
+    function initGoogleSignIn() {
+      console.log("🔄 Inicializando Google Sign-In...");
+      
+      try {
+        // Inicializar Google Identity Services (One Tap)
+        // IMPORTANTE: Reemplaza con tu Client ID de Google Cloud Console
+        google.accounts.id.initialize({
+          client_id: "575320766274-ciqdapfh76uati50bad4d70c5cgsapvo.apps.googleusercontent.com",
+          callback: handleCredentialResponse,
+          auto_select: false,
+          cancel_on_tap_outside: true
+        });
 
-          // Vincular el botón personalizado
-          document.getElementById("google-login-custom").addEventListener("click", function() {
-            google.accounts.id.prompt((notification) => {
-              if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                // Si el prompt no se muestra, usar popup como fallback
-                const provider = new firebase.auth.GoogleAuthProvider();
-                firebase.auth().signInWithPopup(provider)
-                  .then((result) => {
-                    const user = result.user;
-                    
-                    // Guardar en Firestore
-                    return firebase.firestore().collection('users').doc(user.uid).set({
-                      displayName: user.displayName,
-                      email: user.email,
-                      photoURL: user.photoURL,
-                      provider: 'google',
-                      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                      lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                    }, { merge: true });
-                  })
-                  .then(() => {
-                    showNotification('¡Inicio de sesión exitoso!', 'success');
-                    setTimeout(() => {
-                      window.location.href = "/home.html";
-                    }, 1000);
-                  })
-                  .catch((error) => {
-                    console.error("Error con popup:", error);
-                    if (error.code !== 'auth/popup-closed-by-user') {
-                      showNotification('Error al iniciar sesión', 'error');
-                    }
-                  });
-              }
-            });
+        // Renderizar botón invisible (para One Tap)
+        const googleBtnContainer = document.getElementById("googleBtn");
+        if (googleBtnContainer) {
+          google.accounts.id.renderButton(googleBtnContainer, { 
+            theme: "outline", 
+            size: "large" 
           });
+        }
+
+        // Vincular botón personalizado - USAR POPUP (más confiable)
+        const customBtn = document.getElementById("google-login-custom");
+        if (customBtn) {
+          customBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            console.log("🔘 Click en botón Google");
+            
+            // Usar directamente el método popup (más confiable que One Tap)
+            loginWithGooglePopup();
+          });
+        }
+
+        console.log("✅ Google Sign-In inicializado");
+        
+      } catch (error) {
+        console.error("❌ Error al inicializar Google:", error);
+        showNotification('Error al cargar Google Sign-In', 'error');
+      }
+    }
+
+    // Esperar a que todo esté listo
+    window.addEventListener('load', function() {
+      let attempts = 0;
+      const maxAttempts = 50;
+      
+      const checkReady = setInterval(() => {
+        attempts++;
+        
+        // Verificar que Firebase y Google estén listos
+        const firebaseOK = isFirebaseReady();
+        const googleOK = typeof google !== 'undefined' && google.accounts;
+        
+        if (firebaseOK && googleOK) {
+          clearInterval(checkReady);
+          console.log("✅ Firebase listo");
+          console.log("✅ Google API listo");
+          initGoogleSignIn();
+        } else if (attempts >= maxAttempts) {
+          clearInterval(checkReady);
+          console.error("❌ Timeout esperando Firebase o Google");
+          if (!firebaseOK) console.error("❌ Firebase no está listo");
+          if (!googleOK) console.error("❌ Google API no está listo");
+          showNotification('Error: Servicios no disponibles', 'error');
         }
       }, 100);
     });
