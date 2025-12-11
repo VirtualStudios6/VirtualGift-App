@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#06011c">
+  <title>VirtualGift - Home</title>
+  
+  <style>
+    :root {
+      --primary: #8d17fb;
+      --secondary: #70189b;
+      --bg-primary: #020515;
+      --bg-secondary: #06011c;
+      --bg-card: #1c1f2f;
+      --text-primary: #dcefff;
+      --text-secondary: #b6c6d9;
+      --border: #293244;
+      --shadow-card: 0 6px 25px rgba(0,0,0,0.5);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', 'Roboto', sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary));
+      color: var(--text-primary);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .welcome-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 40px 30px;
+      text-align: center;
+      box-shadow: var(--shadow-card);
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .profile-section {
+      margin-bottom: 30px;
+    }
+
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 3px solid var(--primary);
+      margin: 0 auto 20px;
+      box-shadow: 0 0 20px rgba(141, 23, 251, 0.4);
+    }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .email {
+      color: var(--text-secondary);
+      font-size: 0.95em;
+      margin-bottom: 20px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .info-card {
+      background: rgba(141, 23, 251, 0.1);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .info-label {
+      font-size: 0.8em;
+      color: var(--text-secondary);
+      margin-bottom: 5px;
+    }
+
+    .info-value {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin: 5px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(141, 23, 251, 0.6);
+    }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(28, 31, 47, 1);
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      border: 3px solid var(--border);
+      border-top: 3px solid var(--primary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+
+  <!-- Firebase -->
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script defer src="js/firebase-config.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Cargando...</p>
+    </div>
+
+    <div id="content" class="welcome-card" style="display: none;">
+      <div class="profile-section">
+        <img id="avatar" class="avatar" src="" alt="Avatar">
+        <h1>¡Bienvenido, <span id="userName">Usuario</span>!</h1>
+        <p class="email" id="userEmail">correo@ejemplo.com</p>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-label">Proveedor</div>
+          <div class="info-value" id="provider">Google</div>
+        </div>
+        <div class="info-card">
+          <div class="info-label">Último acceso</div>
+          <div class="info-value" id="lastLogin">Ahora</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 30px;">
+        <button class="btn btn-primary" onclick="goToApp()">
+          Ir a la aplicación
+        </button>
+        <button class="btn btn-secondary" onclick="logout()">
+          Cerrar sesión
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Verificar autenticación
+    function checkAuth() {
+      const maxAttempts = 50;
+      let attempts = 0;
+
+      const check = setInterval(() => {
+        attempts++;
+
+        if (window.auth) {
+          clearInterval(check);
+          
+          window.auth.onAuthStateChanged((user) => {
+            if (user) {
+              // Usuario autenticado
+              displayUserInfo(user);
+            } else {
+              // No autenticado, redirigir al login
+              window.location.href = '/index.html';
+            }
+          });
+        } else if (attempts >= maxAttempts) {
+          clearInterval(check);
+          // Fallback: intentar leer de localStorage
+          const localUser = localStorage.getItem('virtualGiftUser');
+          if (localUser) {
+            try {
+              const userData = JSON.parse(localUser);
+              displayUserInfo(userData, true);
+            } catch (e) {
+              window.location.href = '/index.html';
+            }
+          } else {
+            window.location.href = '/index.html';
+          }
+        }
+      }, 100);
+    }
+
+    // Mostrar información del usuario
+    function displayUserInfo(user, isLocal = false) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('content').style.display = 'block';
+
+      if (isLocal) {
+        // Datos de localStorage
+        document.getElementById('userName').textContent = user.name || 'Usuario';
+        document.getElementById('userEmail').textContent = user.email || '';
+        document.getElementById('avatar').src = user.picture || 'https://via.placeholder.com/100';
+        document.getElementById('provider').textContent = user.provider || 'Google';
+        document.getElementById('lastLogin').textContent = 'Ahora';
+      } else {
+        // Datos de Firebase
+        document.getElementById('userName').textContent = user.displayName || 'Usuario';
+        document.getElementById('userEmail').textContent = user.email || '';
+        document.getElementById('avatar').src = user.photoURL || 'https://via.placeholder.com/100';
+        
+        // Obtener datos adicionales de Firestore
+        if (window.db) {
+          window.db.collection('users').doc(user.uid).get()
+            .then((doc) => {
+              if (doc.exists) {
+                const data = doc.data();
+                document.getElementById('provider').textContent = data.provider || 'Google';
+                
+                if (data.lastLogin) {
+                  const lastLogin = data.lastLogin.toDate();
+                  const now = new Date();
+                  const diff = Math.floor((now - lastLogin) / 1000 / 60);
+                  
+                  if (diff < 1) {
+                    document.getElementById('lastLogin').textContent = 'Ahora';
+                  } else if (diff < 60) {
+                    document.getElementById('lastLogin').textContent = `Hace ${diff} min`;
+                  } else {
+                    document.getElementById('lastLogin').textContent = lastLogin.toLocaleDateString();
+                  }
+                }
+              }
+            })
+            .catch((error) => {
+              console.error("Error al obtener datos:", error);
+            });
+        }
+      }
+    }
+
+    // Cerrar sesión
+    function logout() {
+      if (window.auth) {
+        window.auth.signOut()
+          .then(() => {
+            localStorage.removeItem('virtualGiftUser');
+            window.location.href = '/index.html';
+          })
+          .catch((error) => {
+            console.error("Error al cerrar sesión:", error);
+            alert('Error al cerrar sesión');
+          });
+      } else {
+        localStorage.removeItem('virtualGiftUser');
+        window.location.href = '/index.html';
+      }
+    }
+
+    // Ir a la aplicación principal
+    function goToApp() {
+      // Aquí redirige a tu página principal de la app
+      alert('¡Aquí iría tu aplicación principal!');
+      // window.location.href = '/app.html';
+    }
+
+    // Inicializar
+    window.addEventListener('load', checkAuth);
+  </script>
+</body>
+</html>
