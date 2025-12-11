@@ -116,6 +116,20 @@ body {
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
+/* Efecto hover mejorado para icono de usuario */
+.icon-users {
+    transition: transform 0.2s ease, opacity 0.2s ease, background-color 0.3s ease;
+}
+
+.icon-users:hover {
+    transform: scale(1.1);
+    opacity: 0.8;
+}
+
+.icon-users:active {
+    transform: scale(0.95);
+}
+
 @media (min-width: 769px) {
     .icon-users,
     .icon-notification,
@@ -129,6 +143,10 @@ body {
     .icon-coin:hover {
         background-color: #2a2a3e;
         transform: scale(1.05);
+    }
+    
+    .icon-users:hover {
+        transform: scale(1.15);
     }
 }
 
