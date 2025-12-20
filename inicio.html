@@ -21,7 +21,7 @@
                 </svg>
             </div>
             <!-- Icono de Monedas -->
-            <div class="icon-coin">
+            <div class="icon-coin" onclick="window.location.href='puntos.html'" style="cursor: pointer;">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <!-- Círculo exterior -->
                     <circle cx="50" cy="50" r="48" fill="#FDB813"/>
@@ -38,11 +38,11 @@
                 </svg>
             </div>
             <!-- Icono de Notificaciones -->
-            <div class="icon-notification">
+            <div class="icon-notification" onclick="window.location.href='notificaciones.html'" style="cursor: pointer;">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
                 </svg>
-                <span class="notification-badge">1</span>
+                <span class="notification-badge" id="notificationBadge">0</span>
             </div>
         </div>
     </header>
@@ -272,5 +272,42 @@
     </section>
 
     <script src="js/carousel.js"></script>
+    
+    <!-- Script para cargar contador de notificaciones -->
+    <script>
+        function loadNotificationCount() {
+            const maxAttempts = 50;
+            let attempts = 0;
+
+            const check = setInterval(() => {
+                attempts++;
+
+                if (window.auth && window.db) {
+                    clearInterval(check);
+                    
+                    window.auth.onAuthStateChanged((user) => {
+                        if (user) {
+                            // Cargar contador de notificaciones no leídas
+                            window.db.collection('notifications')
+                                .where('userId', '==', user.uid)
+                                .where('read', '==', false)
+                                .onSnapshot((snapshot) => {
+                                    const count = snapshot.size;
+                                    const badge = document.getElementById('notificationBadge');
+                                    if (badge) {
+                                        badge.textContent = count;
+                                        badge.style.display = count > 0 ? 'flex' : 'none';
+                                    }
+                                });
+                        }
+                    });
+                } else if (attempts >= maxAttempts) {
+                    clearInterval(check);
+                }
+            }, 100);
+        }
+
+        window.addEventListener('load', loadNotificationCount);
+    </script>
 </body>
 </html>

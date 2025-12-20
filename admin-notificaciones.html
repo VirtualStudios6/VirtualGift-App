@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Enviar Notificaciones</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Roboto', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(180deg, #020515, #06011c);
+            color: #dcefff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: #1c1f2f;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid #293244;
+        }
+
+        h1 {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #8d17fb, #70189b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #b6c6d9;
+            font-size: 0.9em;
+        }
+
+        .form-container {
+            background: #1c1f2f;
+            border-radius: 16px;
+            padding: 30px;
+            border: 1px solid #293244;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #b6c6d9;
+            font-size: 0.9em;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            background: #0a0a0f;
+            border: 1px solid #293244;
+            border-radius: 8px;
+            color: #dcefff;
+            font-size: 0.95em;
+            transition: border 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #8d17fb;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-option input[type="radio"] {
+            width: auto;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #8d17fb, #70189b);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(141, 23, 251, 0.6);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid #293244;
+            color: #dcefff;
+        }
+
+        .btn-secondary:hover {
+            background: #1c1f2f;
+        }
+
+        .preview {
+            background: #0a0a0f;
+            border: 1px solid #293244;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .preview-title {
+            font-size: 0.85em;
+            color: #b6c6d9;
+            margin-bottom: 10px;
+        }
+
+        .notification-preview {
+            background: #1f1f2e;
+            border: 1px solid #6366f1;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .preview-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            flex-shrink: 0;
+        }
+
+        .preview-icon.info { background: rgba(59, 130, 246, 0.2); }
+        .preview-icon.success { background: rgba(16, 185, 129, 0.2); }
+        .preview-icon.warning { background: rgba(245, 158, 11, 0.2); }
+        .preview-icon.gift { background: rgba(139, 92, 246, 0.2); }
+        .preview-icon.system { background: rgba(100, 116, 139, 0.2); }
+
+        .preview-content {
+            flex: 1;
+        }
+
+        .preview-content-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .preview-content-message {
+            color: #9ca3af;
+            font-size: 0.85em;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #10b981;
+        }
+
+        .alert.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #ef4444;
+        }
+    </style>
+
+    <!-- Firebase -->
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script defer src="js/firebase-config.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔔 Panel de Notificaciones</h1>
+            <p class="subtitle">Envía notificaciones a los usuarios de VirtualGift</p>
+        </div>
+
+        <div id="alert" class="alert"></div>
+
+        <div class="form-container">
+            <form id="notificationForm">
+                <div class="form-group">
+                    <label>Destinatario</label>
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" name="recipient" value="all" id="recipientAll" checked>
+                            <label for="recipientAll">Todos los usuarios</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" name="recipient" value="specific" id="recipientSpecific">
+                            <label for="recipientSpecific">Usuario específico</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" id="userIdGroup" style="display: none;">
+                    <label for="userId">ID del Usuario</label>
+                    <input type="text" id="userId" placeholder="ej: abc123def456...">
+                </div>
+
+                <div class="form-group">
+                    <label for="type">Tipo de Notificación</label>
+                    <select id="type" required>
+                        <option value="info">📢 Información</option>
+                        <option value="gift">🎁 Recompensa</option>
+                        <option value="success">✅ Éxito</option>
+                        <option value="warning">⚠️ Advertencia</option>
+                        <option value="system">⚙️ Sistema</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="title">Título *</label>
+                    <input type="text" id="title" placeholder="ej: ¡Nueva actualización disponible!" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Mensaje *</label>
+                    <textarea id="message" placeholder="Describe la notificación..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="actionUrl">URL de Acción (opcional)</label>
+                    <input type="text" id="actionUrl" placeholder="ej: puntos.html">
+                </div>
+
+                <div class="form-group">
+                    <label for="actionText">Texto del Botón (opcional)</label>
+                    <input type="text" id="actionText" placeholder="ej: Ver más">
+                </div>
+
+                <div class="preview">
+                    <div class="preview-title">Vista Previa:</div>
+                    <div class="notification-preview">
+                        <div class="preview-icon info" id="previewIcon">📢</div>
+                        <div class="preview-content">
+                            <div class="preview-content-title" id="previewTitle">Título de la notificación</div>
+                            <div class="preview-content-message" id="previewMessage">Mensaje de la notificación</div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">📤 Enviar Notificación</button>
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='inicio.html'">
+                    ← Volver al inicio
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mostrar/ocultar campo de ID de usuario
+        document.querySelectorAll('input[name="recipient"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                document.getElementById('userIdGroup').style.display = 
+                    e.target.value === 'specific' ? 'block' : 'none';
+            });
+        });
+
+        // Preview en tiempo real
+        const iconMap = {
+            info: '📢',
+            gift: '🎁',
+            success: '✅',
+            warning: '⚠️',
+            system: '⚙️'
+        };
+
+        document.getElementById('type').addEventListener('change', (e) => {
+            const icon = document.getElementById('previewIcon');
+            icon.textContent = iconMap[e.target.value];
+            icon.className = `preview-icon ${e.target.value}`;
+        });
+
+        document.getElementById('title').addEventListener('input', (e) => {
+            document.getElementById('previewTitle').textContent = 
+                e.target.value || 'Título de la notificación';
+        });
+
+        document.getElementById('message').addEventListener('input', (e) => {
+            document.getElementById('previewMessage').textContent = 
+                e.target.value || 'Mensaje de la notificación';
+        });
+
+        // Enviar notificación
+        document.getElementById('notificationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!window.db) {
+                showAlert('Firebase no está inicializado', 'error');
+                return;
+            }
+
+            const recipient = document.querySelector('input[name="recipient"]:checked').value;
+            const type = document.getElementById('type').value;
+            const title = document.getElementById('title').value;
+            const message = document.getElementById('message').value;
+            const actionUrl = document.getElementById('actionUrl').value;
+            const actionText = document.getElementById('actionText').value;
+
+            try {
+                const notification = {
+                    type,
+                    title,
+                    message,
+                    actionUrl: actionUrl || null,
+                    actionText: actionText || null,
+                    read: false,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                if (recipient === 'all') {
+                    // Enviar a todos los usuarios
+                    const usersSnapshot = await window.db.collection('users').get();
+                    const batch = window.db.batch();
+
+                    usersSnapshot.forEach(doc => {
+                        const notificationRef = window.db.collection('notifications').doc();
+                        batch.set(notificationRef, {
+                            ...notification,
+                            userId: doc.id
+                        });
+                    });
+
+                    await batch.commit();
+                    showAlert(`✅ Notificación enviada a ${usersSnapshot.size} usuarios`, 'success');
+                } else {
+                    // Enviar a usuario específico
+                    const userId = document.getElementById('userId').value;
+                    if (!userId) {
+                        showAlert('Por favor ingresa un ID de usuario', 'error');
+                        return;
+                    }
+
+                    await window.db.collection('notifications').add({
+                        ...notification,
+                        userId
+                    });
+
+                    showAlert('✅ Notificación enviada correctamente', 'success');
+                }
+
+                // Limpiar formulario
+                document.getElementById('notificationForm').reset();
+                document.getElementById('previewTitle').textContent = 'Título de la notificación';
+                document.getElementById('previewMessage').textContent = 'Mensaje de la notificación';
+
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('❌ Error al enviar la notificación: ' + error.message, 'error');
+            }
+        });
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert ${type}`;
+            alert.style.display = 'block';
+
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
