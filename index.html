@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#06011c">
-  
+
   <link rel="icon" type="image/png" sizes="32x32" href="images/logo-virtual-login.png">
   <link rel="icon" type="image/png" sizes="16x16" href="images/logo-virtual-login.png">
   <link rel="apple-touch-icon" href="images/logo-virtual-login.png">
@@ -32,7 +32,7 @@
         <img src="images/logo-virtual-login.png" alt="Logo de VirtualGift">
       </div>
 
-      <h2 class="welcome">Bienvenido a <span>VirtualGift</span></h2>
+      <h2 class="welcome">Bienvenido a <span>VirtualGift.</span></h2>
 
       <!-- LOGIN -->
       <form id="login-form" class="form active" novalidate>
@@ -46,7 +46,7 @@
 
         <button type="submit" id="login-btn" class="btn gradient">Iniciar Sesión</button>
 
-        <p class="switch-form">¿No tienes cuenta? 
+        <p class="switch-form">¿No tienes cuenta?
           <a href="#" id="show-register">Regístrate</a>
         </p>
       </form>
@@ -88,7 +88,7 @@
 
         <button type="button" id="register-btn" class="btn gradient">Registrarse</button>
 
-        <p class="switch-form">¿Ya tienes cuenta? 
+        <p class="switch-form">¿Ya tienes cuenta?
           <a href="#" id="show-login">Inicia Sesión</a>
         </p>
       </form>
@@ -182,14 +182,14 @@
 
         console.log("✅ Login exitoso con Facebook");
         showNotification('¡Bienvenido ' + user.displayName + '!', 'success');
-        
+
         setTimeout(() => {
           window.location.href = "/home.html";
         }, 1200);
 
       } catch (error) {
         console.error("❌ Error Facebook:", error.code, error.message);
-        
+
         const facebookBtn = document.getElementById('facebook-login');
         if (facebookBtn) {
           facebookBtn.classList.remove('btn-loading');
@@ -198,7 +198,7 @@
 
         if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
           let errorMsg = 'Error al iniciar sesión con Facebook';
-          
+
           if (error.code === 'auth/account-exists-with-different-credential') {
             errorMsg = 'Esta cuenta ya existe con otro proveedor (Google)';
           } else if (error.code === 'auth/operation-not-allowed') {
@@ -206,7 +206,7 @@
           } else if (error.message) {
             errorMsg = error.message;
           }
-          
+
           showNotification(errorMsg, 'error');
         }
       }
@@ -255,22 +255,22 @@
 
         console.log("✅ Usuario guardado en Firestore");
         showNotification('¡Bienvenido ' + data.name + '!', 'success');
-        
+
         setTimeout(() => {
           window.location.href = "/home.html";
         }, 1200);
 
       } catch (error) {
         console.error("❌ Error:", error.code, error.message);
-        
+
         const googleBtn = document.getElementById('google-login-custom');
         if (googleBtn) {
           googleBtn.classList.remove('btn-loading');
           googleBtn.disabled = false;
         }
-        
+
         let errorMsg = 'Error al iniciar sesión';
-        
+
         if (error.code === 'auth/popup-closed-by-user') {
           errorMsg = 'Inicio de sesión cancelado';
         } else if (error.code === 'auth/unauthorized-domain') {
@@ -282,7 +282,7 @@
         } else if (error.message) {
           errorMsg = error.message;
         }
-        
+
         showNotification(errorMsg, 'error');
       }
     }
@@ -319,14 +319,14 @@
 
         console.log("✅ Login exitoso con popup");
         showNotification('¡Bienvenido ' + user.displayName + '!', 'success');
-        
+
         setTimeout(() => {
           window.location.href = "/home.html";
         }, 1200);
 
       } catch (error) {
         console.error("❌ Error popup:", error.code, error.message);
-        
+
         const googleBtn = document.getElementById('google-login-custom');
         if (googleBtn) {
           googleBtn.classList.remove('btn-loading');
@@ -335,7 +335,7 @@
 
         if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
           let errorMsg = 'Error al iniciar sesión';
-          
+
           if (error.code === 'auth/unauthorized-domain') {
             errorMsg = 'Dominio no autorizado en Firebase';
           } else if (error.code === 'auth/operation-not-allowed') {
@@ -343,7 +343,7 @@
           } else if (error.message) {
             errorMsg = error.message;
           }
-          
+
           showNotification(errorMsg, 'error');
         }
       }
@@ -352,7 +352,7 @@
     // Inicializar cuando Firebase esté listo
     function initGoogleSignIn() {
       console.log("🔄 Inicializando Google Sign-In...");
-      
+
       try {
         // Inicializar Google Identity Services (One Tap)
         google.accounts.id.initialize({
@@ -365,9 +365,9 @@
         // Renderizar botón invisible (para One Tap)
         const googleBtnContainer = document.getElementById("googleBtn");
         if (googleBtnContainer) {
-          google.accounts.id.renderButton(googleBtnContainer, { 
-            theme: "outline", 
-            size: "large" 
+          google.accounts.id.renderButton(googleBtnContainer, {
+            theme: "outline",
+            size: "large"
           });
         }
 
@@ -382,7 +382,7 @@
         }
 
         console.log("✅ Google Sign-In inicializado");
-        
+
       } catch (error) {
         console.error("❌ Error al inicializar Google:", error);
         showNotification('Error al cargar Google Sign-In', 'error');
@@ -405,14 +405,14 @@
     window.addEventListener('load', function() {
       let attempts = 0;
       const maxAttempts = 50;
-      
+
       const checkReady = setInterval(() => {
         attempts++;
-        
+
         // Verificar que Firebase y Google estén listos
         const firebaseOK = isFirebaseReady();
         const googleOK = typeof google !== 'undefined' && google.accounts;
-        
+
         if (firebaseOK && googleOK) {
           clearInterval(checkReady);
           console.log("✅ Firebase listo");
@@ -424,12 +424,12 @@
           console.error("❌ Timeout esperando Firebase o Google");
           if (!firebaseOK) console.error("❌ Firebase no está listo");
           if (!googleOK) console.error("❌ Google API no está listo");
-          
+
           // Aún así inicializar Facebook si Firebase está listo
           if (firebaseOK) {
             initFacebookLogin();
           }
-          
+
           showNotification('Error: Servicios no disponibles', 'error');
         }
       }, 100);
