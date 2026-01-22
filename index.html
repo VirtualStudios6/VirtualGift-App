@@ -19,9 +19,6 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
-
-  <!-- Google Identity Services -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 
 <body>
@@ -153,7 +150,7 @@
       return window.auth && window.db && typeof firebase !== 'undefined';
     }
 
-    // ============ FACEBOOK LOGIN ============
+    // ============ FACEBOOK LOGIN (REDIRECT - Compatible con WebView) ============
     async function loginWithFacebook() {
       try {
         const facebookBtn = document.getElementById('facebook-login');
@@ -167,25 +164,9 @@
         }
 
         const provider = new firebase.auth.FacebookAuthProvider();
-        const result = await window.auth.signInWithPopup(provider);
-        const user = result.user;
 
-        // Guardar en Firestore
-        await window.db.collection('users').doc(user.uid).set({
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          provider: 'facebook',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        console.log("✅ Login exitoso con Facebook");
-        showNotification('¡Bienvenido ' + user.displayName + '!', 'success');
-
-        setTimeout(() => {
-          window.location.href = "/home.html";
-        }, 1200);
+        // Usar signInWithRedirect en lugar de popup (compatible con WebView)
+        await window.auth.signInWithRedirect(provider);
 
       } catch (error) {
         console.error("❌ Error Facebook:", error.code, error.message);
@@ -212,83 +193,8 @@
       }
     }
 
-    // ============ GOOGLE LOGIN ============
-    // Manejar respuesta de Google con One Tap
-    async function handleCredentialResponse(response) {
-      try {
-        const googleBtn = document.getElementById('google-login-custom');
-        if (googleBtn) {
-          googleBtn.classList.add('btn-loading');
-          googleBtn.disabled = true;
-        }
-
-        // Decodificar token
-        const data = JSON.parse(atob(response.credential.split('.')[1]));
-        console.log("✅ Usuario Google:", data.name, data.email);
-
-        // Esperar a que Firebase esté listo
-        if (!isFirebaseReady()) {
-          await new Promise(resolve => {
-            const check = setInterval(() => {
-              if (isFirebaseReady()) {
-                clearInterval(check);
-                resolve();
-              }
-            }, 100);
-          });
-        }
-
-        // Autenticar con Firebase
-        const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
-        const result = await window.auth.signInWithCredential(credential);
-        const user = result.user;
-
-        // Guardar en Firestore
-        await window.db.collection('users').doc(user.uid).set({
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          provider: 'google',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        console.log("✅ Usuario guardado en Firestore");
-        showNotification('¡Bienvenido ' + data.name + '!', 'success');
-
-        setTimeout(() => {
-          window.location.href = "/home.html";
-        }, 1200);
-
-      } catch (error) {
-        console.error("❌ Error:", error.code, error.message);
-
-        const googleBtn = document.getElementById('google-login-custom');
-        if (googleBtn) {
-          googleBtn.classList.remove('btn-loading');
-          googleBtn.disabled = false;
-        }
-
-        let errorMsg = 'Error al iniciar sesión';
-
-        if (error.code === 'auth/popup-closed-by-user') {
-          errorMsg = 'Inicio de sesión cancelado';
-        } else if (error.code === 'auth/unauthorized-domain') {
-          errorMsg = 'Dominio no autorizado';
-          console.error("🔧 Solución: Ve a Firebase Console → Authentication → Settings → Authorized domains");
-          console.error("🔧 Agrega: localhost, 127.0.0.1 y tu dominio");
-        } else if (error.code === 'auth/invalid-credential') {
-          errorMsg = 'Credencial inválida. Verifica la configuración de Google OAuth';
-        } else if (error.message) {
-          errorMsg = error.message;
-        }
-
-        showNotification(errorMsg, 'error');
-      }
-    }
-
-    // Login con Popup (método alternativo más confiable)
-    async function loginWithGooglePopup() {
+    // ============ GOOGLE LOGIN (REDIRECT - Compatible con WebView) ============
+    async function loginWithGoogleRedirect() {
       try {
         const googleBtn = document.getElementById('google-login-custom');
         if (googleBtn) {
@@ -304,28 +210,11 @@
         provider.addScope('profile');
         provider.addScope('email');
 
-        const result = await window.auth.signInWithPopup(provider);
-        const user = result.user;
-
-        // Guardar en Firestore
-        await window.db.collection('users').doc(user.uid).set({
-          displayName: user.displayName,
-          email: user.email,
-          photoURL: user.photoURL,
-          provider: 'google',
-          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-          lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        console.log("✅ Login exitoso con popup");
-        showNotification('¡Bienvenido ' + user.displayName + '!', 'success');
-
-        setTimeout(() => {
-          window.location.href = "/home.html";
-        }, 1200);
+        // Usar signInWithRedirect en lugar de popup (compatible con WebView)
+        await window.auth.signInWithRedirect(provider);
 
       } catch (error) {
-        console.error("❌ Error popup:", error.code, error.message);
+        console.error("❌ Error Google redirect:", error.code, error.message);
 
         const googleBtn = document.getElementById('google-login-custom');
         if (googleBtn) {
@@ -349,48 +238,73 @@
       }
     }
 
-    // Inicializar cuando Firebase esté listo
-    function initGoogleSignIn() {
-      console.log("🔄 Inicializando Google Sign-In...");
+    // ============ MANEJAR RESULTADO DE REDIRECT ============
+    async function handleAuthRedirect() {
+      if (!isFirebaseReady()) {
+        console.log("⏳ Esperando Firebase...");
+        return;
+      }
 
       try {
-        // Inicializar Google Identity Services (One Tap)
-        google.accounts.id.initialize({
-          client_id: "575320766274-ciqdapfh76uati50bad4d70c5cgsapvo.apps.googleusercontent.com",
-          callback: handleCredentialResponse,
-          auto_select: false,
-          cancel_on_tap_outside: true
-        });
+        const result = await window.auth.getRedirectResult();
 
-        // Renderizar botón invisible (para One Tap)
-        const googleBtnContainer = document.getElementById("googleBtn");
-        if (googleBtnContainer) {
-          google.accounts.id.renderButton(googleBtnContainer, {
-            theme: "outline",
-            size: "large"
-          });
+        if (result.user) {
+          const user = result.user;
+          const provider = result.credential?.providerId || 'unknown';
+
+          console.log("✅ Usuario autenticado:", user.displayName, "Provider:", provider);
+
+          // Guardar en Firestore
+          await window.db.collection('users').doc(user.uid).set({
+            displayName: user.displayName,
+            email: user.email,
+            photoURL: user.photoURL,
+            provider: provider,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+
+          console.log("✅ Usuario guardado en Firestore");
+          showNotification('¡Bienvenido ' + user.displayName + '!', 'success');
+
+          setTimeout(() => {
+            window.location.href = "welcome.html";
+          }, 1200);
         }
-
-        // Vincular botón personalizado - USAR POPUP (más confiable)
-        const customBtn = document.getElementById("google-login-custom");
-        if (customBtn) {
-          customBtn.addEventListener("click", function(e) {
-            e.preventDefault();
-            console.log("🔘 Click en botón Google");
-            loginWithGooglePopup();
-          });
-        }
-
-        console.log("✅ Google Sign-In inicializado");
-
       } catch (error) {
-        console.error("❌ Error al inicializar Google:", error);
-        showNotification('Error al cargar Google Sign-In', 'error');
+        console.error("❌ Error en redirect:", error.code, error.message);
+
+        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
+          let errorMsg = 'Error al autenticar';
+
+          if (error.code === 'auth/account-exists-with-different-credential') {
+            errorMsg = 'Esta cuenta ya existe con otro proveedor';
+          } else if (error.code === 'auth/unauthorized-domain') {
+            errorMsg = 'Dominio no autorizado';
+            console.error("🔧 Solución: Ve a Firebase Console → Authentication → Settings → Authorized domains");
+            console.error("🔧 Agrega: localhost, 127.0.0.1 y tu dominio");
+          } else if (error.message) {
+            errorMsg = error.message;
+          }
+
+          showNotification(errorMsg, 'error');
+        }
       }
     }
 
-    // Inicializar Facebook Login
-    function initFacebookLogin() {
+    // Inicializar botones de Google y Facebook
+    function initSocialLogins() {
+      console.log("🔄 Inicializando logins sociales...");
+
+      const customBtn = document.getElementById("google-login-custom");
+      if (customBtn) {
+        customBtn.addEventListener("click", function(e) {
+          e.preventDefault();
+          console.log("🔘 Click en botón Google");
+          loginWithGoogleRedirect();
+        });
+      }
+
       const facebookBtn = document.getElementById('facebook-login');
       if (facebookBtn) {
         facebookBtn.addEventListener('click', function(e) {
@@ -399,6 +313,8 @@
           loginWithFacebook();
         });
       }
+
+      console.log("✅ Logins sociales inicializados");
     }
 
     // Esperar a que todo esté listo
@@ -409,27 +325,21 @@
       const checkReady = setInterval(() => {
         attempts++;
 
-        // Verificar que Firebase y Google estén listos
         const firebaseOK = isFirebaseReady();
-        const googleOK = typeof google !== 'undefined' && google.accounts;
 
-        if (firebaseOK && googleOK) {
+        if (firebaseOK) {
           clearInterval(checkReady);
           console.log("✅ Firebase listo");
-          console.log("✅ Google API listo");
-          initGoogleSignIn();
-          initFacebookLogin();
+
+          // Manejar resultado de redirect primero
+          handleAuthRedirect();
+
+          // Luego inicializar botones
+          initSocialLogins();
+
         } else if (attempts >= maxAttempts) {
           clearInterval(checkReady);
-          console.error("❌ Timeout esperando Firebase o Google");
-          if (!firebaseOK) console.error("❌ Firebase no está listo");
-          if (!googleOK) console.error("❌ Google API no está listo");
-
-          // Aún así inicializar Facebook si Firebase está listo
-          if (firebaseOK) {
-            initFacebookLogin();
-          }
-
+          console.error("❌ Timeout esperando Firebase");
           showNotification('Error: Servicios no disponibles', 'error');
         }
       }, 100);
