@@ -3,8 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#06011c">
+
+    <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
     <title>VirtualGift</title>
     <link rel="stylesheet" href="css/inicio.css">
+
+    <!-- Firebase -->
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script defer src="js/firebase-config.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -23,9 +32,7 @@
             <!-- Icono de Monedas -->
             <div class="icon-coin" onclick="window.location.href='puntos.html'" style="cursor: pointer;">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Círculo exterior -->
                     <circle cx="50" cy="50" r="48" fill="#FDB813"/>
-                    <!-- Círculo interior con gradiente -->
                     <defs>
                         <radialGradient id="coinGradient">
                             <stop offset="0%" style="stop-color:#FFD700;stop-opacity:1" />
@@ -33,7 +40,6 @@
                         </radialGradient>
                     </defs>
                     <circle cx="50" cy="50" r="42" fill="url(#coinGradient)"/>
-                    <!-- Letra V -->
                     <path d="M 30 30 L 42 65 L 50 65 L 58 65 L 70 30 L 62 30 L 54 57 L 50 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
                 </svg>
             </div>
@@ -60,49 +66,42 @@
                 </div>
                 <p class="news-label">Pokémon GO</p>
             </a>
-
             <a href="news/2.html" class="news-card">
                 <div class="news-image">
                     <img src="images/news/2.png" alt="Noticia 2">
                 </div>
                 <p class="news-label">Netflix Games</p>
             </a>
-
             <a href="news/3.html" class="news-card">
                 <div class="news-image">
                     <img src="images/news/3.png" alt="Noticia 3">
                 </div>
                 <p class="news-label">GTA Online</p>
             </a>
-
             <a href="news/4.html" class="news-card">
                 <div class="news-image">
                     <img src="images/news/4.png" alt="Noticia 4">
                 </div>
                 <p class="news-label">Siguiente Noti</p>
             </a>
-
             <a href="news/5.html" class="news-card">
                 <div class="news-image">
                     <img src="images/news/5.png" alt="Noticia 5">
                 </div>
                 <p class="news-label">Siguiente Noti</p>
             </a>
-
             <a href="news/6.html" class="news-card">
                 <div class="news-image">
                     <img src="images/news/6.png" alt="Noticia 6">
                 </div>
                 <p class="news-label">Siguiente Noti</p>
             </a>
-
             <a href="news/7.html" class="news-card">
                 <div class="news-image">
                     <img src="images/news/7.png" alt="Noticia 7">
                 </div>
                 <p class="news-label">Siguiente Noti</p>
             </a>
-
             <a href="news/8.html" class="news-card">
                 <div class="news-image">
                     <img src="images/news/8.png" alt="Noticia 8">
@@ -273,41 +272,54 @@
 
     <script src="js/carousel.js"></script>
 
-    <!-- Script para cargar contador de notificaciones -->
+    <!-- Protección de sesión y notificaciones -->
     <script>
-        function loadNotificationCount() {
+        // Verificar que el usuario esté autenticado
+        function checkAuth() {
             const maxAttempts = 50;
             let attempts = 0;
 
             const check = setInterval(() => {
                 attempts++;
 
-                if (window.auth && window.db) {
+                if (typeof firebase !== 'undefined' && firebase.auth) {
                     clearInterval(check);
 
-                    window.auth.onAuthStateChanged((user) => {
-                        if (user) {
-                            // Cargar contador de notificaciones no leídas
-                            window.db.collection('notifications')
-                                .where('userId', '==', user.uid)
-                                .where('read', '==', false)
-                                .onSnapshot((snapshot) => {
-                                    const count = snapshot.size;
-                                    const badge = document.getElementById('notificationBadge');
-                                    if (badge) {
-                                        badge.textContent = count;
-                                        badge.style.display = count > 0 ? 'flex' : 'none';
-                                    }
-                                });
+                    firebase.auth().onAuthStateChanged((user) => {
+                        if (!user) {
+                            // No hay sesión, redirigir a login
+                            window.location.href = 'index.html';
+                        } else {
+                            // Cargar contador de notificaciones
+                            loadNotificationCount(user);
                         }
                     });
                 } else if (attempts >= maxAttempts) {
                     clearInterval(check);
+                    // Si Firebase no carga, redirigir a login por seguridad
+                    window.location.href = 'index.html';
                 }
             }, 100);
         }
 
-        window.addEventListener('load', loadNotificationCount);
+        // Cargar contador de notificaciones
+        function loadNotificationCount(user) {
+            if (typeof firebase === 'undefined' || !firebase.firestore) return;
+
+            firebase.firestore().collection('notifications')
+                .where('userId', '==', user.uid)
+                .where('read', '==', false)
+                .onSnapshot((snapshot) => {
+                    const count = snapshot.size;
+                    const badge = document.getElementById('notificationBadge');
+                    if (badge) {
+                        badge.textContent = count;
+                        badge.style.display = count > 0 ? 'flex' : 'none';
+                    }
+                });
+        }
+
+        window.addEventListener('load', checkAuth);
     </script>
 </body>
 </html>

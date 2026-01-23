@@ -2,64 +2,51 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>¡Bienvenido! - VirtualGift</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#06011c">
+
+    <link rel="icon" type="image/png" sizes="32x32" href="images/logo-virtual-login.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/logo-virtual-login.png">
+    <link rel="apple-touch-icon" href="images/logo-virtual-login.png">
+
+    <title>Bienvenido - VirtualGift</title>
     <link rel="stylesheet" href="css/welcome.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
-    
-    <!-- Firebase scripts -->
-    <script defer src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
-    <script defer src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <!-- Tu configuración de Firebase -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Firebase -->
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script defer src="js/firebase-config.js"></script>
-    <!-- Script de bienvenida con mensaje aleatorio -->
-    <script defer src="js/welcome.js"></script>
 </head>
 <body>
-    <!-- Fondo animado -->
-    <div class="background-animation" aria-hidden="true">
-        <div class="floating-shape shape-1"></div>
-        <div class="floating-shape shape-2"></div>
-        <div class="floating-shape shape-3"></div>
-    </div>
-
-    <!-- Container principal -->
-    <main>
-        <div class="welcome-container" tabindex="0" aria-label="Bienvenida">
-            <div class="sparkle"></div>
-            <div class="sparkle"></div>
-            <div class="sparkle"></div>
-            <div class="sparkle"></div>
-
-            <div class="welcome-icon">
-                <i class="fas fa-crown" aria-hidden="true"></i>
+    <div class="welcome-container">
+        <div class="welcome-card">
+            <div class="logo">
+                <img src="images/logo-virtual-login.png" alt="VirtualGift Logo">
             </div>
 
-            <h1 class="welcome-title">¡Bienvenido!</h1>
-            <h2 class="welcome-subtitle" id="userName">Usuario</h2>
+            <h1 class="welcome-title">¡Bienvenido de vuelta!</h1>
 
-            <!-- Aquí se pondrá el mensaje aleatorio -->
+            <div class="user-info">
+                <h2 id="userName">Usuario</h2>
+                <div class="points-display">
+                    <i class="fas fa-coins"></i>
+                    <span id="userPoints">0</span>
+                    <span class="points-label">Puntos</span>
+                </div>
+            </div>
+
             <p class="welcome-message" id="welcome-message">
-                <!-- El texto se insertará desde welcome.js -->
+                Nos alegra verte de nuevo. ¡Prepárate para ganar recompensas increíbles!
             </p>
 
-            <div class="points-display" aria-label="Tus puntos disponibles">
-                <div class="points-icon">
-                    <i class="fas fa-coins" aria-hidden="true"></i>
-                </div>
-                <div class="points-amount" id="userPoints">1,250</div>
-                <div class="points-label">Puntos disponibles</div>
-            </div>
-
-            <!-- Botón para ir a inicio.html -->
-            <a href="inicio.html" class="continue-btn" id="continue-btn" aria-label="Continuar al Inicio">
-                Continuar
-                <i class="fas fa-arrow-right"></i>
-            </a>
+            <button id="continue-btn" class="continue-btn">
+                Continuar <i class="fas fa-arrow-right"></i>
+            </button>
         </div>
-    </main>
+    </div>
+
+    <script src="js/welcome.js"></script>
 </body>
 </html>

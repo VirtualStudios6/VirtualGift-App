@@ -16,72 +16,94 @@ document.addEventListener('DOMContentLoaded', function() {
         "🔥 ¿Listo para otra ronda? Sigue explorando y consigue más recompensas 🏆"
     ];
 
-    // Verifica sesión de usuario
-    auth.onAuthStateChanged(async function(user) {
-        if (!user) {
-            window.location.href = 'index.html';
-            return;
+    // Verificar que Firebase esté disponible
+    function isFirebaseReady() {
+        return typeof firebase !== 'undefined' && firebase.auth && firebase.firestore;
+    }
+
+    // Esperar a que Firebase esté listo
+    function waitForFirebase(callback) {
+        if (isFirebaseReady()) {
+            callback();
+        } else {
+            setTimeout(() => waitForFirebase(callback), 100);
         }
-        if (!user.emailVerified) {
-            alert('Por favor, verifica tu email para acceder.');
-            await auth.signOut();
-            window.location.href = 'index.html';
-            return;
-        }
+    }
 
-        // Buscar datos en Firestore
-        db.collection('users').doc(user.uid).get()
-            .then(doc => {
-                let isNewUser = false;
-                let userData;
+    // Inicializar
+    waitForFirebase(() => {
+        // Verifica sesión de usuario
+        firebase.auth().onAuthStateChanged(async function(user) {
+            if (!user) {
+                window.location.href = 'index.html';
+                return;
+            }
 
-                if (doc.exists) {
-                    userData = doc.data();
-                } else {
-                    // Usuario nuevo
-                    isNewUser = true;
-                    userData = {
-                        username: user.displayName || 'Usuario',
-                        email: user.email,
-                        points: 0,
-                        level: 1,
-                        experience: 0,
-                        nextLevel: 100,
-                        joined: firebase.firestore.FieldValue.serverTimestamp(),
-                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-                    db.collection('users').doc(user.uid).set(userData);
-                }
+            if (!user.emailVerified && user.providerData[0]?.providerId === 'password') {
+                alert('Por favor, verifica tu email para acceder.');
+                await firebase.auth().signOut();
+                window.location.href = 'index.html';
+                return;
+            }
 
-                // Mostrar nombre
-                userNameElem.textContent = userData.username || user.displayName || 'Usuario';
+            // Buscar datos en Firestore
+            firebase.firestore().collection('users').doc(user.uid).get()
+                .then(doc => {
+                    let isNewUser = false;
+                    let userData;
 
-                // Mensaje si es nuevo
-                if (isNewUser) {
-                    welcomeTitle.textContent = '¡Bienvenido!';
-                    welcomeMessage.textContent = '¡Bienvenido por primera vez! Estás a punto de comenzar una increíble aventura llena de recompensas y diversión.';
-                } else {
-                    // Si no es nuevo → mensaje aleatorio
+                    if (doc.exists) {
+                        userData = doc.data();
+                    } else {
+                        // Usuario nuevo
+                        isNewUser = true;
+                        userData = {
+                            username: user.displayName || 'Usuario',
+                            email: user.email,
+                            points: 100,
+                            level: 1,
+                            experience: 0,
+                            nextLevel: 200,
+                            joinDate: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+                        firebase.firestore().collection('users').doc(user.uid).set(userData);
+                    }
+
+                    // Mostrar nombre
+                    if (userNameElem) {
+                        userNameElem.textContent = userData.username || user.displayName || 'Usuario';
+                    }
+
+                    // Mensaje si es nuevo
+                    if (isNewUser) {
+                        if (welcomeTitle) welcomeTitle.textContent = '¡Bienvenido!';
+                        if (welcomeMessage) welcomeMessage.textContent = '¡Bienvenido por primera vez! Estás a punto de comenzar una increíble aventura llena de recompensas y diversión.';
+                    } else {
+                        // Si no es nuevo → mensaje aleatorio
+                        const mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];
+                        if (welcomeMessage) welcomeMessage.textContent = mensajeAleatorio;
+                    }
+
+                    // Animar puntos
+                    animatePoints(userData.points || 100);
+                })
+                .catch(error => {
+                    console.error('Error al recuperar datos:', error);
+                    if (userNameElem) userNameElem.textContent = user.displayName || 'Usuario';
+                    animatePoints(100);
+
+                    // En caso de error, también mostramos un mensaje aleatorio
                     const mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];
-                    welcomeMessage.textContent = mensajeAleatorio;
-                }
-
-                // Animar puntos
-                animatePoints(userData.points || 0);
-            })
-            .catch(error => {
-                console.error('Error al recuperar datos:', error);
-                userNameElem.textContent = user.displayName || 'Usuario';
-                animatePoints(0);
-
-                // En caso de error, también mostramos un mensaje aleatorio
-                const mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];
-                welcomeMessage.textContent = mensajeAleatorio;
-            });
+                    if (welcomeMessage) welcomeMessage.textContent = mensajeAleatorio;
+                });
+        });
     });
 
     // Animar puntos
     function animatePoints(finalPoints) {
+        if (!userPointsElem) return;
+
         const duration = 1200;
         const steps = 48;
         const increment = finalPoints / steps;
@@ -98,27 +120,32 @@ document.addEventListener('DOMContentLoaded', function() {
         }, duration / steps);
     }
 
-    // Botón continuar (solo efecto visual, NO redirección forzada)
-    continueBtn.addEventListener('click', () => {
-        continueBtn.classList.add('loading');
-        continueBtn.innerHTML = 'Cargando... <i class="fas fa-spinner fa-spin"></i>';
-        setTimeout(() => {
-            continueBtn.classList.remove('loading');
-            continueBtn.innerHTML = 'Continuar <i class="fas fa-arrow-right"></i>';
-            // ⚡ Importante: aquí NO redirigimos manualmente.
-            // El botón ya tiene href="go:Inicio" en el HTML.
-        }, 800);
-    });
+    // Botón continuar
+    if (continueBtn) {
+        continueBtn.addEventListener('click', () => {
+            continueBtn.classList.add('loading');
+            continueBtn.innerHTML = 'Cargando... <i class="fas fa-spinner fa-spin"></i>';
 
-    // Efecto hover de partículas
-    continueBtn.addEventListener('mouseenter', createParticles);
+            setTimeout(() => {
+                // Redirigir a inicio.html
+                window.location.href = 'inicio.html';
+            }, 800);
+        });
+
+        // Efecto hover de partículas
+        continueBtn.addEventListener('mouseenter', createParticles);
+    }
 
     // Escalado container
-    container.addEventListener('mouseenter', () => container.style.transform = 'scale(1.02)');
-    container.addEventListener('mouseleave', () => container.style.transform = 'scale(1)');
+    if (container) {
+        container.addEventListener('mouseenter', () => container.style.transform = 'scale(1.02)');
+        container.addEventListener('mouseleave', () => container.style.transform = 'scale(1)');
+    }
 
     // Partículas animadas
     function createParticles() {
+        if (!container) return;
+
         for (let i = 0; i < 6; i++) {
             setTimeout(() => {
                 const particle = document.createElement('div');
@@ -126,7 +153,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     position: absolute;
                     width: 4px;
                     height: 4px;
-                    background: var(--warning-color);
+                    background: var(--warning-color, #fbbf24);
                     border-radius: 50%;
                     pointer-events: none;
                     top: ${Math.random() * 100}%;

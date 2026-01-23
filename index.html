@@ -14,11 +14,11 @@
   <title>VirtualGift-Login</title>
   <link rel="stylesheet" href="css/styles.css">
 
-  <!-- Firebase -->
-  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script defer src="js/firebase-config.js"></script>
+  <!-- Firebase - SIN DEFER para carga inmediata -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="js/firebase-config.js"></script>
 </head>
 
 <body>
@@ -29,7 +29,7 @@
         <img src="images/logo-virtual-login.png" alt="Logo de VirtualGift">
       </div>
 
-      <h2 class="welcome">Bienvenido a <span>VirtualGift</span></h2>
+      <h2 class="welcome">Bienvenido a <span>VirtualGift.</span></h2>
 
       <!-- LOGIN -->
       <form id="login-form" class="form active" novalidate>
@@ -96,7 +96,7 @@
       <div class="social-login">
 
         <!-- GOOGLE -->
-        <button type="button" id="google-login-custom" class="btn social">
+        <button type="button" id="google-login" class="btn social">
           <svg class="social-icon" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
             <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -105,8 +105,6 @@
           </svg>
           Continuar con Google
         </button>
-
-        <div id="googleBtn" style="display:none;"></div>
 
         <!-- FACEBOOK -->
         <button type="button" id="facebook-login" class="btn social">
@@ -130,221 +128,8 @@
 
   <div id="notification" class="notification"></div>
 
-  <!-- SCRIPT GENERAL -->
-  <script src="js/main.js"></script>
-
-  <!-- SCRIPT LOGIN GOOGLE Y FACEBOOK -->
-  <script>
-    // Mostrar notificación
-    function showNotification(message, type = 'info') {
-      const notification = document.getElementById('notification');
-      notification.textContent = message;
-      notification.className = `notification show ${type}`;
-      setTimeout(() => {
-        notification.classList.remove('show');
-      }, 3000);
-    }
-
-    // Verificar si Firebase está disponible
-    function isFirebaseReady() {
-      return window.auth && window.db && typeof firebase !== 'undefined';
-    }
-
-    // ============ FACEBOOK LOGIN (REDIRECT - Compatible con WebView) ============
-    async function loginWithFacebook() {
-      try {
-        const facebookBtn = document.getElementById('facebook-login');
-        if (facebookBtn) {
-          facebookBtn.classList.add('btn-loading');
-          facebookBtn.disabled = true;
-        }
-
-        if (!isFirebaseReady()) {
-          throw new Error('Firebase no está listo');
-        }
-
-        const provider = new firebase.auth.FacebookAuthProvider();
-
-        // Usar signInWithRedirect en lugar de popup (compatible con WebView)
-        await window.auth.signInWithRedirect(provider);
-
-      } catch (error) {
-        console.error("❌ Error Facebook:", error.code, error.message);
-
-        const facebookBtn = document.getElementById('facebook-login');
-        if (facebookBtn) {
-          facebookBtn.classList.remove('btn-loading');
-          facebookBtn.disabled = false;
-        }
-
-        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-          let errorMsg = 'Error al iniciar sesión con Facebook';
-
-          if (error.code === 'auth/account-exists-with-different-credential') {
-            errorMsg = 'Esta cuenta ya existe con otro proveedor (Google)';
-          } else if (error.code === 'auth/operation-not-allowed') {
-            errorMsg = 'Facebook Sign-In no está habilitado en Firebase';
-          } else if (error.message) {
-            errorMsg = error.message;
-          }
-
-          showNotification(errorMsg, 'error');
-        }
-      }
-    }
-
-    // ============ GOOGLE LOGIN (REDIRECT - Compatible con WebView) ============
-    async function loginWithGoogleRedirect() {
-      try {
-        const googleBtn = document.getElementById('google-login-custom');
-        if (googleBtn) {
-          googleBtn.classList.add('btn-loading');
-          googleBtn.disabled = true;
-        }
-
-        if (!isFirebaseReady()) {
-          throw new Error('Firebase no está listo');
-        }
-
-        const provider = new firebase.auth.GoogleAuthProvider();
-        provider.addScope('profile');
-        provider.addScope('email');
-
-        // Usar signInWithRedirect en lugar de popup (compatible con WebView)
-        await window.auth.signInWithRedirect(provider);
-
-      } catch (error) {
-        console.error("❌ Error Google redirect:", error.code, error.message);
-
-        const googleBtn = document.getElementById('google-login-custom');
-        if (googleBtn) {
-          googleBtn.classList.remove('btn-loading');
-          googleBtn.disabled = false;
-        }
-
-        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-          let errorMsg = 'Error al iniciar sesión';
-
-          if (error.code === 'auth/unauthorized-domain') {
-            errorMsg = 'Dominio no autorizado en Firebase';
-          } else if (error.code === 'auth/operation-not-allowed') {
-            errorMsg = 'Google Sign-In no está habilitado en Firebase';
-          } else if (error.message) {
-            errorMsg = error.message;
-          }
-
-          showNotification(errorMsg, 'error');
-        }
-      }
-    }
-
-    // ============ MANEJAR RESULTADO DE REDIRECT ============
-    async function handleAuthRedirect() {
-      if (!isFirebaseReady()) {
-        console.log("⏳ Esperando Firebase...");
-        return;
-      }
-
-      try {
-        const result = await window.auth.getRedirectResult();
-
-        if (result.user) {
-          const user = result.user;
-          const provider = result.credential?.providerId || 'unknown';
-
-          console.log("✅ Usuario autenticado:", user.displayName, "Provider:", provider);
-
-          // Guardar en Firestore
-          await window.db.collection('users').doc(user.uid).set({
-            displayName: user.displayName,
-            email: user.email,
-            photoURL: user.photoURL,
-            provider: provider,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-          }, { merge: true });
-
-          console.log("✅ Usuario guardado en Firestore");
-          showNotification('¡Bienvenido ' + user.displayName + '!', 'success');
-
-          setTimeout(() => {
-            window.location.href = "welcome.html";
-          }, 1200);
-        }
-      } catch (error) {
-        console.error("❌ Error en redirect:", error.code, error.message);
-
-        if (error.code !== 'auth/popup-closed-by-user' && error.code !== 'auth/cancelled-popup-request') {
-          let errorMsg = 'Error al autenticar';
-
-          if (error.code === 'auth/account-exists-with-different-credential') {
-            errorMsg = 'Esta cuenta ya existe con otro proveedor';
-          } else if (error.code === 'auth/unauthorized-domain') {
-            errorMsg = 'Dominio no autorizado';
-            console.error("🔧 Solución: Ve a Firebase Console → Authentication → Settings → Authorized domains");
-            console.error("🔧 Agrega: localhost, 127.0.0.1 y tu dominio");
-          } else if (error.message) {
-            errorMsg = error.message;
-          }
-
-          showNotification(errorMsg, 'error');
-        }
-      }
-    }
-
-    // Inicializar botones de Google y Facebook
-    function initSocialLogins() {
-      console.log("🔄 Inicializando logins sociales...");
-
-      const customBtn = document.getElementById("google-login-custom");
-      if (customBtn) {
-        customBtn.addEventListener("click", function(e) {
-          e.preventDefault();
-          console.log("🔘 Click en botón Google");
-          loginWithGoogleRedirect();
-        });
-      }
-
-      const facebookBtn = document.getElementById('facebook-login');
-      if (facebookBtn) {
-        facebookBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          console.log("🔘 Click en botón Facebook");
-          loginWithFacebook();
-        });
-      }
-
-      console.log("✅ Logins sociales inicializados");
-    }
-
-    // Esperar a que todo esté listo
-    window.addEventListener('load', function() {
-      let attempts = 0;
-      const maxAttempts = 50;
-
-      const checkReady = setInterval(() => {
-        attempts++;
-
-        const firebaseOK = isFirebaseReady();
-
-        if (firebaseOK) {
-          clearInterval(checkReady);
-          console.log("✅ Firebase listo");
-
-          // Manejar resultado de redirect primero
-          handleAuthRedirect();
-
-          // Luego inicializar botones
-          initSocialLogins();
-
-        } else if (attempts >= maxAttempts) {
-          clearInterval(checkReady);
-          console.error("❌ Timeout esperando Firebase");
-          showNotification('Error: Servicios no disponibles', 'error');
-        }
-      }, 100);
-    });
-  </script>
+  <!-- SCRIPT AUTH - Cargado al FINAL después de Firebase -->
+  <script defer src="js/auth.js"></script>
 
 </body>
 </html>
