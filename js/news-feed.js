@@ -1,105 +1,88 @@
 // js/news-feed.js
-(function () {
-  const MAX_NEWS = 8;
+document.addEventListener('DOMContentLoaded', () => {
+  const grid = document.getElementById('newsGrid');
+  const errorEl = document.getElementById('newsError');
+
+  if (!grid) return;
 
   function isFirebaseReady() {
-    return typeof firebase !== "undefined" && firebase.firestore;
+    return window.db && typeof window.db.collection === 'function';
   }
 
-  function waitForFirebase(callback, maxAttempts = 60) {
-    let attempts = 0;
-    const timer = setInterval(() => {
-      attempts++;
+  function waitForFirebase(cb) {
+    const max = 80; // ~8s
+    let i = 0;
+    const t = setInterval(() => {
+      i++;
       if (isFirebaseReady()) {
-        clearInterval(timer);
-        callback();
-      } else if (attempts >= maxAttempts) {
-        clearInterval(timer);
-        console.error("Firebase no cargó para news-feed.js");
+        clearInterval(t);
+        cb();
+      } else if (i >= max) {
+        clearInterval(t);
+        console.warn('[news-feed] Firebase no cargó a tiempo');
+        showError();
       }
     }, 100);
   }
 
-  function formatDate(ts) {
-    try {
-      if (!ts) return "";
-      const d = ts.toDate ? ts.toDate() : new Date(ts);
-      return d.toLocaleDateString("es-ES", { day: "2-digit", month: "short" });
-    } catch {
-      return "";
-    }
+  function showError() {
+    if (errorEl) errorEl.style.display = 'block';
   }
 
-  function escapeHtml(str = "") {
-    return String(str)
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
+  function placeholderImg(title = 'Noticia') {
+    // Placeholder simple sin depender de imágenes externas
+    const text = encodeURIComponent(title);
+    return `https://via.placeholder.com/300x300/1c1f2f/dcefff?text=${text}`;
   }
 
-  function renderNews(container, docs) {
-    container.innerHTML = "";
+  function renderNews(docs) {
+    grid.innerHTML = '';
 
     if (!docs.length) {
-      // Si no hay noticias, puedes dejar vacío o mostrar algo bonito
-      container.innerHTML = `
-        <div style="color:#9ca3af; padding:10px; font-size:14px;">
+      grid.innerHTML = `
+        <div style="opacity:.8; padding:10px;">
           No hay noticias publicadas todavía.
         </div>
       `;
       return;
     }
 
-    docs.forEach((doc) => {
-      const n = doc.data();
-      const title = escapeHtml(n.title || "Noticia");
-      const imageUrl = escapeHtml(n.imageUrl || "");
-      const dateText = formatDate(n.createdAt);
+    docs.forEach(({ id, data }) => {
+      const title = data.title || 'Noticia';
+      const imageUrl = (data.imageUrl && data.imageUrl.trim()) ? data.imageUrl.trim() : placeholderImg(title);
 
-      // Card compatible con tu diseño actual
-      const a = document.createElement("a");
-      a.className = "news-card";
-      a.href = `news.html?id=${doc.id}`; // 👉 siguiente paso: página detalle
+      const a = document.createElement('a');
+      a.className = 'news-card';
+      a.href = `news.html?id=${encodeURIComponent(id)}`; // <-- abre noticia dinámica
       a.innerHTML = `
         <div class="news-image">
-          <img src="${imageUrl}" alt="${title}" onerror="this.style.display='none'">
+          <img src="${imageUrl}" alt="${title.replace(/"/g, '&quot;')}" loading="lazy">
         </div>
-        <p class="news-label">${title}${dateText ? " • " + dateText : ""}</p>
+        <p class="news-label">${title}</p>
       `;
-      container.appendChild(a);
+
+      grid.appendChild(a);
     });
   }
 
-  waitForFirebase(() => {
-    const container = document.querySelector(".news-grid");
-    if (!container) {
-      console.warn("No existe .news-grid en inicio.html");
-      return;
+  async function loadNews() {
+    try {
+      // Orden por fecha (más nueva primero)
+      // published == true y orderBy(date) => puede requerir índice en Firestore
+      const snap = await window.db
+        .collection('news')
+        .where('published', '==', true)
+        .orderBy('date', 'desc')
+        .limit(12)
+        .get();
+
+      const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+      renderNews(docs);
+    } catch (e) {
+      console.error('[news-feed] Error:', e);
+      showError();
     }
+  }
 
-    // 🔥 Tiempo real
-    firebase
-      .firestore()
-      .collection("news")
-      .where("published", "==", true)
-      .orderBy("createdAt", "desc")
-      .limit(MAX_NEWS)
-      .onSnapshot(
-        (snapshot) => {
-          renderNews(container, snapshot.docs);
-        },
-        (err) => {
-          console.error("Error cargando noticias:", err);
-
-          // 🔧 Si sale error de índice, te lo dirá en consola
-          container.innerHTML = `
-            <div style="color:#ef4444; padding:10px; font-size:14px;">
-              Error cargando noticias. Revisa la consola (puede requerir crear un índice en Firestore).
-            </div>
-          `;
-        }
-      );
-  });
-})();
+  waitForFirebase(loadNews);
+});

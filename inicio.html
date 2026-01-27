@@ -61,8 +61,12 @@
     </div>
 
     <!-- 🔥 Las noticias ahora se cargan desde Firestore -->
-    <div class="news-grid"></div>
-</section>
+<div class="news-grid" id="newsGrid">
+  <!-- Aquí se cargarán las noticias desde Firestore automáticamente -->
+</div>
+<p id="newsError" style="display:none; color:#ef4444; margin-top:10px;">
+  Error cargando noticias. Revisa la consola (puede requerir crear un índice en Firestore).
+</p>
 
     <!-- Top Sorteos Section -->
     <section class="section">
@@ -275,7 +279,7 @@
         window.addEventListener('load', checkAuth);
     </script>
 
-    <!-- 🔥 Noticias dinámicas desde Firestore -->
+    <!-- Feed dinámico de noticias (OBLIGATORIO) -->
     <script src="js/news-feed.js"></script>
 </body>
 </html>
