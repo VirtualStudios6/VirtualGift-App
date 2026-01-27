@@ -58,40 +58,7 @@ body {
   overflow: hidden;
 }
 
-main {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-/* Fondo animado (si lo usas en HTML) */
-.background-animation {
-  position: fixed;
-  inset: 0;
-  width: 100vw; height: 100vh;
-  z-index: 0;
-  opacity: 0.12;
-  pointer-events: none;
-}
-
-.floating-shape {
-  position: absolute;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  animation: float 6s ease-in-out infinite;
-  filter: drop-shadow(0 8px 20px rgba(141,23,251,0.25));
-}
-.shape-1 { width: 110px; height: 110px; top: 10%; left: 18%; animation-delay: 0s; }
-.shape-2 { width: 160px; height: 160px; top: 60%; right: 13%; animation-delay: 2s; }
-.shape-3 { width: 90px;  height: 90px;  bottom: 23%; left: 9%; animation-delay: 4s; }
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) rotate(0); }
-  50%      { transform: translateY(-18px) rotate(180deg); }
-}
-
-/* ✅ Ajuste real: container centra, card es la tarjeta */
+/* ==================== CONTAINER ==================== */
 .welcome-container {
   position: relative;
   z-index: 10;
@@ -99,8 +66,11 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
+  padding: var(--spacing-lg);
 }
 
+/* ==================== CARD ==================== */
 .welcome-card {
   position: relative;
   background: var(--card-bg);
@@ -110,14 +80,13 @@ main {
   text-align: center;
   box-shadow: var(--shadow-xl);
   border: 1px solid var(--border-color);
-  max-width: 480px;
-  width: min(480px, 98vw);
+  max-width: 500px;
+  width: 100%;
   animation: slideIn 0.8s ease-out;
   overflow: hidden;
-  margin: auto;
 }
 
-/* barra superior decorativa */
+/* Barra superior decorativa */
 .welcome-card::before {
   content: '';
   position: absolute;
@@ -132,40 +101,58 @@ main {
   to   { transform: translateY(0);    opacity: 1; }
 }
 
-/* Títulos y texto */
+/* ==================== LOGO ==================== */
+.logo {
+  margin-bottom: var(--spacing-lg);
+  animation: fadeIn 0.8s ease-out 0.2s both;
+}
+
+.logo img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(141, 23, 251, 0.3));
+}
+
+/* ==================== TÍTULO ==================== */
 .welcome-title {
   font-size: var(--font-size-3xl);
   font-weight: 700;
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-lg);
   background: linear-gradient(135deg, #ffffff, #cfe7ff);
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
-  animation: fadeIn 1s ease-out 0.25s both;
+  -webkit-text-fill-color: transparent;
+  animation: fadeIn 1s ease-out 0.4s both;
 }
 
-.welcome-message {
-  font-size: var(--font-size-base);
-  color: var(--gray-color);
-  margin-bottom: var(--spacing-2xl);
-  line-height: 1.6;
-  animation: fadeIn 1s ease-out 0.55s both;
+/* ==================== USER INFO ==================== */
+.user-info {
+  margin-bottom: var(--spacing-xl);
+  animation: fadeIn 1s ease-out 0.6s both;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
+.user-info h2 {
+  font-size: var(--font-size-xl);
+  color: var(--light-color);
+  margin-bottom: var(--spacing-md);
+  font-weight: 600;
 }
 
-/* Bloque de puntos */
+/* ==================== PUNTOS ==================== */
 .points-display {
   background: var(--card-bg-secondary);
   border-radius: var(--border-radius-lg);
-  padding: var(--spacing-xl);
-  margin-bottom: var(--spacing-2xl);
+  padding: var(--spacing-lg);
+  margin: 0 auto;
+  margin-bottom: var(--spacing-lg);
   border: 1px solid var(--border-color);
   position: relative;
-  animation: fadeIn 1s ease-out 0.7s both;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  max-width: 280px;
 }
 
 .points-display::before {
@@ -178,11 +165,40 @@ main {
 }
 
 .points-display i {
+  font-size: 1.8rem;
   color: var(--warning-color);
-  filter: drop-shadow(0 0 10px rgba(255,212,93,0.25));
+  filter: drop-shadow(0 0 10px rgba(255,212,93,0.4));
 }
 
-/* Botón continuar */
+.points-display #userPoints {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--warning-color);
+  text-shadow: 0 0 15px rgba(255, 212, 93, 0.3);
+}
+
+.points-display .points-label {
+  font-size: var(--font-size-base);
+  color: var(--gray-color);
+  font-weight: 500;
+}
+
+/* ==================== MENSAJE ==================== */
+.welcome-message {
+  font-size: var(--font-size-base);
+  color: var(--gray-color);
+  margin-bottom: var(--spacing-2xl);
+  line-height: 1.6;
+  animation: fadeIn 1s ease-out 0.8s both;
+  padding: 0 var(--spacing-md);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ==================== BOTÓN CONTINUAR ==================== */
 .continue-btn {
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   color: #ffffff;
@@ -222,38 +238,90 @@ main {
   box-shadow: 0 0 30px rgba(141,23,251,0.6), 0 0 50px rgba(112,24,155,0.35);
 }
 
-.continue-btn:active { transform: translateY(0) scale(0.98); }
+.continue-btn:active {
+  transform: translateY(0) scale(0.98);
+}
 
 .continue-btn.loading {
   pointer-events: none;
   opacity: 0.7;
 }
 
-.continue-btn.loading::after {
-  content: '';
-  position: absolute;
-  width: 22px; height: 22px;
-  border: 2px solid transparent;
-  border-top: 2px solid #ffffff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
+.continue-btn i {
+  transition: transform 0.3s ease;
 }
 
+.continue-btn:hover i {
+  transform: translateX(5px);
+}
+
+/* Spinner cuando está cargando */
 @keyframes spin {
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+  to { transform: rotate(360deg); }
 }
 
-/* Responsivo */
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 700px) {
-  .welcome-card { padding: var(--spacing-xl); }
-  .welcome-title { font-size: var(--font-size-2xl); }
-  .continue-btn { padding: 15px 25px; font-size: var(--font-size-base); }
+  .welcome-card {
+    padding: var(--spacing-xl);
+  }
+
+  .welcome-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .logo img {
+    width: 100px;
+    height: 100px;
+  }
+
+  .continue-btn {
+    padding: 15px 30px;
+    font-size: var(--font-size-base);
+  }
+
+  .points-display {
+    padding: var(--spacing-md);
+  }
+
+  .points-display #userPoints {
+    font-size: var(--font-size-xl);
+  }
 }
 
 @media (max-width: 450px) {
-  .welcome-title { font-size: var(--font-size-xl); }
-  .points-display { padding: var(--spacing-md); }
-  .continue-btn i { display: none; } /* solo en pantallas muy pequeñas */
+  .welcome-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .logo img {
+    width: 80px;
+    height: 80px;
+  }
+
+  .points-display {
+    padding: var(--spacing-sm);
+    max-width: 240px;
+  }
+
+  .points-display i {
+    font-size: 1.5rem;
+  }
+
+  .points-display #userPoints {
+    font-size: var(--font-size-lg);
+  }
+
+  .continue-btn {
+    padding: 12px 24px;
+    font-size: var(--font-size-sm);
+  }
+
+  .welcome-message {
+    font-size: var(--font-size-sm);
+  }
 }
