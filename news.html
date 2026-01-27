@@ -14,27 +14,40 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
 </head>
+
 <body>
   <header class="news-header">
-    <button class="back-btn" onclick="history.back()">←</button>
+    <button class="icon-btn" onclick="history.back()" aria-label="Volver">←</button>
     <div class="brand">VIRTUALGIFT</div>
+    <button class="icon-btn" id="btnShare" aria-label="Compartir">⤴︎</button>
   </header>
 
   <main class="news-main">
     <div id="loading" class="loading">Cargando noticia...</div>
 
     <article id="article" class="article" style="display:none;">
-      <p id="date" class="date"></p>
+      <div class="meta">
+        <p id="date" class="date"></p>
+        <p class="reading"><span id="readingTime">—</span> min de lectura</p>
+      </div>
+
       <h1 id="title" class="title"></h1>
 
-      <!-- Imagen principal (cover) -->
-      <img id="image" class="image" alt="Imagen de noticia" style="display:none;" />
+      <figure class="hero">
+        <img id="image" class="hero-img" alt="Imagen principal" loading="lazy" />
+      </figure>
 
-      <!-- Texto largo -->
       <div id="content" class="content"></div>
 
-      <!-- Galería (opcional) -->
-      <div id="gallery" class="gallery" style="display:none;"></div>
+      <div id="galleryWrap" class="gallery-wrap" style="display:none;">
+        <h2 class="h2">Galería</h2>
+        <div id="gallery" class="gallery"></div>
+      </div>
+
+      <footer class="actions">
+        <button class="btn" id="btnSave">Guardar</button>
+        <button class="btn btn-primary" id="btnShare2">Compartir</button>
+      </footer>
     </article>
 
     <p id="error" class="error" style="display:none;">

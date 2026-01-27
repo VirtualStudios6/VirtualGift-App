@@ -11,9 +11,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const dateEl = document.getElementById('date');
   const imgEl = document.getElementById('image');
 
-  // ✅ nuevos IDs (según el news.html modificado)
   const contentEl = document.getElementById('content');
+  const readingEl = document.getElementById('readingTime');
+
+  const galleryWrap = document.getElementById('galleryWrap');
   const galleryEl = document.getElementById('gallery');
+
+  const btnShare = document.getElementById('btnShare');
+  const btnShare2 = document.getElementById('btnShare2');
+  const btnSave = document.getElementById('btnSave');
 
   function isFirebaseReady() {
     return window.db && typeof window.db.collection === 'function';
@@ -43,79 +49,152 @@ document.addEventListener('DOMContentLoaded', () => {
   function fmtDate(ts) {
     try {
       const d = ts.toDate ? ts.toDate() : new Date(ts);
-      return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+      return d.toLocaleDateString('es-ES', { day:'2-digit', month:'long', year:'numeric' });
     } catch {
       return '';
     }
   }
 
-  function placeholderImg() {
-    return 'https://via.placeholder.com/1200x700/1c1f2f/dcefff?text=VirtualGift';
+  function getCover(data) {
+    const url = (data.coverImageUrl || data.imageUrl || '').trim();
+    return url || 'images/news-placeholder-wide.png';
   }
 
-  function safeTextToHtml(text) {
-    // Convierte texto plano a HTML seguro con saltos de línea
-    const escaped = String(text ?? '').replace(/[&<>"']/g, (m) => ({
-      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  function calcReadingMinutes(text) {
+    // 200 palabras/min aprox
+    const words = String(text || '').trim().split(/\s+/).filter(Boolean).length;
+    return Math.max(1, Math.round(words / 200));
+  }
+
+  // Convierte "## Título" a h2 y el resto a párrafos
+  function renderContent(text) {
+    const raw = String(text || '').replace(/\r\n/g, '\n').trim();
+    if (!raw) return '<p></p>';
+
+    const lines = raw.split('\n');
+    let html = '';
+    let buffer = [];
+
+    const flushParagraph = () => {
+      const t = buffer.join('\n').trim();
+      if (t) html += `<p>${escapeHtml(t)}</p>`;
+      buffer = [];
+    };
+
+    lines.forEach((line) => {
+      const l = line.trim();
+
+      if (l.startsWith('## ')) {
+        flushParagraph();
+        html += `<div class="h2">${escapeHtml(l.slice(3))}</div>`;
+        return;
+      }
+      if (l.startsWith('### ')) {
+        flushParagraph();
+        html += `<div class="h3">${escapeHtml(l.slice(4))}</div>`;
+        return;
+      }
+
+      if (l === '') {
+        flushParagraph();
+        return;
+      }
+
+      buffer.push(line);
+    });
+
+    flushParagraph();
+    return html;
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, (m) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
     }[m]));
-    return escaped.replace(/\n/g, "<br>");
+  }
+
+  function renderGallery(gallery) {
+    if (!Array.isArray(gallery) || gallery.length === 0) {
+      galleryWrap.style.display = 'none';
+      return;
+    }
+
+    galleryEl.innerHTML = '';
+    galleryWrap.style.display = 'block';
+
+    gallery.forEach((item) => {
+      // Soporta: "url|caption" (opcional)
+      const [urlRaw, capRaw] = String(item || '').split('|');
+      const url = (urlRaw || '').trim();
+      const cap = (capRaw || '').trim();
+
+      if (!url) return;
+
+      const div = document.createElement('div');
+      div.className = 'g-item';
+      div.innerHTML = `
+        <img src="${url}" alt="" loading="lazy">
+        ${cap ? `<div class="g-cap">${escapeHtml(cap)}</div>` : ''}
+      `;
+      galleryEl.appendChild(div);
+    });
+
+    if (!galleryEl.children.length) galleryWrap.style.display = 'none';
+  }
+
+  async function share(title) {
+    const shareData = { title: title || 'VirtualGift News', url: location.href };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(location.href);
+        alert('Link copiado ✅');
+      }
+    } catch {}
+  }
+
+  function saveLocal(id) {
+    try {
+      const key = 'vg_saved_news';
+      const list = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!list.includes(id)) list.unshift(id);
+      localStorage.setItem(key, JSON.stringify(list.slice(0, 100)));
+      alert('Guardado ✅');
+    } catch {
+      alert('No se pudo guardar 😕');
+    }
   }
 
   async function load() {
     if (!id) return showError();
 
     try {
-      const docSnap = await window.db.collection('news').doc(id).get();
-      if (!docSnap.exists) return showError();
+      const doc = await window.db.collection('news').doc(id).get();
+      if (!doc.exists) return showError();
 
-      const data = docSnap.data() || {};
-
-      // Si está despublicada, no mostrar
+      const data = doc.data() || {};
       if (data.published !== true) return showError();
 
-      // Título + fecha
-      titleEl.textContent = data.title || 'Noticia';
+      const title = data.title || 'Noticia';
+
+      titleEl.textContent = title;
       dateEl.textContent = data.date ? fmtDate(data.date) : '';
+      imgEl.src = getCover(data);
 
-      // ✅ Imagen principal (coverImageUrl). Fallback a imageUrl viejo si existe.
-      const cover =
-        (data.coverImageUrl && String(data.coverImageUrl).trim()) ||
-        (data.imageUrl && String(data.imageUrl).trim()) ||
-        '';
+      const bodyText = data.content || data.description || '';
+      readingEl.textContent = String(calcReadingMinutes(bodyText));
 
-      if (cover) {
-        imgEl.src = cover;
-        imgEl.style.display = 'block';
-      } else {
-        imgEl.src = placeholderImg();
-        imgEl.style.display = 'block';
-      }
+      contentEl.innerHTML = renderContent(bodyText);
 
-      // ✅ Contenido largo (content). Fallback a description por compatibilidad.
-      const contentText = (data.content && String(data.content)) || (data.description && String(data.description)) || '';
-      if (contentEl) contentEl.innerHTML = safeTextToHtml(contentText);
+      renderGallery(data.gallery || []);
 
-      // ✅ Galería (array de URLs)
-      const gallery = Array.isArray(data.gallery) ? data.gallery.filter(u => !!String(u).trim()) : [];
-      if (galleryEl) {
-        if (gallery.length) {
-          galleryEl.innerHTML = '';
-          gallery.forEach((url) => {
-            const img = document.createElement('img');
-            img.src = url;
-            img.alt = '';
-            img.loading = 'lazy';
-            galleryEl.appendChild(img);
-          });
-          galleryEl.style.display = 'grid';
-        } else {
-          galleryEl.style.display = 'none';
-          galleryEl.innerHTML = '';
-        }
-      }
+      btnShare?.addEventListener('click', () => share(title));
+      btnShare2?.addEventListener('click', () => share(title));
+      btnSave?.addEventListener('click', () => saveLocal(id));
 
       if (loading) loading.style.display = 'none';
-      if (article) article.style.display = 'block';
+      article.style.display = 'block';
     } catch (e) {
       console.error('[news-detail] Error:', e);
       showError();

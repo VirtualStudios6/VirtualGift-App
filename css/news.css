@@ -5,15 +5,11 @@
   --text:#dcefff;
   --muted:#b6c6d9;
   --border:#293244;
+  --primary:#8d17fb;
+  --shadow: 0 14px 40px rgba(0,0,0,.5);
 }
 
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-  font-family:Inter,Roboto,sans-serif;
-}
-
+*{box-sizing:border-box;margin:0;padding:0;font-family:Inter,Roboto,Arial,sans-serif;}
 body{
   min-height:100vh;
   background:linear-gradient(180deg,var(--bg1),var(--bg2));
@@ -22,106 +18,150 @@ body{
 
 /* Header */
 .news-header{
-  position:sticky;
-  top:0;
-  z-index:50;
-  display:flex;
-  align-items:center;
-  gap:12px;
-  padding:14px 16px;
-  background:rgba(2,5,21,.75);
+  position:sticky; top:0; z-index:50;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 14px;
+  background:rgba(2,5,21,.78);
   backdrop-filter: blur(12px);
   border-bottom:1px solid rgba(255,255,255,.06);
 }
 
-.back-btn{
-  width:42px;
-  height:42px;
-  border-radius:999px;
+.brand{
+  font-weight:900; letter-spacing:.10em;
+  font-size:13px; opacity:.95;
+}
+
+.icon-btn{
+  width:42px;height:42px;border-radius:999px;
   border:1px solid rgba(255,255,255,.08);
   background:rgba(28,31,47,.7);
-  color:var(--text);
-  cursor:pointer;
+  color:var(--text); cursor:pointer;
   font-size:18px;
 }
 
-.brand{
-  font-weight:800;
-  letter-spacing:.06em;
-  opacity:.95
-}
+/* Layout */
+.news-main{max-width:900px;margin:0 auto;padding:18px 16px 60px;}
+.loading{opacity:.85; padding:30px 0;}
+.error{color:#ef4444; padding:20px 0;}
 
-/* Main */
-.news-main{
-  max-width:900px;
-  margin:0 auto;
-  padding:18px 16px 40px;
-}
-
-.loading{
-  opacity:.85;
-  padding:30px 0;
-}
-
-.error{
-  color:#ef4444;
-  padding:20px 0;
-}
-
-/* Article */
 .article{
-  background:rgba(28,31,47,.85);
-  border:1px solid rgba(41,50,68,.6);
-  border-radius:18px;
+  background:rgba(28,31,47,.86);
+  border:1px solid rgba(41,50,68,.65);
+  border-radius:20px;
   padding:18px;
+  box-shadow: var(--shadow);
 }
 
-.date{
-  color:var(--muted);
+/* Meta */
+.meta{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
   margin-bottom:10px;
 }
+.date{color:var(--muted); font-size:14px;}
+.reading{color:var(--muted); font-size:14px; opacity:.95;}
 
+/* Title */
 .title{
-  font-size:32px;
-  line-height:1.1;
-  margin-bottom:14px;
+  font-size:36px;
+  line-height:1.06;
+  letter-spacing:-.02em;
+  margin:10px 0 14px;
 }
 
-/* Imagen principal */
-.image{
+/* Hero */
+.hero{
+  margin:12px 0 18px;
+  border-radius:18px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(2,5,21,.35);
+}
+.hero-img{
   width:100%;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.06);
-  margin:12px 0 16px;
+  height:auto;
   display:block;
 }
 
-/* Texto largo (reemplaza .desc) */
+/* Content */
 .content{
   font-size:18px;
+  line-height:1.75;
   color:var(--text);
-  opacity:.95;
-  line-height:1.7;
+  opacity:.96;
+}
+
+.content p{
+  margin: 0 0 14px;
   white-space:pre-wrap;
 }
 
-/* Galería */
+.content .h2{
+  font-size:22px;
+  margin: 22px 0 10px;
+  line-height:1.2;
+}
+
+.content .h3{
+  font-size:18px;
+  margin: 18px 0 10px;
+  line-height:1.3;
+  color: rgba(220,239,255,.95);
+}
+
+/* Gallery */
+.gallery-wrap{ margin-top: 22px; }
+.h2{
+  font-size:22px;
+  margin: 0 0 12px;
+}
 .gallery{
-  margin-top:18px;
   display:grid;
-  grid-template-columns:1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap:12px;
 }
-
-.gallery img{
-  width:100%;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.06);
-  display:block;
+@media (max-width: 620px){
+  .gallery{ grid-template-columns: 1fr; }
+}
+.g-item{
+  border-radius:16px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(2,5,21,.30);
+}
+.g-item img{ width:100%; display:block; height:auto; }
+.g-cap{
+  padding:10px 12px;
+  font-size:13px;
+  color: var(--muted);
+  line-height:1.4;
 }
 
-/* Responsive */
+/* Actions */
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:18px;
+  justify-content:flex-end;
+  flex-wrap:wrap;
+}
+.btn{
+  padding:10px 14px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(2,5,21,.35);
+  color:var(--text);
+  cursor:pointer;
+  font-weight:800;
+}
+.btn-primary{
+  border:none;
+  background:linear-gradient(90deg,var(--primary),#70189b);
+}
+
 @media (max-width:520px){
-  .title{font-size:26px;}
+  .title{font-size:28px;}
   .content{font-size:16px;}
 }
