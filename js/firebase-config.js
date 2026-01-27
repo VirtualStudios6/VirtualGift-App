@@ -1,6 +1,7 @@
-// firebase-config.js
-// ==================
-// Config de Firebase (usa tus propios valores)
+// ==================== FIREBASE CONFIGURATION ====================
+// Configuración mejorada de Firebase con mejor manejo de errores
+// ================================================================
+
 const firebaseConfig = {
   apiKey: "AIzaSyDFn7fJPpOzuyiBKBXh7Lm8pHN6TwY8K-g",
   authDomain: "virtualgift-login.firebaseapp.com",
@@ -11,34 +12,88 @@ const firebaseConfig = {
   measurementId: "G-LF2SDF6J90"
 };
 
-// Inicialización segura (evita doble init si cargas este archivo en varias páginas)
+// Inicialización segura de Firebase
 (function initFirebase() {
   try {
+    // Verificar si Firebase ya está inicializado
     if (!firebase.apps || firebase.apps.length === 0) {
-      firebase.initializeApp(firebaseConfig); // v8 y v9-compat friendly
+      firebase.initializeApp(firebaseConfig);
+      console.log('✅ Firebase inicializado correctamente');
+    } else {
+      console.log('ℹ️ Firebase ya estaba inicializado');
     }
-  } catch (e) {
-    // En caso de que algún script ya lo haya inicializado
-    console.warn('Firebase ya estaba inicializado:', e?.message || e);
+  } catch (error) {
+    console.error('❌ Error al inicializar Firebase:', error);
+    // Mostrar error al usuario
+    setTimeout(() => {
+      alert('Error al conectar con el servidor. Por favor, recarga la página.');
+    }, 500);
+    return;
   }
 
-  // Servicios
-  const auth = firebase.auth();
-  const db   = firebase.firestore();
+  try {
+    // Obtener servicios de Firebase
+    const auth = firebase.auth();
+    const db = firebase.firestore();
 
-  // Persistencia de sesión LOCAL (se mantiene tras cerrar la app)
-  auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-    .catch((e) => console.warn('No se pudo establecer persistencia LOCAL:', e?.message || e));
+    // Configurar persistencia de sesión LOCAL (se mantiene al cerrar el navegador)
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(() => {
+        console.log('✅ Persistencia de sesión configurada');
+      })
+      .catch((error) => {
+        console.warn('⚠️ No se pudo establecer persistencia:', error.message);
+      });
 
-  // Idioma del dispositivo para emails/avisos
-  auth.useDeviceLanguage?.();
+    // Configurar idioma del dispositivo para emails
+    if (auth.useDeviceLanguage) {
+      auth.useDeviceLanguage();
+    }
 
-  // Exponer de forma global para otros scripts (auth.js / welcome.js)
-  window.firebaseApp = firebase.app();
-  window.firebase    = firebase; // por si algún script espera el global
-  window.auth        = auth;
-  window.db          = db;
+    // Exponer servicios globalmente para otros scripts
+    window.firebaseApp = firebase.app();
+    window.firebase = firebase;
+    window.auth = auth;
+    window.db = db;
 
-  // (Opcional) logs útiles
-  console.log('[Firebase] init OK:', window.firebaseApp?.name, ' project:', firebaseConfig.projectId);
+    console.log('📦 Servicios Firebase disponibles:', {
+      app: '✓',
+      auth: '✓',
+      firestore: '✓'
+    });
+
+  } catch (error) {
+    console.error('❌ Error al configurar servicios Firebase:', error);
+  }
 })();
+
+// Función helper para verificar si Firebase está listo
+function isFirebaseReady() {
+  return typeof firebase !== 'undefined' &&
+         typeof firebase.auth === 'function' &&
+         typeof firebase.firestore === 'function' &&
+         window.auth !== undefined &&
+         window.db !== undefined;
+}
+
+// Función helper para esperar a que Firebase esté listo
+function waitForFirebase(callback, maxAttempts = 60) {
+  let attempts = 0;
+  const checkInterval = setInterval(() => {
+    attempts++;
+
+    if (isFirebaseReady()) {
+      clearInterval(checkInterval);
+      console.log('✅ Firebase está listo para usar');
+      callback();
+    } else if (attempts >= maxAttempts) {
+      clearInterval(checkInterval);
+      console.error('❌ Timeout: Firebase no se cargó correctamente');
+      alert('Error al cargar servicios. Por favor, recarga la página.');
+    }
+  }, 100);
+}
+
+// Exponer funciones helper globalmente
+window.isFirebaseReady = isFirebaseReady;
+window.waitForFirebase = waitForFirebase;

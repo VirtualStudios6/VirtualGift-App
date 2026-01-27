@@ -1,488 +1,88 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Ruleta de premios VirtualGift - Gira y gana puntos">
-  <meta name="keywords" content="ruleta, premios, puntos, juegos, VirtualGift">
-  <meta name="author" content="VirtualGift">
-  
-  <!-- Open Graph / Social Media -->
-  <meta property="og:title" content="Ruleta de Premios - VirtualGift">
-  <meta property="og:description" content="Gira la ruleta y gana increíbles puntos">
-  <meta property="og:type" content="website">
-  
-  <!-- Security -->
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-  
-  <title>Ruleta de Premios - VirtualGift</title>
-  
-  <!-- Preload critical resources -->
-  <link rel="preload" href="css/ruleta.css" as="style">
-  <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style">
-  
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
-  <link rel="stylesheet" href="css/ruleta.css">
-  
-  <!-- Favicon -->
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#06011c">
+
+    <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
+    <title>Ruleta de Premios - VirtualGift</title>
+    <link rel="stylesheet" href="css/ruleta.css">
+
+    <!-- Firebase -->
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script defer src="js/firebase-config.js"></script>
 </head>
 <body>
-  <!-- Skip to main content for accessibility -->
-  <a href="#main-content" class="skip-to-content" tabindex="1">Saltar al contenido principal</a>
-  
-  <!-- Loading overlay -->
-  <div id="loading-overlay" class="loading-overlay" aria-hidden="true">
-    <div class="loading-spinner"></div>
-    <p>Preparando la ruleta...</p>
-  </div>
-
-  <div class="ruleta-container">
-    <!-- Header with improved accessibility -->
-    <header class="ruleta-header" role="banner">
-      <button class="back-btn" id="back-btn" type="button" aria-label="Volver al dashboard principal">
-        <i class="fas fa-arrow-left" aria-hidden="true"></i>
-        Volver al Dashboard
-      </button>
-      <div class="points-display" aria-live="polite">
-        <span>Tus puntos: <strong id="current-points">Cargando...</strong></span>
-      </div>
+    <!-- Header con puntos -->
+    <header class="header">
+        <button id="back-btn" class="back-btn">← Volver</button>
+        <div class="points-container">
+            <span class="points-label">Puntos:</span>
+            <span id="points-display" class="points-value">0</span>
+        </div>
     </header>
 
-    <!-- Main content -->
-    <main id="main-content" role="main">
-      <!-- Wheel section with accessibility -->
-      <section class="wheel-section" aria-labelledby="wheel-heading">
-        <h2 id="wheel-heading">Gira la Ruleta y Gana Puntos</h2>
-        
-        <div class="wheel" role="img" aria-label="Ruleta de premios con 6 secciones de diferentes colores y valores">
-          <div class="wheel-pointer" aria-hidden="true"></div>
-          <div class="wheel-inner" id="wheel" aria-hidden="true">
-            <!-- Wheel loading spinner (hidden by default) -->
-            <div class="wheel-loading" id="wheel-loading" style="display: none;" aria-hidden="true"></div>
-          </div>
+    <!-- Contenedor principal -->
+    <div class="ruleta-container">
+        <h1 class="title">🎰 Ruleta de Premios</h1>
+        <p class="spins-info">Gira la ruleta y gana puntos</p>
+
+        <!-- Ruleta -->
+        <div class="wheel-container">
+            <div class="wheel-pointer">▼</div>
+            <div class="wheel">
+                <div class="wheel-inner">
+                    <!-- Sección 1: Rojo - 50 puntos -->
+                    <div class="wheel-section" style="transform: rotate(0deg);">
+                        <span>50</span>
+                    </div>
+                    <!-- Sección 2: Naranja - 30 puntos -->
+                    <div class="wheel-section" style="transform: rotate(60deg);">
+                        <span>30</span>
+                    </div>
+                    <!-- Sección 3: Morado - 70 puntos -->
+                    <div class="wheel-section" style="transform: rotate(120deg);">
+                        <span>70</span>
+                    </div>
+                    <!-- Sección 4: Azul Claro - 20 puntos -->
+                    <div class="wheel-section" style="transform: rotate(180deg);">
+                        <span>20</span>
+                    </div>
+                    <!-- Sección 5: Azul - 40 puntos -->
+                    <div class="wheel-section" style="transform: rotate(240deg);">
+                        <span>40</span>
+                    </div>
+                    <!-- Sección 6: Violeta - 60 puntos -->
+                    <div class="wheel-section" style="transform: rotate(300deg);">
+                        <span>60</span>
+                    </div>
+                </div>
+            </div>
+            <div class="wheel-center">
+                <span>SPIN</span>
+            </div>
         </div>
-        
-        <button class="btn spin-btn" id="spin-btn" type="button" aria-describedby="spin-cost-info">
-          <i class="fas fa-play" aria-hidden="true"></i>
-          Girar (5 puntos)
+
+        <!-- Botón de girar -->
+        <button id="spin-btn" class="spin-btn">
+            Girar (10 puntos)
         </button>
-        
-        <p class="spins-info" id="spin-cost-info">
-          Tienes <span id="spins-remaining" aria-live="polite">3</span> giros restantes hoy
-        </p>
-      </section>
 
-      <!-- Available prizes section -->
-      <section class="prizes-section" aria-labelledby="prizes-heading">
-        <h3 id="prizes-heading">Premios Disponibles</h3>
-        <div class="prizes-grid" role="list" aria-label="Lista de premios disponibles en la ruleta">
-          <article class="prize-item" role="listitem" data-prize="10">
-            <div class="prize-icon" aria-hidden="true">10</div>
-            <p>10 puntos</p>
-          </article>
-          
-          <article class="prize-item" role="listitem" data-prize="25">
-            <div class="prize-icon" aria-hidden="true">25</div>
-            <p>25 puntos</p>
-          </article>
-          
-          <article class="prize-item" role="listitem" data-prize="50">
-            <div class="prize-icon" aria-hidden="true">50</div>
-            <p>50 puntos</p>
-          </article>
-          
-          <article class="prize-item" role="listitem" data-prize="75">
-            <div class="prize-icon" aria-hidden="true">75</div>
-            <p>75 puntos</p>
-          </article>
-          
-          <article class="prize-item" role="listitem" data-prize="100">
-            <div class="prize-icon" aria-hidden="true">100</div>
-            <p>100 puntos</p>
-          </article>
-          
-          <article class="prize-item" role="listitem" data-prize="5">
-            <div class="prize-icon" aria-hidden="true">5</div>
-            <p>5 puntos</p>
-          </article>
+        <!-- Información -->
+        <div class="info-box">
+            <h3>ℹ️ Cómo funciona:</h3>
+            <ul>
+                <li>Cada giro cuesta <strong>10 puntos</strong></li>
+                <li>Puedes ganar entre <strong>20 y 70 puntos</strong></li>
+                <li>¡Mientras más gires, más puedes ganar!</li>
+            </ul>
         </div>
-      </section>
-
-      <!-- Spin history section -->
-      <section class="history-section" aria-labelledby="history-heading">
-        <h3 id="history-heading">Tu Historial de Giros</h3>
-        <div class="history-list" id="history-list" role="log" aria-live="polite" aria-label="Historial de giros de la ruleta">
-          <!-- Placeholder while loading -->
-          <div class="history-placeholder" id="history-placeholder">
-            <p>Cargando tu historial de giros...</p>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <!-- Toast notifications -->
-  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
-
-  <!-- Reward modal with improved accessibility -->
-  <div class="modal" id="reward-modal" role="dialog" aria-labelledby="modal-title" aria-describedby="modal-description" aria-hidden="true">
-    <div class="modal-content">
-      <button class="close-modal" type="button" aria-label="Cerrar modal de premio">
-        <i class="fas fa-times" aria-hidden="true"></i>
-      </button>
-      <h2 id="modal-title">¡Felicidades!</h2>
-      <div id="modal-icon" class="modal-prize-icon" aria-hidden="true">
-        <i class="fas fa-trophy"></i>
-      </div>
-      <p id="modal-description">Has ganado puntos girando la ruleta.</p>
-      <div class="modal-actions">
-        <button class="btn" id="modal-confirm" type="button">
-          <i class="fas fa-check" aria-hidden="true"></i>
-          Aceptar
-        </button>
-      </div>
     </div>
-  </div>
 
-  <!-- Confirmation modal for spinning -->
-  <div class="modal" id="confirm-spin-modal" role="dialog" aria-labelledby="confirm-spin-title" aria-describedby="confirm-spin-description" aria-hidden="true">
-    <div class="modal-content">
-      <button class="close-modal" type="button" aria-label="Cerrar modal de confirmación">
-        <i class="fas fa-times" aria-hidden="true"></i>
-      </button>
-      <h2 id="confirm-spin-title">Confirmar Giro</h2>
-      <p id="confirm-spin-description">¿Estás seguro de que quieres gastar 5 puntos para girar la ruleta?</p>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" id="confirm-spin-cancel" type="button">
-          <i class="fas fa-times" aria-hidden="true"></i>
-          Cancelar
-        </button>
-        <button class="btn" id="confirm-spin-accept" type="button">
-          <i class="fas fa-play" aria-hidden="true"></i>
-          Girar
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scripts -->
-  <script defer src="js/firebase-config.js"></script>
-  <script defer src="js/ruleta.js"></script>
-
-  <!-- Inline critical JavaScript -->
-  <script>
-    // Performance monitoring
-    const startTime = performance.now();
-    
-    // Sound effects (optional)
-    const AudioManager = {
-      sounds: {},
-      
-      init() {
-        if ('Audio' in window) {
-          this.sounds.spin = new Audio('sounds/spin.mp3');
-          this.sounds.win = new Audio('sounds/win.mp3');
-          this.sounds.click = new Audio('sounds/click.mp3');
-          
-          // Preload sounds
-          Object.values(this.sounds).forEach(sound => {
-            sound.preload = 'auto';
-            sound.volume = 0.3;
-          });
-        }
-      },
-      
-      play(soundName) {
-        if (this.sounds[soundName]) {
-          this.sounds[soundName].currentTime = 0;
-          this.sounds[soundName].play().catch(() => {
-            // Ignore errors for autoplay restrictions
-          });
-        }
-      }
-    };
-
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialize loading state management
-      const loadingOverlay = document.getElementById('loading-overlay');
-      const hideLoading = () => {
-        loadingOverlay.classList.add('fade-out');
-        setTimeout(() => {
-          loadingOverlay.style.display = 'none';
-          loadingOverlay.setAttribute('aria-hidden', 'true');
-        }, 300);
-      };
-
-      // Initialize modal system
-      const modals = document.querySelectorAll('.modal');
-      const closeModalBtns = document.querySelectorAll('.close-modal');
-      
-      // Modal functions with accessibility
-      function openModal(modalId, focusElement = null) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-          modal.style.display = 'flex';
-          modal.classList.add('show');
-          modal.setAttribute('aria-hidden', 'false');
-          document.body.classList.add('modal-open');
-          
-          // Focus management
-          if (focusElement) {
-            setTimeout(() => focusElement.focus(), 100);
-          } else {
-            const firstFocusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-            if (firstFocusable) setTimeout(() => firstFocusable.focus(), 100);
-          }
-          
-          // Trap focus in modal
-          trapFocus(modal);
-        }
-      }
-      
-      function closeModal(modal) {
-        modal.style.display = 'none';
-        modal.classList.remove('show');
-        modal.setAttribute('aria-hidden', 'true');
-        document.body.classList.remove('modal-open');
-        
-        // Return focus to trigger element if available
-        const triggerElement = modal.dataset.triggerElement;
-        if (triggerElement) {
-          document.getElementById(triggerElement)?.focus();
-        }
-      }
-      
-      // Focus trap utility
-      function trapFocus(element) {
-        const focusableElements = element.querySelectorAll(
-          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-        );
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-
-        element.addEventListener('keydown', function(e) {
-          if (e.key === 'Tab') {
-            if (e.shiftKey) {
-              if (document.activeElement === firstElement) {
-                lastElement.focus();
-                e.preventDefault();
-              }
-            } else {
-              if (document.activeElement === lastElement) {
-                firstElement.focus();
-                e.preventDefault();
-              }
-            }
-          }
-        });
-      }
-      
-      // Close modal event listeners
-      closeModalBtns.forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const modal = e.target.closest('.modal');
-          closeModal(modal);
-        });
-      });
-      
-      // Close modal on ESC key
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          const openModal = document.querySelector('.modal.show');
-          if (openModal) closeModal(openModal);
-        }
-      });
-      
-      // Close modal on backdrop click
-      modals.forEach(modal => {
-        modal.addEventListener('click', (e) => {
-          if (e.target === modal) closeModal(modal);
-        });
-      });
-
-      // Initialize audio manager
-      AudioManager.init();
-
-      // Back button functionality
-      const backBtn = document.getElementById('back-btn');
-      if (backBtn) {
-        backBtn.addEventListener('click', () => {
-          AudioManager.play('click');
-          // Add smooth transition before navigation
-          document.body.style.opacity = '0.8';
-          setTimeout(() => {
-            window.location.href = 'dashboard.html';
-          }, 200);
-        });
-      }
-
-      // Initialize wheel prizes data
-      const wheelPrizes = [10, 25, 50, 75, 100, 5];
-      const wheelColors = ['#f43f5e', '#f97316', '#6a11cb', '#06b6d4', '#10b981', '#f59e0b'];
-
-      // Make global functions available
-      window.RuletaUI = {
-        openModal,
-        closeModal,
-        hideLoading,
-        AudioManager,
-        wheelPrizes,
-        wheelColors
-      };
-      
-      // Performance logging
-      const loadTime = performance.now() - startTime;
-      console.log(`Ruleta loaded in ${loadTime.toFixed(2)}ms`);
-      
-      // Hide loading after initialization
-      setTimeout(hideLoading, 800);
-    });
-    
-    // Error handling for uncaught errors
-    window.addEventListener('error', function(e) {
-      console.error('Ruleta error:', e.error);
-      // Could send to error tracking service
-    });
-    
-    // Prevent context menu on wheel (optional)
-    document.addEventListener('contextmenu', function(e) {
-      if (e.target.closest('.wheel')) {
-        e.preventDefault();
-      }
-    });
-    
-    // Handle page visibility changes
-    document.addEventListener('visibilitychange', function() {
-      if (document.hidden) {
-        // Pause any ongoing animations if page is hidden
-        const wheel = document.getElementById('wheel');
-        if (wheel && wheel.classList.contains('spinning')) {
-          wheel.style.animationPlayState = 'paused';
-        }
-      } else {
-        // Resume animations when page becomes visible
-        const wheel = document.getElementById('wheel');
-        if (wheel && wheel.classList.contains('spinning')) {
-          wheel.style.animationPlayState = 'running';
-        }
-      }
-    });
-  </script>
-
-  <style>
-    /* Critical inline styles */
-    .skip-to-content {
-      position: absolute;
-      top: -40px;
-      left: 6px;
-      background: var(--primary-color, #f43f5e);
-      color: white;
-      padding: 8px;
-      text-decoration: none;
-      border-radius: 4px;
-      z-index: 1000;
-      transition: top 0.3s;
-    }
-    
-    .skip-to-content:focus {
-      top: 6px;
-    }
-    
-    .loading-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(180deg, #0f172a, #020617);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      z-index: 9999;
-      transition: opacity 0.3s ease;
-    }
-    
-    .loading-overlay.fade-out {
-      opacity: 0;
-    }
-    
-    .loading-spinner {
-      width: 50px;
-      height: 50px;
-      border: 3px solid rgba(244, 63, 94, 0.3);
-      border-top: 3px solid #f43f5e;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-bottom: 20px;
-    }
-    
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 10000;
-      max-width: 400px;
-    }
-    
-    .history-placeholder {
-      text-align: center;
-      color: var(--gray-color, #cbd5e1);
-      padding: 40px;
-      font-style: italic;
-    }
-    
-    body.modal-open {
-      overflow: hidden;
-    }
-    
-    .modal-prize-icon {
-      font-size: 3rem;
-      color: var(--secondary-color, #f97316);
-      margin: 20px 0;
-      animation: bounce 0.6s ease-in-out;
-    }
-    
-    @keyframes bounce {
-      0%, 20%, 50%, 80%, 100% {
-        transform: translateY(0);
-      }
-      40% {
-        transform: translateY(-10px);
-      }
-      60% {
-        transform: translateY(-5px);
-      }
-    }
-    
-    .btn-secondary {
-      background: transparent;
-      border: 2px solid var(--gray-color, #cbd5e1);
-      color: var(--gray-color, #cbd5e1);
-    }
-    
-    .btn-secondary:hover:not(:disabled) {
-      background: var(--gray-color, #cbd5e1);
-      color: var(--dark-bg, #0f172a);
-    }
-    
-    /* Prevent text selection on wheel */
-    .wheel {
-      -webkit-user-select: none;
-      -moz-user-select: none;
-      -ms-user-select: none;
-      user-select: none;
-    }
-  </style>
-</head>
+    <!-- ✅ Script actualizado -->
+    <script defer src="js/ruleta.js"></script>
+</body>
 </html>

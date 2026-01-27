@@ -1,181 +1,184 @@
-document.addEventListener('DOMContentLoaded', function() {
-    // Referencias a elementos del DOM
-    const userNameElem    = document.getElementById('userName');
-    const userPointsElem  = document.getElementById('userPoints');
-    const welcomeTitle    = document.querySelector('.welcome-title');
-    const welcomeMessage  = document.getElementById('welcome-message');
-    const continueBtn     = document.getElementById('continue-btn');
-    const container       = document.querySelector('.welcome-container');
+// ==================== WELCOME PAGE ====================
+// Página de bienvenida con mensajes personalizados
+// =====================================================
 
-    // Lista de mensajes aleatorios
-    const mensajes = [
-        "😊 Nos alegra verte. Continúa tu aventura y gana más recompensas 🎁",
-        "🚀 Prepárate para jugar, ganar y llevarte grandes recompensas.",
-        "🎁 Hoy tenemos muchas recompensas para ti. ¿Qué esperas para entrar? 🤩",
-        "👾 Nos alegra verte de nuevo. ¡La suerte y las recompensas te esperan! 🍀",
-        "🔥 ¿Listo para otra ronda? Sigue explorando y consigue más recompensas 🏆"
-    ];
+document.addEventListener('DOMContentLoaded', function () {
+  const userNameElem = document.getElementById('userName');
+  const userPointsElem = document.getElementById('userPoints');
+  const welcomeTitle = document.querySelector('.welcome-title');
+  const welcomeMessage = document.getElementById('welcome-message');
+  const continueBtn = document.getElementById('continue-btn');
+  const container = document.querySelector('.welcome-container');
 
-    // Verificar que Firebase esté disponible
-    function isFirebaseReady() {
-        return typeof firebase !== 'undefined' && firebase.auth && firebase.firestore;
-    }
+  // Mensajes aleatorios de bienvenida
+  const mensajes = [
+    "😊 Nos alegra verte. Continúa tu aventura y gana más recompensas 🎁",
+    "🚀 Prepárate para jugar, ganar y llevarte grandes recompensas.",
+    "🎁 Hoy tenemos muchas recompensas para ti. ¿Qué esperas para entrar? 🤩",
+    "👾 Nos alegra verte de nuevo. ¡La suerte y las recompensas te esperan! 🍀",
+    "🔥 ¿Listo para otra ronda? Sigue explorando y consigue más recompensas 🏆"
+  ];
 
-    // Esperar a que Firebase esté listo
-    function waitForFirebase(callback) {
-        if (isFirebaseReady()) {
-            callback();
+  function isFirebaseReady() {
+    return typeof firebase !== 'undefined' && firebase.auth && firebase.firestore;
+  }
+
+  function waitForFirebase(cb) {
+    if (isFirebaseReady()) cb();
+    else setTimeout(() => waitForFirebase(cb), 100);
+  }
+
+  waitForFirebase(() => {
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (!user) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      // Verificar email si es login por password
+      if (!user.emailVerified && user.providerData[0]?.providerId === 'password') {
+        alert('Por favor, verifica tu email para acceder.');
+        await firebase.auth().signOut();
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const userRef = firebase.firestore().collection('users').doc(user.uid);
+
+      try {
+        const snap = await userRef.get();
+
+        // Determinar provider
+        const providerId = user.providerData?.[0]?.providerId || 'email';
+        const provider = providerId === 'password' ? 'email' : providerId;
+
+        // Si no existe el usuario, crearlo
+        if (!snap.exists) {
+          await userRef.set({
+            uid: user.uid,
+            username: user.displayName || 'Usuario',
+            email: user.email || '',
+            provider,
+            photoURL: user.photoURL || '',
+            points: 100,
+            level: 1,
+            experience: 0,
+            nextLevel: 200,
+            gamesPlayed: 0,
+            achievements: 0,
+            sorteosParticipados: 0,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+
+          // Mensaje para usuario nuevo
+          if (welcomeTitle) welcomeTitle.textContent = '¡Bienvenido!';
+          if (welcomeMessage) welcomeMessage.textContent =
+            '¡Bienvenido por primera vez! Estás a punto de comenzar una increíble aventura llena de recompensas y diversión.';
         } else {
-            setTimeout(() => waitForFirebase(callback), 100);
+          // Usuario existente - actualizar lastLogin
+          await userRef.update({
+            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
+          // Mensaje aleatorio
+          const mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];
+          if (welcomeMessage) welcomeMessage.textContent = mensajeAleatorio;
         }
-    }
 
-    // Inicializar
-    waitForFirebase(() => {
-        // Verifica sesión de usuario
-        firebase.auth().onAuthStateChanged(async function(user) {
-            if (!user) {
-                window.location.href = 'index.html';
-                return;
-            }
+        // Leer datos actuales
+        const finalSnap = await userRef.get();
+        const data = finalSnap.data() || {};
 
-            if (!user.emailVerified && user.providerData[0]?.providerId === 'password') {
-                alert('Por favor, verifica tu email para acceder.');
-                await firebase.auth().signOut();
-                window.location.href = 'index.html';
-                return;
-            }
+        // Mostrar datos
+        if (userNameElem) userNameElem.textContent = data.username || user.displayName || 'Usuario';
+        animatePoints(typeof data.points === 'number' ? data.points : 100);
 
-            // Buscar datos en Firestore
-            firebase.firestore().collection('users').doc(user.uid).get()
-                .then(doc => {
-                    let isNewUser = false;
-                    let userData;
+      } catch (err) {
+        console.error('Error en welcome:', err);
 
-                    if (doc.exists) {
-                        userData = doc.data();
-                    } else {
-                        // Usuario nuevo
-                        isNewUser = true;
-                        userData = {
-                            username: user.displayName || 'Usuario',
-                            email: user.email,
-                            points: 100,
-                            level: 1,
-                            experience: 0,
-                            nextLevel: 200,
-                            joinDate: firebase.firestore.FieldValue.serverTimestamp(),
-                            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-                        };
-                        firebase.firestore().collection('users').doc(user.uid).set(userData);
-                    }
+        // Fallback: mostrar datos básicos
+        if (userNameElem) userNameElem.textContent = user.displayName || 'Usuario';
+        const msg = mensajes[Math.floor(Math.random() * mensajes.length)];
+        if (welcomeMessage) welcomeMessage.textContent = msg;
+        animatePoints(100);
+      }
+    });
+  });
 
-                    // Mostrar nombre
-                    if (userNameElem) {
-                        userNameElem.textContent = userData.username || user.displayName || 'Usuario';
-                    }
+  // Animación de puntos
+  function animatePoints(finalPoints) {
+    if (!userPointsElem) return;
 
-                    // Mensaje si es nuevo
-                    if (isNewUser) {
-                        if (welcomeTitle) welcomeTitle.textContent = '¡Bienvenido!';
-                        if (welcomeMessage) welcomeMessage.textContent = '¡Bienvenido por primera vez! Estás a punto de comenzar una increíble aventura llena de recompensas y diversión.';
-                    } else {
-                        // Si no es nuevo → mensaje aleatorio
-                        const mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];
-                        if (welcomeMessage) welcomeMessage.textContent = mensajeAleatorio;
-                    }
+    const duration = 1200;
+    const steps = 48;
+    const increment = finalPoints / steps;
+    let current = 0;
+    let step = 0;
 
-                    // Animar puntos
-                    animatePoints(userData.points || 100);
-                })
-                .catch(error => {
-                    console.error('Error al recuperar datos:', error);
-                    if (userNameElem) userNameElem.textContent = user.displayName || 'Usuario';
-                    animatePoints(100);
+    const timer = setInterval(() => {
+      step++;
+      current += increment;
+      if (step >= steps) {
+        current = finalPoints;
+        clearInterval(timer);
+      }
+      userPointsElem.textContent = Math.floor(current).toLocaleString();
+    }, duration / steps);
+  }
 
-                    // En caso de error, también mostramos un mensaje aleatorio
-                    const mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];
-                    if (welcomeMessage) welcomeMessage.textContent = mensajeAleatorio;
-                });
-        });
+  // Botón continuar
+  if (continueBtn) {
+    continueBtn.addEventListener('click', () => {
+      continueBtn.classList.add('loading');
+      continueBtn.innerHTML = 'Cargando... <i class="fas fa-spinner fa-spin"></i>';
+      setTimeout(() => window.location.href = 'inicio.html', 800);
     });
 
-    // Animar puntos
-    function animatePoints(finalPoints) {
-        if (!userPointsElem) return;
+    continueBtn.addEventListener('mouseenter', createParticles);
+  }
 
-        const duration = 1200;
-        const steps = 48;
-        const increment = finalPoints / steps;
-        let currentPoints = 0, step = 0;
+  // Efectos hover en container
+  if (container) {
+    container.addEventListener('mouseenter', () => container.style.transform = 'scale(1.02)');
+    container.addEventListener('mouseleave', () => container.style.transform = 'scale(1)');
+  }
 
-        const timer = setInterval(() => {
-            step++;
-            currentPoints += increment;
-            if (step >= steps) {
-                currentPoints = finalPoints;
-                clearInterval(timer);
-            }
-            userPointsElem.textContent = Math.floor(currentPoints).toLocaleString();
-        }, duration / steps);
+  // Partículas decorativas
+  function createParticles() {
+    if (!container) return;
+
+    for (let i = 0; i < 6; i++) {
+      setTimeout(() => {
+        const particle = document.createElement('div');
+        particle.style.cssText = `
+          position: absolute;
+          width: 4px;
+          height: 4px;
+          background: var(--warning-color, #fbbf24);
+          border-radius: 50%;
+          pointer-events: none;
+          top: ${Math.random() * 100}%;
+          left: ${Math.random() * 100}%;
+          animation: particleFloat 1s ease-out forwards;
+          z-index: -1;
+        `;
+        container.appendChild(particle);
+        setTimeout(() => particle.remove(), 1000);
+      }, i * 70);
     }
+  }
 
-    // Botón continuar
-    if (continueBtn) {
-        continueBtn.addEventListener('click', () => {
-            continueBtn.classList.add('loading');
-            continueBtn.innerHTML = 'Cargando... <i class="fas fa-spinner fa-spin"></i>';
-
-            setTimeout(() => {
-                // Redirigir a inicio.html
-                window.location.href = 'inicio.html';
-            }, 800);
-        });
-
-        // Efecto hover de partículas
-        continueBtn.addEventListener('mouseenter', createParticles);
-    }
-
-    // Escalado container
-    if (container) {
-        container.addEventListener('mouseenter', () => container.style.transform = 'scale(1.02)');
-        container.addEventListener('mouseleave', () => container.style.transform = 'scale(1)');
-    }
-
-    // Partículas animadas
-    function createParticles() {
-        if (!container) return;
-
-        for (let i = 0; i < 6; i++) {
-            setTimeout(() => {
-                const particle = document.createElement('div');
-                particle.style.cssText = `
-                    position: absolute;
-                    width: 4px;
-                    height: 4px;
-                    background: var(--warning-color, #fbbf24);
-                    border-radius: 50%;
-                    pointer-events: none;
-                    top: ${Math.random() * 100}%;
-                    left: ${Math.random() * 100}%;
-                    animation: particleFloat 1s ease-out forwards;
-                    z-index: -1;
-                `;
-                container.appendChild(particle);
-                setTimeout(() => particle.remove(), 1000);
-            }, i * 70);
-        }
-    }
-
-    // Animación partículas (solo si no existe ya el estilo)
-    if (!document.getElementById('particle-float-style')) {
-        const style = document.createElement('style');
-        style.id = 'particle-float-style';
-        style.textContent = `
-        @keyframes particleFloat {
-            0% { opacity: 1; transform: translateY(0) scale(1);}
-            100% { opacity: 0; transform: translateY(-48px) scale(0);}
-        }`;
-        document.head.appendChild(style);
-    }
+  // Agregar animación CSS si no existe
+  if (!document.getElementById('particle-float-style')) {
+    const style = document.createElement('style');
+    style.id = 'particle-float-style';
+    style.textContent = `
+      @keyframes particleFloat {
+        0% { opacity: 1; transform: translateY(0) scale(1); }
+        100% { opacity: 0; transform: translateY(-48px) scale(0); }
+      }
+    `;
+    document.head.appendChild(style);
+  }
 });

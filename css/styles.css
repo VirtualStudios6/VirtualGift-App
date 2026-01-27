@@ -18,8 +18,8 @@
   --border: #293244;
 
   /* Estados */
-  --error: #f43f5e;   /* puedes ajustar si quieres morado para error */
-  --success: #28d27d; /* sugerido en guía */
+  --error: #f43f5e;
+  --success: #28d27d;
 
   /* Espaciado y formas */
   --spacing: 15px;
@@ -126,7 +126,7 @@ input {
   padding: 10px;
   border-radius: var(--border-radius);
   border: 1px solid var(--border) !important;
-  background: rgba(16, 7, 21, 0.95) !important; /* #100715 con opacidad */
+  background: rgba(16, 7, 21, 0.95) !important;
   color: var(--text-primary);
   margin-bottom: 10px;
   outline: none !important;
@@ -241,8 +241,9 @@ input::placeholder {
   box-shadow: var(--glow-hover);
 }
 
+/* ✅ Botones social (Google/Facebook) */
 .btn.social {
-  background: rgba(28, 31, 47, 0.9) !important; /* #1c1f2f con opacidad */
+  background: rgba(28, 31, 47, 0.9) !important;
   border: 1px solid var(--border);
   color: #e7f0ff;
   display: flex;
@@ -255,31 +256,13 @@ input::placeholder {
   background: rgba(28, 31, 47, 1) !important;
 }
 
+/* ✅ Tamaño de íconos SVG */
 .social-icon {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
+  display: inline-block;
 }
-
-/* Spinner loading para Discord */
-.btn-loading {
-  position: relative;
-  color: transparent !important;
-}
-.btn-loading::after {
-  content: '';
-  position: absolute;
-  width: 16px;
-  height: 16px;
-  top: 50%;
-  left: 50%;
-  margin: -8px 0 0 -8px;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-  border-right-color: transparent;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
 
 /* Links */
 .forgot {
@@ -336,15 +319,7 @@ input::placeholder {
   z-index: -1;
 }
 
-/* Errores y Password */
-.error-msg {
-  color: var(--error);
-  font-size: 0.75em;
-  margin-bottom: 6px;
-  display: block;
-  min-height: 1em;
-}
-
+/* Password strength */
 .password-strength {
   width: 100%;
   height: 5px;
@@ -353,7 +328,6 @@ input::placeholder {
   margin-bottom: 10px;
   overflow: hidden;
 }
-
 #password-strength-bar {
   height: 100%;
   width: 0;
@@ -362,7 +336,7 @@ input::placeholder {
   background: linear-gradient(90deg, var(--primary), var(--secondary));
 }
 
-/* Términos - Interruptor (Toggle Switch) */
+/* Términos - Interruptor */
 .terms {
   display: flex;
   align-items: center;
@@ -375,11 +349,8 @@ input::placeholder {
   padding: 8px;
   flex-wrap: wrap;
 }
-
-/* Ocultar el checkbox original */
 .terms input[type="checkbox"] { display: none; }
 
-/* Toggle */
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -388,7 +359,6 @@ input::placeholder {
   min-width: 52px;
   flex-shrink: 0;
 }
-
 .toggle-slider {
   position: absolute;
   cursor: pointer;
@@ -398,7 +368,6 @@ input::placeholder {
   border-radius: 26px;
   box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
 }
-
 .toggle-slider:before {
   position: absolute;
   content: "";
@@ -409,8 +378,6 @@ input::placeholder {
   border-radius: 50%;
   box-shadow: 0 2px 6px rgba(0,0,0,0.4);
 }
-
-/* Estado activo */
 input:checked + .toggle-slider {
   background: linear-gradient(90deg, var(--primary), var(--secondary));
   box-shadow: var(--glow-primary);
@@ -420,11 +387,9 @@ input:checked + .toggle-slider:before {
   background: #fff;
   box-shadow: 0 0 10px rgba(255,255,255,0.8);
 }
-
-/* Hover del toggle */
 .toggle-switch:hover .toggle-slider { filter: brightness(1.1); }
 
-/* Footer */
+/* Footer (Términos / Privacidad / Normas) */
 footer {
   text-align: center;
   margin-top: 2rem;
@@ -434,6 +399,7 @@ footer {
   color: var(--text-muted);
   width: 100%;
 }
+
 footer p {
   text-align: center;
   margin: 0 0 1rem 0;
@@ -441,6 +407,7 @@ footer p {
   color: rgba(220,239,255,0.6);
   margin-bottom: 8px;
 }
+
 .footer-links {
   display: flex;
   justify-content: center;
@@ -450,6 +417,7 @@ footer p {
   flex-wrap: wrap;
   width: 100%;
 }
+
 .footer-links a {
   color: rgba(220,239,255,0.8);
   text-decoration: none;
@@ -461,17 +429,19 @@ footer p {
   white-space: nowrap;
   text-align: center;
 }
+
 .footer-links a:hover,
 .footer-links a:focus {
   color: #fff;
   background-color: rgba(141,23,251,0.12);
   transform: translateY(-1px);
 }
+
 .footer-links a:active {
   transform: translateY(0);
   background-color: rgba(141,23,251,0.18);
 }
-/* Separador visual entre enlaces */
+
 .footer-links a:not(:last-child)::after {
   content: '•';
   position: absolute;
@@ -573,7 +543,7 @@ footer p {
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-/* Responsive */
+/* ✅ Responsive (ARREGLADO: llaves bien puestas) */
 @media (max-width: 768px) {
   html, body { background-attachment: scroll !important; }
 
@@ -583,7 +553,6 @@ footer p {
     padding-top: calc(20px + env(safe-area-inset-top));
     padding-bottom: calc(20px + env(safe-area-inset-bottom));
   }
-}
 
   .auth-card {
     padding: 25px 20px;
@@ -601,6 +570,7 @@ footer p {
     text-align: left;
     padding: 10px 0;
   }
+
   .footer-links { gap: 0.75rem; }
 }
 
@@ -646,6 +616,7 @@ footer p {
   .btn { padding: 14px; font-size: 0.95rem; }
   input { padding: 10px; }
   .divider { margin: 15px 0; }
+
   footer {
     margin-top: 1.5rem;
     padding-top: 1rem;

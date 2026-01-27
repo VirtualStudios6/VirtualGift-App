@@ -2,22 +2,26 @@
 const CONFIG = {
   NOTIFICATION_DURATION: 3500,
   PASSWORD_MIN_LENGTH: 8,
+
+  // Perfil inicial
   INITIAL_USER_POINTS: 100,
   INITIAL_USER_LEVEL: 1,
   INITIAL_USER_EXPERIENCE: 0,
-  NEXT_LEVEL_THRESHOLD: 200
+  NEXT_LEVEL_THRESHOLD: 200,
+
+  // Redirecciones
+  LOGIN_REDIRECT_URL: 'welcome.html',
+  LOGOUT_REDIRECT_URL: 'index.html'
 };
 
-// ==================== VERIFICAR FIREBASE ====================
+// ==================== UTILIDADES ====================
 function isFirebaseReady() {
   return typeof firebase !== 'undefined' &&
-         firebase.auth &&
-         firebase.firestore &&
-         firebase.auth() !== null;
+         typeof firebase.auth === 'function' &&
+         typeof firebase.firestore === 'function';
 }
 
-// ==================== ESPERAR FIREBASE ====================
-function waitForFirebase(callback, maxAttempts = 50) {
+function waitForFirebase(callback, maxAttempts = 60) {
   let attempts = 0;
   const check = setInterval(() => {
     attempts++;
@@ -32,26 +36,50 @@ function waitForFirebase(callback, maxAttempts = 50) {
   }, 100);
 }
 
+// Normaliza provider
+function providerFromUser(user) {
+  const providerId = user?.providerData?.[0]?.providerId || 'password';
+  if (providerId === 'google.com') return 'google';
+  if (providerId === 'facebook.com') return 'facebook';
+  return 'email';
+}
+
 // ==================== ESTADO GLOBAL ====================
 const State = {
   isLoading: false,
+
   setLoading(loading) {
     this.isLoading = loading;
-    const buttons = ['login-btn', 'register-btn', 'send-recovery-email', 'google-login', 'facebook-login'];
-    buttons.forEach(btnId => {
+
+    const buttons = [
+      'login-btn',
+      'register-btn',
+      'send-recovery-email',
+      'google-login',
+      'facebook-login'
+    ];
+
+    buttons.forEach((btnId) => {
       const btn = document.getElementById(btnId);
-      if (btn) {
-        btn.disabled = loading;
-        if (loading) {
-          const originalText = btn.textContent;
-          btn.setAttribute('data-original-text', originalText);
-          btn.textContent = 'Conectando...';
+      if (!btn) return;
+
+      btn.disabled = loading;
+
+      // Guardar contenido original
+      if (!btn.getAttribute('data-original-html')) {
+        btn.setAttribute('data-original-html', btn.innerHTML);
+      }
+
+      if (loading) {
+        if (btnId === 'google-login') {
+          btn.innerHTML = `${btn.getAttribute('data-original-html')} <span style="opacity:.85;margin-left:8px;">Conectando...</span>`;
+        } else if (btnId === 'facebook-login') {
+          btn.innerHTML = `${btn.getAttribute('data-original-html')} <span style="opacity:.85;margin-left:8px;">Conectando...</span>`;
         } else {
-          const originalText = btn.getAttribute('data-original-text');
-          if (originalText) {
-            btn.textContent = originalText;
-          }
+          btn.textContent = 'Conectando...';
         }
+      } else {
+        btn.innerHTML = btn.getAttribute('data-original-html');
       }
     });
   }
@@ -77,6 +105,7 @@ const FormManager = {
   init() {
     this.showForm('login-form');
 
+    // Cambiar formularios
     document.getElementById('show-register')?.addEventListener('click', (e) => {
       e.preventDefault();
       this.showForm('register-form');
@@ -87,6 +116,7 @@ const FormManager = {
       this.showForm('login-form');
     });
 
+    // Recuperación
     document.getElementById('forgot-password')?.addEventListener('click', (e) => {
       e.preventDefault();
       this.showRecoveryForm();
@@ -105,14 +135,23 @@ const FormManager = {
       this.sendRecoveryEmail();
     });
 
+    // IMPORTANTE: Prevenir submit del formulario
+    document.getElementById('login-form')?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.handleLogin();
+    });
+
+    // Botón de login
     document.getElementById('login-btn')?.addEventListener('click', () => {
       this.handleLogin();
     });
 
+    // Botón de registro
     document.getElementById('register-btn')?.addEventListener('click', () => {
       this.handleRegistration();
     });
 
+    // Fuerza de contraseña
     document.getElementById('password')?.addEventListener('input', (e) => {
       this.checkPasswordStrength(e.target.value);
     });
@@ -135,6 +174,7 @@ const FormManager = {
   hideRecoveryForm() {
     document.getElementById('recovery-container')?.classList.remove('show');
     document.getElementById('recovery-overlay')?.classList.remove('show');
+
     const recoveryEmail = document.getElementById('recovery-email');
     if (recoveryEmail) recoveryEmail.value = '';
   },
@@ -147,8 +187,10 @@ const FormManager = {
       return;
     }
 
-    if (!this.isValidEmail(email)) {
-      NotificationManager.show('Por favor, ingresa un correo válido', 'error');
+    // ✅ USAR VALIDADOR
+    const emailValidation = Validators.email(email);
+    if (!emailValidation.valid) {
+      NotificationManager.show(emailValidation.message, 'error');
       return;
     }
 
@@ -164,14 +206,16 @@ const FormManager = {
       NotificationManager.show('Se ha enviado un enlace de recuperación a tu correo', 'success');
       this.hideRecoveryForm();
     } catch (error) {
-      console.error('Error al enviar correo de recuperación:', error);
-      NotificationManager.show('Error al enviar el correo: ' + error.message, 'error');
+      // ✅ USAR ERROR HANDLER
+      ErrorHandler.handle(error, 'RecoveryEmail');
+    } finally {
+      State.setLoading(false);
     }
-
-    State.setLoading(false);
   },
 
   async handleLogin() {
+    if (State.isLoading) return;
+
     const email = document.getElementById('login-email')?.value.trim();
     const password = document.getElementById('login-password')?.value;
 
@@ -180,8 +224,10 @@ const FormManager = {
       return;
     }
 
-    if (!this.isValidEmail(email)) {
-      NotificationManager.show('Por favor, ingresa un correo válido', 'error');
+    // ✅ USAR VALIDADOR
+    const emailValidation = Validators.email(email);
+    if (!emailValidation.valid) {
+      NotificationManager.show(emailValidation.message, 'error');
       return;
     }
 
@@ -196,66 +242,65 @@ const FormManager = {
       const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
       const user = userCredential.user;
 
-      if (!user.emailVerified && user.providerData[0]?.providerId === 'password') {
+      // Si es login por email/password, exigir email verificado
+      const provider = providerFromUser(user);
+      if (!user.emailVerified && provider === 'email') {
         NotificationManager.show('Verifica tu email antes de continuar', 'error');
         await firebase.auth().signOut();
-        State.setLoading(false);
         return;
       }
 
-      await firebase.firestore().collection('users').doc(user.uid).update({
-        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-      });
+      // Crear/actualizar perfil en Firestore
+      await this.upsertUserProfile(user);
 
       NotificationManager.show('¡Inicio de sesión exitoso!', 'success');
-      localStorage.setItem('vg_logged', '1');
 
       setTimeout(() => {
-        window.location.href = 'welcome.html';
-      }, 1200);
+        window.location.href = CONFIG.LOGIN_REDIRECT_URL;
+      }, 800);
 
     } catch (error) {
-      console.error('Error al iniciar sesión:', error);
-
-      let errorMessage = 'Error al iniciar sesión';
-      if (error.code === 'auth/user-not-found') {
-        errorMessage = 'No existe una cuenta con este correo';
-      } else if (error.code === 'auth/wrong-password') {
-        errorMessage = 'Contraseña incorrecta';
-      } else if (error.code === 'auth/invalid-email') {
-        errorMessage = 'Correo electrónico inválido';
-      }
-
-      NotificationManager.show(errorMessage, 'error');
+      // ✅ USAR ERROR HANDLER
+      ErrorHandler.handle(error, 'Login');
+    } finally {
+      State.setLoading(false);
     }
-
-    State.setLoading(false);
   },
 
   async handleRegistration() {
+    if (State.isLoading) return;
+
     const username = document.getElementById('username')?.value.trim();
     const email = document.getElementById('email')?.value.trim();
     const password = document.getElementById('password')?.value;
     const confirmPassword = document.getElementById('confirm-password')?.value;
     const termsAccepted = document.getElementById('terms')?.checked;
 
-    if (!username || !email || !password || !confirmPassword) {
-      NotificationManager.show('Por favor, completa todos los campos', 'error');
+    // ✅ VALIDAR USERNAME
+    const usernameValidation = Validators.username(username);
+    if (!usernameValidation.valid) {
+      NotificationManager.show(usernameValidation.message, 'error');
       return;
     }
 
-    if (!this.isValidEmail(email)) {
-      NotificationManager.show('Por favor, ingresa un correo válido', 'error');
+    // ✅ VALIDAR EMAIL
+    const emailValidation = Validators.email(email);
+    if (!emailValidation.valid) {
+      NotificationManager.show(emailValidation.message, 'error');
       return;
     }
 
-    if (password.length < CONFIG.PASSWORD_MIN_LENGTH) {
-      NotificationManager.show(`La contraseña debe tener al menos ${CONFIG.PASSWORD_MIN_LENGTH} caracteres`, 'error');
+    // ✅ VALIDAR PASSWORD
+    const passwordValidation = Validators.password(password);
+    if (!passwordValidation.valid) {
+      NotificationManager.show(passwordValidation.message, 'error');
       return;
     }
 
-    if (password !== confirmPassword) {
-      NotificationManager.show('Las contraseñas no coinciden', 'error');
+    // ✅ VALIDAR COINCIDENCIA
+    const matchValidation = Validators.passwordsMatch(password, confirmPassword);
+    if (!matchValidation.valid) {
+      NotificationManager.show(matchValidation.message, 'error');
       return;
     }
 
@@ -272,30 +317,39 @@ const FormManager = {
     State.setLoading(true);
 
     try {
+      // Crear usuario en Firebase Auth
       const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
       const user = userCredential.user;
 
-      await user.updateProfile({
-        displayName: username
-      });
+      // Enviar email de verificación
+      try {
+        await user.sendEmailVerification();
+        console.log('Email de verificación enviado');
+      } catch (emailError) {
+        console.error('Error al enviar email de verificación:', emailError);
+      }
 
+      // Crear perfil en Firestore
       await firebase.firestore().collection('users').doc(user.uid).set({
+        uid: user.uid,
         username: username,
         email: email,
+        provider: 'email',
+        photoURL: '',
         points: CONFIG.INITIAL_USER_POINTS,
         level: CONFIG.INITIAL_USER_LEVEL,
         experience: CONFIG.INITIAL_USER_EXPERIENCE,
         nextLevel: CONFIG.NEXT_LEVEL_THRESHOLD,
-        joinDate: firebase.firestore.FieldValue.serverTimestamp(),
-        lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-        emailVerified: false,
-        loginMethod: 'email'
+        gamesPlayed: 0,
+        achievements: 0,
+        sorteosParticipados: 0,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
       });
 
-      await user.sendEmailVerification();
+      NotificationManager.show('¡Cuenta creada! Verifica tu email antes de continuar', 'success');
 
-      NotificationManager.show('¡Cuenta creada exitosamente! Se ha enviado un correo de verificación', 'success');
-
+      // Cerrar sesión hasta que verifique email
       await firebase.auth().signOut();
 
       setTimeout(() => {
@@ -303,19 +357,46 @@ const FormManager = {
       }, 2000);
 
     } catch (error) {
-      console.error('Error al registrar usuario:', error);
-
-      let errorMessage = 'Error al crear la cuenta';
-      if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'Ya existe una cuenta con este correo';
-      } else if (error.code === 'auth/weak-password') {
-        errorMessage = 'La contraseña es demasiado débil';
-      }
-
-      NotificationManager.show(errorMessage, 'error');
+      // ✅ USAR ERROR HANDLER
+      ErrorHandler.handle(error, 'Registration');
+    } finally {
+      State.setLoading(false);
     }
+  },
 
-    State.setLoading(false);
+  async upsertUserProfile(user) {
+    const userRef = firebase.firestore().collection('users').doc(user.uid);
+    const doc = await userRef.get();
+
+    const baseUpdate = {
+      uid: user.uid,
+      email: user.email || '',
+      provider: providerFromUser(user),
+      photoURL: user.photoURL || '',
+      lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (!doc.exists) {
+      // Usuario nuevo (Google/Facebook primera vez)
+      await userRef.set({
+        ...baseUpdate,
+        username: user.displayName || 'Usuario',
+        points: CONFIG.INITIAL_USER_POINTS,
+        level: CONFIG.INITIAL_USER_LEVEL,
+        experience: CONFIG.INITIAL_USER_EXPERIENCE,
+        nextLevel: CONFIG.NEXT_LEVEL_THRESHOLD,
+        gamesPlayed: 0,
+        achievements: 0,
+        sorteosParticipados: 0,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+    } else {
+      // Usuario existente - solo actualizar datos básicos
+      await userRef.set({
+        ...baseUpdate,
+        username: doc.data()?.username || user.displayName || 'Usuario'
+      }, { merge: true });
+    }
   },
 
   checkPasswordStrength(password) {
@@ -323,7 +404,6 @@ const FormManager = {
     if (!strengthBar) return;
 
     let strength = 0;
-
     if (password.length >= CONFIG.PASSWORD_MIN_LENGTH) strength += 25;
     if (/[a-z]/.test(password)) strength += 25;
     if (/[A-Z]/.test(password)) strength += 25;
@@ -331,28 +411,19 @@ const FormManager = {
 
     strengthBar.style.width = strength + '%';
 
-    if (strength < 50) {
-      strengthBar.style.backgroundColor = '#ef4444';
-    } else if (strength < 75) {
-      strengthBar.style.backgroundColor = '#f59e0b';
-    } else {
-      strengthBar.style.backgroundColor = '#10b981';
-    }
-  },
-
-  isValidEmail(email) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
+    if (strength < 50) strengthBar.style.backgroundColor = '#ef4444';
+    else if (strength < 75) strengthBar.style.backgroundColor = '#f59e0b';
+    else strengthBar.style.backgroundColor = '#10b981';
   }
 };
 
-// ==================== GOOGLE SIGN-IN (REDIRECT) ====================
+// ==================== GOOGLE SIGN-IN ====================
 const GoogleAuth = {
   async initiateLogin() {
     if (State.isLoading) return;
 
     if (!isFirebaseReady()) {
-      NotificationManager.show('Firebase no está listo. Intenta de nuevo en unos segundos', 'error');
+      NotificationManager.show('Firebase no está listo. Intenta de nuevo', 'error');
       return;
     }
 
@@ -366,84 +437,42 @@ const GoogleAuth = {
     try {
       await firebase.auth().signInWithRedirect(provider);
     } catch (error) {
-      console.error('Error Google Sign-In:', error);
-
-      let errorMsg = 'Error al conectar con Google';
-      if (error.code === 'auth/unauthorized-domain') {
-        errorMsg = 'Dominio no autorizado en Firebase. Contacta al administrador';
-      } else if (error.code === 'auth/operation-not-allowed') {
-        errorMsg = 'Google Sign-In no está habilitado';
-      }
-
-      NotificationManager.show(errorMsg, 'error');
+      ErrorHandler.handle(error, 'GoogleLogin');
       State.setLoading(false);
     }
   },
 
   async handleRedirectResult() {
-    if (!isFirebaseReady()) {
-      console.log('Esperando Firebase para manejar redirect...');
-      return;
-    }
+    if (!isFirebaseReady()) return;
 
     try {
       const result = await firebase.auth().getRedirectResult();
 
       if (result.user) {
-        const user = result.user;
-
-        const userRef = firebase.firestore().collection('users').doc(user.uid);
-        const doc = await userRef.get();
-
-        if (!doc.exists) {
-          await userRef.set({
-            username: user.displayName || 'Usuario',
-            email: user.email,
-            points: CONFIG.INITIAL_USER_POINTS,
-            level: CONFIG.INITIAL_USER_LEVEL,
-            experience: CONFIG.INITIAL_USER_EXPERIENCE,
-            nextLevel: CONFIG.NEXT_LEVEL_THRESHOLD,
-            joinDate: firebase.firestore.FieldValue.serverTimestamp(),
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-            emailVerified: user.emailVerified,
-            loginMethod: 'google',
-            photoURL: user.photoURL
-          });
-        } else {
-          await userRef.update({
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        }
-
-        NotificationManager.show(`¡Bienvenido, ${user.displayName || 'Gamer'}!`, 'success');
-        localStorage.setItem('vg_logged', '1');
+        await FormManager.upsertUserProfile(result.user);
+        NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}!`, 'success');
 
         setTimeout(() => {
-          window.location.href = 'welcome.html';
-        }, 1200);
+          window.location.href = CONFIG.LOGIN_REDIRECT_URL;
+        }, 800);
       }
     } catch (error) {
       if (error.code && error.code !== 'auth/popup-closed-by-user') {
-        console.error('Error en redirect de Google:', error);
-
-        let errorMsg = 'Error al autenticar con Google';
-        if (error.code === 'auth/account-exists-with-different-credential') {
-          errorMsg = 'Esta cuenta ya existe con otro proveedor';
-        }
-
-        NotificationManager.show(errorMsg, 'error');
+        ErrorHandler.handle(error, 'GoogleRedirect');
       }
+    } finally {
+      State.setLoading(false);
     }
   }
 };
 
-// ==================== FACEBOOK SIGN-IN (REDIRECT) ====================
+// ==================== FACEBOOK SIGN-IN ====================
 const FacebookAuth = {
   async initiateLogin() {
     if (State.isLoading) return;
 
     if (!isFirebaseReady()) {
-      NotificationManager.show('Firebase no está listo. Intenta de nuevo en unos segundos', 'error');
+      NotificationManager.show('Firebase no está listo. Intenta de nuevo', 'error');
       return;
     }
 
@@ -455,73 +484,31 @@ const FacebookAuth = {
     try {
       await firebase.auth().signInWithRedirect(provider);
     } catch (error) {
-      console.error('Error Facebook Sign-In:', error);
-
-      let errorMsg = 'Error al conectar con Facebook';
-      if (error.code === 'auth/unauthorized-domain') {
-        errorMsg = 'Dominio no autorizado en Firebase. Contacta al administrador';
-      } else if (error.code === 'auth/operation-not-allowed') {
-        errorMsg = 'Facebook Sign-In no está habilitado';
-      }
-
-      NotificationManager.show(errorMsg, 'error');
+      ErrorHandler.handle(error, 'FacebookLogin');
       State.setLoading(false);
     }
   },
 
   async handleRedirectResult() {
-    if (!isFirebaseReady()) {
-      console.log('Esperando Firebase para manejar redirect...');
-      return;
-    }
+    if (!isFirebaseReady()) return;
 
     try {
       const result = await firebase.auth().getRedirectResult();
 
-      if (result.user && result.credential && result.credential.providerId === 'facebook.com') {
-        const user = result.user;
-
-        const userRef = firebase.firestore().collection('users').doc(user.uid);
-        const doc = await userRef.get();
-
-        if (!doc.exists) {
-          await userRef.set({
-            username: user.displayName || 'Usuario',
-            email: user.email || '',
-            points: CONFIG.INITIAL_USER_POINTS,
-            level: CONFIG.INITIAL_USER_LEVEL,
-            experience: CONFIG.INITIAL_USER_EXPERIENCE,
-            nextLevel: CONFIG.NEXT_LEVEL_THRESHOLD,
-            joinDate: firebase.firestore.FieldValue.serverTimestamp(),
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp(),
-            emailVerified: user.emailVerified,
-            loginMethod: 'facebook',
-            photoURL: user.photoURL
-          });
-        } else {
-          await userRef.update({
-            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        }
-
-        NotificationManager.show(`¡Bienvenido, ${user.displayName || 'Gamer'}!`, 'success');
-        localStorage.setItem('vg_logged', '1');
+      if (result.user) {
+        await FormManager.upsertUserProfile(result.user);
+        NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}!`, 'success');
 
         setTimeout(() => {
-          window.location.href = 'welcome.html';
-        }, 1200);
+          window.location.href = CONFIG.LOGIN_REDIRECT_URL;
+        }, 800);
       }
     } catch (error) {
       if (error.code && error.code !== 'auth/popup-closed-by-user') {
-        console.error('Error en redirect de Facebook:', error);
-
-        let errorMsg = 'Error al autenticar con Facebook';
-        if (error.code === 'auth/account-exists-with-different-credential') {
-          errorMsg = 'Esta cuenta ya existe con otro proveedor';
-        }
-
-        NotificationManager.show(errorMsg, 'error');
+        ErrorHandler.handle(error, 'FacebookRedirect');
       }
+    } finally {
+      State.setLoading(false);
     }
   }
 };
@@ -529,23 +516,18 @@ const FacebookAuth = {
 // ==================== MANEJO DE SESIÓN ====================
 const SessionManager = {
   init() {
-    if (localStorage.getItem('vg_logged') === '1') {
-      firebase.auth().onAuthStateChanged((user) => {
-        if (user && (window.location.pathname.includes('index.html') || window.location.pathname === '/' || window.location.pathname.includes('VirtualGift-App/index'))) {
-          window.location.href = 'welcome.html';
-        }
-      });
-    }
-
     firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        localStorage.setItem('vg_logged', '1');
-      } else {
-        localStorage.removeItem('vg_logged');
+      const isInLogin =
+        window.location.pathname.endsWith('/') ||
+        window.location.pathname.includes('index.html') ||
+        window.location.pathname.includes('VirtualGift-App/index');
+
+      if (user && isInLogin) {
+        window.location.href = CONFIG.LOGIN_REDIRECT_URL;
       }
     });
 
-    // Manejar redirects después de que Firebase esté listo
+    // Manejar redirects
     GoogleAuth.handleRedirectResult();
     FacebookAuth.handleRedirectResult();
   }
@@ -556,48 +538,36 @@ function initializeApp() {
   document.documentElement.style.backgroundColor = '#020515';
   document.body.style.backgroundColor = '#020515';
 
-  // Esperar a que Firebase esté completamente cargado
   waitForFirebase(() => {
-    console.log('✅ Firebase cargado correctamente');
+    console.log('✅ Firebase listo');
 
     SessionManager.init();
     FormManager.init();
 
-    const googleBtn = document.getElementById('google-login');
-    if (googleBtn) {
-      googleBtn.addEventListener('click', () => GoogleAuth.initiateLogin());
-    }
+    document.getElementById('google-login')?.addEventListener('click', () => GoogleAuth.initiateLogin());
+    document.getElementById('facebook-login')?.addEventListener('click', () => FacebookAuth.initiateLogin());
 
-    const facebookBtn = document.getElementById('facebook-login');
-    if (facebookBtn) {
-      facebookBtn.addEventListener('click', () => FacebookAuth.initiateLogin());
-    }
-
-    console.log('✅ Sistema de autenticación inicializado');
+    console.log('✅ Auth inicializado');
   });
 }
 
-// Inicializar cuando el DOM esté listo
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initializeApp);
 } else {
   initializeApp();
 }
 
-// ==================== FUNCIÓN DE LOGOUT ====================
+// ==================== FUNCIÓN GLOBAL DE LOGOUT ====================
 function vgSignOut() {
   if (!isFirebaseReady()) {
-    window.location.href = 'index.html';
+    window.location.href = CONFIG.LOGOUT_REDIRECT_URL;
     return;
   }
 
   firebase.auth().signOut()
-    .then(() => {
-      localStorage.removeItem('vg_logged');
-      window.location.href = 'index.html';
-    })
+    .then(() => window.location.href = CONFIG.LOGOUT_REDIRECT_URL)
     .catch((error) => {
       console.error('Error al cerrar sesión:', error);
-      window.location.href = 'index.html';
+      window.location.href = CONFIG.LOGOUT_REDIRECT_URL;
     });
 }
