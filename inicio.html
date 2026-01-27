@@ -54,62 +54,15 @@
     </header>
 
     <!-- Gaming News Section -->
-    <section class="section">
-        <div class="section-header">
-            <h2 class="section-title">Gaming News 📡</h2>
-            <a href="#" class="section-link">Noticias</a>
-        </div>
-        <div class="news-grid">
-            <a href="news/1.html" class="news-card">
-                <div class="news-image">
-                    <img src="images/news/1.png" alt="Noticia 1">
-                </div>
-                <p class="news-label">Pokémon GO</p>
-            </a>
-            <a href="news/2.html" class="news-card">
-                <div class="news-image">
-                    <img src="images/news/2.png" alt="Noticia 2">
-                </div>
-                <p class="news-label">Netflix Games</p>
-            </a>
-            <a href="news/3.html" class="news-card">
-                <div class="news-image">
-                    <img src="images/news/3.png" alt="Noticia 3">
-                </div>
-                <p class="news-label">GTA Online</p>
-            </a>
-            <a href="news/4.html" class="news-card">
-                <div class="news-image">
-                    <img src="images/news/4.png" alt="Noticia 4">
-                </div>
-                <p class="news-label">Siguiente Noti</p>
-            </a>
-            <a href="news/5.html" class="news-card">
-                <div class="news-image">
-                    <img src="images/news/5.png" alt="Noticia 5">
-                </div>
-                <p class="news-label">Siguiente Noti</p>
-            </a>
-            <a href="news/6.html" class="news-card">
-                <div class="news-image">
-                    <img src="images/news/6.png" alt="Noticia 6">
-                </div>
-                <p class="news-label">Siguiente Noti</p>
-            </a>
-            <a href="news/7.html" class="news-card">
-                <div class="news-image">
-                    <img src="images/news/7.png" alt="Noticia 7">
-                </div>
-                <p class="news-label">Siguiente Noti</p>
-            </a>
-            <a href="news/8.html" class="news-card">
-                <div class="news-image">
-                    <img src="images/news/8.png" alt="Noticia 8">
-                </div>
-                <p class="news-label">Siguiente Noti</p>
-            </a>
-        </div>
-    </section>
+<section class="section">
+    <div class="section-header">
+        <h2 class="section-title">Gaming News 📡</h2>
+        <a href="#" class="section-link">Noticias</a>
+    </div>
+
+    <!-- 🔥 Las noticias ahora se cargan desde Firestore -->
+    <div class="news-grid"></div>
+</section>
 
     <!-- Top Sorteos Section -->
     <section class="section">
@@ -321,5 +274,8 @@
 
         window.addEventListener('load', checkAuth);
     </script>
+
+    <!-- 🔥 Noticias dinámicas desde Firestore -->
+    <script src="js/news-feed.js"></script>
 </body>
 </html>

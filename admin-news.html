@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Noticias - VirtualGift</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="js/firebase-config.js"></script>
+
+  <style>
+    body {
+      background: #020515;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .news-form {
+      background: #1c1f2f;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 500px;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: none;
+    }
+
+    button {
+      margin-top: 16px;
+      padding: 12px;
+      width: 100%;
+      border-radius: 10px;
+      border: none;
+      background: #8d17fb;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .news-list {
+      margin-top: 40px;
+      max-width: 600px;
+    }
+
+    .news-item {
+      background: #1c1f2f;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🛠 Panel de Noticias</h1>
+
+<div class="news-form">
+  <h3>Crear noticia</h3>
+
+  <label>Título</label>
+  <input id="title">
+
+  <label>Descripción</label>
+  <textarea id="description"></textarea>
+
+  <label>Imagen (URL)</label>
+  <input id="imageUrl">
+
+  <button onclick="createNews()">Publicar noticia</button>
+</div>
+
+<div class="news-list" id="newsList"></div>
+
+<script>
+let currentUser = null;
+
+// 🔐 Verificar admin
+firebase.auth().onAuthStateChanged(async (user) => {
+  if (!user) {
+    location.href = 'index.html';
+    return;
+  }
+
+  const doc = await firebase.firestore().collection('users').doc(user.uid).get();
+
+  if (!doc.exists || !doc.data().isAdmin) {
+    alert('Acceso solo para administradores');
+    location.href = 'inicio.html';
+    return;
+  }
+
+  currentUser = user;
+  loadNews();
+});
+
+// ➕ Crear noticia
+async function createNews() {
+  const title = document.getElementById('title').value.trim();
+  const description = document.getElementById('description').value.trim();
+  const imageUrl = document.getElementById('imageUrl').value.trim();
+
+  if (!title || !description) {
+    alert('Completa título y descripción');
+    return;
+  }
+
+  await firebase.firestore().collection('news').add({
+    title,
+    description,
+    imageUrl,
+    published: true,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+
+  document.getElementById('title').value = '';
+  document.getElementById('description').value = '';
+  document.getElementById('imageUrl').value = '';
+
+  loadNews();
+}
+
+// 📥 Cargar noticias
+async function loadNews() {
+  const container = document.getElementById('newsList');
+  container.innerHTML = '';
+
+  const snapshot = await firebase.firestore()
+    .collection('news')
+    .orderBy('createdAt', 'desc')
+    .get();
+
+  snapshot.forEach(doc => {
+    const n = doc.data();
+    const div = document.createElement('div');
+    div.className = 'news-item';
+    div.innerHTML = `
+      <strong>${n.title}</strong>
+      <p>${n.description}</p>
+    `;
+    container.appendChild(div);
+  });
+}
+</script>
+
+</body>
+</html>
