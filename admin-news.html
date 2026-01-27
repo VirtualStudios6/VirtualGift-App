@@ -1,166 +1,583 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Admin Noticias - VirtualGift</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <title>🛠 Panel de Noticias - VirtualGift</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#06011c" />
 
-  <!-- Firebase -->
+  <!-- Firebase (v8) -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script src="js/firebase-config.js"></script>
 
   <style>
-    body {
-      background: #020515;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      padding: 20px;
+    :root{
+      --bg1:#020515;
+      --bg2:#06011c;
+      --card:#1c1f2f;
+      --text:#dcefff;
+      --muted:#b6c6d9;
+      --border:#293244;
+      --primary:#8d17fb;
+      --danger:#ef4444;
+      --success:#10b981;
+      --warning:#f59e0b;
+      --shadow: 0 10px 35px rgba(0,0,0,.45);
     }
-
-    h1 {
-      margin-bottom: 20px;
+    *{box-sizing:border-box;margin:0;padding:0;font-family:Inter,Roboto,Arial,sans-serif;}
+    body{
+      min-height:100vh;
+      background:linear-gradient(180deg,var(--bg1),var(--bg2));
+      color:var(--text);
+      padding:18px;
     }
-
-    .news-form {
-      background: #1c1f2f;
-      padding: 20px;
-      border-radius: 12px;
-      max-width: 500px;
+    .wrap{max-width:1100px;margin:0 auto;}
+    header{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      margin-bottom:16px;
     }
-
-    label {
-      display: block;
-      margin-top: 12px;
-      font-size: 14px;
+    .title{
+      font-size:22px;font-weight:900;letter-spacing:.02em;
     }
-
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border-radius: 8px;
-      border: none;
+    .subtitle{color:var(--muted);font-size:13px;margin-top:4px;}
+    .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+    .btn{
+      border:none;cursor:pointer;border-radius:12px;
+      padding:10px 14px;font-weight:800;
+      background:rgba(255,255,255,.06);color:var(--text);
+      border:1px solid rgba(255,255,255,.08);
+      transition:.2s;
     }
-
-    button {
-      margin-top: 16px;
-      padding: 12px;
-      width: 100%;
-      border-radius: 10px;
-      border: none;
-      background: #8d17fb;
-      color: white;
-      font-weight: bold;
-      cursor: pointer;
+    .btn:hover{transform:translateY(-1px);box-shadow:var(--shadow);border-color:rgba(141,23,251,.45);}
+    .btn-primary{background:linear-gradient(90deg,var(--primary),#70189b);border:none;}
+    .btn-danger{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#ffd5d5;}
+    .btn-success{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);color:#d9fff0;}
+    .btn-warning{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);color:#ffe9c2;}
+    .grid{
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:14px;
+      align-items:start;
     }
+    @media(max-width:980px){ .grid{grid-template-columns:1fr;} }
 
-    .news-list {
-      margin-top: 40px;
-      max-width: 600px;
+    .card{
+      background:rgba(28,31,47,.9);
+      border:1px solid rgba(41,50,68,.7);
+      border-radius:18px;
+      padding:14px;
+      box-shadow: 0 8px 28px rgba(0,0,0,.35);
     }
+    .card h2{
+      font-size:16px;font-weight:900;margin-bottom:10px;
+      display:flex;align-items:center;gap:10px;
+    }
+    .badge{
+      font-size:12px;padding:4px 10px;border-radius:999px;
+      background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
+      color:var(--muted);
+    }
+    label{display:block;margin-top:10px;font-size:12px;color:var(--muted);}
+    input, textarea, select{
+      width:100%;margin-top:6px;padding:10px 12px;
+      border-radius:12px;border:1px solid rgba(255,255,255,.08);
+      background:rgba(2,5,21,.35);color:var(--text);
+      outline:none;
+    }
+    textarea{min-height:110px;resize:vertical;line-height:1.5;}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    @media(max-width:520px){ .row{grid-template-columns:1fr;} }
 
-    .news-item {
-      background: #1c1f2f;
-      padding: 15px;
-      border-radius: 10px;
-      margin-bottom: 10px;
+    .preview{
+      margin-top:10px;border-radius:14px;overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(2,5,21,.35);
+      height:180px;display:flex;align-items:center;justify-content:center;
+      color:rgba(220,239,255,.7);
+    }
+    .preview img{width:100%;height:100%;object-fit:cover;display:block;}
+    .muted{color:var(--muted);font-size:12px;}
+
+    .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
+    .filters .chip{
+      padding:8px 12px;border-radius:999px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      cursor:pointer;font-weight:800;font-size:12px;color:var(--text);
+    }
+    .chip.active{border-color:rgba(141,23,251,.6); box-shadow:0 0 0 3px rgba(141,23,251,.12);}
+    .list{display:grid;gap:10px;}
+    .item{
+      display:grid;grid-template-columns: 92px 1fr;gap:12px;
+      padding:10px;border-radius:16px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(2,5,21,.22);
+    }
+    .thumb{
+      width:92px;height:92px;border-radius:14px;overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(28,31,47,.8);
+    }
+    .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+    .meta{display:flex;flex-direction:column;gap:6px;}
+    .meta strong{font-size:14px;line-height:1.2;}
+    .meta .small{font-size:12px;color:var(--muted);line-height:1.2;}
+    .item-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;}
+    .sep{height:1px;background:rgba(255,255,255,.06);margin:10px 0;}
+    .toast{
+      position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+      background:rgba(28,31,47,.95);
+      border:1px solid rgba(255,255,255,.10);
+      padding:10px 14px;border-radius:999px;
+      color:var(--text);box-shadow:var(--shadow);
+      display:none; z-index:9999;
+      max-width:92vw;
     }
   </style>
 </head>
 <body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="title">🛠 Panel de Noticias</div>
+      <div class="subtitle">Crea, edita, publica y organiza las noticias del feed (sin tocar código).</div>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="btnGoHome">← Inicio</button>
+      <button class="btn btn-danger" id="btnLogout">Cerrar sesión</button>
+    </div>
+  </header>
 
-<h1>🛠 Panel de Noticias</h1>
+  <div class="grid">
+    <!-- FORM -->
+    <section class="card">
+      <h2>📝 Editor <span id="modeBadge" class="badge">Crear</span></h2>
 
-<div class="news-form">
-  <h3>Crear noticia</h3>
+      <label>Título</label>
+      <input id="fTitle" placeholder="Ej: Pokémon GO trae evento nuevo" />
 
-  <label>Título</label>
-  <input id="title">
+      <div class="row">
+        <div>
+          <label>Categoría</label>
+          <select id="fCategory">
+            <option value="Gaming">Gaming</option>
+            <option value="General">General</option>
+            <option value="Eventos">Eventos</option>
+          </select>
+        </div>
+        <div>
+          <label>Estado</label>
+          <select id="fPublished">
+            <option value="true">Publicado</option>
+            <option value="false">Borrador</option>
+          </select>
+        </div>
+      </div>
 
-  <label>Descripción</label>
-  <textarea id="description"></textarea>
+      <label>Cover (URL) — imagen del feed</label>
+      <input id="fCover" placeholder="https://..." />
 
-  <label>Imagen (URL)</label>
-  <input id="imageUrl">
+      <div id="coverPreview" class="preview">
+        <span class="muted">Vista previa del cover</span>
+      </div>
 
-  <button onclick="createNews()">Publicar noticia</button>
+      <label>Contenido (texto largo)</label>
+      <textarea id="fContent" placeholder="Escribe la noticia completa aquí..."></textarea>
+
+      <label>Galería (URLs separadas por coma o por líneas)</label>
+      <textarea id="fGallery" placeholder="https://img1...\nhttps://img2...\nhttps://img3..."></textarea>
+
+      <div class="sep"></div>
+
+      <div class="row">
+        <button class="btn btn-primary" id="btnSave">Guardar</button>
+        <button class="btn" id="btnNew">Nueva</button>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <button class="btn btn-success" id="btnPublishNow">Publicar ahora</button>
+        <button class="btn btn-warning" id="btnUnpublish">Despublicar</button>
+      </div>
+
+      <button class="btn btn-danger" id="btnDelete" style="margin-top:10px;display:none;">Eliminar</button>
+
+      <p class="muted" style="margin-top:10px;">
+        Tip: “Publicar ahora” también actualiza <b>date</b> para que suba al inicio del feed.
+      </p>
+    </section>
+
+    <!-- LIST -->
+    <section class="card">
+      <h2>📰 Noticias <span id="countBadge" class="badge">0</span></h2>
+
+      <div class="filters">
+        <div class="chip active" data-filter="all">Todas</div>
+        <div class="chip" data-filter="published">Publicadas</div>
+        <div class="chip" data-filter="drafts">Borradores</div>
+        <div class="chip" data-filter="gaming">Gaming</div>
+      </div>
+
+      <div id="newsList" class="list"></div>
+      <p id="emptyState" class="muted" style="display:none; padding:10px;">No hay noticias todavía.</p>
+    </section>
+  </div>
 </div>
 
-<div class="news-list" id="newsList"></div>
+<div id="toast" class="toast"></div>
 
 <script>
-let currentUser = null;
+  // -------- Utils UI --------
+  const toast = (msg) => {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.style.display = 'block';
+    clearTimeout(window.__toastT);
+    window.__toastT = setTimeout(() => el.style.display = 'none', 2600);
+  };
 
-// 🔐 Verificar admin
-firebase.auth().onAuthStateChanged(async (user) => {
-  if (!user) {
-    location.href = 'index.html';
-    return;
+  const qs = (id) => document.getElementById(id);
+
+  function parseGallery(text) {
+    const raw = String(text || '')
+      .split(/\n|,/g)
+      .map(s => s.trim())
+      .filter(Boolean);
+    // quitar duplicados
+    return Array.from(new Set(raw));
   }
 
-  const doc = await firebase.firestore().collection('users').doc(user.uid).get();
-
-  if (!doc.exists || !doc.data().isAdmin) {
-    alert('Acceso solo para administradores');
-    location.href = 'inicio.html';
-    return;
+  function fmtDate(ts) {
+    if (!ts) return '—';
+    try {
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleDateString('es-ES', { day:'2-digit', month:'short', year:'numeric' });
+    } catch { return '—'; }
   }
 
-  currentUser = user;
-  loadNews();
-});
-
-// ➕ Crear noticia
-async function createNews() {
-  const title = document.getElementById('title').value.trim();
-  const description = document.getElementById('description').value.trim();
-  const imageUrl = document.getElementById('imageUrl').value.trim();
-
-  if (!title || !description) {
-    alert('Completa título y descripción');
-    return;
+  function setCoverPreview(url) {
+    const box = qs('coverPreview');
+    const clean = (url && String(url).trim()) ? String(url).trim() : '';
+    if (!clean) {
+      box.innerHTML = '<span class="muted">Vista previa del cover</span>';
+      return;
+    }
+    box.innerHTML = '<img alt="cover" loading="lazy">';
+    box.querySelector('img').src = clean;
   }
 
-  await firebase.firestore().collection('news').add({
-    title,
-    description,
-    imageUrl,
-    published: true,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+  // -------- Firebase / Auth / Admin --------
+  let currentUser = null;
+  let selectedId = null;       // docId seleccionado para editar
+  let lastDocs = [];           // cache para filtros
+  let currentFilter = 'all';
+
+  function requireFirebase() {
+    if (!firebase || !firebase.auth || !firebase.firestore) {
+      alert('Firebase no cargó. Revisa firebase-config.js');
+      throw new Error('Firebase missing');
+    }
+  }
+
+  async function requireAdmin(user) {
+    const doc = await firebase.firestore().collection('users').doc(user.uid).get();
+    if (!doc.exists || !doc.data().isAdmin) {
+      alert('Acceso solo para administradores');
+      location.href = 'inicio.html';
+      return false;
+    }
+    return true;
+  }
+
+  firebase.auth().onAuthStateChanged(async (user) => {
+    try {
+      requireFirebase();
+      if (!user) { location.href = 'index.html'; return; }
+      const ok = await requireAdmin(user);
+      if (!ok) return;
+      currentUser = user;
+      await loadNews();
+      toast('Panel listo ✅');
+    } catch (e) {
+      console.error('[admin-news] auth error:', e);
+      alert('Error inicializando el panel. Revisa consola.');
+    }
   });
 
-  document.getElementById('title').value = '';
-  document.getElementById('description').value = '';
-  document.getElementById('imageUrl').value = '';
+  // -------- CRUD --------
+  function getFormData() {
+    const title = qs('fTitle').value.trim();
+    const category = qs('fCategory').value.trim() || 'Gaming';
+    const published = qs('fPublished').value === 'true';
+    const coverImageUrl = qs('fCover').value.trim();
+    const content = qs('fContent').value.trim();
+    const gallery = parseGallery(qs('fGallery').value);
 
-  loadNews();
-}
+    return { title, category, published, coverImageUrl, content, gallery };
+  }
 
-// 📥 Cargar noticias
-async function loadNews() {
-  const container = document.getElementById('newsList');
-  container.innerHTML = '';
+  function fillForm(data) {
+    qs('fTitle').value = data.title || '';
+    qs('fCategory').value = data.category || 'Gaming';
+    qs('fPublished').value = (data.published === true) ? 'true' : 'false';
+    qs('fCover').value = data.coverImageUrl || data.imageUrl || '';
+    qs('fContent').value = data.content || data.description || '';
+    qs('fGallery').value = Array.isArray(data.gallery) ? data.gallery.join('\n') : '';
+    setCoverPreview(qs('fCover').value);
 
-  const snapshot = await firebase.firestore()
-    .collection('news')
-    .orderBy('createdAt', 'desc')
-    .get();
+    qs('btnDelete').style.display = selectedId ? 'block' : 'none';
+    qs('modeBadge').textContent = selectedId ? 'Editar' : 'Crear';
+  }
 
-  snapshot.forEach(doc => {
-    const n = doc.data();
-    const div = document.createElement('div');
-    div.className = 'news-item';
-    div.innerHTML = `
-      <strong>${n.title}</strong>
-      <p>${n.description}</p>
-    `;
-    container.appendChild(div);
+  function resetForm() {
+    selectedId = null;
+    fillForm({ category: 'Gaming', published: true });
+  }
+
+  async function saveNews() {
+    try {
+      const data = getFormData();
+
+      if (!data.title) { toast('Pon un título'); return; }
+      if (!data.content) { toast('Escribe el contenido'); return; }
+
+      const now = firebase.firestore.FieldValue.serverTimestamp();
+
+      // Si se marca como publicada, aseguramos "date" para orden del feed
+      const shouldSetDate = data.published === true;
+
+      const payload = {
+        title: data.title,
+        category: data.category,
+        published: data.published,
+        coverImageUrl: data.coverImageUrl,
+        content: data.content,
+        gallery: data.gallery,
+        updatedAt: now,
+      };
+
+      if (!selectedId) {
+        payload.createdAt = now;
+        if (shouldSetDate) payload.date = now;
+        const ref = await firebase.firestore().collection('news').add(payload);
+        selectedId = ref.id;
+        qs('btnDelete').style.display = 'block';
+        qs('modeBadge').textContent = 'Editar';
+        toast('Guardado ✅');
+      } else {
+        if (shouldSetDate) payload.date = now;
+        await firebase.firestore().collection('news').doc(selectedId).update(payload);
+        toast('Actualizado ✅');
+      }
+
+      await loadNews();
+    } catch (e) {
+      console.error('[admin-news] save error:', e);
+      alert('❌ No se pudo guardar: ' + (e.message || e));
+    }
+  }
+
+  async function publishNow() {
+    if (!selectedId) { toast('Selecciona una noticia'); return; }
+    try {
+      const now = firebase.firestore.FieldValue.serverTimestamp();
+      await firebase.firestore().collection('news').doc(selectedId).update({
+        published: true,
+        date: now,
+        updatedAt: now,
+      });
+      qs('fPublished').value = 'true';
+      toast('Publicada ✅');
+      await loadNews();
+    } catch (e) {
+      console.error('[admin-news] publish error:', e);
+      alert('❌ No se pudo publicar: ' + (e.message || e));
+    }
+  }
+
+  async function unpublish() {
+    if (!selectedId) { toast('Selecciona una noticia'); return; }
+    try {
+      const now = firebase.firestore.FieldValue.serverTimestamp();
+      await firebase.firestore().collection('news').doc(selectedId).update({
+        published: false,
+        updatedAt: now,
+      });
+      qs('fPublished').value = 'false';
+      toast('Despublicada ✅');
+      await loadNews();
+    } catch (e) {
+      console.error('[admin-news] unpublish error:', e);
+      alert('❌ No se pudo despublicar: ' + (e.message || e));
+    }
+  }
+
+  async function deleteNews() {
+    if (!selectedId) return;
+    if (!confirm('¿Eliminar esta noticia?')) return;
+    try {
+      await firebase.firestore().collection('news').doc(selectedId).delete();
+      toast('Eliminada ✅');
+      resetForm();
+      await loadNews();
+    } catch (e) {
+      console.error('[admin-news] delete error:', e);
+      alert('❌ No se pudo eliminar: ' + (e.message || e));
+    }
+  }
+
+  // -------- List / Filters --------
+  async function loadNews() {
+    const list = qs('newsList');
+    const empty = qs('emptyState');
+    list.innerHTML = '';
+    empty.style.display = 'none';
+
+    try {
+      // Lista por updatedAt/createdAt desc para manejar borradores también
+      const snap = await firebase.firestore()
+        .collection('news')
+        .orderBy('updatedAt', 'desc')
+        .limit(50)
+        .get();
+
+      lastDocs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+      applyFilterAndRender();
+    } catch (e) {
+      console.error('[admin-news] load error:', e);
+      alert('❌ No se pudo cargar la lista. Revisa consola.');
+    }
+  }
+
+  function applyFilterAndRender() {
+    const list = qs('newsList');
+    const empty = qs('emptyState');
+
+    const filtered = lastDocs.filter(({ data }) => {
+      if (currentFilter === 'published') return data.published === true;
+      if (currentFilter === 'drafts') return data.published !== true;
+      if (currentFilter === 'gaming') return String(data.category || '').toLowerCase() === 'gaming';
+      return true;
+    });
+
+    qs('countBadge').textContent = String(filtered.length);
+
+    list.innerHTML = '';
+    if (!filtered.length) {
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    filtered.forEach(({ id, data }) => {
+      const title = data.title || 'Noticia';
+      const cover = (data.coverImageUrl || data.imageUrl || '').trim();
+      const published = data.published === true;
+
+      const el = document.createElement('div');
+      el.className = 'item';
+      el.innerHTML = `
+        <div class="thumb">
+          ${cover ? `<img src="${cover}" alt="" loading="lazy">` : ''}
+        </div>
+        <div class="meta">
+          <strong>${escapeHtml(title)}</strong>
+          <div class="small">
+            ${published ? '🟢 Publicada' : '🟡 Borrador'} • ${data.category || '—'} • ${fmtDate(data.date || data.updatedAt || data.createdAt)}
+          </div>
+          <div class="item-actions">
+            <button class="btn" data-action="edit" data-id="${id}">Editar</button>
+            ${published
+              ? `<button class="btn btn-warning" data-action="unpub" data-id="${id}">Despublicar</button>`
+              : `<button class="btn btn-success" data-action="pub" data-id="${id}">Publicar</button>`
+            }
+            <button class="btn btn-danger" data-action="del" data-id="${id}">Eliminar</button>
+            <button class="btn" data-action="open" data-id="${id}">Ver</button>
+          </div>
+        </div>
+      `;
+      list.appendChild(el);
+    });
+  }
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, (m) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[m]));
+  }
+
+  // Delegación de clicks en la lista
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button[data-action]');
+    if (!btn) return;
+    const action = btn.getAttribute('data-action');
+    const id = btn.getAttribute('data-id');
+    const found = lastDocs.find(x => x.id === id);
+    if (!found) return;
+
+    if (action === 'edit') {
+      selectedId = id;
+      fillForm(found.data);
+      toast('Editando...');
+      return;
+    }
+    if (action === 'pub') {
+      selectedId = id;
+      await publishNow();
+      return;
+    }
+    if (action === 'unpub') {
+      selectedId = id;
+      await unpublish();
+      return;
+    }
+    if (action === 'del') {
+      selectedId = id;
+      await deleteNews();
+      return;
+    }
+    if (action === 'open') {
+      window.open(`news.html?id=${encodeURIComponent(id)}`, '_blank');
+      return;
+    }
   });
-}
+
+  // Filtros
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFilter = chip.getAttribute('data-filter');
+      applyFilterAndRender();
+    });
+  });
+
+  // -------- Events --------
+  qs('btnSave').addEventListener('click', saveNews);
+  qs('btnNew').addEventListener('click', resetForm);
+  qs('btnPublishNow').addEventListener('click', publishNow);
+  qs('btnUnpublish').addEventListener('click', unpublish);
+  qs('btnDelete').addEventListener('click', deleteNews);
+
+  qs('fCover').addEventListener('input', (e) => setCoverPreview(e.target.value));
+
+  qs('btnGoHome').addEventListener('click', () => location.href = 'inicio.html');
+  qs('btnLogout').addEventListener('click', async () => {
+    if (!confirm('¿Cerrar sesión?')) return;
+    try {
+      await firebase.auth().signOut();
+      location.href = 'index.html';
+    } catch {
+      location.href = 'index.html';
+    }
+  });
+
+  // Inicial
+  window.addEventListener('load', () => {
+    // si ya estaba editando algo, nada; si no, resetea
+    resetForm();
+  });
 </script>
-
 </body>
 </html>
