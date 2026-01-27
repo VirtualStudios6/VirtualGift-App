@@ -35,6 +35,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return `https://via.placeholder.com/300x300/1c1f2f/dcefff?text=${text}`;
   }
 
+  function escapeAttr(str) {
+    return String(str ?? '').replace(/"/g, '&quot;');
+  }
+
   function renderNews(docs) {
     grid.innerHTML = '';
 
@@ -49,14 +53,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     docs.forEach(({ id, data }) => {
       const title = data.title || 'Noticia';
-      const imageUrl = (data.imageUrl && data.imageUrl.trim()) ? data.imageUrl.trim() : placeholderImg(title);
+
+      // ✅ Usamos coverImageUrl (tu campo nuevo)
+      // Fallback: si aún tienes imageUrl viejo, también lo soportamos
+      const raw =
+        (data.coverImageUrl && String(data.coverImageUrl).trim()) ||
+        (data.imageUrl && String(data.imageUrl).trim()) ||
+        '';
+
+      const imageUrl = raw ? raw : placeholderImg(title);
 
       const a = document.createElement('a');
       a.className = 'news-card';
-      a.href = `news.html?id=${encodeURIComponent(id)}`; // <-- abre noticia dinámica
+      a.href = `news.html?id=${encodeURIComponent(id)}`; // abre noticia dinámica
       a.innerHTML = `
         <div class="news-image">
-          <img src="${imageUrl}" alt="${title.replace(/"/g, '&quot;')}" loading="lazy">
+          <img src="${imageUrl}" alt="${escapeAttr(title)}" loading="lazy">
         </div>
         <p class="news-label">${title}</p>
       `;
@@ -67,11 +79,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function loadNews() {
     try {
+      // ✅ Gaming News: solo categoría Gaming
       // Orden por fecha (más nueva primero)
-      // published == true y orderBy(date) => puede requerir índice en Firestore
+      // where(published) + where(category) + orderBy(date) => puede requerir índice compuesto
       const snap = await window.db
         .collection('news')
         .where('published', '==', true)
+        .where('category', '==', 'Gaming')
         .orderBy('date', 'desc')
         .limit(12)
         .get();

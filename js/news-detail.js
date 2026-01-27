@@ -10,7 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const titleEl = document.getElementById('title');
   const dateEl = document.getElementById('date');
   const imgEl = document.getElementById('image');
-  const descEl = document.getElementById('desc');
+
+  // ✅ nuevos IDs (según el news.html modificado)
+  const contentEl = document.getElementById('content');
+  const galleryEl = document.getElementById('gallery');
 
   function isFirebaseReady() {
     return window.db && typeof window.db.collection === 'function';
@@ -40,33 +43,79 @@ document.addEventListener('DOMContentLoaded', () => {
   function fmtDate(ts) {
     try {
       const d = ts.toDate ? ts.toDate() : new Date(ts);
-      return d.toLocaleDateString('es-ES', { day:'2-digit', month:'long', year:'numeric' });
+      return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
     } catch {
       return '';
     }
+  }
+
+  function placeholderImg() {
+    return 'https://via.placeholder.com/1200x700/1c1f2f/dcefff?text=VirtualGift';
+  }
+
+  function safeTextToHtml(text) {
+    // Convierte texto plano a HTML seguro con saltos de línea
+    const escaped = String(text ?? '').replace(/[&<>"']/g, (m) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[m]));
+    return escaped.replace(/\n/g, "<br>");
   }
 
   async function load() {
     if (!id) return showError();
 
     try {
-      const doc = await window.db.collection('news').doc(id).get();
-      if (!doc.exists) return showError();
+      const docSnap = await window.db.collection('news').doc(id).get();
+      if (!docSnap.exists) return showError();
 
-      const data = doc.data();
+      const data = docSnap.data() || {};
 
       // Si está despublicada, no mostrar
       if (data.published !== true) return showError();
 
+      // Título + fecha
       titleEl.textContent = data.title || 'Noticia';
       dateEl.textContent = data.date ? fmtDate(data.date) : '';
-      descEl.textContent = data.description || '';
 
-      const imageUrl = (data.imageUrl && data.imageUrl.trim()) ? data.imageUrl.trim() : 'https://via.placeholder.com/1200x700/1c1f2f/dcefff?text=VirtualGift';
-      imgEl.src = imageUrl;
+      // ✅ Imagen principal (coverImageUrl). Fallback a imageUrl viejo si existe.
+      const cover =
+        (data.coverImageUrl && String(data.coverImageUrl).trim()) ||
+        (data.imageUrl && String(data.imageUrl).trim()) ||
+        '';
+
+      if (cover) {
+        imgEl.src = cover;
+        imgEl.style.display = 'block';
+      } else {
+        imgEl.src = placeholderImg();
+        imgEl.style.display = 'block';
+      }
+
+      // ✅ Contenido largo (content). Fallback a description por compatibilidad.
+      const contentText = (data.content && String(data.content)) || (data.description && String(data.description)) || '';
+      if (contentEl) contentEl.innerHTML = safeTextToHtml(contentText);
+
+      // ✅ Galería (array de URLs)
+      const gallery = Array.isArray(data.gallery) ? data.gallery.filter(u => !!String(u).trim()) : [];
+      if (galleryEl) {
+        if (gallery.length) {
+          galleryEl.innerHTML = '';
+          gallery.forEach((url) => {
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = '';
+            img.loading = 'lazy';
+            galleryEl.appendChild(img);
+          });
+          galleryEl.style.display = 'grid';
+        } else {
+          galleryEl.style.display = 'none';
+          galleryEl.innerHTML = '';
+        }
+      }
 
       if (loading) loading.style.display = 'none';
-      article.style.display = 'block';
+      if (article) article.style.display = 'block';
     } catch (e) {
       console.error('[news-detail] Error:', e);
       showError();
