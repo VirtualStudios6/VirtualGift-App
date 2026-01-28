@@ -1,0 +1,297 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+    Arial, sans-serif;
+  background: #020515;
+  color: #dcefff;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1e293b;
+  color: #dcefff;
+  padding: 10px 20px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 25px;
+  border: 1px solid #1c1f2f;
+  transition: all 0.2s ease;
+}
+.back-button:hover {
+  background: #1c1f2f;
+  border-color: #100715;
+}
+
+.article-card {
+  background: #1c1d1f;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid #1c1f2f;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* ---------------- HEADER (con imagen) ---------------- */
+.article-header {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: linear-gradient(135deg, #06011c 0%, #70189b 50%, #8d17fb 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* animación decorativa */
+.article-header::before {
+  content: "";
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 10px,
+    rgba(141, 23, 251, 0.05) 10px,
+    rgba(141, 23, 251, 0.05) 20px
+  );
+  animation: slide 20s linear infinite;
+  z-index: 0;
+}
+@keyframes slide {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+/* ✅ Imagen del header (se muestra cuando existe headerImageUrl) */
+.article-header img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: 1;
+}
+
+/* ✅ Overlay para que el texto/estilo siga siendo VirtualGift aunque haya foto */
+.article-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(2, 5, 21, 0.15) 0%,
+    rgba(2, 5, 21, 0.55) 60%,
+    rgba(2, 5, 21, 0.75) 100%
+  );
+  z-index: 2;
+}
+
+/* ✅ Fallback (emoji) cuando NO hay imagen */
+.header-fallback {
+  position: relative;
+  z-index: 3;
+  font-size: 100px;
+  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
+  text-shadow: 0 0 20px rgba(141, 23, 251, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ---------------- CONTENIDO ---------------- */
+.article-content {
+  padding: 30px;
+}
+
+.article-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(141, 23, 251, 0.15);
+  color: #8d17fb;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  background: #8d17fb;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.category-badge {
+  background: #100715;
+  color: #dcefff;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.date-text {
+  color: #8d17fb;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+h1 {
+  font-size: 36px;
+  color: #dcefff;
+  margin-bottom: 25px;
+  line-height: 1.3;
+  font-weight: 700;
+  background: linear-gradient(to right, #dcefff, #8d17fb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.article-body {
+  color: #dcefff;
+  line-height: 1.8;
+  font-size: 17px;
+}
+.article-body p {
+  margin-bottom: 20px;
+}
+
+.article-body h2 {
+  color: #8d17fb;
+  font-size: 26px;
+  margin: 35px 0 18px;
+  font-weight: 700;
+  border-left: 4px solid #8d17fb;
+  padding-left: 15px;
+}
+
+.highlight-box {
+  background: linear-gradient(
+    135deg,
+    rgba(112, 24, 155, 0.1) 0%,
+    rgba(141, 23, 251, 0.1) 100%
+  );
+  border-left: 3px solid #8d17fb;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 25px 0;
+}
+.highlight-box p {
+  margin: 0;
+  font-weight: 500;
+  color: #dcefff;
+}
+
+.image-section {
+  margin: 30px 0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+}
+.image-section img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+.image-section:hover img {
+  transform: scale(1.02);
+}
+.image-caption {
+  background: #1c1f2f;
+  padding: 12px 15px;
+  color: #dcefff;
+  font-size: 14px;
+  font-style: italic;
+  border-top: 1px solid #100715;
+}
+
+/* ---------------- RESPONSIVE ---------------- */
+@media (max-width: 768px) {
+  body {
+    padding: 15px;
+  }
+  .article-header {
+    height: 250px;
+  }
+  .header-fallback {
+    font-size: 70px;
+  }
+  .article-content {
+    padding: 20px;
+  }
+  h1 {
+    font-size: 26px;
+    margin-bottom: 18px;
+  }
+  .article-body {
+    font-size: 16px;
+  }
+  .article-body h2 {
+    font-size: 22px;
+    margin: 28px 0 15px;
+  }
+  .back-button {
+    font-size: 13px;
+    padding: 8px 16px;
+  }
+}
+@media (max-width: 480px) {
+  .article-header {
+    height: 200px;
+  }
+  .header-fallback {
+    font-size: 60px;
+  }
+  h1 {
+    font-size: 22px;
+  }
+  .article-content {
+    padding: 16px;
+  }
+  .article-body {
+    font-size: 15px;
+  }
+}

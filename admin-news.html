@@ -38,9 +38,7 @@
       display:flex;align-items:center;justify-content:space-between;gap:12px;
       margin-bottom:16px;
     }
-    .title{
-      font-size:22px;font-weight:900;letter-spacing:.02em;
-    }
+    .title{font-size:22px;font-weight:900;letter-spacing:.02em;}
     .subtitle{color:var(--muted);font-size:13px;margin-top:4px;}
     .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
     .btn{
@@ -55,9 +53,10 @@
     .btn-danger{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.35);color:#ffd5d5;}
     .btn-success{background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);color:#d9fff0;}
     .btn-warning{background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.35);color:#ffe9c2;}
+
     .grid{
       display:grid;
-      grid-template-columns: 420px 1fr;
+      grid-template-columns: 470px 1fr;
       gap:14px;
       align-items:start;
     }
@@ -79,6 +78,7 @@
       background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);
       color:var(--muted);
     }
+
     label{display:block;margin-top:10px;font-size:12px;color:var(--muted);}
     input, textarea, select{
       width:100%;margin-top:6px;padding:10px 12px;
@@ -135,8 +135,77 @@
       display:none; z-index:9999;
       max-width:92vw;
     }
+
+    /* -------- Bloques -------- */
+    .block-tools{
+      display:flex; gap:8px; flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .block-tools .btn{padding:9px 12px; font-size:12px;}
+    .blocks{
+      display:grid; gap:10px;
+      margin-top:10px;
+    }
+    .block{
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(2,5,21,.22);
+      overflow:hidden;
+    }
+    .block-head{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:10px;
+      padding:10px 10px;
+      background:rgba(255,255,255,.03);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .block-type{
+      display:flex; align-items:center; gap:8px;
+      font-weight:900;
+      font-size:12px;
+      color:rgba(220,239,255,.92);
+    }
+    .block-mini{
+      font-size:11px; color:var(--muted);
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.07);
+      padding:3px 8px; border-radius:999px;
+    }
+    .block-actions{
+      display:flex; gap:6px; flex-wrap:wrap;
+    }
+    .block-actions .btn{
+      padding:7px 10px;
+      border-radius:10px;
+      font-size:12px;
+    }
+    .block-body{
+      padding:10px;
+    }
+    .block-body textarea, .block-body input{
+      margin-top:0;
+    }
+    .hint{
+      font-size:12px;color:var(--muted);
+      margin-top:8px;
+      line-height:1.3;
+    }
+
+    /* previews extra */
+    .mini-preview{
+      margin-top:10px;
+      border-radius:14px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(2,5,21,.35);
+      height:140px;
+      display:flex;align-items:center;justify-content:center;
+      color:rgba(220,239,255,.7);
+    }
+    .mini-preview img{width:100%;height:100%;object-fit:cover;display:block;}
   </style>
 </head>
+
 <body>
 <div class="wrap">
   <header>
@@ -156,7 +225,7 @@
       <h2>📝 Editor <span id="modeBadge" class="badge">Crear</span></h2>
 
       <label>Título</label>
-      <input id="fTitle" placeholder="Ej: Pokémon GO trae evento nuevo" />
+      <input id="fTitle" placeholder="Encabezado" />
 
       <div class="row">
         <div>
@@ -164,7 +233,6 @@
           <select id="fCategory">
             <option value="Gaming">Gaming</option>
             <option value="General">General</option>
-            <option value="Eventos">Eventos</option>
           </select>
         </div>
         <div>
@@ -176,6 +244,21 @@
         </div>
       </div>
 
+      <div class="row">
+        <div>
+          <label>Imagen principal del Header (URL)</label>
+          <input id="fHeaderImage" placeholder="https://..." />
+        </div>
+        <div>
+          <label>Status (opcional)</label>
+          <input id="fStatusText" placeholder="Noticia Exclusiva" />
+        </div>
+      </div>
+
+      <div id="headerPreview" class="mini-preview">
+        <span class="muted">Vista previa del header</span>
+      </div>
+
       <label>Cover (URL) — imagen del feed</label>
       <input id="fCover" placeholder="https://..." />
 
@@ -183,10 +266,27 @@
         <span class="muted">Vista previa del cover</span>
       </div>
 
-      <label>Contenido (texto largo)</label>
-      <textarea id="fContent" placeholder="Escribe la noticia completa aquí..."></textarea>
+      <div class="sep"></div>
 
-      <label>Galería (URLs separadas por coma o por líneas)</label>
+      <h2 style="margin-top:2px;">🧩 Constructor de contenido <span class="badge" id="blocksCount">0 bloques</span></h2>
+
+      <div class="block-tools">
+        <button class="btn" id="addP">+ Párrafo</button>
+        <button class="btn" id="addH2">+ Subtítulo (h2)</button>
+        <button class="btn" id="addImg">+ Imagen</button>
+        <button class="btn" id="addHi">+ Caja destacada</button>
+        <button class="btn btn-warning" id="btnClearBlocks">Limpiar bloques</button>
+      </div>
+
+      <div id="blocks" class="blocks"></div>
+
+      <p class="hint">
+        Orden recomendado: <b>Párrafo</b> → <b>Imagen</b> → <b>Párrafo</b> → <b>Caja destacada</b> → <b>Subtítulo</b> → ...
+      </p>
+
+      <div class="sep"></div>
+
+      <label>Galería (URLs separadas por coma o por líneas) (opcional)</label>
       <textarea id="fGallery" placeholder="https://img1...\nhttps://img2...\nhttps://img3..."></textarea>
 
       <div class="sep"></div>
@@ -236,7 +336,6 @@
     clearTimeout(window.__toastT);
     window.__toastT = setTimeout(() => el.style.display = 'none', 2600);
   };
-
   const qs = (id) => document.getElementById(id);
 
   function parseGallery(text) {
@@ -244,7 +343,6 @@
       .split(/\n|,/g)
       .map(s => s.trim())
       .filter(Boolean);
-    // quitar duplicados
     return Array.from(new Set(raw));
   }
 
@@ -256,21 +354,142 @@
     } catch { return '—'; }
   }
 
-  function setCoverPreview(url) {
-    const box = qs('coverPreview');
+  function setImgPreview(elId, url, placeholderText){
+    const box = qs(elId);
     const clean = (url && String(url).trim()) ? String(url).trim() : '';
     if (!clean) {
-      box.innerHTML = '<span class="muted">Vista previa del cover</span>';
+      box.innerHTML = `<span class="muted">${placeholderText}</span>`;
       return;
     }
-    box.innerHTML = '<img alt="cover" loading="lazy">';
+    box.innerHTML = '<img alt="preview" loading="lazy">';
     box.querySelector('img').src = clean;
   }
 
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/[&<>"']/g, (m) => ({
+      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+    }[m]));
+  }
+
+  // -------- Bloques (estado) --------
+  let blocks = [];
+
+  function blockLabel(type){
+    if (type === 'p') return 'Párrafo';
+    if (type === 'h2') return 'Subtítulo (h2)';
+    if (type === 'img') return 'Imagen';
+    if (type === 'highlight') return 'Caja destacada';
+    return type || 'Bloque';
+  }
+
+  function updateBlocksCount(){
+    qs('blocksCount').textContent = `${blocks.length} bloques`;
+  }
+
+  function addBlock(type){
+    if (type === 'p') blocks.push({ type:'p', text:'' });
+    if (type === 'h2') blocks.push({ type:'h2', text:'' });
+    if (type === 'img') blocks.push({ type:'img', url:'', caption:'' });
+    if (type === 'highlight') blocks.push({ type:'highlight', text:'' });
+    renderBlocks();
+  }
+
+  function moveBlock(i, dir){
+    const j = i + dir;
+    if (j < 0 || j >= blocks.length) return;
+    const tmp = blocks[i];
+    blocks[i] = blocks[j];
+    blocks[j] = tmp;
+    renderBlocks();
+  }
+
+  function deleteBlock(i){
+    blocks.splice(i, 1);
+    renderBlocks();
+  }
+
+  function renderBlocks(){
+    const wrap = qs('blocks');
+    wrap.innerHTML = '';
+
+    blocks.forEach((b, i) => {
+      const el = document.createElement('div');
+      el.className = 'block';
+
+      const head = document.createElement('div');
+      head.className = 'block-head';
+      head.innerHTML = `
+        <div class="block-type">
+          <span>${escapeHtml(blockLabel(b.type))}</span>
+          <span class="block-mini">#${i+1}</span>
+        </div>
+        <div class="block-actions">
+          <button class="btn" data-act="up" data-i="${i}">↑</button>
+          <button class="btn" data-act="down" data-i="${i}">↓</button>
+          <button class="btn btn-danger" data-act="del" data-i="${i}">Eliminar</button>
+        </div>
+      `;
+
+      const body = document.createElement('div');
+      body.className = 'block-body';
+
+      if (b.type === 'p') {
+        body.innerHTML = `<textarea data-field="text" data-i="${i}" placeholder="Escribe el párrafo...">${escapeHtml(b.text || '')}</textarea>`;
+      }
+
+      if (b.type === 'h2') {
+        body.innerHTML = `<input data-field="text" data-i="${i}" placeholder="Ej: ¿Qué se descubrió?" value="${escapeHtml(b.text || '')}">`;
+      }
+
+      if (b.type === 'highlight') {
+        body.innerHTML = `<textarea data-field="text" data-i="${i}" placeholder="Ej: 💡 Dato clave: ...">${escapeHtml(b.text || '')}</textarea>`;
+      }
+
+      if (b.type === 'img') {
+        body.innerHTML = `
+          <input data-field="url" data-i="${i}" placeholder="URL de la imagen" value="${escapeHtml(b.url || '')}">
+          <div style="height:8px"></div>
+          <input data-field="caption" data-i="${i}" placeholder="Caption (opcional)" value="${escapeHtml(b.caption || '')}">
+        `;
+      }
+
+      el.appendChild(head);
+      el.appendChild(body);
+      wrap.appendChild(el);
+    });
+
+    updateBlocksCount();
+    qs('btnClearBlocks').disabled = blocks.length === 0;
+  }
+
+  // Delegación eventos de bloques
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('button[data-act]');
+    if (!btn) return;
+    const act = btn.getAttribute('data-act');
+    const i = Number(btn.getAttribute('data-i'));
+    if (Number.isNaN(i)) return;
+
+    if (act === 'up') moveBlock(i, -1);
+    if (act === 'down') moveBlock(i, 1);
+    if (act === 'del') deleteBlock(i);
+  });
+
+  document.addEventListener('input', (e) => {
+    const t = e.target;
+    const i = t.getAttribute('data-i');
+    const field = t.getAttribute('data-field');
+    if (i == null || !field) return;
+    const idx = Number(i);
+    if (!blocks[idx]) return;
+
+    blocks[idx][field] = t.value;
+  });
+
   // -------- Firebase / Auth / Admin --------
   let currentUser = null;
-  let selectedId = null;       // docId seleccionado para editar
-  let lastDocs = [];           // cache para filtros
+  let selectedId = null;
+  let lastDocs = [];
   let currentFilter = 'all';
 
   function requireFirebase() {
@@ -310,21 +529,66 @@
     const title = qs('fTitle').value.trim();
     const category = qs('fCategory').value.trim() || 'Gaming';
     const published = qs('fPublished').value === 'true';
+
+    const headerImageUrl = qs('fHeaderImage').value.trim();
+    const statusText = qs('fStatusText').value.trim();
+
     const coverImageUrl = qs('fCover').value.trim();
-    const content = qs('fContent').value.trim();
     const gallery = parseGallery(qs('fGallery').value);
 
-    return { title, category, published, coverImageUrl, content, gallery };
+    return { title, category, published, headerImageUrl, statusText, coverImageUrl, gallery };
+  }
+
+  function normalizeBlocksForSave(){
+    const clean = [];
+    blocks.forEach((b) => {
+      const type = String(b?.type || '').trim();
+      if (!type) return;
+
+      if (type === 'p') {
+        const text = String(b.text || '').trim();
+        if (text) clean.push({ type:'p', text });
+        return;
+      }
+      if (type === 'h2') {
+        const text = String(b.text || '').trim();
+        if (text) clean.push({ type:'h2', text });
+        return;
+      }
+      if (type === 'highlight') {
+        const text = String(b.text || '').trim();
+        if (text) clean.push({ type:'highlight', text });
+        return;
+      }
+      if (type === 'img') {
+        const url = String(b.url || '').trim();
+        if (!url) return;
+        const caption = String(b.caption || '').trim();
+        const out = { type:'img', url };
+        if (caption) out.caption = caption;
+        clean.push(out);
+        return;
+      }
+    });
+    return clean;
   }
 
   function fillForm(data) {
     qs('fTitle').value = data.title || '';
     qs('fCategory').value = data.category || 'Gaming';
     qs('fPublished').value = (data.published === true) ? 'true' : 'false';
+
+    qs('fHeaderImage').value = data.headerImageUrl || '';
+    qs('fStatusText').value = data.statusText || '';
+
     qs('fCover').value = data.coverImageUrl || data.imageUrl || '';
-    qs('fContent').value = data.content || data.description || '';
     qs('fGallery').value = Array.isArray(data.gallery) ? data.gallery.join('\n') : '';
-    setCoverPreview(qs('fCover').value);
+
+    blocks = Array.isArray(data.blocks) ? JSON.parse(JSON.stringify(data.blocks)) : [];
+    renderBlocks();
+
+    setImgPreview('headerPreview', qs('fHeaderImage').value, 'Vista previa del header');
+    setImgPreview('coverPreview', qs('fCover').value, 'Vista previa del cover');
 
     qs('btnDelete').style.display = selectedId ? 'block' : 'none';
     qs('modeBadge').textContent = selectedId ? 'Editar' : 'Crear';
@@ -332,28 +596,35 @@
 
   function resetForm() {
     selectedId = null;
+    blocks = [];
     fillForm({ category: 'Gaming', published: true });
   }
 
   async function saveNews() {
     try {
       const data = getFormData();
+      const blocksToSave = normalizeBlocksForSave();
 
       if (!data.title) { toast('Pon un título'); return; }
-      if (!data.content) { toast('Escribe el contenido'); return; }
+      if (!data.coverImageUrl) { toast('Pon el cover del feed'); return; }
+      if (!data.headerImageUrl) { toast('Pon la imagen principal del header'); return; }
+      if (!blocksToSave.length) { toast('Agrega contenido (bloques)'); return; }
 
       const now = firebase.firestore.FieldValue.serverTimestamp();
-
-      // Si se marca como publicada, aseguramos "date" para orden del feed
       const shouldSetDate = data.published === true;
 
       const payload = {
         title: data.title,
         category: data.category,
         published: data.published,
+
         coverImageUrl: data.coverImageUrl,
-        content: data.content,
+        headerImageUrl: data.headerImageUrl,
+        statusText: data.statusText,
+
+        blocks: blocksToSave,
         gallery: data.gallery,
+
         updatedAt: now,
       };
 
@@ -435,7 +706,6 @@
     empty.style.display = 'none';
 
     try {
-      // Lista por updatedAt/createdAt desc para manejar borradores también
       const snap = await firebase.firestore()
         .collection('news')
         .orderBy('updatedAt', 'desc')
@@ -501,12 +771,6 @@
     });
   }
 
-  function escapeHtml(s) {
-    return String(s ?? '').replace(/[&<>"']/g, (m) => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[m]));
-  }
-
   // Delegación de clicks en la lista
   document.addEventListener('click', async (e) => {
     const btn = e.target.closest('button[data-action]');
@@ -560,7 +824,8 @@
   qs('btnUnpublish').addEventListener('click', unpublish);
   qs('btnDelete').addEventListener('click', deleteNews);
 
-  qs('fCover').addEventListener('input', (e) => setCoverPreview(e.target.value));
+  qs('fCover').addEventListener('input', (e) => setImgPreview('coverPreview', e.target.value, 'Vista previa del cover'));
+  qs('fHeaderImage').addEventListener('input', (e) => setImgPreview('headerPreview', e.target.value, 'Vista previa del header'));
 
   qs('btnGoHome').addEventListener('click', () => location.href = 'inicio.html');
   qs('btnLogout').addEventListener('click', async () => {
@@ -573,10 +838,22 @@
     }
   });
 
+  // Botones bloques
+  qs('addP').addEventListener('click', () => addBlock('p'));
+  qs('addH2').addEventListener('click', () => addBlock('h2'));
+  qs('addImg').addEventListener('click', () => addBlock('img'));
+  qs('addHi').addEventListener('click', () => addBlock('highlight'));
+  qs('btnClearBlocks').addEventListener('click', () => {
+    if (!blocks.length) return;
+    if (!confirm('¿Eliminar todos los bloques?')) return;
+    blocks = [];
+    renderBlocks();
+  });
+
   // Inicial
   window.addEventListener('load', () => {
-    // si ya estaba editando algo, nada; si no, resetea
     resetForm();
+    renderBlocks();
   });
 </script>
 </body>

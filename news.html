@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <meta name="theme-color" content="#06011c" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#06011c">
   <title>Noticia - VirtualGift</title>
 
-  <link rel="stylesheet" href="css/news.css" />
+  <link rel="stylesheet" href="css/news-vg.css">
 
   <!-- Firebase -->
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -16,45 +16,36 @@
 </head>
 
 <body>
-  <header class="news-header">
-    <button class="icon-btn" onclick="history.back()" aria-label="Volver">←</button>
-    <div class="brand">VIRTUALGIFT</div>
-    <button class="icon-btn" id="btnShare" aria-label="Compartir">⤴︎</button>
-  </header>
+  <div class="container">
+    <a href="inicio.html" class="back-button">← Volver al inicio</a>
 
-  <main class="news-main">
-    <div id="loading" class="loading">Cargando noticia...</div>
-
-    <article id="article" class="article" style="display:none;">
-      <div class="meta">
-        <p id="date" class="date"></p>
-        <p class="reading"><span id="readingTime">—</span> min de lectura</p>
+    <div class="article-card">
+      <!-- ✅ Header con imagen -->
+      <div class="article-header">
+        <img id="headerImage" alt="Imagen principal de la noticia" style="display:none;">
+        <div class="header-fallback" id="headerFallback">🎮</div>
       </div>
 
-      <h1 id="title" class="title"></h1>
+      <div class="article-content">
+        <div class="article-meta">
+          <span class="status-badge" id="statusBadge" style="display:none;">
+            <span class="status-dot"></span>
+            <span id="statusText">Noticia</span>
+          </span>
 
-      <figure class="hero">
-        <img id="image" class="hero-img" alt="Imagen principal" loading="lazy" />
-      </figure>
+          <span class="category-badge" id="categoryText">Gaming</span>
+          <span class="date-text" id="dateText">—</span>
+        </div>
 
-      <div id="content" class="content"></div>
+        <h1 id="titleText">Cargando...</h1>
 
-      <div id="galleryWrap" class="gallery-wrap" style="display:none;">
-        <h2 class="h2">Galería</h2>
-        <div id="gallery" class="gallery"></div>
+        <div class="article-body" id="blocksContainer">
+          <!-- Aquí se renderizan los bloques desde Firestore -->
+        </div>
       </div>
+    </div>
+  </div>
 
-      <footer class="actions">
-        <button class="btn" id="btnSave">Guardar</button>
-        <button class="btn btn-primary" id="btnShare2">Compartir</button>
-      </footer>
-    </article>
-
-    <p id="error" class="error" style="display:none;">
-      No se pudo cargar la noticia.
-    </p>
-  </main>
-
-  <script src="js/news-detail.js"></script>
+  <script src="js/news-detail-vg.js"></script>
 </body>
 </html>
