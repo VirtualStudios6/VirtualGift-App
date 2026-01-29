@@ -1,15 +1,5 @@
 // ==================== CONFIGURACIÓN ====================
 
-// ✅ LOGIN ADMIN (Firebase real)
-const ADMIN_EMAIL = 'ceovirtualstudios@gmail.com';
-const ADMIN_PASSWORD = 'admin1021';
-const ADMIN_REDIRECT_URL = 'admin-news.html';
-
-async function isUserAdmin(uid) {
-  const doc = await firebase.firestore().collection('users').doc(uid).get();
-  return doc.exists && doc.data()?.isAdmin === true;
-}
-
 const CONFIG = {
   NOTIFICATION_DURATION: 3500,
   PASSWORD_MIN_LENGTH: 8,
@@ -53,13 +43,6 @@ function providerFromUser(user) {
   if (providerId === 'google.com') return 'google';
   if (providerId === 'facebook.com') return 'facebook';
   return 'email';
-}
-
-function isFixedAdminAttempt(email, password) {
-  return (
-    String(email || '').trim().toLowerCase() === ADMIN_EMAIL.toLowerCase() &&
-    String(password || '') === String(ADMIN_PASSWORD)
-  );
 }
 
 // ==================== ESTADO GLOBAL ====================
@@ -236,15 +219,10 @@ const FormManager = {
       return;
     }
 
-    const adminAttempt = isFixedAdminAttempt(email, password);
-
-    // Usuarios normales: validar email (admin se salta esto)
-    if (!adminAttempt) {
-      const emailValidation = Validators.email(email);
-      if (!emailValidation.valid) {
-        NotificationManager.show(emailValidation.message, 'error');
-        return;
-      }
+    const emailValidation = Validators.email(email);
+    if (!emailValidation.valid) {
+      NotificationManager.show(emailValidation.message, 'error');
+      return;
     }
 
     if (!isFirebaseReady()) {
@@ -258,39 +236,17 @@ const FormManager = {
       const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
       const user = userCredential.user;
 
-      // ✅ Admin: NO exigir email verificado
-      if (!adminAttempt) {
-        const provider = providerFromUser(user);
-        if (!user.emailVerified && provider === 'email') {
-          NotificationManager.show('Verifica tu email antes de continuar', 'error');
-          await firebase.auth().signOut();
-          return;
-        }
-      }
-
-      // ✅ Admin: comprobar isAdmin y redirigir a panel
-      if (adminAttempt) {
-        const okAdmin = await isUserAdmin(user.uid);
-        if (!okAdmin) {
-          NotificationManager.show('Tu usuario no tiene permisos de administrador', 'error');
-          await firebase.auth().signOut();
-          return;
-        }
-
-        // opcional: refrescar lastLogin
-        await this.upsertUserProfile(user);
-
-        NotificationManager.show('Acceso admin ✅', 'success');
-        setTimeout(() => {
-          window.location.href = ADMIN_REDIRECT_URL;
-        }, 300);
+      // Exigir email verificado si provider es email/password
+      const provider = providerFromUser(user);
+      if (!user.emailVerified && provider === 'email') {
+        NotificationManager.show('Verifica tu email antes de continuar', 'error');
+        await firebase.auth().signOut();
         return;
       }
 
-      // ✅ Normal: upsert y welcome
       await this.upsertUserProfile(user);
-      NotificationManager.show('¡Inicio de sesión exitoso!', 'success');
 
+      NotificationManager.show('¡Inicio de sesión exitoso!', 'success');
       setTimeout(() => {
         window.location.href = CONFIG.LOGIN_REDIRECT_URL;
       }, 800);
@@ -469,15 +425,6 @@ const GoogleAuth = {
 
       if (result.user) {
         await FormManager.upsertUserProfile(result.user);
-
-        // Si el user es admin, mandarlo al panel
-        const okAdmin = await isUserAdmin(result.user.uid);
-        if (okAdmin) {
-          NotificationManager.show('Acceso admin ✅', 'success');
-          setTimeout(() => window.location.href = ADMIN_REDIRECT_URL, 300);
-          return;
-        }
-
         NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}!`, 'success');
         setTimeout(() => {
           window.location.href = CONFIG.LOGIN_REDIRECT_URL;
@@ -524,15 +471,6 @@ const FacebookAuth = {
 
       if (result.user) {
         await FormManager.upsertUserProfile(result.user);
-
-        // Si el user es admin, mandarlo al panel
-        const okAdmin = await isUserAdmin(result.user.uid);
-        if (okAdmin) {
-          NotificationManager.show('Acceso admin ✅', 'success');
-          setTimeout(() => window.location.href = ADMIN_REDIRECT_URL, 300);
-          return;
-        }
-
         NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}!`, 'success');
         setTimeout(() => {
           window.location.href = CONFIG.LOGIN_REDIRECT_URL;
@@ -551,52 +489,16 @@ const FacebookAuth = {
 // ==================== MANEJO DE SESIÓN ====================
 const SessionManager = {
   init() {
-    firebase.auth().onAuthStateChanged(async (user) => {
+    firebase.auth().onAuthStateChanged((user) => {
       const isInLogin =
         window.location.pathname.endsWith('/') ||
         window.location.pathname.includes('index.html') ||
         window.location.pathname.includes('VirtualGift-App/index');
 
-      const isAdminPage =
-        window.location.pathname.includes('admin-news.html');
-
-      // Si NO hay sesión:
-      // - si está en admin-news -> sacarlo a index
-      // - si está en login -> normal (se queda)
-      if (!user) {
-        if (isAdminPage) window.location.href = CONFIG.LOGOUT_REDIRECT_URL; // index.html
-        return;
-      }
-
-      // Hay sesión:
-      const userEmail = (user.email || '').toLowerCase();
-
-      // ✅ Solo el correo admin puede considerarse admin
-      const isCandidateAdmin = userEmail === ADMIN_EMAIL.toLowerCase();
-
-      let okAdmin = false;
-      if (isCandidateAdmin) {
-        try {
-          okAdmin = await isUserAdmin(user.uid);
-        } catch (e) {
-          okAdmin = false;
-        }
-      }
-
-      // ✅ Si está en la página de login:
-      // - admin real -> admin panel
-      // - cualquier otro -> welcome
-      if (isInLogin) {
-        window.location.href = okAdmin ? ADMIN_REDIRECT_URL : CONFIG.LOGIN_REDIRECT_URL;
-        return;
-      }
-
-      // ✅ Si está intentando entrar a admin-news.html sin ser admin real -> sacarlo
-      if (isAdminPage && !okAdmin) {
-        NotificationManager.show('Acceso solo para administradores', 'error');
-        await firebase.auth().signOut();
-        window.location.href = CONFIG.LOGOUT_REDIRECT_URL;
-        return;
+      // ✅ Comportamiento NORMAL:
+      // Si ya hay sesión y está en index -> welcome
+      if (user && isInLogin) {
+        window.location.href = CONFIG.LOGIN_REDIRECT_URL;
       }
     });
 
@@ -605,7 +507,6 @@ const SessionManager = {
     FacebookAuth.handleRedirectResult();
   }
 };
-
 
 // ==================== INICIALIZACIÓN ====================
 function initializeApp() {

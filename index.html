@@ -15,7 +15,7 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-  <!-- ✅ NUEVOS SCRIPTS - ORDEN IMPORTANTE -->
+  <!-- Scripts base -->
   <script defer src="js/firebase-config.js"></script>
   <script defer src="js/error-handler.js"></script>
   <script defer src="js/validators.js"></script>
@@ -104,7 +104,6 @@
 
       <!-- LOGIN SOCIAL -->
       <div class="social-login">
-
         <button type="button" id="google-login" class="btn social">
           Continuar con Google
         </button>
@@ -112,7 +111,6 @@
         <button type="button" id="facebook-login" class="btn social">
           Continuar con Facebook
         </button>
-
       </div>
 
       <footer>
@@ -124,38 +122,7 @@
 
   <div id="notification" class="notification"></div>
 
-  <!-- AUTH SYSTEM - ✅ DEBE IR AL FINAL -->
+  <!-- AUTH SYSTEM -->
   <script defer src="js/auth.js"></script>
-
-  <!-- ✅ ATAJO ADMIN DIRECTO (SIN TOCAR auth.js) -->
-  <script>
-    (function () {
-      const ADMIN_USER = 'admin';
-      const ADMIN_PASS = 'Yeison2k26@';
-
-      function norm(s) { return String(s || '').trim(); }
-
-      window.addEventListener('DOMContentLoaded', () => {
-        const btn = document.getElementById('login-btn');
-        const emailEl = document.getElementById('login-email');
-        const passEl = document.getElementById('login-password');
-
-        if (!btn || !emailEl || !passEl) return;
-
-        // Captura el click ANTES que auth.js
-        btn.addEventListener('click', (e) => {
-          const email = norm(emailEl.value);
-          const pass = norm(passEl.value);
-
-          if (email === ADMIN_USER && pass === ADMIN_PASS) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
-            location.href = 'admin-news.html';
-          }
-        }, true);
-      });
-    })();
-  </script>
 </body>
 </html>
