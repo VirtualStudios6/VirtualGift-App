@@ -126,5 +126,36 @@
 
   <!-- AUTH SYSTEM - ✅ DEBE IR AL FINAL -->
   <script defer src="js/auth.js"></script>
+
+  <!-- ✅ ATAJO ADMIN DIRECTO (SIN TOCAR auth.js) -->
+  <script>
+    (function () {
+      const ADMIN_USER = 'admin';
+      const ADMIN_PASS = 'Yeison2k26@';
+
+      function norm(s) { return String(s || '').trim(); }
+
+      window.addEventListener('DOMContentLoaded', () => {
+        const btn = document.getElementById('login-btn');
+        const emailEl = document.getElementById('login-email');
+        const passEl = document.getElementById('login-password');
+
+        if (!btn || !emailEl || !passEl) return;
+
+        // Captura el click ANTES que auth.js
+        btn.addEventListener('click', (e) => {
+          const email = norm(emailEl.value);
+          const pass = norm(passEl.value);
+
+          if (email === ADMIN_USER && pass === ADMIN_PASS) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
+            location.href = 'admin-news.html';
+          }
+        }, true);
+      });
+    })();
+  </script>
 </body>
 </html>

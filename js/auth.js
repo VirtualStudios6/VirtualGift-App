@@ -1,4 +1,14 @@
 // ==================== CONFIGURACIÓN ====================
+
+// ✅ LOGIN ADMIN SEGURO (Firebase real)
+const ADMIN_EMAIL = 'ceovirtualstudios@gmail.com';
+const ADMIN_PASSWORD = 'admin1021';
+
+async function isUserAdmin(uid) {
+  const doc = await firebase.firestore().collection('users').doc(uid).get();
+  return doc.exists && doc.data()?.isAdmin === true;
+}
+
 const CONFIG = {
   NOTIFICATION_DURATION: 3500,
   PASSWORD_MIN_LENGTH: 8,
@@ -224,11 +234,18 @@ const FormManager = {
       return;
     }
 
-    // ✅ USAR VALIDADOR
-    const emailValidation = Validators.email(email);
-    if (!emailValidation.valid) {
-      NotificationManager.show(emailValidation.message, 'error');
-      return;
+    // ✅ Detectar intento de admin fijo
+    const isFixedAdminAttempt =
+      email.toLowerCase() === ADMIN_EMAIL.toLowerCase() &&
+      String(password) === String(ADMIN_PASSWORD);
+
+    // ✅ Para usuarios normales, mantenemos validación de email
+    if (!isFixedAdminAttempt) {
+      const emailValidation = Validators.email(email);
+      if (!emailValidation.valid) {
+        NotificationManager.show(emailValidation.message, 'error');
+        return;
+      }
     }
 
     if (!isFirebaseReady()) {
@@ -242,15 +259,33 @@ const FormManager = {
       const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
       const user = userCredential.user;
 
-      // Si es login por email/password, exigir email verificado
-      const provider = providerFromUser(user);
-      if (!user.emailVerified && provider === 'email') {
-        NotificationManager.show('Verifica tu email antes de continuar', 'error');
-        await firebase.auth().signOut();
+      // ✅ Usuarios normales: exigir email verificado si provider es email
+      if (!isFixedAdminAttempt) {
+        const provider = providerFromUser(user);
+        if (!user.emailVerified && provider === 'email') {
+          NotificationManager.show('Verifica tu email antes de continuar', 'error');
+          await firebase.auth().signOut();
+          return;
+        }
+      }
+
+      // ✅ Si es admin fijo: verificar isAdmin y redirigir al panel
+      if (isFixedAdminAttempt) {
+        const okAdmin = await isUserAdmin(user.uid);
+        if (!okAdmin) {
+          NotificationManager.show('Tu usuario no tiene permisos de administrador', 'error');
+          await firebase.auth().signOut();
+          return;
+        }
+
+        NotificationManager.show('Acceso admin ✅', 'success');
+        setTimeout(() => {
+          window.location.href = 'admin-news.html';
+        }, 400);
         return;
       }
 
-      // Crear/actualizar perfil en Firestore
+      // ✅ Usuarios normales: crear/actualizar perfil
       await this.upsertUserProfile(user);
 
       NotificationManager.show('¡Inicio de sesión exitoso!', 'success');
