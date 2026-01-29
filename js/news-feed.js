@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const errorEl = document.getElementById('newsError');
   if (!grid) return;
 
+  const FEED_LIMIT = 12;
+
   function isFirebaseReady() {
     return window.db && typeof window.db.collection === 'function';
   }
@@ -18,70 +20,87 @@ document.addEventListener('DOMContentLoaded', () => {
         cb();
       } else if (i >= max) {
         clearInterval(t);
-        console.warn('[news-feed] Firebase no cargó a tiempo');
-        showError();
+        showError('Firebase no cargó a tiempo.');
       }
     }, 100);
   }
 
-  function showError() {
-    if (errorEl) errorEl.style.display = 'block';
+  function showError(msg) {
+    if (!errorEl) return;
+    errorEl.style.display = 'block';
+    if (msg) errorEl.textContent = msg;
   }
 
   function localPlaceholder() {
-    // ✅ usa una imagen local para evitar problemas DNS con via.placeholder.com
     return 'images/news-placeholder.png';
   }
 
   function getCover(data) {
-    const url = (data.coverImageUrl || data.imageUrl || '').trim();
+    const url = String(data?.coverImageUrl || '').trim();
     return url || localPlaceholder();
   }
 
-  function renderNews(docs) {
+  function renderEmpty() {
+    grid.innerHTML = '';
+    const div = document.createElement('div');
+    div.style.opacity = '.85';
+    div.style.padding = '10px';
+    div.textContent = 'No hay noticias publicadas todavía.';
+    grid.appendChild(div);
+  }
+
+  function renderNews(items) {
     grid.innerHTML = '';
 
-    if (!docs.length) {
-      grid.innerHTML = `
-        <div style="opacity:.8; padding:10px;">
-          No hay noticias publicadas todavía.
-        </div>
-      `;
+    if (!items.length) {
+      renderEmpty();
       return;
     }
 
-    docs.forEach(({ id, data }) => {
-      const title = data.title || 'Noticia';
+    items.forEach(({ id, data }) => {
+      const title = String(data?.title || 'Noticia');
       const imageUrl = getCover(data);
 
       const a = document.createElement('a');
       a.className = 'news-card';
       a.href = `news.html?id=${encodeURIComponent(id)}`;
-      a.innerHTML = `
-        <div class="news-image">
-          <img src="${imageUrl}" alt="${title.replace(/"/g, '&quot;')}" loading="lazy">
-        </div>
-        <p class="news-label">${title}</p>
-      `;
+
+      const imgWrap = document.createElement('div');
+      imgWrap.className = 'news-image';
+
+      const img = document.createElement('img');
+      img.loading = 'lazy';
+      img.alt = title;
+      img.src = imageUrl;
+      img.onerror = () => img.src = localPlaceholder();
+
+      const p = document.createElement('p');
+      p.className = 'news-label';
+      p.textContent = title;
+
+      imgWrap.appendChild(img);
+      a.appendChild(imgWrap);
+      a.appendChild(p);
+
       grid.appendChild(a);
     });
   }
 
   async function loadNews() {
     try {
+      // 🔥 ORDENAMOS POR updatedAt (SIEMPRE EXISTE)
       const snap = await window.db
         .collection('news')
         .where('published', '==', true)
-        .where('category', '==', 'Gaming')  // ✅ SOLO Gaming News
-        .orderBy('date', 'desc')
-        .limit(12)
+        .orderBy('updatedAt', 'desc')
+        .limit(FEED_LIMIT)
         .get();
 
-      const docs = snap.docs.map(d => ({ id: d.id, data: d.data() }));
-      renderNews(docs);
+      const items = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+      renderNews(items);
     } catch (e) {
-      console.error('[news-feed] Error:', e);
-      showError();
+      console.error('[news-feed] Error real:', e);
+      showError('No se pudieron cargar las noticias.');
     }
   }
 

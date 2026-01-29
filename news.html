@@ -20,10 +20,14 @@
     <a href="inicio.html" class="back-button">← Volver al inicio</a>
 
     <div class="article-card">
-      <!-- ✅ Header con imagen -->
       <div class="article-header">
-        <img id="headerImage" alt="Imagen principal de la noticia" style="display:none;">
-        <div class="header-fallback" id="headerFallback">🎮</div>
+        <!-- ✅ Imagen principal -->
+        <img id="headerImage" class="header-image" alt="Imagen principal de la noticia" style="display:none;" />
+
+        <!-- ✅ Fallback si no hay imagen -->
+        <div class="header-fallback" id="headerFallback">
+          <span>VIRTUALGIFT</span>
+        </div>
       </div>
 
       <div class="article-content">
@@ -42,6 +46,12 @@
         <div class="article-body" id="blocksContainer">
           <!-- Aquí se renderizan los bloques desde Firestore -->
         </div>
+
+        <!-- ✅ Galería opcional (si existe en Firestore: gallery: ["url1","url2"...]) -->
+        <div id="galleryContainer" class="gallery" style="display:none;">
+          <!-- Aquí se renderizan las imágenes de la galería -->
+        </div>
+
       </div>
     </div>
   </div>

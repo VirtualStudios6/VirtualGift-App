@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const headerImageEl = document.getElementById('headerImage');
   const headerFallbackEl = document.getElementById('headerFallback');
 
+  // ✅ opcional: si tu HTML tiene galería, úsalo. Si no existe, no pasa nada.
+  const galleryContainer = document.getElementById('galleryContainer');
+
   function isFirebaseReady() {
     return window.db && typeof window.db.collection === 'function';
   }
@@ -35,52 +38,64 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function showError(msg) {
-    console.error('[news-detail-vg] ', msg || 'Error');
-    if (titleEl) titleEl.textContent = 'No se pudo cargar la noticia.';
-    if (blocksContainer) {
-      blocksContainer.innerHTML = `<p style="opacity:.85;">${escapeHtml(msg || 'Error cargando noticia')}</p>`;
-    }
-  }
+    console.error('[news-detail-vg]', msg || 'Error');
 
-  function escapeHtml(s) {
-    return String(s ?? '').replace(/[&<>"']/g, (m) => ({
-      "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-    }[m]));
+    if (titleEl) titleEl.textContent = 'No se pudo cargar la noticia.';
+
+    if (blocksContainer) {
+      clearNode(blocksContainer);
+      const p = document.createElement('p');
+      p.style.opacity = '.85';
+      p.textContent = msg || 'Error cargando noticia';
+      blocksContainer.appendChild(p);
+    }
   }
 
   function fmtDate(ts) {
     if (!ts) return '—';
     try {
       const d = ts.toDate ? ts.toDate() : new Date(ts);
-      return d.toLocaleDateString('es-ES', { day:'2-digit', month:'long', year:'numeric' });
-    } catch { return '—'; }
+      return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'long', year: 'numeric' });
+    } catch {
+      return '—';
+    }
+  }
+
+  function clearNode(el) {
+    if (!el) return;
+    while (el.firstChild) el.removeChild(el.firstChild);
   }
 
   function setHeaderImage(url) {
     const clean = (url && String(url).trim()) ? String(url).trim() : '';
+
     if (!clean) {
-      // fallback
       if (headerImageEl) headerImageEl.style.display = 'none';
       if (headerFallbackEl) headerFallbackEl.style.display = 'flex';
       return;
     }
 
     if (headerImageEl) {
-      headerImageEl.src = clean;
       headerImageEl.style.display = 'block';
-      headerImageEl.style.width = '100%';
-      headerImageEl.style.height = '100%';
-      headerImageEl.style.objectFit = 'cover';
+      headerImageEl.src = clean;
+      headerImageEl.onerror = () => {
+        headerImageEl.style.display = 'none';
+        if (headerFallbackEl) headerFallbackEl.style.display = 'flex';
+      };
     }
+
     if (headerFallbackEl) headerFallbackEl.style.display = 'none';
   }
 
   function renderBlocks(blocks) {
     if (!blocksContainer) return;
-    blocksContainer.innerHTML = '';
+    clearNode(blocksContainer);
 
     if (!Array.isArray(blocks) || blocks.length === 0) {
-      blocksContainer.innerHTML = `<p style="opacity:.85;">Esta noticia no tiene contenido todavía.</p>`;
+      const p = document.createElement('p');
+      p.style.opacity = '.85';
+      p.textContent = 'Esta noticia no tiene contenido todavía.';
+      blocksContainer.appendChild(p);
       return;
     }
 
@@ -104,9 +119,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if (type === 'highlight') {
         const box = document.createElement('div');
         box.className = 'highlight-box';
+
         const p = document.createElement('p');
         p.textContent = String(b.text || '');
         box.appendChild(p);
+
         blocksContainer.appendChild(box);
         return;
       }
@@ -121,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const img = document.createElement('img');
         img.src = url;
         img.alt = 'Imagen de la noticia';
+        img.loading = 'lazy';
         wrap.appendChild(img);
 
         const cap = String(b.caption || '').trim();
@@ -135,7 +153,31 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Tipos desconocidos => ignora
+      // desconocido: ignorar
+    });
+  }
+
+  function renderGallery(gallery) {
+    if (!galleryContainer) return;
+
+    if (!Array.isArray(gallery) || gallery.length === 0) {
+      galleryContainer.style.display = 'none';
+      clearNode(galleryContainer);
+      return;
+    }
+
+    galleryContainer.style.display = 'block';
+    clearNode(galleryContainer);
+
+    gallery.forEach((url) => {
+      const clean = String(url || '').trim();
+      if (!clean) return;
+
+      const img = document.createElement('img');
+      img.src = clean;
+      img.loading = 'lazy';
+      img.alt = 'Imagen de galería';
+      galleryContainer.appendChild(img);
     });
   }
 
@@ -148,32 +190,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = doc.data() || {};
 
-      // si está despublicada, oculta
+      // ✅ Público: solo published
       if (data.published !== true) return showError('Esta noticia no está publicada.');
 
-      // Title
-      if (titleEl) titleEl.textContent = data.title || 'Noticia';
+      const title = String(data.title || 'Noticia');
+      if (titleEl) titleEl.textContent = title;
 
-      // Date (para orden del feed)
+      // ✅ SEO básico
+      document.title = `${title} • VirtualGift`;
+
       if (dateEl) dateEl.textContent = fmtDate(data.date || data.updatedAt || data.createdAt);
+      if (categoryEl) categoryEl.textContent = String(data.category || 'Gaming');
 
-      // Category
-      if (categoryEl) categoryEl.textContent = data.category || 'Gaming';
-
-      // Status
       const st = String(data.statusText || '').trim();
-      if (st) {
+      if (st && statusBadge && statusTextEl) {
         statusTextEl.textContent = st;
         statusBadge.style.display = 'inline-flex';
-      } else {
+      } else if (statusBadge) {
         statusBadge.style.display = 'none';
       }
 
-      // ✅ Header Image
-      setHeaderImage(data.headerImageUrl);
+      // ✅ Header: primero headerImageUrl, si no coverImageUrl
+      setHeaderImage(data.headerImageUrl || data.coverImageUrl || '');
 
-      // ✅ Blocks
       renderBlocks(data.blocks);
+      renderGallery(data.gallery);
 
     } catch (e) {
       console.error('[news-detail-vg] Error:', e);
