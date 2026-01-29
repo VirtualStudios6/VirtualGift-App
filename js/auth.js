@@ -1,8 +1,9 @@
 // ==================== CONFIGURACIÓN ====================
 
-// ✅ LOGIN ADMIN SEGURO (Firebase real)
+// ✅ LOGIN ADMIN (Firebase real)
 const ADMIN_EMAIL = 'ceovirtualstudios@gmail.com';
 const ADMIN_PASSWORD = 'admin1021';
+const ADMIN_REDIRECT_URL = 'admin-news.html';
 
 async function isUserAdmin(uid) {
   const doc = await firebase.firestore().collection('users').doc(uid).get();
@@ -52,6 +53,13 @@ function providerFromUser(user) {
   if (providerId === 'google.com') return 'google';
   if (providerId === 'facebook.com') return 'facebook';
   return 'email';
+}
+
+function isFixedAdminAttempt(email, password) {
+  return (
+    String(email || '').trim().toLowerCase() === ADMIN_EMAIL.toLowerCase() &&
+    String(password || '') === String(ADMIN_PASSWORD)
+  );
 }
 
 // ==================== ESTADO GLOBAL ====================
@@ -145,18 +153,18 @@ const FormManager = {
       this.sendRecoveryEmail();
     });
 
-    // IMPORTANTE: Prevenir submit del formulario
+    // Prevenir submit
     document.getElementById('login-form')?.addEventListener('submit', (e) => {
       e.preventDefault();
       this.handleLogin();
     });
 
-    // Botón de login
+    // Botón login
     document.getElementById('login-btn')?.addEventListener('click', () => {
       this.handleLogin();
     });
 
-    // Botón de registro
+    // Botón registro
     document.getElementById('register-btn')?.addEventListener('click', () => {
       this.handleRegistration();
     });
@@ -168,10 +176,7 @@ const FormManager = {
   },
 
   showForm(formId) {
-    document.querySelectorAll('.form').forEach(form => {
-      form.classList.remove('active');
-    });
-
+    document.querySelectorAll('.form').forEach(form => form.classList.remove('active'));
     document.getElementById(formId)?.classList.add('active');
     this.hideRecoveryForm();
   },
@@ -184,7 +189,6 @@ const FormManager = {
   hideRecoveryForm() {
     document.getElementById('recovery-container')?.classList.remove('show');
     document.getElementById('recovery-overlay')?.classList.remove('show');
-
     const recoveryEmail = document.getElementById('recovery-email');
     if (recoveryEmail) recoveryEmail.value = '';
   },
@@ -197,7 +201,6 @@ const FormManager = {
       return;
     }
 
-    // ✅ USAR VALIDADOR
     const emailValidation = Validators.email(email);
     if (!emailValidation.valid) {
       NotificationManager.show(emailValidation.message, 'error');
@@ -216,7 +219,6 @@ const FormManager = {
       NotificationManager.show('Se ha enviado un enlace de recuperación a tu correo', 'success');
       this.hideRecoveryForm();
     } catch (error) {
-      // ✅ USAR ERROR HANDLER
       ErrorHandler.handle(error, 'RecoveryEmail');
     } finally {
       State.setLoading(false);
@@ -234,13 +236,10 @@ const FormManager = {
       return;
     }
 
-    // ✅ Detectar intento de admin fijo
-    const isFixedAdminAttempt =
-      email.toLowerCase() === ADMIN_EMAIL.toLowerCase() &&
-      String(password) === String(ADMIN_PASSWORD);
+    const adminAttempt = isFixedAdminAttempt(email, password);
 
-    // ✅ Para usuarios normales, mantenemos validación de email
-    if (!isFixedAdminAttempt) {
+    // Usuarios normales: validar email (admin se salta esto)
+    if (!adminAttempt) {
       const emailValidation = Validators.email(email);
       if (!emailValidation.valid) {
         NotificationManager.show(emailValidation.message, 'error');
@@ -259,8 +258,8 @@ const FormManager = {
       const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
       const user = userCredential.user;
 
-      // ✅ Usuarios normales: exigir email verificado si provider es email
-      if (!isFixedAdminAttempt) {
+      // ✅ Admin: NO exigir email verificado
+      if (!adminAttempt) {
         const provider = providerFromUser(user);
         if (!user.emailVerified && provider === 'email') {
           NotificationManager.show('Verifica tu email antes de continuar', 'error');
@@ -269,8 +268,8 @@ const FormManager = {
         }
       }
 
-      // ✅ Si es admin fijo: verificar isAdmin y redirigir al panel
-      if (isFixedAdminAttempt) {
+      // ✅ Admin: comprobar isAdmin y redirigir a panel
+      if (adminAttempt) {
         const okAdmin = await isUserAdmin(user.uid);
         if (!okAdmin) {
           NotificationManager.show('Tu usuario no tiene permisos de administrador', 'error');
@@ -278,16 +277,18 @@ const FormManager = {
           return;
         }
 
+        // opcional: refrescar lastLogin
+        await this.upsertUserProfile(user);
+
         NotificationManager.show('Acceso admin ✅', 'success');
         setTimeout(() => {
-          window.location.href = 'admin-news.html';
-        }, 400);
+          window.location.href = ADMIN_REDIRECT_URL;
+        }, 300);
         return;
       }
 
-      // ✅ Usuarios normales: crear/actualizar perfil
+      // ✅ Normal: upsert y welcome
       await this.upsertUserProfile(user);
-
       NotificationManager.show('¡Inicio de sesión exitoso!', 'success');
 
       setTimeout(() => {
@@ -295,7 +296,6 @@ const FormManager = {
       }, 800);
 
     } catch (error) {
-      // ✅ USAR ERROR HANDLER
       ErrorHandler.handle(error, 'Login');
     } finally {
       State.setLoading(false);
@@ -311,28 +311,24 @@ const FormManager = {
     const confirmPassword = document.getElementById('confirm-password')?.value;
     const termsAccepted = document.getElementById('terms')?.checked;
 
-    // ✅ VALIDAR USERNAME
     const usernameValidation = Validators.username(username);
     if (!usernameValidation.valid) {
       NotificationManager.show(usernameValidation.message, 'error');
       return;
     }
 
-    // ✅ VALIDAR EMAIL
     const emailValidation = Validators.email(email);
     if (!emailValidation.valid) {
       NotificationManager.show(emailValidation.message, 'error');
       return;
     }
 
-    // ✅ VALIDAR PASSWORD
     const passwordValidation = Validators.password(password);
     if (!passwordValidation.valid) {
       NotificationManager.show(passwordValidation.message, 'error');
       return;
     }
 
-    // ✅ VALIDAR COINCIDENCIA
     const matchValidation = Validators.passwordsMatch(password, confirmPassword);
     if (!matchValidation.valid) {
       NotificationManager.show(matchValidation.message, 'error');
@@ -352,19 +348,11 @@ const FormManager = {
     State.setLoading(true);
 
     try {
-      // Crear usuario en Firebase Auth
       const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, password);
       const user = userCredential.user;
 
-      // Enviar email de verificación
-      try {
-        await user.sendEmailVerification();
-        console.log('Email de verificación enviado');
-      } catch (emailError) {
-        console.error('Error al enviar email de verificación:', emailError);
-      }
+      try { await user.sendEmailVerification(); } catch (e) { console.warn('No se pudo enviar verificación:', e); }
 
-      // Crear perfil en Firestore
       await firebase.firestore().collection('users').doc(user.uid).set({
         uid: user.uid,
         username: username,
@@ -384,7 +372,6 @@ const FormManager = {
 
       NotificationManager.show('¡Cuenta creada! Verifica tu email antes de continuar', 'success');
 
-      // Cerrar sesión hasta que verifique email
       await firebase.auth().signOut();
 
       setTimeout(() => {
@@ -392,7 +379,6 @@ const FormManager = {
       }, 2000);
 
     } catch (error) {
-      // ✅ USAR ERROR HANDLER
       ErrorHandler.handle(error, 'Registration');
     } finally {
       State.setLoading(false);
@@ -412,7 +398,6 @@ const FormManager = {
     };
 
     if (!doc.exists) {
-      // Usuario nuevo (Google/Facebook primera vez)
       await userRef.set({
         ...baseUpdate,
         username: user.displayName || 'Usuario',
@@ -426,7 +411,6 @@ const FormManager = {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true });
     } else {
-      // Usuario existente - solo actualizar datos básicos
       await userRef.set({
         ...baseUpdate,
         username: doc.data()?.username || user.displayName || 'Usuario'
@@ -485,8 +469,16 @@ const GoogleAuth = {
 
       if (result.user) {
         await FormManager.upsertUserProfile(result.user);
-        NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}!`, 'success');
 
+        // Si el user es admin, mandarlo al panel
+        const okAdmin = await isUserAdmin(result.user.uid);
+        if (okAdmin) {
+          NotificationManager.show('Acceso admin ✅', 'success');
+          setTimeout(() => window.location.href = ADMIN_REDIRECT_URL, 300);
+          return;
+        }
+
+        NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}!`, 'success');
         setTimeout(() => {
           window.location.href = CONFIG.LOGIN_REDIRECT_URL;
         }, 800);
@@ -532,8 +524,16 @@ const FacebookAuth = {
 
       if (result.user) {
         await FormManager.upsertUserProfile(result.user);
-        NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}!`, 'success');
 
+        // Si el user es admin, mandarlo al panel
+        const okAdmin = await isUserAdmin(result.user.uid);
+        if (okAdmin) {
+          NotificationManager.show('Acceso admin ✅', 'success');
+          setTimeout(() => window.location.href = ADMIN_REDIRECT_URL, 300);
+          return;
+        }
+
+        NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}!`, 'success');
         setTimeout(() => {
           window.location.href = CONFIG.LOGIN_REDIRECT_URL;
         }, 800);
@@ -551,18 +551,23 @@ const FacebookAuth = {
 // ==================== MANEJO DE SESIÓN ====================
 const SessionManager = {
   init() {
-    firebase.auth().onAuthStateChanged((user) => {
+    firebase.auth().onAuthStateChanged(async (user) => {
       const isInLogin =
         window.location.pathname.endsWith('/') ||
         window.location.pathname.includes('index.html') ||
         window.location.pathname.includes('VirtualGift-App/index');
 
       if (user && isInLogin) {
-        window.location.href = CONFIG.LOGIN_REDIRECT_URL;
+        // Si es admin -> panel, si no -> welcome
+        try {
+          const okAdmin = await isUserAdmin(user.uid);
+          window.location.href = okAdmin ? ADMIN_REDIRECT_URL : CONFIG.LOGIN_REDIRECT_URL;
+        } catch {
+          window.location.href = CONFIG.LOGIN_REDIRECT_URL;
+        }
       }
     });
 
-    // Manejar redirects
     GoogleAuth.handleRedirectResult();
     FacebookAuth.handleRedirectResult();
   }
