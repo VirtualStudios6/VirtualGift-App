@@ -557,21 +557,55 @@ const SessionManager = {
         window.location.pathname.includes('index.html') ||
         window.location.pathname.includes('VirtualGift-App/index');
 
-      if (user && isInLogin) {
-        // Si es admin -> panel, si no -> welcome
+      const isAdminPage =
+        window.location.pathname.includes('admin-news.html');
+
+      // Si NO hay sesión:
+      // - si está en admin-news -> sacarlo a index
+      // - si está en login -> normal (se queda)
+      if (!user) {
+        if (isAdminPage) window.location.href = CONFIG.LOGOUT_REDIRECT_URL; // index.html
+        return;
+      }
+
+      // Hay sesión:
+      const userEmail = (user.email || '').toLowerCase();
+
+      // ✅ Solo el correo admin puede considerarse admin
+      const isCandidateAdmin = userEmail === ADMIN_EMAIL.toLowerCase();
+
+      let okAdmin = false;
+      if (isCandidateAdmin) {
         try {
-          const okAdmin = await isUserAdmin(user.uid);
-          window.location.href = okAdmin ? ADMIN_REDIRECT_URL : CONFIG.LOGIN_REDIRECT_URL;
-        } catch {
-          window.location.href = CONFIG.LOGIN_REDIRECT_URL;
+          okAdmin = await isUserAdmin(user.uid);
+        } catch (e) {
+          okAdmin = false;
         }
+      }
+
+      // ✅ Si está en la página de login:
+      // - admin real -> admin panel
+      // - cualquier otro -> welcome
+      if (isInLogin) {
+        window.location.href = okAdmin ? ADMIN_REDIRECT_URL : CONFIG.LOGIN_REDIRECT_URL;
+        return;
+      }
+
+      // ✅ Si está intentando entrar a admin-news.html sin ser admin real -> sacarlo
+      if (isAdminPage && !okAdmin) {
+        NotificationManager.show('Acceso solo para administradores', 'error');
+        await firebase.auth().signOut();
+        window.location.href = CONFIG.LOGOUT_REDIRECT_URL;
+        return;
       }
     });
 
+    // Manejar redirects
     GoogleAuth.handleRedirectResult();
     FacebookAuth.handleRedirectResult();
   }
 };
+
 
 // ==================== INICIALIZACIÓN ====================
 function initializeApp() {
