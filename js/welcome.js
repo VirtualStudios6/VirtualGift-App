@@ -20,13 +20,24 @@ document.addEventListener('DOMContentLoaded', function () {
   ];
 
   function isFirebaseReady() {
-    return typeof firebase !== 'undefined' && firebase.auth && firebase.firestore;
-  }
+  return typeof firebase !== 'undefined' &&
+         typeof firebase.auth === 'function' &&
+         typeof firebase.firestore === 'function';
+}
 
-  function waitForFirebase(cb) {
-    if (isFirebaseReady()) cb();
-    else setTimeout(() => waitForFirebase(cb), 100);
-  }
+  function waitForFirebase(callback, maxAttempts = 60) {
+  let attempts = 0;
+  const check = setInterval(() => {
+    attempts++;
+    if (isFirebaseReady()) {
+      clearInterval(check);
+      callback();
+    } else if (attempts >= maxAttempts) {
+      clearInterval(check);
+      console.error('Firebase no se cargó correctamente');
+    }
+  }, 100);
+}
 
   waitForFirebase(() => {
     firebase.auth().onAuthStateChanged(async (user) => {
