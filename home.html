@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#06011c">
   <title>Mi Perfil - VirtualGift</title>
 
+  <!-- ✅ Android App Mode (marca html/body con class android-app si viene ?app=android) -->
+  <script defer src="js/app-mode.js"></script>
+
   <style>
     :root {
       --primary: #8d17fb;
@@ -204,19 +207,23 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
 
-  <!-- ✅ Detectar Android App + helper para mantener app=android -->
   <script>
-    (function markAndroidApp() {
-      const isAndroidApp = new URLSearchParams(location.search).get("app") === "android";
-      if (isAndroidApp) document.documentElement.classList.add("android-app");
-    })();
-
+    // ✅ Mantener app=android en navegación
     function withAppFlag(url) {
-      const isAndroidApp = document.documentElement.classList.contains("android-app");
-      if (!isAndroidApp) return url;
+      const isAndroidApp =
+        document.documentElement.classList.contains("android-app") ||
+        document.body.classList.contains("android-app");
 
+      if (!isAndroidApp) return url;
       if (url.includes("app=android")) return url;
-      return url.includes("?") ? (url + "&app=android") : (url + "?app=android");
+
+      // Mantener #hash si existiera
+      const parts = url.split('#');
+      const base = parts[0];
+      const hash = parts[1] ? ('#' + parts[1]) : '';
+
+      const fixed = base.includes("?") ? (base + "&app=android") : (base + "?app=android");
+      return fixed + hash;
     }
   </script>
 </head>
@@ -348,7 +355,6 @@
       try {
         const ref = window.db.collection('users').doc(user.uid);
         const snap = await ref.get();
-
         if (!snap.exists) return;
 
         const data = snap.data() || {};
