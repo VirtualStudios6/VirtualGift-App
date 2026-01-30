@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mis Puntos - VirtualGift</title>
+
     <link rel="stylesheet" href="css/inicio.css">
 
+    <!-- ✅ Android App Mode (marca html/body con class android-app si viene ?app=android) -->
+    <script defer src="js/app-mode.js"></script>
+
     <style>
-        /* ✅ Ocultar iconos del header SOLO dentro de Android App */
-        html.android-app .header-icons {
+        /* ✅ En modo Android: ocultar TODO el header web */
+        html.android-app .header,
+        body.android-app .header {
             display: none !important;
         }
 
@@ -216,20 +221,16 @@
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script defer src="js/firebase-config.js"></script>
 
-    <!-- ✅ Detectar Android App + helper para mantener app=android -->
     <script>
-        (function markAndroidApp() {
-            const isAndroidApp = new URLSearchParams(location.search).get("app") === "android";
-            if (isAndroidApp) document.documentElement.classList.add("android-app");
-        })();
-
+        // ✅ Mantener app=android en navegación
         function withAppFlag(url) {
-            const isAndroidApp = document.documentElement.classList.contains("android-app");
-            if (!isAndroidApp) return url;
+            const isAndroidApp =
+                document.documentElement.classList.contains("android-app") ||
+                document.body.classList.contains("android-app");
 
+            if (!isAndroidApp) return url;
             if (url.includes("app=android")) return url;
 
-            // Mantener hash (#news etc.)
             const parts = url.split('#');
             const base = parts[0];
             const hash = parts[1] ? ('#' + parts[1]) : '';
@@ -255,7 +256,6 @@
                 </svg>
             </div>
 
-            <!-- Monedas (en esta página no navega porque ya estás en puntos, pero lo dejamos consistente) -->
             <div class="icon-coin" onclick="window.location.href=withAppFlag('puntos.html')" style="cursor: pointer;">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="50" cy="50" r="48" fill="#FDB813"/>
@@ -284,7 +284,6 @@
             ← Volver al inicio
         </button>
 
-        <!-- Balance de Puntos -->
         <div class="points-header">
             <div class="points-icon">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
@@ -303,7 +302,6 @@
             <div class="points-balance" id="totalPoints">0</div>
         </div>
 
-        <!-- Formas de ganar puntos -->
         <div class="points-grid">
             <div class="points-card">
                 <div class="card-icon">🎮</div>
@@ -334,11 +332,8 @@
             </div>
         </div>
 
-        <!-- Historial de Puntos -->
         <div class="history-section">
-            <div class="history-title">
-                📊 Historial de Puntos
-            </div>
+            <div class="history-title">📊 Historial de Puntos</div>
             <div id="historyContainer">
                 <div class="empty-state">
                     <div class="empty-icon">💰</div>
@@ -371,7 +366,6 @@
             }, 100);
         }
 
-        // Verificar autenticación
         function checkAuth() {
             waitForFirebase(() => {
                 window.auth.onAuthStateChanged((user) => {
@@ -386,7 +380,6 @@
             });
         }
 
-        // Badge notificaciones (opcional, consistente con inicio.html)
         function loadNotificationCount(uid) {
             try {
                 window.db.collection('notifications')
@@ -405,7 +398,6 @@
             }
         }
 
-        // Cargar puntos del usuario
         async function loadUserPoints(userId) {
             try {
                 const doc = await window.db.collection('users').doc(userId).get();
@@ -414,8 +406,6 @@
                     const data = doc.data();
                     const points = data.points || 0;
                     document.getElementById('totalPoints').textContent = points.toLocaleString();
-
-                    // Verificar recompensa diaria
                     checkDailyReward(userId, data.lastDailyReward);
                 }
             } catch (error) {
@@ -423,7 +413,6 @@
             }
         }
 
-        // Verificar recompensa diaria
         function checkDailyReward(userId, lastReward) {
             const today = new Date().toDateString();
             const lastRewardDate = lastReward ? new Date(lastReward.toDate()).toDateString() : null;
@@ -440,7 +429,6 @@
             }
         }
 
-        // Reclamar recompensa diaria
         async function claimDailyReward(userId) {
             try {
                 const btn = document.getElementById('dailyRewardBtn');
@@ -468,16 +456,13 @@
                 btn.textContent = '✓ ¡Reclamado!';
                 btn.style.background = '#10b981';
 
-                setTimeout(() => {
-                    location.reload();
-                }, 2000);
+                setTimeout(() => location.reload(), 2000);
             } catch (error) {
                 console.error('Error al reclamar recompensa:', error);
                 alert('Error al reclamar la recompensa');
             }
         }
 
-        // Cargar historial de puntos
         async function loadPointsHistory(userId) {
             try {
                 const snapshot = await window.db.collection('pointsHistory')

@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notificaciones - VirtualGift</title>
+
     <link rel="stylesheet" href="css/inicio.css">
 
+    <!-- ✅ Android App Mode (marca html/body con class android-app si viene ?app=android) -->
+    <script defer src="js/app-mode.js"></script>
+
     <style>
-        /* ✅ Ocultar iconos del header SOLO dentro de Android App */
-        html.android-app .header-icons {
+        /* ✅ En modo Android: ocultar TODO el header web */
+        html.android-app .header,
+        body.android-app .header {
             display: none !important;
         }
 
@@ -93,9 +98,7 @@
             transition: color 0.3s ease;
         }
 
-        .tab:hover {
-            color: #e5e7eb;
-        }
+        .tab:hover { color: #e5e7eb; }
 
         .tab.active {
             color: #6366f1;
@@ -191,10 +194,7 @@
             color: #6b7280;
         }
 
-        .notification-actions {
-            display: flex;
-            gap: 8px;
-        }
+        .notification-actions { display: flex; gap: 8px; }
 
         .action-btn {
             padding: 5px 12px;
@@ -211,9 +211,7 @@
             color: white;
         }
 
-        .action-btn.primary:hover {
-            background: #818cf8;
-        }
+        .action-btn.primary:hover { background: #818cf8; }
 
         .action-btn.secondary {
             background: transparent;
@@ -254,9 +252,7 @@
             margin: 0 auto 15px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 768px) {
             .notifications-container { padding: 15px; }
@@ -272,20 +268,16 @@
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script defer src="js/firebase-config.js"></script>
 
-    <!-- ✅ Detectar Android App + helper para mantener app=android -->
     <script>
-        (function markAndroidApp() {
-            const isAndroidApp = new URLSearchParams(location.search).get("app") === "android";
-            if (isAndroidApp) document.documentElement.classList.add("android-app");
-        })();
-
+        // ✅ Mantener app=android en navegación
         function withAppFlag(url) {
-            const isAndroidApp = document.documentElement.classList.contains("android-app");
-            if (!isAndroidApp) return url;
+            const isAndroidApp =
+                document.documentElement.classList.contains("android-app") ||
+                document.body.classList.contains("android-app");
 
+            if (!isAndroidApp) return url;
             if (url.includes("app=android")) return url;
 
-            // Mantener hash
             const parts = url.split('#');
             const base = parts[0];
             const hash = parts[1] ? ('#' + parts[1]) : '';
@@ -325,7 +317,6 @@
                 </svg>
             </div>
 
-            <!-- ✅ En esta página el icono también navega (consistente) -->
             <div class="icon-notification" onclick="window.location.href=withAppFlag('notificaciones.html')" style="cursor: pointer;">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
@@ -389,7 +380,6 @@
             }, 100);
         }
 
-        // Verificar autenticación
         function checkAuth() {
             waitForFirebase(() => {
                 window.auth.onAuthStateChanged((user) => {
@@ -404,7 +394,6 @@
             });
         }
 
-        // Cargar notificaciones
         async function loadNotifications(userId) {
             if (!window.db) return;
 
@@ -428,7 +417,6 @@
             }
         }
 
-        // Mostrar notificaciones
         function displayNotifications() {
             const container = document.getElementById('notificationsContainer');
             const loadingContainer = document.getElementById('loadingContainer');
@@ -452,7 +440,6 @@
             });
         }
 
-        // Crear elemento de notificación
         function createNotificationItem(notification) {
             const div = document.createElement('div');
             div.className = `notification-item ${notification.read ? '' : 'unread'}`;
@@ -495,7 +482,6 @@
             return div;
         }
 
-        // Marcar como leída
         async function markAsRead(notificationId) {
             if (!window.db) return;
 
@@ -512,7 +498,6 @@
             }
         }
 
-        // Marcar todas como leídas
         async function markAllAsRead() {
             if (!window.db || !currentUserId) return;
 
@@ -534,7 +519,6 @@
             }
         }
 
-        // Eliminar notificación
         async function deleteNotification(notificationId) {
             if (!window.db) return;
 
@@ -548,12 +532,10 @@
             }
         }
 
-        // Manejar acción (✅ mantiene app=android)
         function handleAction(url) {
             window.location.href = withAppFlag(url);
         }
 
-        // Actualizar contador
         function updateBadgeCount() {
             const unreadCount = allNotifications.filter(n => !n.read).length;
             const badge = document.getElementById('badgeCount');
@@ -563,7 +545,6 @@
             }
         }
 
-        // Estado vacío
         function showEmptyState(message) {
             const container = document.getElementById('notificationsContainer');
             const loadingContainer = document.getElementById('loadingContainer');
@@ -578,7 +559,6 @@
             `;
         }
 
-        // Calcular tiempo
         function getTimeAgo(timestamp) {
             if (!timestamp) return 'Ahora';
 
@@ -594,7 +574,6 @@
             return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
         }
 
-        // Configurar tabs
         function setupTabs() {
             const tabs = document.querySelectorAll('.tab');
             tabs.forEach(tab => {

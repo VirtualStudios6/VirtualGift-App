@@ -9,34 +9,40 @@
     <title>VirtualGift</title>
     <link rel="stylesheet" href="css/inicio.css">
 
+    <!-- ✅ Android App Mode (marca html/body con class android-app si viene ?app=android) -->
+    <script defer src="js/app-mode.js"></script>
+
+    <!-- ✅ En modo Android: ocultar TODO el header web (logo + top_brand + iconos) -->
+    <style>
+        html.android-app .header,
+        body.android-app .header {
+            display: none !important;
+        }
+    </style>
+
     <!-- Firebase -->
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script defer src="js/firebase-config.js"></script>
 
-    <!-- ✅ Detectar Android App y ocultar iconos solo dentro de la app -->
-    <style>
-        body.android-app .header-icons {
-            display: none !important;
-        }
-    </style>
-
     <script>
-        // ✅ Marcar modo Android App si viene con ?app=android
-        (function markAndroidApp() {
-            const isAndroidApp = new URLSearchParams(location.search).get("app") === "android";
-            if (isAndroidApp) document.documentElement.classList.add("android-app");
-            // Nota: usamos documentElement para que aplique incluso antes de cargar body
-        })();
-
-        // ✅ Helper: mantener app=android en navegación interna cuando se use window.location.href
+        // ✅ Helper: mantener app=android en navegación interna
         function withAppFlag(url) {
-            const isAndroidApp = document.documentElement.classList.contains("android-app");
-            if (!isAndroidApp) return url;
+            const isAndroidApp =
+                document.documentElement.classList.contains("android-app") ||
+                document.body.classList.contains("android-app");
 
+            if (!isAndroidApp) return url;
             if (url.includes("app=android")) return url;
-            return url.includes("?") ? (url + "&app=android") : (url + "?app=android");
+
+            // Mantener hash (#news etc.)
+            const parts = url.split('#');
+            const base = parts[0];
+            const hash = parts[1] ? ('#' + parts[1]) : '';
+
+            const fixed = base.includes("?") ? (base + "&app=android") : (base + "?app=android");
+            return fixed + hash;
         }
     </script>
 </head>
@@ -83,7 +89,7 @@
     </header>
 
     <!-- Gaming News Section -->
-    <section class="section">
+    <section class="section" id="news">
         <div class="section-header">
             <h2 class="section-title">Gaming News 📡</h2>
             <a href="#" class="section-link">Noticias</a>
@@ -97,7 +103,7 @@
     </section>
 
     <!-- Top Sorteos Section -->
-    <section class="section">
+    <section class="section" id="sorteos">
         <div class="section-header">
             <h2 class="section-title">Top Sorteos 🏆</h2>
             <a href="#" class="section-link">Ver todo</a>
@@ -228,7 +234,7 @@
     </section>
 
     <!-- Popular Games Section -->
-    <section class="section">
+    <section class="section" id="games">
         <div class="section-header">
             <h2 class="section-title">Popular Games</h2>
             <a href="#" class="section-link">Ver ahora</a>
@@ -257,7 +263,7 @@
 
     <script src="js/carousel.js"></script>
 
-    <!-- ✅ Protección de sesión y notificaciones (mejorado + compatible con android-app) -->
+    <!-- ✅ Protección de sesión y notificaciones -->
     <script>
         function isFirebaseReady() {
             return typeof firebase !== 'undefined'
@@ -274,13 +280,11 @@
                     callback();
                 } else if (attempts >= maxAttempts) {
                     clearInterval(check);
-                    // Si Firebase no carga, redirigir a login por seguridad
                     window.location.href = withAppFlag('index.html');
                 }
             }, 100);
         }
 
-        // Cargar contador de notificaciones
         function loadNotificationCount(user) {
             if (!isFirebaseReady()) return;
 
@@ -299,7 +303,6 @@
                 });
         }
 
-        // Verificar que el usuario esté autenticado
         function checkAuth() {
             waitForFirebase(() => {
                 firebase.auth().onAuthStateChanged((user) => {
