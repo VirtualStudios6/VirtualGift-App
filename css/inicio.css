@@ -1,3 +1,9 @@
+/* ✅ ANDROID APP MODE (solo cuando viene con ?app=android) */
+html.android-app .header-icons,
+body.android-app .header-icons {
+  display: none !important;
+}
+
 :root{
   --primary: #8d17fb;
   --secondary: #70189b;
@@ -13,6 +19,7 @@
   --border-soft: rgba(255,255,255,0.05);
   --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
+
 
 /* Reset */
 * {

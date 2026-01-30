@@ -203,6 +203,22 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
+
+  <!-- ✅ Detectar Android App + helper para mantener app=android -->
+  <script>
+    (function markAndroidApp() {
+      const isAndroidApp = new URLSearchParams(location.search).get("app") === "android";
+      if (isAndroidApp) document.documentElement.classList.add("android-app");
+    })();
+
+    function withAppFlag(url) {
+      const isAndroidApp = document.documentElement.classList.contains("android-app");
+      if (!isAndroidApp) return url;
+
+      if (url.includes("app=android")) return url;
+      return url.includes("?") ? (url + "&app=android") : (url + "?app=android");
+    }
+  </script>
 </head>
 
 <body>
@@ -213,7 +229,7 @@
 
   <div id="content" class="container" style="display:none;">
     <div class="top-bar">
-      <button class="back-btn" onclick="window.location.href='inicio.html'">← Volver al inicio</button>
+      <button class="back-btn" onclick="window.location.href=withAppFlag('inicio.html')">← Volver al inicio</button>
     </div>
 
     <div class="profile-banner">
@@ -243,7 +259,7 @@
     </div>
 
     <div class="stats-grid">
-      <div class="stat-card" onclick="window.location.href='puntos.html'">
+      <div class="stat-card" onclick="window.location.href=withAppFlag('puntos.html')">
         <div class="stat-icon">🪙</div>
         <div class="stat-value" id="totalPoints">0</div>
         <div class="stat-label">VirtualCoins</div>
@@ -284,8 +300,8 @@
     <div class="section">
       <h2 class="section-title">⚡ Acciones Rápidas</h2>
       <div class="action-buttons">
-        <button class="btn btn-primary" onclick="window.location.href='inicio.html'">🎮 Explorar VirtualGift</button>
-        <button class="btn btn-secondary" onclick="window.location.href='puntos.html'">🪙 Ver mis Puntos</button>
+        <button class="btn btn-primary" onclick="window.location.href=withAppFlag('inicio.html')">🎮 Explorar VirtualGift</button>
+        <button class="btn btn-secondary" onclick="window.location.href=withAppFlag('puntos.html')">🪙 Ver mis Puntos</button>
         <button class="btn btn-secondary" onclick="editProfile()">✏️ Editar Perfil</button>
         <button class="btn btn-danger" onclick="logout()">🚪 Cerrar Sesión</button>
       </div>
@@ -296,7 +312,7 @@
     function providerLabel(provider) {
       if (provider === 'google.com') return { icon: '🔵', text: 'Google' };
       if (provider === 'facebook.com') return { icon: '📘', text: 'Facebook' };
-      return { icon: '🔐', text: 'Email' }; // 'email' o lo que sea
+      return { icon: '🔐', text: 'Email' };
     }
 
     function formatLastLogin(ts) {
@@ -329,56 +345,62 @@
       document.getElementById('userEmail').textContent = user.email || '';
       document.getElementById('avatar').src = user.photoURL || 'https://via.placeholder.com/120';
 
-      const ref = window.db.collection('users').doc(user.uid);
-      const snap = await ref.get();
+      try {
+        const ref = window.db.collection('users').doc(user.uid);
+        const snap = await ref.get();
 
-      if (!snap.exists) return;
+        if (!snap.exists) return;
 
-      const data = snap.data() || {};
+        const data = snap.data() || {};
 
-      // Provider
-      const p = providerLabel(data.provider || 'email');
-      document.getElementById('providerIcon').textContent = p.icon;
-      document.getElementById('provider').textContent = p.text;
+        const p = providerLabel(data.provider || 'email');
+        document.getElementById('providerIcon').textContent = p.icon;
+        document.getElementById('provider').textContent = p.text;
 
-      // Fechas
-      document.getElementById('lastLogin').textContent = formatLastLogin(data.lastLogin);
-      document.getElementById('memberSince').textContent = formatMemberSince(data.createdAt);
+        document.getElementById('lastLogin').textContent = formatLastLogin(data.lastLogin);
+        document.getElementById('memberSince').textContent = formatMemberSince(data.createdAt);
 
-      // Stats
-      document.getElementById('totalPoints').textContent = (data.points || 0).toLocaleString();
-      document.getElementById('gamesPlayed').textContent = data.gamesPlayed || 0;
-      document.getElementById('achievements').textContent = data.achievements || 0;
-      document.getElementById('sorteos').textContent = data.sorteosParticipados || 0;
+        document.getElementById('totalPoints').textContent = (data.points || 0).toLocaleString();
+        document.getElementById('gamesPlayed').textContent = data.gamesPlayed || 0;
+        document.getElementById('achievements').textContent = data.achievements || 0;
+        document.getElementById('sorteos').textContent = data.sorteosParticipados || 0;
+
+      } catch (e) {
+        console.error('Error leyendo Firestore:', e);
+      }
+    }
+
+    function isFirebaseReady() {
+      return typeof firebase !== 'undefined'
+        && typeof firebase.auth === 'function'
+        && typeof firebase.firestore === 'function'
+        && window.auth && window.db;
+    }
+
+    function waitForFirebase(callback, maxAttempts = 60) {
+      let attempts = 0;
+      const check = setInterval(() => {
+        attempts++;
+        if (isFirebaseReady()) {
+          clearInterval(check);
+          callback();
+        } else if (attempts >= maxAttempts) {
+          clearInterval(check);
+          window.location.href = withAppFlag('index.html');
+        }
+      }, 100);
     }
 
     function checkAuth() {
-      const maxAttempts = 50;
-      let attempts = 0;
-
-      const check = setInterval(() => {
-        attempts++;
-
-        if (window.auth && window.db) {
-          clearInterval(check);
-
-          window.auth.onAuthStateChanged(async (user) => {
-            if (!user) {
-              window.location.href = 'index.html';
-              return;
-            }
-            try {
-              await loadProfile(user);
-            } catch (e) {
-              console.error('Error cargando perfil:', e);
-            }
-          });
-
-        } else if (attempts >= maxAttempts) {
-          clearInterval(check);
-          window.location.href = 'index.html';
-        }
-      }, 100);
+      waitForFirebase(() => {
+        window.auth.onAuthStateChanged(async (user) => {
+          if (!user) {
+            window.location.href = withAppFlag('index.html');
+            return;
+          }
+          await loadProfile(user);
+        });
+      });
     }
 
     function editProfile() {
@@ -390,10 +412,10 @@
 
       if (window.auth) {
         window.auth.signOut()
-          .then(() => window.location.href = 'index.html')
-          .catch(() => window.location.href = 'index.html');
+          .then(() => window.location.href = withAppFlag('index.html'))
+          .catch(() => window.location.href = withAppFlag('index.html'));
       } else {
-        window.location.href = 'index.html';
+        window.location.href = withAppFlag('index.html');
       }
     }
 

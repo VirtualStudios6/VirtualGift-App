@@ -5,8 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notificaciones - VirtualGift</title>
     <link rel="stylesheet" href="css/inicio.css">
-    
+
     <style>
+        /* ✅ Ocultar iconos del header SOLO dentro de Android App */
+        html.android-app .header-icons {
+            display: none !important;
+        }
+
         .notifications-container {
             max-width: 800px;
             margin: 0 auto;
@@ -156,10 +161,9 @@
         .notification-icon.success { background: rgba(16, 185, 129, 0.2); }
         .notification-icon.warning { background: rgba(245, 158, 11, 0.2); }
         .notification-icon.gift { background: rgba(139, 92, 246, 0.2); }
+        .notification-icon.system { background: rgba(107, 114, 128, 0.2); }
 
-        .notification-content {
-            flex: 1;
-        }
+        .notification-content { flex: 1; }
 
         .notification-title {
             font-weight: 600;
@@ -255,24 +259,10 @@
         }
 
         @media (max-width: 768px) {
-            .notifications-container {
-                padding: 15px;
-            }
-
-            .notification-item {
-                padding: 15px;
-            }
-
-            .notification-icon {
-                width: 40px;
-                height: 40px;
-                font-size: 1.2em;
-            }
-
-            .mark-all-read {
-                padding: 6px 12px;
-                font-size: 0.8em;
-            }
+            .notifications-container { padding: 15px; }
+            .notification-item { padding: 15px; }
+            .notification-icon { width: 40px; height: 40px; font-size: 1.2em; }
+            .mark-all-read { padding: 6px 12px; font-size: 0.8em; }
         }
     </style>
 
@@ -281,7 +271,31 @@
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script defer src="js/firebase-config.js"></script>
+
+    <!-- ✅ Detectar Android App + helper para mantener app=android -->
+    <script>
+        (function markAndroidApp() {
+            const isAndroidApp = new URLSearchParams(location.search).get("app") === "android";
+            if (isAndroidApp) document.documentElement.classList.add("android-app");
+        })();
+
+        function withAppFlag(url) {
+            const isAndroidApp = document.documentElement.classList.contains("android-app");
+            if (!isAndroidApp) return url;
+
+            if (url.includes("app=android")) return url;
+
+            // Mantener hash
+            const parts = url.split('#');
+            const base = parts[0];
+            const hash = parts[1] ? ('#' + parts[1]) : '';
+
+            const fixed = base.includes("?") ? (base + "&app=android") : (base + "?app=android");
+            return fixed + hash;
+        }
+    </script>
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -289,13 +303,15 @@
             <img src="images/logo-virtual-login.png" alt="Virtual Studios Logo" class="logo-image">
             <span class="logo-text">VIRTUAL<span class="logo-studios">GIFT</span></span>
         </div>
+
         <div class="header-icons">
-            <div class="icon-users" onclick="window.location.href='home.html'" style="cursor: pointer;">
+            <div class="icon-users" onclick="window.location.href=withAppFlag('home.html')" style="cursor: pointer;">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                 </svg>
             </div>
-            <div class="icon-coin" onclick="window.location.href='puntos.html'" style="cursor: pointer;">
+
+            <div class="icon-coin" onclick="window.location.href=withAppFlag('puntos.html')" style="cursor: pointer;">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="50" cy="50" r="48" fill="#FDB813"/>
                     <defs>
@@ -308,17 +324,19 @@
                     <path d="M 30 30 L 42 65 L 50 65 L 58 65 L 70 30 L 62 30 L 54 57 L 50 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
                 </svg>
             </div>
-            <div class="icon-notification">
+
+            <!-- ✅ En esta página el icono también navega (consistente) -->
+            <div class="icon-notification" onclick="window.location.href=withAppFlag('notificaciones.html')" style="cursor: pointer;">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
                 </svg>
-                <span class="notification-badge" id="badgeCount">0</span>
+                <span class="notification-badge" id="badgeCount" style="display:none;">0</span>
             </div>
         </div>
     </header>
 
     <div class="notifications-container">
-        <button class="back-button" onclick="window.location.href='inicio.html'">
+        <button class="back-button" onclick="window.location.href=withAppFlag('inicio.html')">
             ← Volver al inicio
         </button>
 
@@ -350,31 +368,40 @@
         let currentFilter = 'all';
         let allNotifications = [];
 
-        // Verificar autenticación
-        function checkAuth() {
-            const maxAttempts = 50;
-            let attempts = 0;
+        function isFirebaseReady() {
+            return typeof firebase !== 'undefined'
+                && typeof firebase.auth === 'function'
+                && typeof firebase.firestore === 'function'
+                && window.auth && window.db;
+        }
 
+        function waitForFirebase(callback, maxAttempts = 60) {
+            let attempts = 0;
             const check = setInterval(() => {
                 attempts++;
-
-                if (window.auth) {
+                if (isFirebaseReady()) {
                     clearInterval(check);
-                    
-                    window.auth.onAuthStateChanged((user) => {
-                        if (user) {
-                            currentUserId = user.uid;
-                            loadNotifications(user.uid);
-                            setupTabs();
-                        } else {
-                            window.location.href = 'index.html';
-                        }
-                    });
+                    callback();
                 } else if (attempts >= maxAttempts) {
                     clearInterval(check);
-                    window.location.href = 'index.html';
+                    window.location.href = withAppFlag('index.html');
                 }
             }, 100);
+        }
+
+        // Verificar autenticación
+        function checkAuth() {
+            waitForFirebase(() => {
+                window.auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        currentUserId = user.uid;
+                        loadNotifications(user.uid);
+                        setupTabs();
+                    } else {
+                        window.location.href = withAppFlag('index.html');
+                    }
+                });
+            });
         }
 
         // Cargar notificaciones
@@ -405,13 +432,13 @@
         function displayNotifications() {
             const container = document.getElementById('notificationsContainer');
             const loadingContainer = document.getElementById('loadingContainer');
-            
+
             loadingContainer.style.display = 'none';
             container.style.display = 'block';
             container.innerHTML = '';
 
-            const filtered = currentFilter === 'all' 
-                ? allNotifications 
+            const filtered = currentFilter === 'all'
+                ? allNotifications
                 : allNotifications.filter(n => n.type === currentFilter);
 
             if (filtered.length === 0) {
@@ -473,14 +500,10 @@
             if (!window.db) return;
 
             try {
-                await window.db.collection('notifications').doc(notificationId).update({
-                    read: true
-                });
+                await window.db.collection('notifications').doc(notificationId).update({ read: true });
 
                 const notification = allNotifications.find(n => n.id === notificationId);
-                if (notification) {
-                    notification.read = true;
-                }
+                if (notification) notification.read = true;
 
                 updateBadgeCount();
                 displayNotifications();
@@ -525,9 +548,9 @@
             }
         }
 
-        // Manejar acción
+        // Manejar acción (✅ mantiene app=android)
         function handleAction(url) {
-            window.location.href = url;
+            window.location.href = withAppFlag(url);
         }
 
         // Actualizar contador
@@ -543,6 +566,10 @@
         // Estado vacío
         function showEmptyState(message) {
             const container = document.getElementById('notificationsContainer');
+            const loadingContainer = document.getElementById('loadingContainer');
+            loadingContainer.style.display = 'none';
+            container.style.display = 'block';
+
             container.innerHTML = `
                 <div class="empty-state">
                     <div class="empty-icon">🔔</div>
@@ -554,7 +581,7 @@
         // Calcular tiempo
         function getTimeAgo(timestamp) {
             if (!timestamp) return 'Ahora';
-            
+
             const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
             const now = new Date();
             const diff = Math.floor((now - date) / 1000);
@@ -563,7 +590,7 @@
             if (diff < 3600) return `Hace ${Math.floor(diff / 60)} min`;
             if (diff < 86400) return `Hace ${Math.floor(diff / 3600)}h`;
             if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} días`;
-            
+
             return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
         }
 
@@ -580,7 +607,6 @@
             });
         }
 
-        // Inicializar
         window.addEventListener('load', checkAuth);
     </script>
 </body>

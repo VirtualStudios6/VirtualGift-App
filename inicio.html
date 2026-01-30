@@ -14,7 +14,33 @@
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script defer src="js/firebase-config.js"></script>
+
+    <!-- ✅ Detectar Android App y ocultar iconos solo dentro de la app -->
+    <style>
+        body.android-app .header-icons {
+            display: none !important;
+        }
+    </style>
+
+    <script>
+        // ✅ Marcar modo Android App si viene con ?app=android
+        (function markAndroidApp() {
+            const isAndroidApp = new URLSearchParams(location.search).get("app") === "android";
+            if (isAndroidApp) document.documentElement.classList.add("android-app");
+            // Nota: usamos documentElement para que aplique incluso antes de cargar body
+        })();
+
+        // ✅ Helper: mantener app=android en navegación interna cuando se use window.location.href
+        function withAppFlag(url) {
+            const isAndroidApp = document.documentElement.classList.contains("android-app");
+            if (!isAndroidApp) return url;
+
+            if (url.includes("app=android")) return url;
+            return url.includes("?") ? (url + "&app=android") : (url + "?app=android");
+        }
+    </script>
 </head>
+
 <body>
     <!-- Header -->
     <header class="header">
@@ -22,15 +48,17 @@
             <img src="images/logo-virtual-login.png" alt="Virtual Studios Logo" class="logo-image">
             <span class="logo-text">VIRTUAL<span class="logo-studios">GIFT</span></span>
         </div>
+
         <div class="header-icons">
             <!-- Icono de Perfil -->
-            <div class="icon-users" onclick="window.location.href='home.html'" style="cursor: pointer;">
+            <div class="icon-users" onclick="window.location.href=withAppFlag('home.html')" style="cursor: pointer;">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                 </svg>
             </div>
+
             <!-- Icono de Monedas -->
-            <div class="icon-coin" onclick="window.location.href='puntos.html'" style="cursor: pointer;">
+            <div class="icon-coin" onclick="window.location.href=withAppFlag('puntos.html')" style="cursor: pointer;">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="50" cy="50" r="48" fill="#FDB813"/>
                     <defs>
@@ -43,8 +71,9 @@
                     <path d="M 30 30 L 42 65 L 50 65 L 58 65 L 70 30 L 62 30 L 54 57 L 50 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
                 </svg>
             </div>
+
             <!-- Icono de Notificaciones -->
-            <div class="icon-notification" onclick="window.location.href='notificaciones.html'" style="cursor: pointer;">
+            <div class="icon-notification" onclick="window.location.href=withAppFlag('notificaciones.html')" style="cursor: pointer;">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
                 </svg>
@@ -60,10 +89,7 @@
             <a href="#" class="section-link">Noticias</a>
         </div>
 
-        <!-- 🔥 Las noticias se cargan desde Firestore -->
-        <div class="news-grid" id="newsGrid">
-            <!-- Aquí se cargarán las noticias desde Firestore automáticamente -->
-        </div>
+        <div class="news-grid" id="newsGrid"></div>
 
         <p id="newsError" style="display:none; color:#ef4444; margin-top:10px;">
             Error cargando noticias. Revisa la consola (puede requerir crear un índice en Firestore).
@@ -231,39 +257,32 @@
 
     <script src="js/carousel.js"></script>
 
-    <!-- Protección de sesión y notificaciones -->
+    <!-- ✅ Protección de sesión y notificaciones (mejorado + compatible con android-app) -->
     <script>
-        // Verificar que el usuario esté autenticado
-        function checkAuth() {
-            const maxAttempts = 50;
-            let attempts = 0;
+        function isFirebaseReady() {
+            return typeof firebase !== 'undefined'
+                && typeof firebase.auth === 'function'
+                && typeof firebase.firestore === 'function';
+        }
 
+        function waitForFirebase(callback, maxAttempts = 60) {
+            let attempts = 0;
             const check = setInterval(() => {
                 attempts++;
-
-                if (typeof firebase !== 'undefined' && firebase.auth) {
+                if (isFirebaseReady()) {
                     clearInterval(check);
-
-                    firebase.auth().onAuthStateChanged((user) => {
-                        if (!user) {
-                            // No hay sesión, redirigir a login
-                            window.location.href = 'index.html';
-                        } else {
-                            // Cargar contador de notificaciones
-                            loadNotificationCount(user);
-                        }
-                    });
+                    callback();
                 } else if (attempts >= maxAttempts) {
                     clearInterval(check);
                     // Si Firebase no carga, redirigir a login por seguridad
-                    window.location.href = 'index.html';
+                    window.location.href = withAppFlag('index.html');
                 }
             }, 100);
         }
 
         // Cargar contador de notificaciones
         function loadNotificationCount(user) {
-            if (typeof firebase === 'undefined' || !firebase.firestore) return;
+            if (!isFirebaseReady()) return;
 
             firebase.firestore().collection('notifications')
                 .where('userId', '==', user.uid)
@@ -275,7 +294,22 @@
                         badge.textContent = count;
                         badge.style.display = count > 0 ? 'flex' : 'none';
                     }
+                }, (err) => {
+                    console.error("Error notificaciones:", err);
                 });
+        }
+
+        // Verificar que el usuario esté autenticado
+        function checkAuth() {
+            waitForFirebase(() => {
+                firebase.auth().onAuthStateChanged((user) => {
+                    if (!user) {
+                        window.location.href = withAppFlag('index.html');
+                    } else {
+                        loadNotificationCount(user);
+                    }
+                });
+            });
         }
 
         window.addEventListener('load', checkAuth);
