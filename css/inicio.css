@@ -1,7 +1,13 @@
-/* ✅ ANDROID APP MODE (solo cuando viene con ?app=android) */
-html.android-app .header-icons,
-body.android-app .header-icons {
+/* ✅ ANDROID APP MODE: ocultar TODO el header */
+html.android-app .header,
+body.android-app .header {
   display: none !important;
+}
+
+/* ✅ (Opcional) quitar el espacio extra que deja el header en algunas páginas */
+html.android-app body,
+body.android-app {
+  padding-top: 0 !important;
 }
 
 :root{
