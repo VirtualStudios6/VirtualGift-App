@@ -1,6 +1,5 @@
-/* ✅ ANDROID APP MODE: ocultar TODO el header */
-html.android-app .header,
-body.android-app .header {
+/* ✅ Modo Android App: ocultar el header web completo */
+html.android-app .header {
   display: none !important;
 }
 
