@@ -182,7 +182,16 @@
     .btn-danger { background: transparent; border: 1px solid #ef4444; color: #ef4444; }
     .btn-danger:hover { background: #ef4444; color: white; }
 
-    .loading { text-align: center; padding: 60px 20px; }
+    /* ✅ NUEVO: Loading optimizado */
+    .loading {
+      text-align: center;
+      padding: 40px 20px;
+      min-height: 400px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
     .spinner {
       border: 3px solid var(--border);
       border-top: 3px solid var(--primary);
@@ -192,6 +201,28 @@
       margin: 0 auto 20px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ✅ NUEVO: Skeleton loading */
+    .skeleton {
+      background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    .skeleton-text { height: 20px; margin-bottom: 10px; }
+    .skeleton-title { height: 32px; width: 60%; margin: 0 auto 15px; }
+    .skeleton-badge { height: 30px; width: 100px; display: inline-block; margin: 0 5px; }
+
+    /* ✅ NUEVO: Error state */
+    .error-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+    .error-icon { font-size: 4em; margin-bottom: 20px; opacity: 0.5; }
+    .error-message { margin-bottom: 20px; line-height: 1.6; }
 
     @media (max-width: 768px) {
       .profile-banner { padding: 30px 20px 80px; }
@@ -217,7 +248,6 @@
       if (!isAndroidApp) return url;
       if (url.includes("app=android")) return url;
 
-      // Mantener #hash si existiera
       const parts = url.split('#');
       const base = parts[0];
       const hash = parts[1] ? ('#' + parts[1]) : '';
@@ -232,6 +262,17 @@
   <div id="loading" class="loading">
     <div class="spinner"></div>
     <p>Cargando perfil...</p>
+  </div>
+
+  <!-- ✅ NUEVO: Error state -->
+  <div id="error" class="error-state" style="display:none;">
+    <div class="error-icon">⚠️</div>
+    <div class="error-message">
+      <p>No se pudo cargar tu perfil</p>
+      <p style="font-size: 0.9em; margin-top: 10px;">Por favor, verifica tu conexión e intenta de nuevo</p>
+    </div>
+    <button class="btn btn-primary" onclick="location.reload()">🔄 Reintentar</button>
+    <button class="btn btn-secondary" onclick="window.location.href=withAppFlag('inicio.html')" style="margin-top: 10px;">← Volver al inicio</button>
   </div>
 
   <div id="content" class="container" style="display:none;">
@@ -316,6 +357,43 @@
   </div>
 
   <script>
+    // ✅ OPTIMIZACIÓN 1: Cache local para datos del usuario
+    const CACHE_KEY = 'vg_user_cache';
+    const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
+    function getCachedUserData() {
+      try {
+        const cached = localStorage.getItem(CACHE_KEY);
+        if (!cached) return null;
+
+        const data = JSON.parse(cached);
+        const age = Date.now() - data.timestamp;
+
+        if (age < CACHE_DURATION) {
+          console.log('✅ Usando datos en caché (edad:', Math.floor(age/1000), 's)');
+          return data.user;
+        }
+
+        localStorage.removeItem(CACHE_KEY);
+        return null;
+      } catch (e) {
+        console.warn('Error al leer caché:', e);
+        return null;
+      }
+    }
+
+    function setCachedUserData(userData) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({
+          user: userData,
+          timestamp: Date.now()
+        }));
+      } catch (e) {
+        console.warn('Error al guardar caché:', e);
+      }
+    }
+
+    // ✅ OPTIMIZACIÓN 2: Provider labels
     function providerLabel(provider) {
       if (provider === 'google.com') return { icon: '🔵', text: 'Google' };
       if (provider === 'facebook.com') return { icon: '📘', text: 'Facebook' };
@@ -340,42 +418,99 @@
       return date.toLocaleDateString('es-ES', { month: 'short', year: 'numeric' });
     }
 
+    // ✅ OPTIMIZACIÓN 3: Mostrar contenido inmediatamente
     function showContent() {
       document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').style.display = 'none';
       document.getElementById('content').style.display = 'block';
     }
 
-    async function loadProfile(user) {
-      showContent();
+    function showError() {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('content').style.display = 'none';
+      document.getElementById('error').style.display = 'flex';
+    }
 
+    // ✅ OPTIMIZACIÓN 4: Cargar UI primero con datos básicos del usuario
+    function loadBasicUserData(user) {
+      // Datos inmediatos de Firebase Auth
       document.getElementById('userName').textContent = user.displayName || 'Usuario';
       document.getElementById('userEmail').textContent = user.email || '';
       document.getElementById('avatar').src = user.photoURL || 'https://via.placeholder.com/120';
 
+      // Mostrar UI inmediatamente
+      showContent();
+
+      console.log('✅ UI cargada con datos básicos');
+    }
+
+    // ✅ OPTIMIZACIÓN 5: Cargar datos de Firestore en paralelo
+    async function loadFirestoreData(user) {
       try {
-        const ref = window.db.collection('users').doc(user.uid);
-        const snap = await ref.get();
-        if (!snap.exists) return;
+        // Primero intentar caché
+        const cachedData = getCachedUserData();
+        if (cachedData) {
+          updateUIWithData(cachedData);
+          console.log('✅ Datos cargados desde caché');
 
-        const data = snap.data() || {};
+          // Actualizar en segundo plano
+          fetchAndUpdateFirestore(user, true);
+          return;
+        }
 
-        const p = providerLabel(data.provider || 'email');
-        document.getElementById('providerIcon').textContent = p.icon;
-        document.getElementById('provider').textContent = p.text;
-
-        document.getElementById('lastLogin').textContent = formatLastLogin(data.lastLogin);
-        document.getElementById('memberSince').textContent = formatMemberSince(data.createdAt);
-
-        document.getElementById('totalPoints').textContent = (data.points || 0).toLocaleString();
-        document.getElementById('gamesPlayed').textContent = data.gamesPlayed || 0;
-        document.getElementById('achievements').textContent = data.achievements || 0;
-        document.getElementById('sorteos').textContent = data.sorteosParticipados || 0;
+        // Si no hay caché, cargar de Firestore
+        await fetchAndUpdateFirestore(user, false);
 
       } catch (e) {
-        console.error('Error leyendo Firestore:', e);
+        console.error('Error al cargar datos de Firestore:', e);
+        // No mostrar error si ya tenemos datos básicos
       }
     }
 
+    async function fetchAndUpdateFirestore(user, silent = false) {
+      try {
+        const ref = window.db.collection('users').doc(user.uid);
+        const snap = await ref.get();
+
+        if (!snap.exists) {
+          if (!silent) console.warn('Usuario no existe en Firestore');
+          return;
+        }
+
+        const data = snap.data() || {};
+
+        // Guardar en caché
+        setCachedUserData(data);
+
+        // Actualizar UI
+        updateUIWithData(data);
+
+        if (!silent) console.log('✅ Datos de Firestore actualizados');
+
+      } catch (e) {
+        console.error('Error fetchAndUpdateFirestore:', e);
+        throw e;
+      }
+    }
+
+    function updateUIWithData(data) {
+      // Provider
+      const p = providerLabel(data.provider || 'email');
+      document.getElementById('providerIcon').textContent = p.icon;
+      document.getElementById('provider').textContent = p.text;
+
+      // Fechas
+      document.getElementById('lastLogin').textContent = formatLastLogin(data.lastLogin);
+      document.getElementById('memberSince').textContent = formatMemberSince(data.createdAt);
+
+      // Stats
+      document.getElementById('totalPoints').textContent = (data.points || 0).toLocaleString();
+      document.getElementById('gamesPlayed').textContent = data.gamesPlayed || 0;
+      document.getElementById('achievements').textContent = data.achievements || 0;
+      document.getElementById('sorteos').textContent = data.sorteosParticipados || 0;
+    }
+
+    // ✅ OPTIMIZACIÓN 6: Firebase ready check con timeout corto
     function isFirebaseReady() {
       return typeof firebase !== 'undefined'
         && typeof firebase.auth === 'function'
@@ -383,7 +518,7 @@
         && window.auth && window.db;
     }
 
-    function waitForFirebase(callback, maxAttempts = 60) {
+    function waitForFirebase(callback, maxAttempts = 30) { // ✅ Reducido de 60 a 30
       let attempts = 0;
       const check = setInterval(() => {
         attempts++;
@@ -392,11 +527,13 @@
           callback();
         } else if (attempts >= maxAttempts) {
           clearInterval(check);
-          window.location.href = withAppFlag('index.html');
+          console.error('Firebase timeout');
+          showError();
         }
       }, 100);
     }
 
+    // ✅ OPTIMIZACIÓN 7: Auth check optimizado
     function checkAuth() {
       waitForFirebase(() => {
         window.auth.onAuthStateChanged(async (user) => {
@@ -404,7 +541,12 @@
             window.location.href = withAppFlag('index.html');
             return;
           }
-          await loadProfile(user);
+
+          // ✅ Cargar UI inmediatamente con datos básicos
+          loadBasicUserData(user);
+
+          // ✅ Cargar datos adicionales en segundo plano
+          await loadFirestoreData(user);
         });
       });
     }
@@ -416,6 +558,13 @@
     function logout() {
       if (!confirm('¿Estás seguro de que quieres cerrar sesión?')) return;
 
+      // Limpiar caché
+      try {
+        localStorage.removeItem(CACHE_KEY);
+      } catch (e) {
+        console.warn('Error limpiando caché:', e);
+      }
+
       if (window.auth) {
         window.auth.signOut()
           .then(() => window.location.href = withAppFlag('index.html'))
@@ -425,6 +574,7 @@
       }
     }
 
+    // ✅ Iniciar cuando cargue la página
     window.addEventListener('load', checkAuth);
   </script>
 </body>
