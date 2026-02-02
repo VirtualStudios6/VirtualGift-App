@@ -7,11 +7,10 @@
 
     <link rel="stylesheet" href="css/inicio.css">
 
-    <!-- ✅ Android App Mode (marca html/body con class android-app si viene ?app=android) -->
+    <!-- ✅ Android App Mode -->
     <script defer src="js/app-mode.js"></script>
 
     <style>
-        /* ✅ En modo Android: ocultar TODO el header web */
         html.android-app .header,
         body.android-app .header {
             display: none !important;
@@ -254,6 +253,41 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* ✅ NUEVO: Pull to refresh indicator */
+        .pull-refresh {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(-60px);
+            background: #1f1f2e;
+            border: 1px solid #374151;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .pull-refresh.pulling {
+            transform: translateX(-50%) translateY(10px);
+        }
+
+        .pull-refresh.refreshing {
+            transform: translateX(-50%) translateY(10px);
+        }
+
+        .pull-refresh .refresh-icon {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+
+        .pull-refresh.refreshing .refresh-icon {
+            animation: spin 1s linear infinite;
+        }
+
         @media (max-width: 768px) {
             .notifications-container { padding: 15px; }
             .notification-item { padding: 15px; }
@@ -269,7 +303,6 @@
     <script defer src="js/firebase-config.js"></script>
 
     <script>
-        // ✅ Mantener app=android en navegación
         function withAppFlag(url) {
             const isAndroidApp =
                 document.documentElement.classList.contains("android-app") ||
@@ -326,6 +359,11 @@
         </div>
     </header>
 
+    <!-- ✅ NUEVO: Pull to refresh indicator -->
+    <div class="pull-refresh" id="pullRefresh">
+        <div class="refresh-icon">🔄</div>
+    </div>
+
     <div class="notifications-container">
         <button class="back-button" onclick="window.location.href=withAppFlag('inicio.html')">
             ← Volver al inicio
@@ -359,6 +397,44 @@
         let currentFilter = 'all';
         let allNotifications = [];
 
+        // ✅ OPTIMIZACIÓN: Pull to refresh
+        let touchStartY = 0;
+        let touchEndY = 0;
+        const pullRefreshEl = document.getElementById('pullRefresh');
+
+        document.addEventListener('touchstart', (e) => {
+            touchStartY = e.changedTouches[0].screenY;
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (window.scrollY === 0) {
+                const currentY = e.changedTouches[0].screenY;
+                const diff = currentY - touchStartY;
+
+                if (diff > 0 && diff < 100) {
+                    pullRefreshEl.classList.add('pulling');
+                }
+            }
+        });
+
+        document.addEventListener('touchend', (e) => {
+            touchEndY = e.changedTouches[0].screenY;
+            const diff = touchEndY - touchStartY;
+
+            if (diff > 80 && window.scrollY === 0 && currentUserId) {
+                pullRefreshEl.classList.remove('pulling');
+                pullRefreshEl.classList.add('refreshing');
+
+                loadNotifications(currentUserId).then(() => {
+                    setTimeout(() => {
+                        pullRefreshEl.classList.remove('refreshing');
+                    }, 500);
+                });
+            } else {
+                pullRefreshEl.classList.remove('pulling');
+            }
+        });
+
         function isFirebaseReady() {
             return typeof firebase !== 'undefined'
                 && typeof firebase.auth === 'function'
@@ -366,7 +442,7 @@
                 && window.auth && window.db;
         }
 
-        function waitForFirebase(callback, maxAttempts = 60) {
+        function waitForFirebase(callback, maxAttempts = 30) { // ✅ Reducido
             let attempts = 0;
             const check = setInterval(() => {
                 attempts++;

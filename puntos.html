@@ -7,11 +7,10 @@
 
     <link rel="stylesheet" href="css/inicio.css">
 
-    <!-- ✅ Android App Mode (marca html/body con class android-app si viene ?app=android) -->
+    <!-- ✅ Android App Mode -->
     <script defer src="js/app-mode.js"></script>
 
     <style>
-        /* ✅ En modo Android: ocultar TODO el header web */
         html.android-app .header,
         body.android-app .header {
             display: none !important;
@@ -208,6 +207,24 @@
             margin-bottom: 15px;
         }
 
+        /* ✅ NUEVO: Loading state */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 3px solid #374151;
+            border-top: 3px solid #6366f1;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         @media (max-width: 768px) {
             .points-header { padding: 30px 20px; }
             .points-balance { font-size: 2.5em; }
@@ -222,7 +239,6 @@
     <script defer src="js/firebase-config.js"></script>
 
     <script>
-        // ✅ Mantener app=android en navegación
         function withAppFlag(url) {
             const isAndroidApp =
                 document.documentElement.classList.contains("android-app") ||
@@ -345,6 +361,41 @@
     </div>
 
     <script>
+        // ✅ OPTIMIZACIÓN: Cache para puntos
+        const POINTS_CACHE_KEY = 'vg_points_cache';
+        const POINTS_CACHE_DURATION = 2 * 60 * 1000; // 2 minutos
+
+        function getCachedPoints() {
+            try {
+                const cached = localStorage.getItem(POINTS_CACHE_KEY);
+                if (!cached) return null;
+
+                const data = JSON.parse(cached);
+                const age = Date.now() - data.timestamp;
+
+                if (age < POINTS_CACHE_DURATION) {
+                    console.log('✅ Usando puntos en caché');
+                    return data.points;
+                }
+
+                localStorage.removeItem(POINTS_CACHE_KEY);
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function setCachedPoints(points) {
+            try {
+                localStorage.setItem(POINTS_CACHE_KEY, JSON.stringify({
+                    points: points,
+                    timestamp: Date.now()
+                }));
+            } catch (e) {
+                console.warn('Error al cachear puntos:', e);
+            }
+        }
+
         function isFirebaseReady() {
             return typeof firebase !== 'undefined'
                 && typeof firebase.auth === 'function'
@@ -352,7 +403,7 @@
                 && window.auth && window.db;
         }
 
-        function waitForFirebase(callback, maxAttempts = 60) {
+        function waitForFirebase(callback, maxAttempts = 30) { // ✅ Reducido
             let attempts = 0;
             const check = setInterval(() => {
                 attempts++;
@@ -385,7 +436,8 @@
                 window.db.collection('notifications')
                     .where('userId', '==', uid)
                     .where('read', '==', false)
-                    .onSnapshot((snapshot) => {
+                    .get() // ✅ Llamada única
+                    .then(snapshot => {
                         const count = snapshot.size;
                         const badge = document.getElementById('notificationBadge');
                         if (badge) {
@@ -400,12 +452,22 @@
 
         async function loadUserPoints(userId) {
             try {
+                // Mostrar caché primero
+                const cachedPoints = getCachedPoints();
+                if (cachedPoints !== null) {
+                    document.getElementById('totalPoints').textContent = cachedPoints.toLocaleString();
+                }
+
+                // Actualizar desde Firestore
                 const doc = await window.db.collection('users').doc(userId).get();
 
                 if (doc.exists) {
                     const data = doc.data();
                     const points = data.points || 0;
+
                     document.getElementById('totalPoints').textContent = points.toLocaleString();
+                    setCachedPoints(points);
+
                     checkDailyReward(userId, data.lastDailyReward);
                 }
             } catch (error) {
@@ -453,6 +515,8 @@
                 });
 
                 document.getElementById('totalPoints').textContent = newPoints.toLocaleString();
+                setCachedPoints(newPoints); // ✅ Actualizar caché
+
                 btn.textContent = '✓ ¡Reclamado!';
                 btn.style.background = '#10b981';
 

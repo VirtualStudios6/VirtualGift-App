@@ -12,11 +12,44 @@
     <!-- ✅ Android App Mode (marca html/body con class android-app si viene ?app=android) -->
     <script defer src="js/app-mode.js"></script>
 
-    <!-- ✅ En modo Android: ocultar TODO el header web (logo + top_brand + iconos) -->
+    <!-- ✅ NUEVO: Safe area mejorada en header -->
     <style>
         html.android-app .header,
         body.android-app .header {
             display: none !important;
+        }
+
+        /* ✅ Safe area para notch en iPhone */
+        .header {
+            padding-top: calc(20px + env(safe-area-inset-top));
+        }
+
+        /* ✅ NUEVO: Skeleton loader para noticias */
+        .skeleton-news {
+            animation: shimmer 1.5s infinite;
+            background: linear-gradient(90deg,
+                rgba(255,255,255,0.05) 25%,
+                rgba(255,255,255,0.1) 50%,
+                rgba(255,255,255,0.05) 75%
+            );
+            background-size: 200% 100%;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .skeleton-news .news-image {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .skeleton-news .news-label {
+            height: 14px;
+            width: 80%;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin: 0 auto;
         }
     </style>
 
@@ -36,7 +69,6 @@
             if (!isAndroidApp) return url;
             if (url.includes("app=android")) return url;
 
-            // Mantener hash (#news etc.)
             const parts = url.split('#');
             const base = parts[0];
             const hash = parts[1] ? ('#' + parts[1]) : '';
@@ -56,14 +88,12 @@
         </div>
 
         <div class="header-icons">
-            <!-- Icono de Perfil -->
             <div class="icon-users" onclick="window.location.href=withAppFlag('home.html')" style="cursor: pointer;">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                 </svg>
             </div>
 
-            <!-- Icono de Monedas -->
             <div class="icon-coin" onclick="window.location.href=withAppFlag('puntos.html')" style="cursor: pointer;">
                 <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="50" cy="50" r="48" fill="#FDB813"/>
@@ -78,7 +108,6 @@
                 </svg>
             </div>
 
-            <!-- Icono de Notificaciones -->
             <div class="icon-notification" onclick="window.location.href=withAppFlag('notificaciones.html')" style="cursor: pointer;">
                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
@@ -95,10 +124,24 @@
             <a href="#" class="section-link">Noticias</a>
         </div>
 
-        <div class="news-grid" id="newsGrid"></div>
+        <div class="news-grid" id="newsGrid">
+            <!-- ✅ NUEVO: Skeleton loader mientras carga -->
+            <div class="news-card skeleton-news">
+                <div class="news-image"></div>
+                <p class="news-label"></p>
+            </div>
+            <div class="news-card skeleton-news">
+                <div class="news-image"></div>
+                <p class="news-label"></p>
+            </div>
+            <div class="news-card skeleton-news">
+                <div class="news-image"></div>
+                <p class="news-label"></p>
+            </div>
+        </div>
 
         <p id="newsError" style="display:none; color:#ef4444; margin-top:10px;">
-            Error cargando noticias. Revisa la consola (puede requerir crear un índice en Firestore).
+            Error cargando noticias. Revisa la consola.
         </p>
     </section>
 
@@ -263,15 +306,50 @@
 
     <script src="js/carousel.js"></script>
 
-    <!-- ✅ Protección de sesión y notificaciones -->
+    <!-- ✅ OPTIMIZADO: Protección de sesión y notificaciones eficientes -->
     <script>
+        // ✅ OPTIMIZACIÓN 1: Cache para notificaciones
+        const NOTIF_CACHE_KEY = 'vg_notif_count';
+        const NOTIF_CACHE_DURATION = 2 * 60 * 1000; // 2 minutos
+
+        function getCachedNotifCount() {
+            try {
+                const cached = localStorage.getItem(NOTIF_CACHE_KEY);
+                if (!cached) return null;
+
+                const data = JSON.parse(cached);
+                const age = Date.now() - data.timestamp;
+
+                if (age < NOTIF_CACHE_DURATION) {
+                    console.log('✅ Usando contador de notificaciones en caché');
+                    return data.count;
+                }
+
+                localStorage.removeItem(NOTIF_CACHE_KEY);
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function setCachedNotifCount(count) {
+            try {
+                localStorage.setItem(NOTIF_CACHE_KEY, JSON.stringify({
+                    count: count,
+                    timestamp: Date.now()
+                }));
+            } catch (e) {
+                console.warn('Error al cachear notificaciones:', e);
+            }
+        }
+
         function isFirebaseReady() {
             return typeof firebase !== 'undefined'
                 && typeof firebase.auth === 'function'
                 && typeof firebase.firestore === 'function';
         }
 
-        function waitForFirebase(callback, maxAttempts = 60) {
+        function waitForFirebase(callback, maxAttempts = 30) { // ✅ Reducido de 60 a 30
             let attempts = 0;
             const check = setInterval(() => {
                 attempts++;
@@ -285,22 +363,58 @@
             }, 100);
         }
 
-        function loadNotificationCount(user) {
+        // ✅ OPTIMIZACIÓN 2: Cargar notificaciones SOLO UNA VEZ (no listener constante)
+        async function loadNotificationCount(user) {
             if (!isFirebaseReady()) return;
 
-            firebase.firestore().collection('notifications')
-                .where('userId', '==', user.uid)
-                .where('read', '==', false)
-                .onSnapshot((snapshot) => {
-                    const count = snapshot.size;
-                    const badge = document.getElementById('notificationBadge');
-                    if (badge) {
-                        badge.textContent = count;
-                        badge.style.display = count > 0 ? 'flex' : 'none';
-                    }
-                }, (err) => {
-                    console.error("Error notificaciones:", err);
+            // Primero intentar caché
+            const cachedCount = getCachedNotifCount();
+            if (cachedCount !== null) {
+                updateBadge(cachedCount);
+                // Actualizar en segundo plano
+                fetchNotificationCount(user);
+                return;
+            }
+
+            // Si no hay caché, cargar de Firestore
+            await fetchNotificationCount(user);
+        }
+
+        async function fetchNotificationCount(user) {
+            try {
+                const snapshot = await firebase.firestore()
+                    .collection('notifications')
+                    .where('userId', '==', user.uid)
+                    .where('read', '==', false)
+                    .get(); // ✅ Llamada única, NO listener
+
+                const count = snapshot.size;
+                updateBadge(count);
+                setCachedNotifCount(count);
+
+                console.log('✅ Notificaciones actualizadas:', count);
+            } catch (err) {
+                console.error("Error notificaciones:", err);
+            }
+        }
+
+        function updateBadge(count) {
+            const badge = document.getElementById('notificationBadge');
+            if (badge) {
+                badge.textContent = count;
+                badge.style.display = count > 0 ? 'flex' : 'none';
+            }
+        }
+
+        // ✅ OPTIMIZACIÓN 3: Refrescar al hacer click en notificaciones
+        function setupNotificationRefresh(user) {
+            const notifIcon = document.querySelector('.icon-notification');
+            if (notifIcon) {
+                notifIcon.addEventListener('click', () => {
+                    // Limpiar caché para forzar actualización
+                    localStorage.removeItem(NOTIF_CACHE_KEY);
                 });
+            }
         }
 
         function checkAuth() {
@@ -310,6 +424,7 @@
                         window.location.href = withAppFlag('index.html');
                     } else {
                         loadNotificationCount(user);
+                        setupNotificationRefresh(user);
                     }
                 });
             });
@@ -318,7 +433,7 @@
         window.addEventListener('load', checkAuth);
     </script>
 
-    <!-- Feed dinámico de noticias (OBLIGATORIO) -->
+    <!-- ✅ Feed dinámico de noticias (OBLIGATORIO) -->
     <script src="js/news-feed.js"></script>
 </body>
 </html>
