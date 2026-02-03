@@ -100,6 +100,29 @@
     .preview img{width:100%;height:100%;object-fit:cover;display:block;}
     .muted{color:var(--muted);font-size:12px;}
 
+    /* ✅ contador feedTitle */
+    .feed-meta{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-top:6px;
+      flex-wrap:wrap;
+    }
+    .counter{
+      font-size:12px;
+      color:var(--muted);
+      padding:4px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.07);
+    }
+    .counter.warn{
+      color:#ffd5d5;
+      border-color:rgba(239,68,68,.35);
+      background:rgba(239,68,68,.10);
+    }
+
     .filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;align-items:center;}
     .filters .chip{
       padding:8px 12px;border-radius:999px;
@@ -224,8 +247,18 @@
     <section class="card">
       <h2>📝 Editor <span id="modeBadge" class="badge">Crear</span></h2>
 
-      <label>Título</label>
-      <input id="fTitle" placeholder="Encabezado" />
+      <label>Título (dentro de la noticia)</label>
+      <input id="fTitle" placeholder="Ej: Fortnite anuncia nueva temporada..." />
+
+      <label>Título del feed (corto)</label>
+      <input id="fFeedTitle" placeholder="Ej: Nueva temporada ya está aquí" />
+
+      <div class="feed-meta">
+        <p class="muted">
+          Este título es el que se verá en el inicio (feed). Si lo dejas vacío, se usa el título largo recortado.
+        </p>
+        <span id="feedCounter" class="counter">0/45</span>
+      </div>
 
       <div class="row">
         <div>
@@ -371,6 +404,17 @@
     }[m]));
   }
 
+  // ✅ contador del feedTitle
+  const FEED_MAX = 45;
+  function updateFeedCounter() {
+    const inp = qs('fFeedTitle');
+    const c = qs('feedCounter');
+    if (!inp || !c) return;
+    const len = (inp.value || '').length;
+    c.textContent = `${len}/${FEED_MAX}`;
+    c.classList.toggle('warn', len > FEED_MAX);
+  }
+
   // -------- Bloques (estado) --------
   let blocks = [];
 
@@ -477,6 +521,10 @@
 
   document.addEventListener('input', (e) => {
     const t = e.target;
+
+    // ✅ contador de feed title
+    if (t && t.id === 'fFeedTitle') updateFeedCounter();
+
     const i = t.getAttribute('data-i');
     const field = t.getAttribute('data-field');
     if (i == null || !field) return;
@@ -527,6 +575,8 @@
   // -------- CRUD --------
   function getFormData() {
     const title = qs('fTitle').value.trim();
+    const feedTitle = (qs('fFeedTitle')?.value || '').trim(); // ✅ NUEVO
+
     const category = qs('fCategory').value.trim() || 'Gaming';
     const published = qs('fPublished').value === 'true';
 
@@ -536,7 +586,7 @@
     const coverImageUrl = qs('fCover').value.trim();
     const gallery = parseGallery(qs('fGallery').value);
 
-    return { title, category, published, headerImageUrl, statusText, coverImageUrl, gallery };
+    return { title, feedTitle, category, published, headerImageUrl, statusText, coverImageUrl, gallery };
   }
 
   function normalizeBlocksForSave(){
@@ -575,6 +625,9 @@
 
   function fillForm(data) {
     qs('fTitle').value = data.title || '';
+    qs('fFeedTitle').value = data.feedTitle || ''; // ✅ NUEVO
+    updateFeedCounter();
+
     qs('fCategory').value = data.category || 'Gaming';
     qs('fPublished').value = (data.published === true) ? 'true' : 'false';
 
@@ -610,11 +663,17 @@
       if (!data.headerImageUrl) { toast('Pon la imagen principal del header'); return; }
       if (!blocksToSave.length) { toast('Agrega contenido (bloques)'); return; }
 
+      // ✅ aviso si se pasó de 45 (no bloquea)
+      if ((data.feedTitle || '').length > FEED_MAX) {
+        toast('⚠️ El título del feed pasa de 45 caracteres (se recortará en el inicio).');
+      }
+
       const now = firebase.firestore.FieldValue.serverTimestamp();
       const shouldSetDate = data.published === true;
 
       const payload = {
         title: data.title,
+        feedTitle: data.feedTitle || '', // ✅ NUEVO
         category: data.category,
         published: data.published,
 
@@ -742,6 +801,7 @@
 
     filtered.forEach(({ id, data }) => {
       const title = data.title || 'Noticia';
+      const displayTitle = data.feedTitle || title; // ✅ muestra el corto si existe
       const cover = (data.coverImageUrl || data.imageUrl || '').trim();
       const published = data.published === true;
 
@@ -752,7 +812,7 @@
           ${cover ? `<img src="${cover}" alt="" loading="lazy">` : ''}
         </div>
         <div class="meta">
-          <strong>${escapeHtml(title)}</strong>
+          <strong>${escapeHtml(displayTitle)}</strong>
           <div class="small">
             ${published ? '🟢 Publicada' : '🟡 Borrador'} • ${data.category || '—'} • ${fmtDate(data.date || data.updatedAt || data.createdAt)}
           </div>
@@ -854,6 +914,7 @@
   window.addEventListener('load', () => {
     resetForm();
     renderBlocks();
+    updateFeedCounter();
   });
 </script>
 </body>

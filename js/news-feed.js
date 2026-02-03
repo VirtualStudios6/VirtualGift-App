@@ -1,4 +1,4 @@
-// js/news-feed.js - VERSIÓN OPTIMIZADA
+// js/news-feed.js - VERSIÓN OPTIMIZADA (con feedTitle)
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.getElementById('newsGrid');
   const errorEl = document.getElementById('newsError');
@@ -7,6 +7,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const FEED_LIMIT = 12;
   const CACHE_KEY = 'vg_news_cache';
   const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+
+  // ✅ NUEVO: recortar texto para el feed
+  function truncateText(text, max = 45) {
+    const t = String(text || '');
+    return t.length > max ? t.slice(0, max) + '...' : t;
+  }
+
+  // ✅ NUEVO: título del feed (corto) con fallback al title largo
+  function getFeedTitle(data) {
+    const feedTitle = String(data?.feedTitle || '').trim();
+    if (feedTitle) return feedTitle;
+
+    const title = String(data?.title || 'Noticia').trim();
+    return truncateText(title, 45);
+  }
 
   // ✅ OPTIMIZACIÓN 1: Sistema de caché para noticias
   function getCachedNews() {
@@ -18,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const age = Date.now() - data.timestamp;
 
       if (age < CACHE_DURATION) {
-        console.log('✅ Usando noticias en caché (edad:', Math.floor(age/1000), 's)');
+        console.log('✅ Usando noticias en caché (edad:', Math.floor(age / 1000), 's)');
         return data.items;
       }
 
@@ -32,10 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setCachedNews(items) {
     try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({
-        items: items,
-        timestamp: Date.now()
-      }));
+      localStorage.setItem(
+        CACHE_KEY,
+        JSON.stringify({
+          items: items,
+          timestamp: Date.now(),
+        })
+      );
     } catch (e) {
       console.warn('Error al guardar caché de noticias:', e);
     }
@@ -71,18 +89,23 @@ document.addEventListener('DOMContentLoaded', () => {
   // ✅ OPTIMIZACIÓN 2: Mostrar skeleton mientras carga
   function renderSkeleton() {
     grid.innerHTML = `
-      ${Array(6).fill(0).map(() => `
+      ${Array(6)
+        .fill(0)
+        .map(
+          () => `
         <div class="news-card skeleton-news">
           <div class="news-image"></div>
           <p class="news-label"></p>
         </div>
-      `).join('')}
+      `
+        )
+        .join('')}
     `;
   }
 
   function removeSkeleton() {
     const skeletons = grid.querySelectorAll('.skeleton-news');
-    skeletons.forEach(s => s.remove());
+    skeletons.forEach((s) => s.remove());
   }
 
   function localPlaceholder() {
@@ -113,7 +136,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     items.forEach(({ id, data }) => {
-      const title = String(data?.title || 'Noticia');
+      // ✅ title interno (para alt y fallback)
+      const fullTitle = String(data?.title || 'Noticia');
+      // ✅ título corto SOLO para el feed
+      const feedTitle = getFeedTitle(data);
+
       const imageUrl = getCover(data);
 
       const a = document.createElement('a');
@@ -125,13 +152,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const img = document.createElement('img');
       img.loading = 'lazy';
-      img.alt = title;
+      img.alt = fullTitle; // alt con título completo
       img.src = imageUrl;
-      img.onerror = () => img.src = localPlaceholder();
+      img.onerror = () => (img.src = localPlaceholder());
 
       const p = document.createElement('p');
       p.className = 'news-label';
-      p.textContent = title;
+      p.textContent = feedTitle; // ✅ AQUI: feedTitle
 
       imgWrap.appendChild(img);
       a.appendChild(imgWrap);
@@ -156,7 +183,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Si no hay caché, cargar de Firestore
       await fetchAndUpdateNews(false);
-
     } catch (e) {
       console.error('[news-feed] Error:', e);
       showError('No se pudieron cargar las noticias.');
@@ -172,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .limit(FEED_LIMIT)
         .get();
 
-      const items = snap.docs.map(d => ({ id: d.id, data: d.data() }));
+      const items = snap.docs.map((d) => ({ id: d.id, data: d.data() }));
 
       // Guardar en caché
       setCachedNews(items);
@@ -183,7 +209,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (!silent) console.log('✅ Noticias cargadas desde Firestore');
-
     } catch (e) {
       console.error('[news-feed] Error fetchAndUpdateNews:', e);
       if (!silent) {

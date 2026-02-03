@@ -651,3 +651,19 @@ body {
     box-shadow: var(--shadow-hover);
   }
 }
+/* ✅ Quitar subrayado azul (líneas) en los cards del feed */
+.news-card{
+  text-decoration: none !important;
+  color: inherit;
+}
+
+.news-card:visited,
+.news-card:hover,
+.news-card:active{
+  text-decoration: none !important;
+  color: inherit;
+}
+
+.news-card .news-label{
+  text-decoration: none !important;
+}
