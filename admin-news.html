@@ -233,8 +233,8 @@
 <div class="wrap">
   <header>
     <div>
-      <div class="title">🛠 Panel de Noticias</div>
-      <div class="subtitle">Crea, edita, publica y organiza las noticias del feed (sin tocar código).</div>
+      <div class="title">🛠 VirtualNews</div>
+      <div class="subtitle">Organiza las noticias del feed.</div>
     </div>
     <div class="top-actions">
       <button class="btn" id="btnGoHome">← Inicio</button>
@@ -248,14 +248,14 @@
       <h2>📝 Editor <span id="modeBadge" class="badge">Crear</span></h2>
 
       <label>Título (dentro de la noticia)</label>
-      <input id="fTitle" placeholder="Ej: Fortnite anuncia nueva temporada..." />
+      <input id="fTitle" placeholder="El encabezado de la noticia." />
 
       <label>Título del feed (corto)</label>
-      <input id="fFeedTitle" placeholder="Ej: Nueva temporada ya está aquí" />
+      <input id="fFeedTitle" placeholder="Titulo corto del feed." />
 
       <div class="feed-meta">
         <p class="muted">
-          Este título es el que se verá en el inicio (feed). Si lo dejas vacío, se usa el título largo recortado.
+
         </p>
         <span id="feedCounter" class="counter">0/45</span>
       </div>
@@ -301,7 +301,7 @@
 
       <div class="sep"></div>
 
-      <h2 style="margin-top:2px;">🧩 Constructor de contenido <span class="badge" id="blocksCount">0 bloques</span></h2>
+      <h2 style="margin-top:2px;">🧩 Todo el contenido <span class="badge" id="blocksCount">0 bloques</span></h2>
 
       <div class="block-tools">
         <button class="btn" id="addP">+ Párrafo</button>
@@ -337,7 +337,7 @@
       <button class="btn btn-danger" id="btnDelete" style="margin-top:10px;display:none;">Eliminar</button>
 
       <p class="muted" style="margin-top:10px;">
-        Tip: “Publicar ahora” también actualiza <b>date</b> para que suba al inicio del feed.
+     “Publicar ahora” también actualiza <b>date</b> para que suba al inicio del feed.
       </p>
     </section>
 
@@ -349,7 +349,6 @@
         <div class="chip active" data-filter="all">Todas</div>
         <div class="chip" data-filter="published">Publicadas</div>
         <div class="chip" data-filter="drafts">Borradores</div>
-        <div class="chip" data-filter="gaming">Gaming</div>
       </div>
 
       <div id="newsList" class="list"></div>
