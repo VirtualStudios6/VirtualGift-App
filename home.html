@@ -13,15 +13,19 @@
     :root {
       --primary: #8d17fb;
       --secondary: #70189b;
+
       --bg-primary: #020515;
       --bg-secondary: #06011c;
-      --card-bg: rgba(28, 31, 47, 0.92);
+
       --text-primary: #dcefff;
       --text-secondary: rgba(182, 198, 217, 0.9);
+
       --border: rgba(41, 50, 68, 0.75);
       --shadow: 0 10px 35px rgba(0,0,0,0.45);
+
       --danger: #ef4444;
-      --success: #10b981;
+      --warning: #f59e0b;
+      --ok: #22c55e;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: Inter, Roboto, Arial, sans-serif; }
@@ -31,7 +35,7 @@
       background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary));
       color: var(--text-primary);
       padding: 18px;
-      padding-bottom: 70px;
+      padding-bottom: 78px;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       overflow-x: hidden;
@@ -39,12 +43,11 @@
 
     .container { max-width: 900px; margin: 0 auto; }
 
-    /* Top Bar */
     .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
 
     .back-btn {
@@ -59,147 +62,185 @@
       cursor: pointer;
       font-size: 14px;
       font-weight: 800;
-      transition: all 0.2s ease;
+      transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease;
       -webkit-tap-highlight-color: transparent;
     }
     .back-btn:active { transform: scale(0.98); }
     .back-btn:hover { border-color: rgba(141,23,251,.55); box-shadow: var(--shadow); }
 
-    /* ✅ Card de Perfil Moderna sin Banner */
+    /* ✅ Nuevo header (sin banner) */
     .profile-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 40px 20px;
-      box-shadow: var(--shadow);
-      text-align: center;
-      margin-bottom: 20px;
       position: relative;
+      background: rgba(28, 31, 47, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .profile-card::after{
+      content:"";
+      position:absolute;
+      inset:-80px auto auto -80px;
+      width: 240px; height: 240px;
+      background: rgba(141, 23, 251, 0.16);
+      filter: blur(48px);
+      border-radius: 999px;
+      pointer-events:none;
     }
 
-    /* ✅ Avatar con Lápiz para Editar */
-    .avatar-wrapper {
+    .profile-row{
       position: relative;
-      display: inline-block;
-      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      z-index: 1;
+    }
+
+    .avatar-wrap{
+      position: relative;
+      width: 92px;
+      height: 92px;
+      flex: 0 0 auto;
     }
 
     .avatar {
-      width: 120px;
-      height: 120px;
+      width: 92px;
+      height: 92px;
       border-radius: 50%;
-      border: 4px solid var(--primary);
-      box-shadow: 0 0 30px rgba(141, 23, 251, 0.4);
+      border: 4px solid rgba(2,5,21,0.75);
+      box-shadow: 0 0 28px rgba(141, 23, 251, 0.45);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: transform 0.15s ease, opacity 0.15s ease;
       object-fit: cover;
       background: rgba(255,255,255,0.06);
       -webkit-tap-highlight-color: transparent;
       user-select: none;
     }
-    .avatar:active { transform: scale(0.97); }
+    .avatar:active { transform: scale(0.98); opacity: 0.95; }
 
-    /* ✅ Botón Lápiz Flotante */
-    .edit-avatar-btn {
+    /* ✅ Botón lapicito */
+    .edit-avatar-btn{
       position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 38px;
-      height: 38px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      border: 3px solid var(--bg-primary);
-      border-radius: 50%;
-      display: flex;
+      right: -4px;
+      bottom: -4px;
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(2,5,21,0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+      cursor: pointer;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(141, 23, 251, 0.4);
-      transition: all 0.2s ease;
+      color: rgba(220,239,255,0.95);
+      transition: transform .15s ease, border-color .2s ease;
       -webkit-tap-highlight-color: transparent;
     }
-    .edit-avatar-btn:active { transform: scale(0.92); }
-    .edit-avatar-btn:hover { transform: scale(1.05); }
+    .edit-avatar-btn:hover{ border-color: rgba(141,23,251,.55); }
+    .edit-avatar-btn:active{ transform: scale(0.98); }
+    .edit-avatar-btn svg{ width: 18px; height: 18px; }
 
-    .edit-avatar-btn svg {
-      width: 18px;
-      height: 18px;
-      fill: white;
+    .profile-meta{
+      flex: 1 1 auto;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
     }
 
-    /* Input oculto para foto */
-    #avatarInput { display: none; }
-
-    /* Usuario */
     .user-name {
-      font-size: 2em;
-      font-weight: 900;
+      font-size: 1.35em;
+      font-weight: 950;
       letter-spacing: 0.2px;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, #fff, #b8c6ff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      line-height: 1.15;
+      margin: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    /* ✅ Email Censurado con Ojito */
-    .email-container {
+    .email-row{
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 30px;
+      gap: 8px;
+      min-width: 0;
     }
 
     .user-email {
       color: var(--text-secondary);
       font-size: 0.95em;
-      opacity: 0.9;
-      font-family: 'Courier New', monospace;
-      letter-spacing: 0.5px;
+      opacity: 0.95;
+      word-break: break-word;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1 1 auto;
     }
 
-    .toggle-email-btn {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 6px 10px;
+    .icon-btn{
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(2,5,21,0.35);
       cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
+      color: rgba(220,239,255,0.95);
+      transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease;
       -webkit-tap-highlight-color: transparent;
+      flex: 0 0 auto;
     }
-    .toggle-email-btn:active { transform: scale(0.95); }
-    .toggle-email-btn:hover { background: rgba(255,255,255,0.08); }
+    .icon-btn:hover{ border-color: rgba(141,23,251,.55); box-shadow: 0 0 18px rgba(141,23,251,0.18); }
+    .icon-btn:active{ transform: scale(0.985); }
+    .icon-btn svg{ width: 18px; height: 18px; }
 
-    .toggle-email-btn svg {
-      width: 18px;
-      height: 18px;
-      fill: var(--text-secondary);
+    .hint {
+      position: relative;
+      z-index: 1;
+      margin-top: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
-    /* Secciones */
+    .chip{
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(220,239,255,0.95);
+      background: rgba(0,0,0,0.22);
+      border: 1px solid rgba(255,255,255,0.10);
+      padding: 7px 10px;
+      border-radius: 999px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
     .section {
-      background: var(--card-bg);
+      background: rgba(28, 31, 47, 0.92);
       border: 1px solid var(--border);
       border-radius: 18px;
-      padding: 20px;
+      padding: 18px;
       box-shadow: 0 8px 28px rgba(0,0,0,0.25);
-      margin-bottom: 16px;
     }
 
     .section-title {
-      font-size: 1.1em;
-      font-weight: 900;
-      margin-bottom: 16px;
+      font-size: 1.05em;
+      font-weight: 950;
+      margin-bottom: 14px;
       display: flex;
       align-items: center;
       gap: 10px;
       color: rgba(220,239,255,0.95);
     }
 
-    /* Botones de Acción */
     .action-buttons {
       display: grid;
       grid-template-columns: 1fr;
@@ -211,9 +252,9 @@
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,0.10);
       cursor: pointer;
-      font-weight: 900;
+      font-weight: 950;
       font-size: 0.95em;
-      transition: all 0.2s ease;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, border-color .2s ease, background .2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -232,9 +273,10 @@
     }
     .btn-primary:hover { box-shadow: 0 0 24px rgba(141, 23, 251, 0.35); }
 
-    .btn-secondary {
-      background: rgba(28, 31, 47, 0.6);
-      border: 1px solid var(--border);
+    .btn-warning{
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #ffe7bf;
     }
 
     .btn-danger {
@@ -243,7 +285,7 @@
       color: #ffd5d5;
     }
 
-    /* Loading & Error */
+    /* Loading */
     .loading {
       text-align: center;
       padding: 40px 20px;
@@ -258,12 +300,12 @@
       border: 3px solid var(--border);
       border-top: 3px solid var(--primary);
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
+      width: 50px; height: 50px;
       animation: spin 1s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    /* Error */
     .error-state {
       text-align: center;
       padding: 60px 20px;
@@ -274,13 +316,10 @@
       justify-content: center;
       min-height: 70vh;
     }
-    .error-icon {
-      font-size: 4em;
-      margin-bottom: 14px;
-      opacity: 0.55;
-    }
+    .error-icon { font-size: 4em; margin-bottom: 14px; opacity: 0.55; }
+    .error-message { margin-bottom: 18px; line-height: 1.5; }
 
-    /* Toast */
+    /* mini toast */
     .toast {
       position: fixed;
       left: 50%;
@@ -296,97 +335,15 @@
       z-index: 9999;
       max-width: 92vw;
       text-align: center;
-      font-weight: 800;
-      font-size: 13px;
-      backdrop-filter: blur(10px);
-    }
-
-    /* ✅ Modal Cambiar Contraseña */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.75);
-      backdrop-filter: blur(8px);
-      z-index: 1000;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-    }
-    .modal.show { display: flex; }
-
-    .modal-content {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 22px;
-      padding: 30px;
-      max-width: 400px;
-      width: 100%;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-      position: relative;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .modal-title {
-      font-size: 1.4em;
       font-weight: 900;
-    }
-
-    .close-modal {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-size: 1.2em;
-      color: var(--text-secondary);
-      transition: all 0.2s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .close-modal:active { transform: scale(0.95); }
-
-    .modal label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 0.9em;
-      color: var(--text-secondary);
-      font-weight: 600;
-    }
-
-    .modal input {
-      width: 100%;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: rgba(2,5,21,0.5);
-      color: var(--text-primary);
-      margin-bottom: 14px;
-      font-size: 0.95em;
-      outline: none;
-    }
-    .modal input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(141,23,251,0.1);
-    }
-
-    .modal .btn {
-      margin-top: 10px;
+      font-size: 13px;
     }
 
     @media (max-width: 768px) {
       body { padding: 16px; padding-bottom: 76px; }
-      .user-name { font-size: 1.7em; }
-      .avatar { width: 110px; height: 110px; }
-      .profile-card { padding: 35px 20px; }
+      .avatar-wrap{ width: 86px; height: 86px; }
+      .avatar{ width: 86px; height: 86px; }
+      .user-name { font-size: 1.25em; }
     }
   </style>
 
@@ -396,109 +353,8 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
   <script defer src="js/firebase-config.js"></script>
-</head>
-
-<body>
-  <!-- Loading -->
-  <div id="loading" class="loading">
-    <div class="spinner"></div>
-    <p>Cargando perfil...</p>
-  </div>
-
-  <!-- Error -->
-  <div id="error" class="error-state">
-    <div class="error-icon">⚠️</div>
-    <div class="error-message">No se pudo cargar tu perfil</div>
-    <button class="btn btn-primary" onclick="location.reload()">Reintentar</button>
-  </div>
-
-  <!-- Contenido Principal -->
-  <div id="content" class="container" style="display:none;">
-    <div class="top-bar">
-      <button class="back-btn" onclick="goBack()">← Volver</button>
-    </div>
-
-    <!-- ✅ Card de Perfil Moderna -->
-    <div class="profile-card">
-      <!-- Avatar con Lápiz -->
-      <div class="avatar-wrapper">
-        <img id="avatar" class="avatar" src="https://via.placeholder.com/120" alt="Avatar">
-        <div class="edit-avatar-btn" onclick="openAvatarPicker()">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-          </svg>
-        </div>
-      </div>
-      <input type="file" id="avatarInput" accept="image/*">
-
-      <!-- Nombre -->
-      <h1 class="user-name" id="userName">Usuario</h1>
-
-      <!-- ✅ Email Censurado con Ojito -->
-      <div class="email-container">
-        <p class="user-email" id="userEmail">correo@ejemplo.com</p>
-        <button class="toggle-email-btn" onclick="toggleEmailVisibility()">
-          <svg id="eyeIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-          </svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- ✅ Sección de Configuración -->
-    <div class="section">
-      <h2 class="section-title">⚙️ Configuración</h2>
-      <div class="action-buttons">
-        <button class="btn btn-secondary" onclick="openChangePasswordModal()">
-          🔑 Cambiar Contraseña
-        </button>
-      </div>
-    </div>
-
-    <!-- ✅ Sección de Sesión -->
-    <div class="section">
-      <h2 class="section-title">🚪 Sesión</h2>
-      <div class="action-buttons">
-        <button class="btn btn-danger" onclick="logout()">
-          Cerrar Sesión
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Toast -->
-  <div id="toast" class="toast"></div>
-
-  <!-- ✅ Modal Cambiar Contraseña -->
-  <div id="changePasswordModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2 class="modal-title">🔑 Cambiar Contraseña</h2>
-        <button class="close-modal" onclick="closeChangePasswordModal()">✕</button>
-      </div>
-      <label>Contraseña Actual</label>
-      <input type="password" id="currentPassword" placeholder="Tu contraseña actual">
-
-      <label>Nueva Contraseña</label>
-      <input type="password" id="newPassword" placeholder="Mínimo 6 caracteres">
-
-      <label>Confirmar Nueva Contraseña</label>
-      <input type="password" id="confirmPassword" placeholder="Repite la nueva contraseña">
-
-      <button class="btn btn-primary" id="changePasswordBtn" onclick="changePassword()">Actualizar Contraseña</button>
-    </div>
-  </div>
 
   <script>
-    // ✅ Inicialización de Firebase
-    function initializeFirebase() {
-      if (typeof firebase !== 'undefined' && firebase.app) {
-        if (!window.auth) window.auth = firebase.auth();
-        if (!window.db) window.db = firebase.firestore();
-        if (!window.storage) window.storage = firebase.storage();
-      }
-    }
-
     // ✅ Mantener app=android en navegación
     function withAppFlag(url) {
       const isAndroidApp =
@@ -515,24 +371,106 @@
       const fixed = base.includes("?") ? (base + "&app=android") : (base + "?app=android");
       return fixed + hash;
     }
+  </script>
+</head>
 
-    function goBack() {
-      window.location.href = withAppFlag('inicio.html');
-    }
+<body>
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Cargando perfil...</p>
+  </div>
 
-    const AVATAR_PLACEHOLDER = 'https://via.placeholder.com/120';
+  <div id="error" class="error-state">
+    <div class="error-icon">⚠️</div>
+    <div class="error-message">
+      <p>No se pudo cargar tu perfil</p>
+      <p style="font-size: 0.9em; margin-top: 6px;">Verifica tu conexión e intenta de nuevo</p>
+    </div>
+    <button class="btn btn-primary" onclick="location.reload()">🔄 Reintentar</button>
+    <button class="btn" onclick="window.location.href=withAppFlag('inicio.html')" style="margin-top: 10px;">← Volver al inicio</button>
+  </div>
+
+  <div id="content" class="container" style="display:none;">
+    <div class="top-bar">
+      <button class="back-btn" onclick="window.location.href=withAppFlag('inicio.html')">← Volver al inicio</button>
+    </div>
+
+    <!-- ✅ Header 10/10 (sin banner) -->
+    <div class="profile-card">
+      <div class="profile-row">
+        <div class="avatar-wrap">
+          <img id="avatar" class="avatar" src="images/logo-virtual-login.png" alt="Avatar">
+          <button id="btnEditAvatar" class="edit-avatar-btn" title="Cambiar avatar" aria-label="Cambiar avatar">
+            <!-- lápiz -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 20H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L8 18l-4 1 1-4L16.5 3.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="profile-meta">
+          <div class="user-name" id="userName">Usuario</div>
+
+          <div class="email-row">
+            <div class="user-email" id="userEmail" title="Correo electrónico"></div>
+            <button id="btnToggleEmail" class="icon-btn" title="Mostrar/Ocultar correo" aria-label="Mostrar u ocultar correo">
+              <!-- ojo -->
+              <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <svg id="eyeClosed" style="display:none;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.88 21.88 0 0 1 5.06-6.94" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M1 1l22 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.87 21.87 0 0 1-2.98 4.33" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M14.12 14.12a3 3 0 0 1-4.24-4.24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="hint">
+        <span class="chip" id="chipProvider">🔐 Cuenta segura</span>
+        <span class="chip">🖼️ Avatar desde galería</span>
+        <span class="chip">⚡ Perfil sincronizado</span>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2 class="section-title">⚡ Acciones</h2>
+      <div class="action-buttons">
+        <button class="btn btn-primary" onclick="window.location.href=withAppFlag('inicio.html')">🎮 Volver al inicio</button>
+        <button class="btn" id="btnChangeAvatar">🖼️ Cambiar avatar</button>
+        <button class="btn" id="btnEditName">✏️ Cambiar nombre</button>
+        <button class="btn btn-warning" id="btnResetPassword">🔑 Cambiar contraseña</button>
+        <button class="btn btn-danger" onclick="logout()">🚪 Cerrar Sesión</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <!-- ✅ input oculto para seleccionar foto -->
+  <input id="avatarInput" type="file" accept="image/*" style="display:none;" />
+
+  <script>
+    const AVATAR_PLACEHOLDER = 'images/logo-virtual-login.png';
     const CACHE_KEY = 'vg_user_cache_profile';
     const CACHE_DURATION = 5 * 60 * 1000;
 
-    let originalEmail = '';
-    let isEmailVisible = false;
+    let __isUploadingAvatar = false;
+    let __lastStableAvatar = '';
+    let __emailRaw = '';
+    let __emailShown = false;
 
     const toast = (msg) => {
       const el = document.getElementById('toast');
       el.textContent = msg;
       el.style.display = 'block';
       clearTimeout(window.__toastT);
-      window.__toastT = setTimeout(() => el.style.display = 'none', 2600);
+      window.__toastT = setTimeout(() => el.style.display = 'none', 2400);
     };
 
     function showContent() {
@@ -547,50 +485,14 @@
       document.getElementById('error').style.display = 'flex';
     }
 
-    // ✅ Censurar Email (versión más segura)
-    function censorEmail(email) {
-      if (!email || !email.includes('@')) return email || 'correo@ejemplo.com';
-      const [username, domain] = email.split('@');
-      if (username.length <= 3) return email;
-
-      const visibleStart = username.slice(0, 2);
-      const visibleEnd = username.slice(-1);
-      const censored = visibleStart + '*'.repeat(username.length - 3) + visibleEnd;
-      return censored + '@' + domain;
-    }
-
-    // ✅ Mostrar email parcial incluso cuando está "visible"
-    function getPartialEmail(email) {
-      if (!email || !email.includes('@')) return email;
-      const [local, domain] = email.split('@');
-      if (local.length <= 5) return email;
-
-      const visiblePart = local.substring(0, 3) + '***' + local.substring(local.length - 2);
-      return visiblePart + '@' + domain;
-    }
-
-    // ✅ Toggle Visibilidad Email
-    function toggleEmailVisibility() {
-      isEmailVisible = !isEmailVisible;
-      const emailEl = document.getElementById('userEmail');
-      const eyeIcon = document.getElementById('eyeIcon');
-
-      if (isEmailVisible) {
-        // Mostrar email parcial (más seguro que completo)
-        emailEl.textContent = getPartialEmail(originalEmail);
-        eyeIcon.innerHTML = '<path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/>';
-      } else {
-        // Mostrar email censurado
-        emailEl.textContent = censorEmail(originalEmail);
-        eyeIcon.innerHTML = '<path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>';
-      }
-    }
-
     function safeSetAvatar(url) {
       const avatarEl = document.getElementById('avatar');
+
       const clean = (url && String(url).trim()) ? String(url).trim() : '';
       avatarEl.onerror = null;
+
       avatarEl.src = clean || AVATAR_PLACEHOLDER;
+
       avatarEl.onerror = () => {
         avatarEl.onerror = null;
         avatarEl.src = AVATAR_PLACEHOLDER;
@@ -602,17 +504,8 @@
         const cached = localStorage.getItem(CACHE_KEY);
         if (!cached) return null;
         const data = JSON.parse(cached);
-
-        // Verificar que el usuario en caché sea el mismo que el actual
-        const currentUser = window.auth?.currentUser;
-        if (currentUser && data.userId !== currentUser.uid) {
-          localStorage.removeItem(CACHE_KEY);
-          return null;
-        }
-
         const age = Date.now() - data.timestamp;
-        if (age < CACHE_DURATION) return data.userData;
-
+        if (age < CACHE_DURATION) return data.user;
         localStorage.removeItem(CACHE_KEY);
         return null;
       } catch {
@@ -620,18 +513,13 @@
       }
     }
 
-    function setCachedUserData(userData, userId) {
+    function setCachedUserData(userData) {
       try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify({
-          userData,
-          userId,
-          timestamp: Date.now()
-        }));
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ user: userData, timestamp: Date.now() }));
       } catch {}
     }
 
     function isFirebaseReady() {
-      initializeFirebase();
       return typeof firebase !== 'undefined'
         && typeof firebase.auth === 'function'
         && typeof firebase.firestore === 'function'
@@ -643,7 +531,6 @@
       let attempts = 0;
       const check = setInterval(() => {
         attempts++;
-        initializeFirebase();
         if (isFirebaseReady()) {
           clearInterval(check);
           callback();
@@ -662,25 +549,103 @@
       return u + sep + 'v=' + Date.now();
     }
 
+    function maskEmail(email) {
+      const e = String(email || '').trim();
+      if (!e || !e.includes('@')) return e;
+
+      const [name, domain] = e.split('@');
+      const parts = domain.split('.');
+      const tld = parts.length > 1 ? parts.pop() : '';
+      const domainName = parts.join('.');
+
+      const safeName = name.length <= 2
+        ? (name[0] ? name[0] + '*' : '*')
+        : (name.slice(0, 2) + '***' + name.slice(-1));
+
+      const safeDomain = domainName.length <= 3
+        ? (domainName[0] ? domainName[0] + '**' : '**')
+        : (domainName.slice(0, 2) + '***' + domainName.slice(-1));
+
+      return safeName + '@' + safeDomain + (tld ? ('.' + tld) : '');
+    }
+
+    function renderEmail() {
+      const el = document.getElementById('userEmail');
+      const btn = document.getElementById('btnToggleEmail');
+      const eyeOpen = document.getElementById('eyeOpen');
+      const eyeClosed = document.getElementById('eyeClosed');
+
+      const shown = __emailShown ? __emailRaw : maskEmail(__emailRaw);
+      el.textContent = shown || '';
+
+      // icono (si está oculto, mostramos el ojo tachado)
+      eyeOpen.style.display = __emailShown ? 'none' : 'block';
+      eyeClosed.style.display = __emailShown ? 'block' : 'none';
+
+      // desactivar botón si no hay email
+      btn.disabled = !__emailRaw;
+      btn.style.opacity = __emailRaw ? '1' : '0.5';
+      btn.style.pointerEvents = __emailRaw ? 'auto' : 'none';
+    }
+
+    function setProviderChip(user) {
+      const chip = document.getElementById('chipProvider');
+      const providers = (user.providerData || []).map(p => p.providerId);
+      if (providers.includes('password')) {
+        chip.textContent = '🔐 Cuenta con contraseña';
+      } else if (providers.includes('google.com')) {
+        chip.textContent = '🔐 Cuenta Google';
+      } else {
+        chip.textContent = '🔐 Cuenta segura';
+      }
+    }
+
     function loadBasicUserData(user) {
       document.getElementById('userName').textContent = user.displayName || 'Usuario';
 
-      // ✅ Email censurado por defecto
-      originalEmail = user.email || '';
-      document.getElementById('userEmail').textContent = censorEmail(originalEmail);
+      __emailRaw = user.email || '';
+      __emailShown = false;
+      renderEmail();
 
+      // avatar: primero guardamos el último estable (para no perderlo si falla la subida)
+      __lastStableAvatar = user.photoURL || '';
       safeSetAvatar(cacheBust(user.photoURL) || AVATAR_PLACEHOLDER);
+
+      // eventos
+      document.getElementById('avatar').onclick = openAvatarPicker;
+      document.getElementById('btnEditAvatar').onclick = openAvatarPicker;
+      document.getElementById('btnChangeAvatar').onclick = openAvatarPicker;
+
+      document.getElementById('btnToggleEmail').onclick = () => {
+        __emailShown = !__emailShown;
+        renderEmail();
+      };
+
+      document.getElementById('btnEditName').onclick = () => editName(user);
+      document.getElementById('btnResetPassword').onclick = () => resetPassword(user);
+
+      setProviderChip(user);
+
       showContent();
     }
 
     async function loadFirestoreData(user) {
       try {
+        // 1) cache
         const cached = getCachedUserData();
-        if (cached?.photoURL) {
-          safeSetAvatar(cacheBust(cached.photoURL));
+        if (cached) {
+          if (cached.photoURL && !__isUploadingAvatar) {
+            safeSetAvatar(cacheBust(cached.photoURL));
+          }
+          if (cached.displayName && !document.getElementById('userName').textContent) {
+            document.getElementById('userName').textContent = cached.displayName;
+          }
+          // refresh silencioso
           fetchAndUpdateFirestore(user, true);
           return;
         }
+
+        // 2) firestore
         await fetchAndUpdateFirestore(user, false);
       } catch (e) {
         console.warn('Firestore load warning:', e);
@@ -693,10 +658,17 @@
       if (!snap.exists) return;
 
       const data = snap.data() || {};
-      setCachedUserData(data, user.uid);
+      setCachedUserData(data);
 
-      if (data.photoURL) {
+      if (data.displayName) {
+        document.getElementById('userName').textContent = data.displayName;
+      }
+
+      // ✅ NO sobreescribir avatar mientras se está subiendo (esto era lo que lo hacía “ponerse y quitarse”)
+      if (data.photoURL && !__isUploadingAvatar) {
         safeSetAvatar(cacheBust(data.photoURL));
+      } else if (!silent) {
+        // mantener auth/photo o placeholder
       }
     }
 
@@ -713,13 +685,13 @@
       });
     }
 
-    // ✅ Abrir Selector de Avatar
+    // ---------------------------
+    // ✅ SUBIR AVATAR REAL (Storage)
+    // ---------------------------
     function openAvatarPicker() {
       const user = window.auth?.currentUser;
-      if (!user) {
-        toast('❌ No hay usuario autenticado');
-        return;
-      }
+      if (!user) return;
+
       const input = document.getElementById('avatarInput');
       input.value = '';
       input.click();
@@ -737,8 +709,10 @@
 
     async function compressImageToJpeg(file, maxSize = 512, quality = 0.75) {
       const img = await loadImageFromFile(file);
+
       const width = img.naturalWidth || img.width;
       const height = img.naturalHeight || img.height;
+
       const scale = Math.min(maxSize / width, maxSize / height, 1);
       const newW = Math.max(1, Math.round(width * scale));
       const newH = Math.max(1, Math.round(height * scale));
@@ -759,23 +733,31 @@
     }
 
     async function uploadAvatarBlob(user, blob) {
+      // reemplaza siempre => no acumula archivos
       const path = `avatars/${user.uid}.jpg`;
+
       const ref = window.storage.ref().child(path);
       const metadata = {
         contentType: 'image/jpeg',
-        cacheControl: 'public, max-age=3600'
+        cacheControl: 'public, max-age=3600' // 1h
       };
+
       await ref.put(blob, metadata);
       return await ref.getDownloadURL();
     }
 
     async function setAvatarEverywhere(user, photoURL) {
+      // 1) auth
       await user.updateProfile({ photoURL });
+
+      // 2) firestore (merge)
       await window.db.collection('users').doc(user.uid).set({
         photoURL,
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true });
-      setCachedUserData({ photoURL }, user.uid);
+
+      // 3) cache local
+      setCachedUserData({ photoURL });
     }
 
     document.getElementById('avatarInput').addEventListener('change', async (e) => {
@@ -785,122 +767,114 @@
       const user = window.auth?.currentUser;
       if (!user) return;
 
+      // Guardar el avatar estable ANTES del preview
+      __lastStableAvatar = user.photoURL || __lastStableAvatar || '';
+      __isUploadingAvatar = true;
+
+      // preview local inmediata
+      let localUrl = '';
       try {
-        const localUrl = URL.createObjectURL(file);
+        localUrl = URL.createObjectURL(file);
         safeSetAvatar(localUrl);
-        setTimeout(() => URL.revokeObjectURL(localUrl), 5000);
       } catch {}
 
       try {
         toast('Subiendo avatar...');
+
+        // 1) comprimir
         const blob = await compressImageToJpeg(file, 512, 0.75);
+
+        // 2) subir
         const url = await uploadAvatarBlob(user, blob);
+
+        // 3) guardar
         await setAvatarEverywhere(user, url);
+
+        // 4) reload user para evitar "se pone y se quita" (photoURL viejo)
+        try { await user.reload(); } catch {}
+
+        // 5) refrescar (cache bust)
         safeSetAvatar(cacheBust(url));
+        __lastStableAvatar = url;
+
         toast('✅ Avatar actualizado');
       } catch (err) {
         console.error('Error subiendo avatar:', err);
-        toast('❌ No se pudo subir el avatar');
-        safeSetAvatar(cacheBust(user.photoURL) || AVATAR_PLACEHOLDER);
+
+        // IMPORTANTÍSIMO: no dejarlo en blanco / placeholder si había uno antes
+        const fallback = __lastStableAvatar || user.photoURL || '';
+        safeSetAvatar(cacheBust(fallback) || AVATAR_PLACEHOLDER);
+
+        // mensajes más útiles
+        const msg = (err && err.code) ? String(err.code) : '';
+        if (msg.includes('storage/unauthorized')) toast('❌ Sin permiso para subir (Storage rules)');
+        else if (msg.includes('storage/canceled')) toast('❌ Subida cancelada');
+        else toast('❌ No se pudo subir el avatar');
+      } finally {
+        __isUploadingAvatar = false;
+        if (localUrl) setTimeout(() => { try { URL.revokeObjectURL(localUrl); } catch {} }, 1500);
       }
     });
 
-    // ✅ Modal Cambiar Contraseña
-    function openChangePasswordModal() {
-      const user = window.auth?.currentUser;
-      if (!user) {
-        toast('❌ No hay usuario autenticado');
-        return;
-      }
-
-      // Verificar que no sea un usuario temporal/anónimo
-      if (user.isAnonymous) {
-        toast('❌ Los usuarios anónimos no pueden cambiar contraseña');
-        return;
-      }
-
-      // Verificar proveedor
-      const provider = user.providerData?.[0]?.providerId;
-      if (provider && provider !== 'password') {
-        toast('❌ Solo para cuentas con email y contraseña');
-        return;
-      }
-
-      document.getElementById('changePasswordModal').classList.add('show');
-    }
-
-    function closeChangePasswordModal() {
-      document.getElementById('changePasswordModal').classList.remove('show');
-      document.getElementById('currentPassword').value = '';
-      document.getElementById('newPassword').value = '';
-      document.getElementById('confirmPassword').value = '';
-    }
-
-    async function changePassword() {
-      const user = window.auth?.currentUser;
-      if (!user) {
-        toast('❌ No hay usuario autenticado');
-        return;
-      }
-
-      const currentPwd = document.getElementById('currentPassword').value;
-      const newPwd = document.getElementById('newPassword').value;
-      const confirmPwd = document.getElementById('confirmPassword').value;
-
-      if (!currentPwd || !newPwd || !confirmPwd) {
-        toast('❌ Completa todos los campos');
-        return;
-      }
-
-      if (newPwd.length < 6) {
-        toast('❌ La nueva contraseña debe tener al menos 6 caracteres');
-        return;
-      }
-
-      if (newPwd !== confirmPwd) {
-        toast('❌ Las contraseñas no coinciden');
-        return;
-      }
-
-      const submitBtn = document.getElementById('changePasswordBtn');
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = 'Actualizando...';
-      submitBtn.disabled = true;
-
+    // ---------------------------
+    // ✅ Editar nombre
+    // ---------------------------
+    async function editName(user) {
       try {
-        toast('Actualizando contraseña...');
+        const current = document.getElementById('userName').textContent || '';
+        const next = prompt('¿Cómo quieres que aparezca tu nombre?', current);
+        if (next === null) return;
 
-        // Reautenticar usuario
-        const credential = firebase.auth.EmailAuthProvider.credential(user.email, currentPwd);
-        await user.reauthenticateWithCredential(credential);
-
-        // Cambiar contraseña
-        await user.updatePassword(newPwd);
-
-        toast('✅ Contraseña actualizada exitosamente');
-        closeChangePasswordModal();
-      } catch (error) {
-        console.error('Error cambiando contraseña:', error);
-        let message = '❌ Error al cambiar contraseña';
-
-        switch(error.code) {
-          case 'auth/wrong-password':
-            message = '❌ Contraseña actual incorrecta';
-            break;
-          case 'auth/weak-password':
-            message = '❌ La contraseña debe tener al menos 6 caracteres';
-            break;
-          case 'auth/requires-recent-login':
-            message = '❌ Vuelve a iniciar sesión y prueba de nuevo';
-            break;
-          case 'auth/too-many-requests':
-            message = '❌ Demasiados intentos. Espera unos minutos';
-            break;
+        const name = String(next).trim();
+        if (name.length < 2) {
+          toast('Pon un nombre más largo 🙂');
+          return;
         }
-        toast(message);
-      } finally {
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
+
+        toast('Guardando nombre...');
+
+        await user.updateProfile({ displayName: name });
+
+        await window.db.collection('users').doc(user.uid).set({
+          displayName: name,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        document.getElementById('userName').textContent = name;
+        setCachedUserData({ displayName: name });
+
+        toast('✅ Nombre actualizado');
+      } catch (e) {
+        console.error('editName error:', e);
+        toast('❌ No se pudo cambiar el nombre');
+      }
+    }
+
+    // ---------------------------
+    // ✅ Reset password
+    // ---------------------------
+    async function resetPassword(user) {
+      try {
+        const email = user?.email || '';
+        if (!email) {
+          toast('❌ No hay correo en la cuenta');
+          return;
+        }
+
+        const providers = (user.providerData || []).map(p => p.providerId);
+        if (!providers.includes('password')) {
+          // Si se logueó con Google u otro, igual puede enviar reset, pero avisamos
+          if (!confirm('Tu cuenta parece ser de Google/otro proveedor. ¿Aún así quieres enviar el correo para cambiar contraseña?')) {
+            return;
+          }
+        }
+
+        toast('Enviando correo...');
+        await window.auth.sendPasswordResetEmail(email);
+        toast('✅ Revisa tu correo (spam también)');
+      } catch (e) {
+        console.error('resetPassword error:', e);
+        toast('❌ No se pudo enviar el correo');
       }
     }
 
