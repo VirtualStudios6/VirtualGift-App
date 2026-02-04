@@ -1,6 +1,9 @@
-// ==================== FIREBASE CONFIGURATION ====================
-// Configuración mejorada de Firebase con mejor manejo de errores
-// ================================================================
+// ==================== FIREBASE CONFIGURATION (ROBUSTA) ====================
+// - Espera a que la librería firebase cargue
+// - Inicializa 1 sola vez
+// - Expone window.auth / window.db / window.storage
+// - Expone waitForFirebase(callback)
+// ==========================================================================
 
 const firebaseConfig = {
   apiKey: "AIzaSyDFn7fJPpOzuyiBKBXh7Lm8pHN6TwY8K-g",
@@ -12,88 +15,103 @@ const firebaseConfig = {
   measurementId: "G-LF2SDF6J90"
 };
 
-// Inicialización segura de Firebase
-(function initFirebase() {
-  try {
-    // Verificar si Firebase ya está inicializado
-    if (!firebase.apps || firebase.apps.length === 0) {
-      firebase.initializeApp(firebaseConfig);
-      console.log('✅ Firebase inicializado correctamente');
-    } else {
-      console.log('ℹ️ Firebase ya estaba inicializado');
-    }
-  } catch (error) {
-    console.error('❌ Error al inicializar Firebase:', error);
-    // Mostrar error al usuario
-    setTimeout(() => {
-      alert('Error al conectar con el servidor. Por favor, recarga la página.');
-    }, 500);
-    return;
+(function initFirebaseRobust() {
+  const MAX_ATTEMPTS = 120; // 120 * 50ms = 6s
+  const INTERVAL_MS = 50;
+
+  let attempts = 0;
+
+  function libsReady() {
+    return typeof window.firebase !== "undefined"
+      && typeof window.firebase.initializeApp === "function"
+      && typeof window.firebase.auth === "function"
+      && typeof window.firebase.firestore === "function";
   }
 
-  try {
-    // Obtener servicios de Firebase
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+  function boot() {
+    try {
+      // 1) Init app (solo una vez)
+      if (!firebase.apps || firebase.apps.length === 0) {
+        firebase.initializeApp(firebaseConfig);
+        console.log("✅ Firebase inicializado");
+      } else {
+        console.log("ℹ️ Firebase ya estaba inicializado");
+      }
 
-    // Configurar persistencia de sesión LOCAL (se mantiene al cerrar el navegador)
-    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-      .then(() => {
-        console.log('✅ Persistencia de sesión configurada');
-      })
-      .catch((error) => {
-        console.warn('⚠️ No se pudo establecer persistencia:', error.message);
+      // 2) Servicios
+      const auth = firebase.auth();
+      const db = firebase.firestore();
+
+      // Storage puede no estar importado en algunas páginas (ej: inicio.html)
+      const storage = (firebase.storage && typeof firebase.storage === "function")
+        ? firebase.storage()
+        : null;
+
+      // 3) Persistencia
+      auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(() => console.log("✅ Persistencia LOCAL configurada"))
+        .catch((e) => console.warn("⚠️ Persistencia no se pudo establecer:", e?.message || e));
+
+      // Idioma
+      if (auth.useDeviceLanguage) auth.useDeviceLanguage();
+
+      // 4) Exponer global
+      window.firebaseApp = firebase.app();
+      window.firebase = firebase;
+      window.auth = auth;
+      window.db = db;
+      window.storage = storage; // puede ser null
+
+      // 5) Flag de listo
+      window.__firebaseReady = true;
+      console.log("📦 Firebase listo:", {
+        auth: !!window.auth,
+        firestore: !!window.db,
+        storage: !!window.storage
       });
 
-    // Configurar idioma del dispositivo para emails
-    if (auth.useDeviceLanguage) {
-      auth.useDeviceLanguage();
+    } catch (err) {
+      console.error("❌ Error inicializando Firebase:", err);
+      window.__firebaseReady = false;
     }
-
-    // Exponer servicios globalmente para otros scripts
-    window.firebaseApp = firebase.app();
-    window.firebase = firebase;
-    window.auth = auth;
-    window.db = db;
-
-    console.log('📦 Servicios Firebase disponibles:', {
-      app: '✓',
-      auth: '✓',
-      firestore: '✓'
-    });
-
-  } catch (error) {
-    console.error('❌ Error al configurar servicios Firebase:', error);
   }
-})();
 
-// Función helper para verificar si Firebase está listo
-function isFirebaseReady() {
-  return typeof firebase !== 'undefined' &&
-         typeof firebase.auth === 'function' &&
-         typeof firebase.firestore === 'function' &&
-         window.auth !== undefined &&
-         window.db !== undefined;
-}
+  // Helper global: listo?
+  window.isFirebaseReady = function isFirebaseReady() {
+    return !!(window.firebase && window.auth && window.db && typeof window.db.collection === "function");
+  };
 
-// Función helper para esperar a que Firebase esté listo
-function waitForFirebase(callback, maxAttempts = 60) {
-  let attempts = 0;
-  const checkInterval = setInterval(() => {
+  // Helper global: esperar a firebase
+  window.waitForFirebase = function waitForFirebase(callback, maxAttempts = 120) {
+    let i = 0;
+    const t = setInterval(() => {
+      i++;
+      if (window.isFirebaseReady()) {
+        clearInterval(t);
+        callback();
+      } else if (i >= maxAttempts) {
+        clearInterval(t);
+        console.error("❌ Timeout: Firebase no está listo");
+        callback(new Error("Firebase timeout"));
+      }
+    }, 100);
+  };
+
+  // 0) Esperar librerías firebase
+  const tick = setInterval(() => {
     attempts++;
 
-    if (isFirebaseReady()) {
-      clearInterval(checkInterval);
-      console.log('✅ Firebase está listo para usar');
-      callback();
-    } else if (attempts >= maxAttempts) {
-      clearInterval(checkInterval);
-      console.error('❌ Timeout: Firebase no se cargó correctamente');
-      alert('Error al cargar servicios. Por favor, recarga la página.');
+    if (libsReady()) {
+      clearInterval(tick);
+      boot();
+      return;
     }
-  }, 100);
-}
 
-// Exponer funciones helper globalmente
-window.isFirebaseReady = isFirebaseReady;
-window.waitForFirebase = waitForFirebase;
+    if (attempts >= MAX_ATTEMPTS) {
+      clearInterval(tick);
+      console.error("❌ Firebase libs no cargaron a tiempo (firebase-app/auth/firestore).");
+      window.__firebaseReady = false;
+    }
+  }, INTERVAL_MS);
+
+})();
