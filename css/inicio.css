@@ -1,14 +1,58 @@
-/* ✅ Modo Android App: ocultar el header web completo */
-html.android-app .header {
+/* ============================================ */
+/* MODO ANDROID APP */
+/* ============================================ */
+/* Ocultar el header web completo en modo Android */
+html.android-app .header,
+body.android-app .header {
   display: none !important;
 }
 
-/* ✅ (Opcional) quitar el espacio extra que deja el header en algunas páginas */
+/* Quitar el espacio extra que deja el header */
 html.android-app body,
 body.android-app {
   padding-top: 0 !important;
 }
 
+/* ============================================ */
+/* SAFE AREA (iPhone notch, etc.) */
+/* ============================================ */
+.header {
+  padding-top: calc(20px + env(safe-area-inset-top));
+}
+
+/* ============================================ */
+/* SKELETON LOADER (noticias mientras cargan) */
+/* ============================================ */
+.skeleton-news {
+  animation: shimmer 1.5s infinite;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.05) 25%,
+    rgba(255,255,255,0.1) 50%,
+    rgba(255,255,255,0.05) 75%
+  );
+  background-size: 200% 100%;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.skeleton-news .news-image {
+  background: rgba(255,255,255,0.1);
+}
+
+.skeleton-news .news-label {
+  height: 14px;
+  width: 80%;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  margin: 0 auto;
+}
+
+/* ============================================ */
+/* VARIABLES CSS */
+/* ============================================ */
 :root{
   --primary: #8d17fb;
   --secondary: #70189b;
@@ -25,8 +69,9 @@ body.android-app {
   --shadow-hover: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-
-/* Reset */
+/* ============================================ */
+/* RESET Y CONFIGURACIÓN BASE */
+/* ============================================ */
 * {
   margin: 0;
   padding: 0;
@@ -51,7 +96,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Espaciado extra abajo (tu idea original) */
+/* Espaciado extra abajo */
 @media (max-width: 768px) {
   body {
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
@@ -64,7 +109,9 @@ body {
   }
 }
 
-/* Header */
+/* ============================================ */
+/* HEADER */
+/* ============================================ */
 .header {
   display: flex;
   justify-content: space-between;
@@ -99,7 +146,9 @@ body {
   }
 }
 
-/* Logo */
+/* ============================================ */
+/* LOGO */
+/* ============================================ */
 .logo {
   display: flex;
   align-items: center;
@@ -136,7 +185,9 @@ body {
   margin-left: 2px;
 }
 
-/* Icons header */
+/* ============================================ */
+/* ICONOS DEL HEADER */
+/* ============================================ */
 .header-icons {
   display: flex;
   gap: 15px;
@@ -222,7 +273,9 @@ body {
   fill: none;
 }
 
-/* Badge notificaciones */
+/* ============================================ */
+/* BADGE DE NOTIFICACIONES */
+/* ============================================ */
 .notification-badge {
   position: absolute;
   top: -5px;
@@ -242,7 +295,9 @@ body {
   justify-content: center;
 }
 
-/* Sections */
+/* ============================================ */
+/* SECCIONES */
+/* ============================================ */
 .section {
   padding: 20px;
 }
@@ -304,7 +359,9 @@ body {
   .live-badge { padding: 6px 16px; font-size: 13px; border-radius: 8px; }
 }
 
-/* News grid */
+/* ============================================ */
+/* NEWS GRID */
+/* ============================================ */
 .news-grid {
   display: flex;
   gap: 10px;
@@ -328,9 +385,18 @@ body {
 .news-card {
   flex-shrink: 0;
   width: 100px;
+  text-decoration: none !important;
+  color: inherit;
 }
 @media (min-width: 769px) {
   .news-card { width: 100%; }
+}
+
+.news-card:visited,
+.news-card:hover,
+.news-card:active {
+  text-decoration: none !important;
+  color: inherit;
 }
 
 .news-image {
@@ -355,12 +421,15 @@ body {
   text-align: center;
   color: #e5e7eb;
   line-height: 1.2;
+  text-decoration: none !important;
 }
 @media (min-width: 769px) {
   .news-label { font-size: 12px; margin-top: 8px; }
 }
 
-/* Carousel Sorteos */
+/* ============================================ */
+/* CAROUSEL SORTEOS */
+/* ============================================ */
 .carousel-container {
   position: relative;
   overflow: hidden;
@@ -427,7 +496,9 @@ body {
 }
 .carousel-dot:hover { background-color: #4b5563; }
 
-/* Skins grid */
+/* ============================================ */
+/* SKINS GRID */
+/* ============================================ */
 .skins-grid {
   display: flex;
   gap: 10px;
@@ -460,7 +531,9 @@ body {
   .skin-card { width: 100%; border-radius: 18px; padding: 16px; }
 }
 
-/* Badges */
+/* ============================================ */
+/* BADGES */
+/* ============================================ */
 .skin-badge,
 .emote-badge {
   background-color: rgba(0, 0, 0, 0.5);
@@ -517,7 +590,9 @@ body {
   .skin-name, .emote-name, .game-name { font-size: 14px; }
 }
 
-/* Emotes */
+/* ============================================ */
+/* EMOTES GRID */
+/* ============================================ */
 .emotes-grid {
   display: flex;
   gap: 10px;
@@ -557,7 +632,9 @@ body {
   .rating { font-size: 15px; margin-top: 6px; }
 }
 
-/* Popular */
+/* ============================================ */
+/* POPULAR */
+/* ============================================ */
 .popular-banner {
   width: 100%;
   height: 200px;
@@ -568,7 +645,9 @@ body {
   .popular-banner { height: 450px; border-radius: 24px; }
 }
 
-/* Games */
+/* ============================================ */
+/* GAMES GRID */
+/* ============================================ */
 .games-grid {
   display: flex;
   gap: 10px;
@@ -630,7 +709,9 @@ body {
   .game-image { height: 200px; border-radius: 14px; margin-bottom: 10px; }
 }
 
-/* Tap/hover effects */
+/* ============================================ */
+/* EFECTOS HOVER Y TAP */
+/* ============================================ */
 @media (max-width: 768px) {
   .news-card, .skin-card, .emote-card, .game-card {
     cursor: pointer;
@@ -650,20 +731,4 @@ body {
     transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
   }
-}
-/* ✅ Quitar subrayado azul (líneas) en los cards del feed */
-.news-card{
-  text-decoration: none !important;
-  color: inherit;
-}
-
-.news-card:visited,
-.news-card:hover,
-.news-card:active{
-  text-decoration: none !important;
-  color: inherit;
-}
-
-.news-card .news-label{
-  text-decoration: none !important;
 }

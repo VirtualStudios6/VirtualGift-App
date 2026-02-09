@@ -1,351 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#06011c">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#06011c" />
   <title>Mi Perfil - VirtualGift</title>
 
   <!-- ✅ Android App Mode -->
   <script defer src="js/app-mode.js"></script>
 
-  <style>
-    :root {
-      --primary: #8d17fb;
-      --secondary: #70189b;
-
-      --bg-primary: #020515;
-      --bg-secondary: #06011c;
-
-      --text-primary: #dcefff;
-      --text-secondary: rgba(182, 198, 217, 0.9);
-
-      --border: rgba(41, 50, 68, 0.75);
-      --shadow: 0 10px 35px rgba(0,0,0,0.45);
-
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --ok: #22c55e;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Inter, Roboto, Arial, sans-serif; }
-
-    body {
-      min-height: 100vh;
-      background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary));
-      color: var(--text-primary);
-      padding: 18px;
-      padding-bottom: 78px;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      overflow-x: hidden;
-    }
-
-    .container { max-width: 900px; margin: 0 auto; }
-
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid var(--border);
-      color: var(--text-primary);
-      padding: 10px 18px;
-      border-radius: 14px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 800;
-      transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .back-btn:active { transform: scale(0.98); }
-    .back-btn:hover { border-color: rgba(141,23,251,.55); box-shadow: var(--shadow); }
-
-    /* ✅ Nuevo header (sin banner) */
-    .profile-card {
-      position: relative;
-      background: rgba(28, 31, 47, 0.92);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: 0 8px 28px rgba(0,0,0,0.25);
-      overflow: hidden;
-      margin-bottom: 14px;
-    }
-    .profile-card::after{
-      content:"";
-      position:absolute;
-      inset:-80px auto auto -80px;
-      width: 240px; height: 240px;
-      background: rgba(141, 23, 251, 0.16);
-      filter: blur(48px);
-      border-radius: 999px;
-      pointer-events:none;
-    }
-
-    .profile-row{
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      z-index: 1;
-    }
-
-    .avatar-wrap{
-      position: relative;
-      width: 92px;
-      height: 92px;
-      flex: 0 0 auto;
-    }
-
-    .avatar {
-      width: 92px;
-      height: 92px;
-      border-radius: 50%;
-      border: 4px solid rgba(2,5,21,0.75);
-      box-shadow: 0 0 28px rgba(141, 23, 251, 0.45);
-      cursor: pointer;
-      transition: transform 0.15s ease, opacity 0.15s ease;
-      object-fit: cover;
-      background: rgba(255,255,255,0.06);
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-    .avatar:active { transform: scale(0.98); opacity: 0.95; }
-
-    /* ✅ Botón lapicito */
-    .edit-avatar-btn{
-      position: absolute;
-      right: -4px;
-      bottom: -4px;
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.14);
-      background: rgba(2,5,21,0.72);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(220,239,255,0.95);
-      transition: transform .15s ease, border-color .2s ease;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .edit-avatar-btn:hover{ border-color: rgba(141,23,251,.55); }
-    .edit-avatar-btn:active{ transform: scale(0.98); }
-    .edit-avatar-btn svg{ width: 18px; height: 18px; }
-
-    .profile-meta{
-      flex: 1 1 auto;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .user-name {
-      font-size: 1.35em;
-      font-weight: 950;
-      letter-spacing: 0.2px;
-      line-height: 1.15;
-      margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .email-row{
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-    }
-
-    .user-email {
-      color: var(--text-secondary);
-      font-size: 0.95em;
-      opacity: 0.95;
-      word-break: break-word;
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex: 1 1 auto;
-    }
-
-    .icon-btn{
-      width: 36px;
-      height: 36px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.10);
-      background: rgba(2,5,21,0.35);
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(220,239,255,0.95);
-      transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease;
-      -webkit-tap-highlight-color: transparent;
-      flex: 0 0 auto;
-    }
-    .icon-btn:hover{ border-color: rgba(141,23,251,.55); box-shadow: 0 0 18px rgba(141,23,251,0.18); }
-    .icon-btn:active{ transform: scale(0.985); }
-    .icon-btn svg{ width: 18px; height: 18px; }
-
-    .hint {
-      position: relative;
-      z-index: 1;
-      margin-top: 14px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .chip{
-      font-size: 12px;
-      font-weight: 900;
-      color: rgba(220,239,255,0.95);
-      background: rgba(0,0,0,0.22);
-      border: 1px solid rgba(255,255,255,0.10);
-      padding: 7px 10px;
-      border-radius: 999px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-    }
-
-    .section {
-      background: rgba(28, 31, 47, 0.92);
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 18px;
-      box-shadow: 0 8px 28px rgba(0,0,0,0.25);
-    }
-
-    .section-title {
-      font-size: 1.05em;
-      font-weight: 950;
-      margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: rgba(220,239,255,0.95);
-    }
-
-    .action-buttons {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-
-    .btn {
-      padding: 14px 16px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,0.10);
-      cursor: pointer;
-      font-weight: 950;
-      font-size: 0.95em;
-      transition: transform 0.15s ease, box-shadow 0.2s ease, border-color .2s ease, background .2s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      background: rgba(2,5,21,0.35);
-      color: var(--text-primary);
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn:active { transform: scale(0.985); }
-
-    .btn-primary {
-      border: none;
-      background: linear-gradient(90deg, var(--primary), var(--secondary));
-      color: white;
-      box-shadow: 0 0 18px rgba(141, 23, 251, 0.25);
-    }
-    .btn-primary:hover { box-shadow: 0 0 24px rgba(141, 23, 251, 0.35); }
-
-    .btn-warning{
-      background: rgba(245, 158, 11, 0.12);
-      border: 1px solid rgba(245, 158, 11, 0.35);
-      color: #ffe7bf;
-    }
-
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.12);
-      border: 1px solid rgba(239, 68, 68, 0.35);
-      color: #ffd5d5;
-    }
-
-    /* Loading */
-    .loading {
-      text-align: center;
-      padding: 40px 20px;
-      min-height: 70vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-    }
-    .spinner {
-      border: 3px solid var(--border);
-      border-top: 3px solid var(--primary);
-      border-radius: 50%;
-      width: 50px; height: 50px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Error */
-    .error-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-secondary);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 70vh;
-    }
-    .error-icon { font-size: 4em; margin-bottom: 14px; opacity: 0.55; }
-    .error-message { margin-bottom: 18px; line-height: 1.5; }
-
-    /* mini toast */
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      background: rgba(28,31,47,0.95);
-      border: 1px solid rgba(255,255,255,0.10);
-      padding: 10px 14px;
-      border-radius: 999px;
-      color: var(--text-primary);
-      box-shadow: var(--shadow);
-      display: none;
-      z-index: 9999;
-      max-width: 92vw;
-      text-align: center;
-      font-weight: 900;
-      font-size: 13px;
-    }
-
-    @media (max-width: 768px) {
-      body { padding: 16px; padding-bottom: 76px; }
-      .avatar-wrap{ width: 86px; height: 86px; }
-      .avatar{ width: 86px; height: 86px; }
-      .user-name { font-size: 1.25em; }
-    }
-  </style>
+  <!-- ✅ Estilos externos -->
+  <link rel="stylesheet" href="css/profile.css">
 
   <!-- Firebase -->
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -354,8 +19,8 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
   <script defer src="js/firebase-config.js"></script>
 
+  <!-- ✅ Utilidad para mantener app=android en URLs -->
   <script>
-    // ✅ Mantener app=android en navegación
     function withAppFlag(url) {
       const isAndroidApp =
         document.documentElement.classList.contains("android-app") ||
@@ -375,11 +40,17 @@
 </head>
 
 <body>
+  <!-- ============================================ -->
+  <!-- ESTADO DE CARGA -->
+  <!-- ============================================ -->
   <div id="loading" class="loading">
     <div class="spinner"></div>
     <p>Cargando perfil...</p>
   </div>
 
+  <!-- ============================================ -->
+  <!-- ESTADO DE ERROR -->
+  <!-- ============================================ -->
   <div id="error" class="error-state">
     <div class="error-icon">⚠️</div>
     <div class="error-message">
@@ -387,21 +58,32 @@
       <p style="font-size: 0.9em; margin-top: 6px;">Verifica tu conexión e intenta de nuevo</p>
     </div>
     <button class="btn btn-primary" onclick="location.reload()">🔄 Reintentar</button>
-    <button class="btn" onclick="window.location.href=withAppFlag('inicio.html')" style="margin-top: 10px;">← Volver al inicio</button>
+    <button class="btn" onclick="window.location.href=withAppFlag('inicio.html')" style="margin-top: 10px;">
+      ← Volver al inicio
+    </button>
   </div>
 
+  <!-- ============================================ -->
+  <!-- CONTENIDO PRINCIPAL -->
+  <!-- ============================================ -->
   <div id="content" class="container" style="display:none;">
+
+    <!-- Barra superior -->
     <div class="top-bar">
-      <button class="back-btn" onclick="window.location.href=withAppFlag('inicio.html')">← Volver al inicio</button>
+      <button class="back-btn" onclick="window.location.href=withAppFlag('inicio.html')">
+        ← Volver al inicio
+      </button>
     </div>
 
-    <!-- ✅ Header 10/10 (sin banner) -->
+    <!-- ============================================ -->
+    <!-- TARJETA DE PERFIL -->
+    <!-- ============================================ -->
     <div class="profile-card">
       <div class="profile-row">
+        <!-- Avatar con botón editar -->
         <div class="avatar-wrap">
-          <img id="avatar" class="avatar" src="images/logo-virtual-login.png" alt="Avatar">
+          <img id="avatar" class="avatar" src="images/logo-virtual-login.png" alt="Avatar" />
           <button id="btnEditAvatar" class="edit-avatar-btn" title="Cambiar avatar" aria-label="Cambiar avatar">
-            <!-- lápiz -->
             <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M12 20H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L8 18l-4 1 1-4L16.5 3.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -409,17 +91,19 @@
           </button>
         </div>
 
+        <!-- Información del usuario -->
         <div class="profile-meta">
           <div class="user-name" id="userName">Usuario</div>
 
           <div class="email-row">
             <div class="user-email" id="userEmail" title="Correo electrónico"></div>
             <button id="btnToggleEmail" class="icon-btn" title="Mostrar/Ocultar correo" aria-label="Mostrar u ocultar correo">
-              <!-- ojo -->
+              <!-- Ojo abierto -->
               <svg id="eyeOpen" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
+              <!-- Ojo cerrado -->
               <svg id="eyeClosed" style="display:none;" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.88 21.88 0 0 1 5.06-6.94" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M1 1l22 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -431,468 +115,37 @@
         </div>
       </div>
 
+      <!-- Chips informativos -->
       <div class="hint">
         <span class="chip" id="chipProvider">🔐 Cuenta segura</span>
-        <span class="chip">🖼️ Avatar desde galería</span>
         <span class="chip">⚡ Perfil sincronizado</span>
       </div>
     </div>
 
+    <!-- ============================================ -->
+    <!-- SECCIÓN DE ACCIONES -->
+    <!-- ============================================ -->
     <div class="section">
       <h2 class="section-title">⚡ Acciones</h2>
       <div class="action-buttons">
-        <button class="btn btn-primary" onclick="window.location.href=withAppFlag('inicio.html')">🎮 Volver al inicio</button>
-        <button class="btn" id="btnChangeAvatar">🖼️ Cambiar avatar</button>
         <button class="btn" id="btnEditName">✏️ Cambiar nombre</button>
         <button class="btn btn-warning" id="btnResetPassword">🔑 Cambiar contraseña</button>
-        <button class="btn btn-danger" onclick="logout()">🚪 Cerrar Sesión</button>
+        <button class="btn btn-danger" id="btnLogout">🚪 Cerrar Sesión</button>
       </div>
     </div>
   </div>
 
+  <!-- ============================================ -->
+  <!-- TOAST DE NOTIFICACIONES -->
+  <!-- ============================================ -->
   <div id="toast" class="toast"></div>
 
-  <!-- ✅ input oculto para seleccionar foto -->
+  <!-- ============================================ -->
+  <!-- INPUT OCULTO PARA SELECCIONAR AVATAR -->
+  <!-- ============================================ -->
   <input id="avatarInput" type="file" accept="image/*" style="display:none;" />
 
-  <script>
-    const AVATAR_PLACEHOLDER = 'images/logo-virtual-login.png';
-    const CACHE_KEY = 'vg_user_cache_profile';
-    const CACHE_DURATION = 5 * 60 * 1000;
-
-    let __isUploadingAvatar = false;
-    let __lastStableAvatar = '';
-    let __emailRaw = '';
-    let __emailShown = false;
-
-    const toast = (msg) => {
-      const el = document.getElementById('toast');
-      el.textContent = msg;
-      el.style.display = 'block';
-      clearTimeout(window.__toastT);
-      window.__toastT = setTimeout(() => el.style.display = 'none', 2400);
-    };
-
-    function showContent() {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('error').style.display = 'none';
-      document.getElementById('content').style.display = 'block';
-    }
-
-    function showError() {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('content').style.display = 'none';
-      document.getElementById('error').style.display = 'flex';
-    }
-
-    function safeSetAvatar(url) {
-      const avatarEl = document.getElementById('avatar');
-
-      const clean = (url && String(url).trim()) ? String(url).trim() : '';
-      avatarEl.onerror = null;
-
-      avatarEl.src = clean || AVATAR_PLACEHOLDER;
-
-      avatarEl.onerror = () => {
-        avatarEl.onerror = null;
-        avatarEl.src = AVATAR_PLACEHOLDER;
-      };
-    }
-
-    function getCachedUserData() {
-      try {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (!cached) return null;
-        const data = JSON.parse(cached);
-        const age = Date.now() - data.timestamp;
-        if (age < CACHE_DURATION) return data.user;
-        localStorage.removeItem(CACHE_KEY);
-        return null;
-      } catch {
-        return null;
-      }
-    }
-
-    function setCachedUserData(userData) {
-      try {
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ user: userData, timestamp: Date.now() }));
-      } catch {}
-    }
-
-    function isFirebaseReady() {
-      return typeof firebase !== 'undefined'
-        && typeof firebase.auth === 'function'
-        && typeof firebase.firestore === 'function'
-        && typeof firebase.storage === 'function'
-        && window.auth && window.db && window.storage;
-    }
-
-    function waitForFirebase(callback, maxAttempts = 30) {
-      let attempts = 0;
-      const check = setInterval(() => {
-        attempts++;
-        if (isFirebaseReady()) {
-          clearInterval(check);
-          callback();
-        } else if (attempts >= maxAttempts) {
-          clearInterval(check);
-          console.error('Firebase timeout');
-          showError();
-        }
-      }, 100);
-    }
-
-    function cacheBust(url) {
-      const u = String(url || '').trim();
-      if (!u) return u;
-      const sep = u.includes('?') ? '&' : '?';
-      return u + sep + 'v=' + Date.now();
-    }
-
-    function maskEmail(email) {
-      const e = String(email || '').trim();
-      if (!e || !e.includes('@')) return e;
-
-      const [name, domain] = e.split('@');
-      const parts = domain.split('.');
-      const tld = parts.length > 1 ? parts.pop() : '';
-      const domainName = parts.join('.');
-
-      const safeName = name.length <= 2
-        ? (name[0] ? name[0] + '*' : '*')
-        : (name.slice(0, 2) + '***' + name.slice(-1));
-
-      const safeDomain = domainName.length <= 3
-        ? (domainName[0] ? domainName[0] + '**' : '**')
-        : (domainName.slice(0, 2) + '***' + domainName.slice(-1));
-
-      return safeName + '@' + safeDomain + (tld ? ('.' + tld) : '');
-    }
-
-    function renderEmail() {
-      const el = document.getElementById('userEmail');
-      const btn = document.getElementById('btnToggleEmail');
-      const eyeOpen = document.getElementById('eyeOpen');
-      const eyeClosed = document.getElementById('eyeClosed');
-
-      const shown = __emailShown ? __emailRaw : maskEmail(__emailRaw);
-      el.textContent = shown || '';
-
-      // icono (si está oculto, mostramos el ojo tachado)
-      eyeOpen.style.display = __emailShown ? 'none' : 'block';
-      eyeClosed.style.display = __emailShown ? 'block' : 'none';
-
-      // desactivar botón si no hay email
-      btn.disabled = !__emailRaw;
-      btn.style.opacity = __emailRaw ? '1' : '0.5';
-      btn.style.pointerEvents = __emailRaw ? 'auto' : 'none';
-    }
-
-    function setProviderChip(user) {
-      const chip = document.getElementById('chipProvider');
-      const providers = (user.providerData || []).map(p => p.providerId);
-      if (providers.includes('password')) {
-        chip.textContent = '🔐 Cuenta con contraseña';
-      } else if (providers.includes('google.com')) {
-        chip.textContent = '🔐 Cuenta Google';
-      } else {
-        chip.textContent = '🔐 Cuenta segura';
-      }
-    }
-
-    function loadBasicUserData(user) {
-      document.getElementById('userName').textContent = user.displayName || 'Usuario';
-
-      __emailRaw = user.email || '';
-      __emailShown = false;
-      renderEmail();
-
-      // avatar: primero guardamos el último estable (para no perderlo si falla la subida)
-      __lastStableAvatar = user.photoURL || '';
-      safeSetAvatar(cacheBust(user.photoURL) || AVATAR_PLACEHOLDER);
-
-      // eventos
-      document.getElementById('avatar').onclick = openAvatarPicker;
-      document.getElementById('btnEditAvatar').onclick = openAvatarPicker;
-      document.getElementById('btnChangeAvatar').onclick = openAvatarPicker;
-
-      document.getElementById('btnToggleEmail').onclick = () => {
-        __emailShown = !__emailShown;
-        renderEmail();
-      };
-
-      document.getElementById('btnEditName').onclick = () => editName(user);
-      document.getElementById('btnResetPassword').onclick = () => resetPassword(user);
-
-      setProviderChip(user);
-
-      showContent();
-    }
-
-    async function loadFirestoreData(user) {
-      try {
-        // 1) cache
-        const cached = getCachedUserData();
-        if (cached) {
-          if (cached.photoURL && !__isUploadingAvatar) {
-            safeSetAvatar(cacheBust(cached.photoURL));
-          }
-          if (cached.displayName && !document.getElementById('userName').textContent) {
-            document.getElementById('userName').textContent = cached.displayName;
-          }
-          // refresh silencioso
-          fetchAndUpdateFirestore(user, true);
-          return;
-        }
-
-        // 2) firestore
-        await fetchAndUpdateFirestore(user, false);
-      } catch (e) {
-        console.warn('Firestore load warning:', e);
-      }
-    }
-
-    async function fetchAndUpdateFirestore(user, silent = false) {
-      const ref = window.db.collection('users').doc(user.uid);
-      const snap = await ref.get();
-      if (!snap.exists) return;
-
-      const data = snap.data() || {};
-      setCachedUserData(data);
-
-      if (data.displayName) {
-        document.getElementById('userName').textContent = data.displayName;
-      }
-
-      // ✅ NO sobreescribir avatar mientras se está subiendo (esto era lo que lo hacía “ponerse y quitarse”)
-      if (data.photoURL && !__isUploadingAvatar) {
-        safeSetAvatar(cacheBust(data.photoURL));
-      } else if (!silent) {
-        // mantener auth/photo o placeholder
-      }
-    }
-
-    function checkAuth() {
-      waitForFirebase(() => {
-        window.auth.onAuthStateChanged(async (user) => {
-          if (!user) {
-            window.location.href = withAppFlag('index.html');
-            return;
-          }
-          loadBasicUserData(user);
-          await loadFirestoreData(user);
-        });
-      });
-    }
-
-    // ---------------------------
-    // ✅ SUBIR AVATAR REAL (Storage)
-    // ---------------------------
-    function openAvatarPicker() {
-      const user = window.auth?.currentUser;
-      if (!user) return;
-
-      const input = document.getElementById('avatarInput');
-      input.value = '';
-      input.click();
-    }
-
-    function loadImageFromFile(file) {
-      return new Promise((resolve, reject) => {
-        const url = URL.createObjectURL(file);
-        const img = new Image();
-        img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
-        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Imagen inválida')); };
-        img.src = url;
-      });
-    }
-
-    async function compressImageToJpeg(file, maxSize = 512, quality = 0.75) {
-      const img = await loadImageFromFile(file);
-
-      const width = img.naturalWidth || img.width;
-      const height = img.naturalHeight || img.height;
-
-      const scale = Math.min(maxSize / width, maxSize / height, 1);
-      const newW = Math.max(1, Math.round(width * scale));
-      const newH = Math.max(1, Math.round(height * scale));
-
-      const canvas = document.createElement('canvas');
-      canvas.width = newW;
-      canvas.height = newH;
-
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, newW, newH);
-
-      const blob = await new Promise((resolve) => {
-        canvas.toBlob((b) => resolve(b), 'image/jpeg', quality);
-      });
-
-      if (!blob) throw new Error('No se pudo comprimir la imagen');
-      return blob;
-    }
-
-    async function uploadAvatarBlob(user, blob) {
-      // reemplaza siempre => no acumula archivos
-      const path = `avatars/${user.uid}.jpg`;
-
-      const ref = window.storage.ref().child(path);
-      const metadata = {
-        contentType: 'image/jpeg',
-        cacheControl: 'public, max-age=3600' // 1h
-      };
-
-      await ref.put(blob, metadata);
-      return await ref.getDownloadURL();
-    }
-
-    async function setAvatarEverywhere(user, photoURL) {
-      // 1) auth
-      await user.updateProfile({ photoURL });
-
-      // 2) firestore (merge)
-      await window.db.collection('users').doc(user.uid).set({
-        photoURL,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-
-      // 3) cache local
-      setCachedUserData({ photoURL });
-    }
-
-    document.getElementById('avatarInput').addEventListener('change', async (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-
-      const user = window.auth?.currentUser;
-      if (!user) return;
-
-      // Guardar el avatar estable ANTES del preview
-      __lastStableAvatar = user.photoURL || __lastStableAvatar || '';
-      __isUploadingAvatar = true;
-
-      // preview local inmediata
-      let localUrl = '';
-      try {
-        localUrl = URL.createObjectURL(file);
-        safeSetAvatar(localUrl);
-      } catch {}
-
-      try {
-        toast('Subiendo avatar...');
-
-        // 1) comprimir
-        const blob = await compressImageToJpeg(file, 512, 0.75);
-
-        // 2) subir
-        const url = await uploadAvatarBlob(user, blob);
-
-        // 3) guardar
-        await setAvatarEverywhere(user, url);
-
-        // 4) reload user para evitar "se pone y se quita" (photoURL viejo)
-        try { await user.reload(); } catch {}
-
-        // 5) refrescar (cache bust)
-        safeSetAvatar(cacheBust(url));
-        __lastStableAvatar = url;
-
-        toast('✅ Avatar actualizado');
-      } catch (err) {
-        console.error('Error subiendo avatar:', err);
-
-        // IMPORTANTÍSIMO: no dejarlo en blanco / placeholder si había uno antes
-        const fallback = __lastStableAvatar || user.photoURL || '';
-        safeSetAvatar(cacheBust(fallback) || AVATAR_PLACEHOLDER);
-
-        // mensajes más útiles
-        const msg = (err && err.code) ? String(err.code) : '';
-        if (msg.includes('storage/unauthorized')) toast('❌ Sin permiso para subir (Storage rules)');
-        else if (msg.includes('storage/canceled')) toast('❌ Subida cancelada');
-        else toast('❌ No se pudo subir el avatar');
-      } finally {
-        __isUploadingAvatar = false;
-        if (localUrl) setTimeout(() => { try { URL.revokeObjectURL(localUrl); } catch {} }, 1500);
-      }
-    });
-
-    // ---------------------------
-    // ✅ Editar nombre
-    // ---------------------------
-    async function editName(user) {
-      try {
-        const current = document.getElementById('userName').textContent || '';
-        const next = prompt('¿Cómo quieres que aparezca tu nombre?', current);
-        if (next === null) return;
-
-        const name = String(next).trim();
-        if (name.length < 2) {
-          toast('Pon un nombre más largo 🙂');
-          return;
-        }
-
-        toast('Guardando nombre...');
-
-        await user.updateProfile({ displayName: name });
-
-        await window.db.collection('users').doc(user.uid).set({
-          displayName: name,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
-
-        document.getElementById('userName').textContent = name;
-        setCachedUserData({ displayName: name });
-
-        toast('✅ Nombre actualizado');
-      } catch (e) {
-        console.error('editName error:', e);
-        toast('❌ No se pudo cambiar el nombre');
-      }
-    }
-
-    // ---------------------------
-    // ✅ Reset password
-    // ---------------------------
-    async function resetPassword(user) {
-      try {
-        const email = user?.email || '';
-        if (!email) {
-          toast('❌ No hay correo en la cuenta');
-          return;
-        }
-
-        const providers = (user.providerData || []).map(p => p.providerId);
-        if (!providers.includes('password')) {
-          // Si se logueó con Google u otro, igual puede enviar reset, pero avisamos
-          if (!confirm('Tu cuenta parece ser de Google/otro proveedor. ¿Aún así quieres enviar el correo para cambiar contraseña?')) {
-            return;
-          }
-        }
-
-        toast('Enviando correo...');
-        await window.auth.sendPasswordResetEmail(email);
-        toast('✅ Revisa tu correo (spam también)');
-      } catch (e) {
-        console.error('resetPassword error:', e);
-        toast('❌ No se pudo enviar el correo');
-      }
-    }
-
-    function logout() {
-      if (!confirm('¿Seguro que quieres cerrar sesión?')) return;
-
-      try { localStorage.removeItem(CACHE_KEY); } catch {}
-
-      if (window.auth) {
-        window.auth.signOut()
-          .then(() => window.location.href = withAppFlag('index.html'))
-          .catch(() => window.location.href = withAppFlag('index.html'));
-      } else {
-        window.location.href = withAppFlag('index.html');
-      }
-    }
-
-    window.addEventListener('load', checkAuth);
-  </script>
+  <!-- ✅ Script principal del perfil -->
+  <script defer src="js/profile.js"></script>
 </body>
 </html>
