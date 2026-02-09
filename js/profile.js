@@ -422,8 +422,7 @@ async function editName(user) {
   try {
     const current = document.getElementById('userName').textContent || '';
     const next = prompt('¿Cómo quieres que aparezca tu nombre?', current);
-
-    if (next === null) return; // Usuario canceló
+    if (next === null) return;
 
     const name = String(next).trim();
     if (name.length < 2) {
@@ -433,23 +432,35 @@ async function editName(user) {
 
     toast('Guardando nombre...');
 
-    // Actualizar en Auth
-    await user.updateProfile({ displayName: name });
+    // ✅ Optimista: actualiza UI rápido
+    document.getElementById('userName').textContent = name;
 
-    // Actualizar en Firestore
+    // ✅ 1) Guardar en Firestore (principal para tu app)
     await window.db.collection('users').doc(user.uid).set({
       displayName: name,
+      username: name, // ✅ compatibilidad con welcome viejo
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
 
-    // Actualizar UI y caché
-    document.getElementById('userName').textContent = name;
-    setCachedUserData({ displayName: name });
+    // ✅ 2) Intentar actualizar en Auth (puede fallar en iOS a veces)
+    try {
+      await user.updateProfile({ displayName: name });
+      try { await user.reload(); } catch {}
+    } catch (authErr) {
+      console.warn('Auth updateProfile falló, pero Firestore sí guardó:', authErr);
+    }
+
+    // cache
+    setCachedUserData({ displayName: name, username: name });
 
     toast('✅ Nombre actualizado');
   } catch (e) {
     console.error('Error editando nombre:', e);
-    toast('❌ No se pudo cambiar el nombre');
+
+    const msg = String(e?.code || e?.message || '');
+    if (msg.includes('permission-denied')) toast('❌ Sin permisos (Firestore Rules)');
+    else if (msg.includes('unavailable') || msg.includes('network')) toast('❌ Sin conexión. Intenta de nuevo');
+    else toast('❌ No se pudo cambiar el nombre');
   }
 }
 

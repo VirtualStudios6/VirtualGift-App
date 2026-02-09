@@ -1,8 +1,14 @@
-// ==================== WELCOME PAGE ====================
-// Página de bienvenida con mensajes personalizados
-// =====================================================
+// ==================== WELCOME PAGE (FIXED) ====================
+// - Lee points SIEMPRE desde users/{uid}.points
+// - Usa cache vg_points_cache (mismo que puntos.js)
+// - Nombre: displayName || username || auth.displayName
+// - Nunca vuelve a “caer” a 100 por errores
+// =============================================================
 
-document.addEventListener('DOMContentLoaded', function () {
+const POINTS_CACHE_KEY = 'vg_points_cache';
+const POINTS_CACHE_DURATION = 2 * 60 * 1000; // 2 minutos
+
+document.addEventListener('DOMContentLoaded', () => {
   const userNameElem = document.getElementById('userName');
   const userPointsElem = document.getElementById('userPoints');
   const welcomeTitle = document.querySelector('.welcome-title');
@@ -10,7 +16,6 @@ document.addEventListener('DOMContentLoaded', function () {
   const continueBtn = document.getElementById('continue-btn');
   const container = document.querySelector('.welcome-container');
 
-  // Mensajes aleatorios de bienvenida
   const mensajes = [
     "😊 Nos alegra verte. Continúa tu aventura y gana más recompensas 🎁",
     "🚀 Prepárate para jugar, ganar y llevarte grandes recompensas.",
@@ -19,25 +24,79 @@ document.addEventListener('DOMContentLoaded', function () {
     "🔥 ¿Listo para otra ronda? Sigue explorando y consigue más recompensas 🏆"
   ];
 
+  function safeNumber(n, fallback = 0) {
+    const x = Number(n);
+    return Number.isFinite(x) ? x : fallback;
+  }
+
+  function getCachedPoints() {
+    try {
+      const cached = localStorage.getItem(POINTS_CACHE_KEY);
+      if (!cached) return null;
+      const data = JSON.parse(cached);
+      const age = Date.now() - data.timestamp;
+      if (age < POINTS_CACHE_DURATION) return safeNumber(data.points, 0);
+      return null;
+    } catch {
+      return null;
+    }
+  }
+
+  function setCachedPoints(points) {
+    try {
+      localStorage.setItem(POINTS_CACHE_KEY, JSON.stringify({
+        points: safeNumber(points, 0),
+        timestamp: Date.now()
+      }));
+    } catch {}
+  }
+
   function isFirebaseReady() {
-  return typeof firebase !== 'undefined' &&
-         typeof firebase.auth === 'function' &&
-         typeof firebase.firestore === 'function';
-}
+    return typeof firebase !== 'undefined'
+      && typeof firebase.auth === 'function'
+      && typeof firebase.firestore === 'function';
+  }
 
   function waitForFirebase(callback, maxAttempts = 60) {
-  let attempts = 0;
-  const check = setInterval(() => {
-    attempts++;
-    if (isFirebaseReady()) {
-      clearInterval(check);
-      callback();
-    } else if (attempts >= maxAttempts) {
-      clearInterval(check);
-      console.error('Firebase no se cargó correctamente');
-    }
-  }, 100);
-}
+    let attempts = 0;
+    const check = setInterval(() => {
+      attempts++;
+      if (isFirebaseReady()) {
+        clearInterval(check);
+        callback();
+      } else if (attempts >= maxAttempts) {
+        clearInterval(check);
+        console.error('Firebase no se cargó correctamente');
+      }
+    }, 100);
+  }
+
+  // Animación de puntos
+  function animatePoints(finalPoints) {
+    if (!userPointsElem) return;
+
+    const final = safeNumber(finalPoints, 0);
+    const duration = 900;
+    const steps = 45;
+    const increment = final / steps;
+
+    let current = 0;
+    let step = 0;
+
+    const timer = setInterval(() => {
+      step++;
+      current += increment;
+      if (step >= steps) {
+        current = final;
+        clearInterval(timer);
+      }
+      userPointsElem.textContent = Math.floor(current).toLocaleString();
+    }, duration / steps);
+  }
+
+  // Mostrar cache de inmediato (para evitar “100” por fallback)
+  const cached = getCachedPoints();
+  if (cached !== null) animatePoints(cached);
 
   waitForFirebase(() => {
     firebase.auth().onAuthStateChanged(async (user) => {
@@ -46,27 +105,30 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
 
-      // Verificar email si es login por password
-      if (!user.emailVerified && user.providerData[0]?.providerId === 'password') {
+      // (Opcional) Verificación de email para password
+      if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
         alert('Por favor, verifica tu email para acceder.');
         await firebase.auth().signOut();
         window.location.href = 'index.html';
         return;
       }
 
-      const userRef = firebase.firestore().collection('users').doc(user.uid);
+      const db = firebase.firestore();
+      const userRef = db.collection('users').doc(user.uid);
 
       try {
         const snap = await userRef.get();
 
-        // Determinar provider
+        // provider
         const providerId = user.providerData?.[0]?.providerId || 'email';
         const provider = providerId === 'password' ? 'email' : providerId;
 
-        // Si no existe el usuario, crearlo
+        // Si no existe el usuario, crearlo (solo primera vez)
         if (!snap.exists) {
           await userRef.set({
             uid: user.uid,
+            // ✅ Guardamos ambos para compatibilidad: displayName y username
+            displayName: user.displayName || 'Usuario',
             username: user.displayName || 'Usuario',
             email: user.email || '',
             provider,
@@ -82,83 +144,63 @@ document.addEventListener('DOMContentLoaded', function () {
             lastLogin: firebase.firestore.FieldValue.serverTimestamp()
           }, { merge: true });
 
-          // Mensaje para usuario nuevo
           if (welcomeTitle) welcomeTitle.textContent = '¡Bienvenido!';
           if (welcomeMessage) welcomeMessage.textContent =
             '¡Bienvenido por primera vez! Estás a punto de comenzar una increíble aventura llena de recompensas y diversión.';
         } else {
           // Usuario existente - actualizar lastLogin
-          await userRef.update({
+          await userRef.set({
             lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-          });
+          }, { merge: true });
 
-          // Mensaje aleatorio
-          const mensajeAleatorio = mensajes[Math.floor(Math.random() * mensajes.length)];
-          if (welcomeMessage) welcomeMessage.textContent = mensajeAleatorio;
+          const msg = mensajes[Math.floor(Math.random() * mensajes.length)];
+          if (welcomeMessage) welcomeMessage.textContent = msg;
         }
 
-        // Leer datos actuales
+        // ✅ Leer datos finales
         const finalSnap = await userRef.get();
         const data = finalSnap.data() || {};
 
-        // Mostrar datos
-        if (userNameElem) userNameElem.textContent = data.username || user.displayName || 'Usuario';
-        animatePoints(typeof data.points === 'number' ? data.points : 100);
+        const displayName = data.displayName || data.username || user.displayName || 'Usuario';
+        if (userNameElem) userNameElem.textContent = displayName;
+
+        // ✅ Points robusto (acepta number o string)
+        const points = safeNumber(data.points, 0);
+        setCachedPoints(points);
+        animatePoints(points);
 
       } catch (err) {
         console.error('Error en welcome:', err);
 
-        // Fallback: mostrar datos básicos
+        // Fallback: auth + cache (NO 100)
         if (userNameElem) userNameElem.textContent = user.displayName || 'Usuario';
         const msg = mensajes[Math.floor(Math.random() * mensajes.length)];
         if (welcomeMessage) welcomeMessage.textContent = msg;
-        animatePoints(100);
+
+        const fallbackPoints = cached !== null ? cached : 0;
+        animatePoints(fallbackPoints);
       }
     });
   });
-
-  // Animación de puntos
-  function animatePoints(finalPoints) {
-    if (!userPointsElem) return;
-
-    const duration = 1200;
-    const steps = 48;
-    const increment = finalPoints / steps;
-    let current = 0;
-    let step = 0;
-
-    const timer = setInterval(() => {
-      step++;
-      current += increment;
-      if (step >= steps) {
-        current = finalPoints;
-        clearInterval(timer);
-      }
-      userPointsElem.textContent = Math.floor(current).toLocaleString();
-    }, duration / steps);
-  }
 
   // Botón continuar
   if (continueBtn) {
     continueBtn.addEventListener('click', () => {
       continueBtn.classList.add('loading');
       continueBtn.innerHTML = 'Cargando... <i class="fas fa-spinner fa-spin"></i>';
-      setTimeout(() => window.location.href = 'inicio.html', 800);
+      setTimeout(() => window.location.href = 'inicio.html', 600);
     });
 
     continueBtn.addEventListener('mouseenter', createParticles);
   }
 
-  // Efectos hover en container
   if (container) {
     container.addEventListener('mouseenter', () => container.style.transform = 'scale(1.02)');
     container.addEventListener('mouseleave', () => container.style.transform = 'scale(1)');
   }
 
-  // Partículas decorativas
   function createParticles() {
     if (!container) return;
-
     for (let i = 0; i < 6; i++) {
       setTimeout(() => {
         const particle = document.createElement('div');
@@ -180,7 +222,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  // Agregar animación CSS si no existe
   if (!document.getElementById('particle-float-style')) {
     const style = document.createElement('style');
     style.id = 'particle-float-style';
