@@ -1,44 +1,16 @@
 /* ============================================ */
-/* PUNTOS.JS (MEJORADO) - VirtualGift           */
-/* - Evita crashes por elementos null           */
-/* - Sin “race conditions” DOM vs Firebase      */
-/* - Maneja índice faltante en pointsHistory    */
-/* - UI helper + logs útiles                    */
-/* ============================================ */
-
-/* ============================================ */
 /* CONSTANTES Y CONFIGURACIÓN */
 /* ============================================ */
 const POINTS_CACHE_KEY = 'vg_points_cache';
 const POINTS_CACHE_DURATION = 2 * 60 * 1000; // 2 minutos
-const DAILY_REWARD_AMOUNT = 25;
+const POINTS_TO_USD_RATE = 100; // 100 puntos = $1 USD
+const MIN_REDEEM_POINTS = 100;
 
 /* ============================================ */
-/* HELPERS */
+/* VARIABLES GLOBALES */
 /* ============================================ */
-function $(id) {
-  return document.getElementById(id);
-}
-
-function setText(id, text) {
-  // ✅ Evita romper si el elemento no existe aún
-  const el = $(id);
-  if (!el) return false;
-  el.textContent = text;
-  return true;
-}
-
-function safeNumber(n, fallback = 0) {
-  const x = Number(n);
-  return Number.isFinite(x) ? x : fallback;
-}
-
-function logOnce(key, ...args) {
-  const k = `__log_once_${key}`;
-  if (window[k]) return;
-  window[k] = true;
-  console.log(...args);
-}
+let currentUserPoints = 0;
+let currentUserId = null;
 
 /* ============================================ */
 /* GESTIÓN DE CACHÉ DE PUNTOS */
@@ -58,7 +30,7 @@ function getCachedPoints() {
 
     if (age < POINTS_CACHE_DURATION) {
       console.log('✅ Usando puntos en caché');
-      return safeNumber(data.points, 0);
+      return data.points;
     }
 
     localStorage.removeItem(POINTS_CACHE_KEY);
@@ -76,11 +48,34 @@ function getCachedPoints() {
 function setCachedPoints(points) {
   try {
     localStorage.setItem(POINTS_CACHE_KEY, JSON.stringify({
-      points: safeNumber(points, 0),
+      points: points,
       timestamp: Date.now()
     }));
   } catch (e) {
     console.warn('Error al cachear puntos:', e);
+  }
+}
+
+/* ============================================ */
+/* CONVERSIÓN DE PUNTOS A USD */
+/* ============================================ */
+
+/**
+ * Convierte puntos a dólares
+ * @param {number} points - Cantidad de puntos
+ * @returns {number} Cantidad en USD
+ */
+function pointsToUSD(points) {
+  return (points / POINTS_TO_USD_RATE).toFixed(2);
+}
+
+/**
+ * Actualiza el valor en dólares mostrado en el header
+ */
+function updateDollarValue() {
+  const dollarEl = document.getElementById('dollarValue');
+  if (dollarEl) {
+    dollarEl.textContent = pointsToUSD(currentUserPoints);
   }
 }
 
@@ -104,8 +99,7 @@ function isFirebaseReady() {
  * @param {Function} callback - Función a ejecutar cuando Firebase esté listo
  * @param {number} maxAttempts - Número máximo de intentos (default: 30)
  */
-function waitForFirebase(callback, maxAttempts = 60) {
-  // ✅ Subimos intentos para que no falle en móviles lentos (6s)
+function waitForFirebase(callback, maxAttempts = 30) {
   let attempts = 0;
   const check = setInterval(() => {
     attempts++;
@@ -118,27 +112,6 @@ function waitForFirebase(callback, maxAttempts = 60) {
       window.location.href = withAppFlag('index.html');
     }
   }, 100);
-}
-
-/**
- * Espera a que existan los elementos clave en el DOM
- * (evita que Firebase responda antes de que el HTML esté listo)
- */
-function waitForDOMElements(ids, cb, maxAttempts = 60) {
-  let attempts = 0;
-  const check = setInterval(() => {
-    attempts++;
-    const ok = ids.every(id => !!$(id));
-    if (ok) {
-      clearInterval(check);
-      cb();
-    } else if (attempts >= maxAttempts) {
-      clearInterval(check);
-      // No rompemos, solo avisamos una vez
-      logOnce('dom_missing', '⚠️ Algunos elementos no aparecieron en el DOM:', ids.filter(id => !$(id)));
-      cb(); // seguimos para no dejar la app “muerta”
-    }
-  }, 50);
 }
 
 /* ============================================ */
@@ -157,13 +130,12 @@ function loadNotificationCount(uid) {
       .get()
       .then(snapshot => {
         const count = snapshot.size;
-        const badge = $('notificationBadge');
+        const badge = document.getElementById('notificationBadge');
         if (badge) {
-          badge.textContent = String(count);
+          badge.textContent = count;
           badge.style.display = count > 0 ? 'flex' : 'none';
         }
-      })
-      .catch(err => console.error("Error cargando badge de notificaciones:", err));
+      });
   } catch (e) {
     console.error("Error cargando badge de notificaciones:", e);
   }
@@ -174,42 +146,35 @@ function loadNotificationCount(uid) {
 /* ============================================ */
 
 /**
- * Renderiza puntos (centralizado)
- */
-function renderPoints(points) {
-  const value = safeNumber(points, 0);
-  // ✅ requestAnimationFrame reduce race conditions visuales
-  requestAnimationFrame(() => {
-    setText('totalPoints', value.toLocaleString());
-  });
-}
-
-/**
  * Carga los puntos del usuario desde Firestore
  * @param {string} userId - ID del usuario
  */
 async function loadUserPoints(userId) {
   try {
+    currentUserId = userId;
+
     // Mostrar caché primero si existe
     const cachedPoints = getCachedPoints();
-    if (cachedPoints !== null) renderPoints(cachedPoints);
+    if (cachedPoints !== null) {
+      currentUserPoints = cachedPoints;
+      document.getElementById('totalPoints').textContent = cachedPoints.toLocaleString();
+      updateDollarValue();
+    }
 
     // Actualizar desde Firestore
     const doc = await window.db.collection('users').doc(userId).get();
 
-    if (!doc.exists) {
-      console.warn('Usuario no existe en Firestore:', userId);
-      renderPoints(cachedPoints ?? 0);
-      return;
+    if (doc.exists) {
+      const data = doc.data();
+      const points = data.points || 0;
+
+      currentUserPoints = points;
+      document.getElementById('totalPoints').textContent = points.toLocaleString();
+      setCachedPoints(points);
+      updateDollarValue();
+
+      checkDailyReward(userId, data.lastDailyReward);
     }
-
-    const data = doc.data() || {};
-    const points = safeNumber(data.points, 0);
-
-    renderPoints(points);
-    setCachedPoints(points);
-
-    checkDailyReward(userId, data.lastDailyReward);
   } catch (error) {
     console.error('Error al cargar puntos:', error);
   }
@@ -225,24 +190,17 @@ async function loadUserPoints(userId) {
  * @param {Object} lastReward - Timestamp de la última recompensa
  */
 function checkDailyReward(userId, lastReward) {
-  const btn = $('dailyRewardBtn');
-  if (!btn) return; // ✅ evita crash si falta el botón
-
   const today = new Date().toDateString();
-  const lastRewardDate =
-    lastReward && typeof lastReward.toDate === 'function'
-      ? new Date(lastReward.toDate()).toDateString()
-      : null;
+  const lastRewardDate = lastReward ? new Date(lastReward.toDate()).toDateString() : null;
+
+  const btn = document.getElementById('dailyRewardBtn');
 
   if (lastRewardDate === today) {
     btn.textContent = '✓ Ya reclamado hoy';
     btn.disabled = true;
-    btn.style.background = '#374151';
-    btn.style.cursor = 'not-allowed';
-    btn.onclick = null;
+    btn.style.opacity = '0.55';
+    btn.style.pointerEvents = 'none';
   } else {
-    btn.disabled = false;
-    btn.style.cursor = 'pointer';
     btn.onclick = () => claimDailyReward(userId);
   }
 }
@@ -252,122 +210,199 @@ function checkDailyReward(userId, lastReward) {
  * @param {string} userId - ID del usuario
  */
 async function claimDailyReward(userId) {
-  const btn = $('dailyRewardBtn');
-  if (!btn) return;
-
   try {
+    const btn = document.getElementById('dailyRewardBtn');
     btn.textContent = 'Reclamando...';
     btn.disabled = true;
 
     const userRef = window.db.collection('users').doc(userId);
+    const doc = await userRef.get();
+    const currentPoints = (doc.data() && doc.data().points) ? doc.data().points : 0;
+    const newPoints = currentPoints + 25;
 
-    // ✅ Mejor práctica: transacción para evitar duplicados si se toca 2 veces o hay lag
-    const newPoints = await window.db.runTransaction(async (tx) => {
-      const snap = await tx.get(userRef);
-      const current = snap.exists ? safeNumber(snap.data()?.points, 0) : 0;
-
-      const updated = current + DAILY_REWARD_AMOUNT;
-
-      tx.set(userRef, {
-        points: updated,
-        lastDailyReward: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-
-      return updated;
+    await userRef.update({
+      points: newPoints,
+      lastDailyReward: firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    // Registrar en historial (fuera de la transacción, está bien)
-    try {
-      await window.db.collection('pointsHistory').add({
-        userId,
-        action: 'Recompensa diaria',
-        points: DAILY_REWARD_AMOUNT,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    } catch (e) {
-      console.warn('No se pudo registrar en pointsHistory (puede ser rules o índice):', e);
-    }
+    await window.db.collection('pointsHistory').add({
+      userId: userId,
+      action: 'Recompensa diaria',
+      points: 25,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
 
-    // Actualizar UI + cache
-    renderPoints(newPoints);
+    currentUserPoints = newPoints;
+    document.getElementById('totalPoints').textContent = newPoints.toLocaleString();
     setCachedPoints(newPoints);
+    updateDollarValue();
 
     btn.textContent = '✓ ¡Reclamado!';
     btn.style.background = '#10b981';
 
-    setTimeout(() => location.reload(), 1200);
+    setTimeout(() => location.reload(), 2000);
   } catch (error) {
     console.error('Error al reclamar recompensa:', error);
-    btn.textContent = 'Reclamar Hoy';
-    btn.disabled = false;
     alert('Error al reclamar la recompensa. Por favor, intenta de nuevo.');
   }
 }
 
 /* ============================================ */
-/* HISTORIAL DE PUNTOS */
+/* MODAL DE CANJE */
 /* ============================================ */
 
 /**
- * Carga el historial de movimientos de puntos del usuario
- * @param {string} userId - ID del usuario
+ * Abre el modal de canje por PayPal
  */
-async function loadPointsHistory(userId) {
-  const container = $('historyContainer');
-  if (!container) return;
+function openPaypalModal() {
+  if (currentUserPoints < MIN_REDEEM_POINTS) {
+    alert(`Necesitas al menos ${MIN_REDEEM_POINTS} puntos para canjear por PayPal.\n\nTus puntos: ${currentUserPoints}`);
+    return;
+  }
+
+  const modal = document.getElementById('paypalModal');
+  const modalPoints = document.getElementById('modalPoints');
+
+  modalPoints.textContent = currentUserPoints.toLocaleString();
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Cierra el modal de canje
+ */
+function closePaypalModal() {
+  const modal = document.getElementById('paypalModal');
+  modal.classList.remove('active');
+  document.body.style.overflow = '';
+
+  // Limpiar formulario
+  document.getElementById('paypalForm').reset();
+  document.getElementById('usdAmount').textContent = '0.00';
+}
+
+/**
+ * Actualiza el monto en USD mientras el usuario escribe
+ */
+function updateUSDAmount() {
+  const pointsInput = document.getElementById('pointsAmount');
+  const usdEl = document.getElementById('usdAmount');
+  const points = parseInt(pointsInput.value) || 0;
+
+  usdEl.textContent = pointsToUSD(points);
+}
+
+/**
+ * Procesa el canje por PayPal
+ * @param {Event} e - Evento del formulario
+ */
+async function processPaypalRedeem(e) {
+  e.preventDefault();
+
+  const fullName = document.getElementById('fullName').value.trim();
+  const paypalEmail = document.getElementById('paypalEmail').value.trim();
+  const pointsAmount = parseInt(document.getElementById('pointsAmount').value);
+
+  // Validaciones
+  if (!fullName || fullName.length < 3) {
+    alert('Por favor, ingresa tu nombre completo.');
+    return;
+  }
+
+  if (!paypalEmail || !validateEmail(paypalEmail)) {
+    alert('Por favor, ingresa un correo válido.');
+    return;
+  }
+
+  if (!pointsAmount || pointsAmount < MIN_REDEEM_POINTS) {
+    alert(`La cantidad mínima para canjear es ${MIN_REDEEM_POINTS} puntos.`);
+    return;
+  }
+
+  if (pointsAmount > currentUserPoints) {
+    alert(`No tienes suficientes puntos.\n\nTus puntos: ${currentUserPoints}\nIntentando canjear: ${pointsAmount}`);
+    return;
+  }
+
+  if (pointsAmount % 100 !== 0) {
+    alert('La cantidad debe ser múltiplo de 100 puntos.');
+    return;
+  }
+
+  // Confirmar
+  const usdAmount = pointsToUSD(pointsAmount);
+  const confirmed = confirm(
+    `¿Confirmas el canje?\n\n` +
+    `Puntos: ${pointsAmount}\n` +
+    `Recibirás: $${usdAmount} USD\n` +
+    `PayPal: ${paypalEmail}\n\n` +
+    `Esta acción no se puede deshacer.`
+  );
+
+  if (!confirmed) return;
 
   try {
-    const snapshot = await window.db.collection('pointsHistory')
-      .where('userId', '==', userId)
-      .orderBy('timestamp', 'desc')
-      .limit(10)
-      .get();
+    const btn = document.getElementById('confirmRedeemBtn');
+    btn.textContent = 'Procesando...';
+    btn.disabled = true;
 
-    if (snapshot.empty) {
-      // dejar el empty-state del HTML
-      return;
-    }
-
-    container.innerHTML = '';
-
-    snapshot.forEach(d => {
-      const data = d.data() || {};
-      const item = document.createElement('div');
-      item.className = 'history-item';
-
-      const date = data.timestamp && typeof data.timestamp.toDate === 'function'
-        ? data.timestamp.toDate()
-        : new Date();
-
-      const dateStr = date.toLocaleDateString('es-ES', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
-      });
-
-      const delta = safeNumber(data.points, 0);
-
-      item.innerHTML = `
-        <div class="history-info">
-          <div class="history-action">${String(data.action || 'Movimiento')}</div>
-          <div class="history-date">${dateStr}</div>
-        </div>
-        <div class="history-points ${delta > 0 ? 'positive' : 'negative'}">
-          ${delta > 0 ? '+' : ''}${delta}
-        </div>
-      `;
-
-      container.appendChild(item);
+    // Descontar puntos del usuario
+    const newPoints = currentUserPoints - pointsAmount;
+    await window.db.collection('users').doc(currentUserId).update({
+      points: newPoints
     });
+
+    // Registrar en historial
+    await window.db.collection('pointsHistory').add({
+      userId: currentUserId,
+      action: `Canje PayPal - $${usdAmount} USD`,
+      points: -pointsAmount,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Guardar solicitud de canje
+    await window.db.collection('redeemRequests').add({
+      userId: currentUserId,
+      type: 'paypal',
+      fullName: fullName,
+      paypalEmail: paypalEmail,
+      pointsAmount: pointsAmount,
+      usdAmount: parseFloat(usdAmount),
+      status: 'pending',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    // Actualizar UI
+    currentUserPoints = newPoints;
+    document.getElementById('totalPoints').textContent = newPoints.toLocaleString();
+    setCachedPoints(newPoints);
+    updateDollarValue();
+
+    alert(
+      `✅ ¡Solicitud de canje enviada!\n\n` +
+      `Recibirás $${usdAmount} USD en tu cuenta PayPal (${paypalEmail}) en las próximas 24-48 horas.\n\n` +
+      `Puntos restantes: ${newPoints}`
+    );
+
+    closePaypalModal();
   } catch (error) {
-    // ✅ Si falta el índice, Firestore lanza FAILED_PRECONDITION
-    const msg = String(error?.message || '');
-    if (msg.includes('FAILED_PRECONDITION') || msg.toLowerCase().includes('requires an index')) {
-      logOnce('missing_index', '⚠️ Falta índice para pointsHistory (userId + timestamp). Crea el índice en Firestore.');
-      return; // no spameamos el console
-    }
-    console.error('Error al cargar historial:', error);
+    console.error('Error procesando canje:', error);
+    alert('❌ Error al procesar el canje. Por favor, intenta de nuevo.');
+
+    const btn = document.getElementById('confirmRedeemBtn');
+    btn.textContent = 'Confirmar Canje';
+    btn.disabled = false;
   }
+}
+
+/**
+ * Valida un correo electrónico
+ * @param {string} email - Email a validar
+ * @returns {boolean} True si es válido
+ */
+function validateEmail(email) {
+  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return re.test(email);
 }
 
 /* ============================================ */
@@ -378,23 +413,70 @@ async function loadPointsHistory(userId) {
  * Verifica la autenticación del usuario y carga datos iniciales
  */
 function checkAuth() {
-  // ✅ Primero esperamos DOM clave, luego Firebase, luego auth
-  waitForDOMElements(['totalPoints', 'historyContainer', 'dailyRewardBtn'], () => {
-    waitForFirebase(() => {
-      window.auth.onAuthStateChanged((user) => {
-        if (user) {
-          loadUserPoints(user.uid);
-          loadPointsHistory(user.uid);
-          loadNotificationCount(user.uid);
-        } else {
-          window.location.href = withAppFlag('index.html');
-        }
-      });
+  waitForFirebase(() => {
+    window.auth.onAuthStateChanged((user) => {
+      if (user) {
+        loadUserPoints(user.uid);
+        loadNotificationCount(user.uid);
+      } else {
+        window.location.href = withAppFlag('index.html');
+      }
     });
+  });
+}
+
+/* ============================================ */
+/* EVENT LISTENERS */
+/* ============================================ */
+
+/**
+ * Configura todos los event listeners
+ */
+function setupEventListeners() {
+  // Botón de canje PayPal
+  const redeemBtn = document.getElementById('redeemPaypalBtn');
+  if (redeemBtn) {
+    redeemBtn.addEventListener('click', openPaypalModal);
+  }
+
+  // Cerrar modal
+  const closeBtn = document.getElementById('closeModalBtn');
+  const cancelBtn = document.getElementById('cancelBtn');
+  const backdrop = document.querySelector('.modal-backdrop');
+
+  if (closeBtn) closeBtn.addEventListener('click', closePaypalModal);
+  if (cancelBtn) cancelBtn.addEventListener('click', closePaypalModal);
+  if (backdrop) backdrop.addEventListener('click', closePaypalModal);
+
+  // Actualizar USD mientras escribe
+  const pointsInput = document.getElementById('pointsAmount');
+  if (pointsInput) {
+    pointsInput.addEventListener('input', updateUSDAmount);
+  }
+
+  // Formulario de canje
+  const form = document.getElementById('paypalForm');
+  if (form) {
+    form.addEventListener('submit', processPaypalRedeem);
+  }
+
+  // Cerrar modal con ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('paypalModal');
+      if (modal && modal.classList.contains('active')) {
+        closePaypalModal();
+      }
+    }
   });
 }
 
 /* ============================================ */
 /* INICIALIZACIÓN */
 /* ============================================ */
-window.addEventListener('load', checkAuth);
+
+// Iniciar cuando la página esté completamente cargada
+window.addEventListener('load', () => {
+  setupEventListeners();
+  checkAuth();
+});
