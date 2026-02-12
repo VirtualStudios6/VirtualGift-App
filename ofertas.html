@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ofertas - VirtualGift</title>
+
+  <link rel="stylesheet" href="css/inicio.css" />
+  <script defer src="js/app-mode.js"></script>
+
+  <!-- Firebase -->
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script defer src="js/firebase-config.js"></script>
+
+  <style>
+    .offers-wrap{max-width:1050px;margin:0 auto;padding:16px;}
+    .offerwall-box{width:100%;min-height:760px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
+    .offerwall-loading{padding:16px;color:rgba(220,239,255,0.9);font-size:14px;}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
+    .title{font-size:18px;font-weight:800;color:#dcefff;}
+    .sub{font-size:12px;opacity:.85;color:rgba(220,239,255,.85);}
+    .btn-back{border:0;background:rgba(255,255,255,0.08);color:#dcefff;padding:10px 12px;border-radius:10px;cursor:pointer;}
+  </style>
+
+  <script>
+    function withAppFlag(url) {
+      const isAndroidApp =
+        document.documentElement.classList.contains("android-app") ||
+        document.body.classList.contains("android-app");
+      if (!isAndroidApp) return url;
+      if (url.includes("app=android")) return url;
+      const parts = url.split('#');
+      const base = parts[0];
+      const hash = parts[1] ? ('#' + parts[1]) : '';
+      const fixed = base.includes("?") ? (base + "&app=android") : (base + "?app=android");
+      return fixed + hash;
+    }
+  </script>
+</head>
+
+<body>
+  <div class="offers-wrap">
+    <div class="topbar">
+      <div>
+        <div class="title">🎯 Ofertas para ganar puntos</div>
+        <div class="sub">Completa ofertas y gana VirtualCoins automáticamente.</div>
+      </div>
+      <button class="btn-back" onclick="window.location.href=withAppFlag('inicio.html')">← Volver</button>
+    </div>
+
+    <div class="offerwall-box" id="offerwall-container">
+      <div class="offerwall-loading">Cargando ofertas...</div>
+    </div>
+  </div>
+
+  <script>
+    (function initAyetOfferwall() {
+      const PUBLISHER_ID = "4093228";
+
+      function start() {
+        if (!window.firebase || !firebase.auth) return;
+
+        firebase.auth().onAuthStateChanged(function(user) {
+          const container = document.getElementById("offerwall-container");
+          if (!container) return;
+
+          if (!user) {
+            container.innerHTML = '<div class="offerwall-loading">Inicia sesión para ver las ofertas.</div>';
+            return;
+          }
+
+          const iframe = document.createElement("iframe");
+          iframe.src = `https://wall.ayetstudios.com/?publisher_id=${encodeURIComponent(PUBLISHER_ID)}&user_id=${encodeURIComponent(user.uid)}`;
+          iframe.width = "100%";
+          iframe.height = "760";
+          iframe.style.border = "0";
+          iframe.loading = "lazy";
+
+          container.innerHTML = "";
+          container.appendChild(iframe);
+        });
+      }
+
+      if (typeof window.waitForFirebase === "function") window.waitForFirebase(start);
+      else window.addEventListener("load", start);
+    })();
+  </script>
+</body>
+</html>

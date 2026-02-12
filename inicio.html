@@ -140,6 +140,54 @@
         </div>
     </section>
 
+<!-- ============================================ -->
+<!-- OFERTAS SECTION (CARDS TIPO SKINS) -->
+<!-- ============================================ -->
+<section class="section" id="ofertas">
+    <div class="section-header">
+        <h2 class="section-title">Ofertas 🎯</h2>
+        <a href="ofertas.html" class="section-link" onclick="this.href=withAppFlag('ofertas.html')">Ver todo</a>
+    </div>
+    <p class="section-subtitle">Gana VirtualCoins completando ofertas</p>
+
+    <!-- Reutilizamos el mismo grid de skins para mantener tamaño/estilo -->
+    <div class="skins-grid">
+
+        <div class="skin-card" onclick="window.location.href=withAppFlag('ofertas.html')" style="cursor:pointer;">
+            <div class="skin-badge">🧩 OFERTAS</div>
+            <div class="skin-image">
+                <img src="images/ofertas/1.png" alt="Ofertas de Juegos" onerror="this.style.display='none'">
+            </div>
+            <p class="skin-name">Ofertas de Juegos</p>
+        </div>
+
+        <div class="skin-card" onclick="window.location.href=withAppFlag('ofertas.html')" style="cursor:pointer;">
+            <div class="skin-badge">📝 ENCUESTAS</div>
+            <div class="skin-image">
+                <img src="images/ofertas/2.png" alt="Encuestas" onerror="this.style.display='none'">
+            </div>
+            <p class="skin-name">Encuestas</p>
+        </div>
+
+        <div class="skin-card" onclick="window.location.href=withAppFlag('ofertas.html')" style="cursor:pointer;">
+            <div class="skin-badge">💸 BONUS</div>
+            <div class="skin-image">
+                <img src="images/ofertas/3.png" alt="Mejores Pagos" onerror="this.style.display='none'">
+            </div>
+            <p class="skin-name">Mejores Pagos</p>
+        </div>
+
+        <div class="skin-card" onclick="window.location.href=withAppFlag('ofertas.html')" style="cursor:pointer;">
+            <div class="skin-badge">🔥 TOP</div>
+            <div class="skin-image">
+                <img src="images/ofertas/4.png" alt="Top Ofertas" onerror="this.style.display='none'">
+            </div>
+            <p class="skin-name">Top Ofertas</p>
+        </div>
+
+    </div>
+</section>
+
     <!-- ============================================ -->
     <!-- NUEVAS SKINS SECTION -->
     <!-- ============================================ -->
@@ -285,5 +333,8 @@
     <script defer src="js/carousel.js"></script>
     <script defer src="js/news-feed.js"></script>
     <script defer src="js/inicio.js"></script>
+
+    <!-- ✅ HACK: reusar carousel.js también para ofertas (si carousel.js usa selectores globales) -->
+    <!-- Si tu carousel.js solo soporta 1 carrusel, dímelo y te lo ajusto en 1 minuto -->
 </body>
 </html>

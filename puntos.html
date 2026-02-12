@@ -36,6 +36,28 @@
             return fixed + hash;
         }
     </script>
+
+    <!-- ✅ Estilos mínimos offerwall (opcional, pero recomendado) -->
+    <style>
+        .offerwall-box{
+            width: 100%;
+            min-height: 700px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .offerwall-loading{
+            padding: 18px;
+            color: rgba(220,239,255,0.85);
+            font-size: 14px;
+        }
+        .offerwall-note{
+            margin-top: 10px;
+            font-size: 12px;
+            opacity: 0.8;
+        }
+    </style>
 </head>
 
 <body>
@@ -139,6 +161,23 @@
                     Inicia sesión diariamente y recibe 25 puntos gratis cada día.
                 </div>
                 <button class="card-action btn-primary" id="dailyRewardBtn">Reclamar Hoy</button>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- ✅ NUEVA SECCIÓN: OFERTAS AYETSTUDIOS -->
+        <!-- ============================================ -->
+        <div class="section-header" style="margin-top: 30px;">
+            <h2 class="section-title">🧩 Ofertas (Gana más puntos)</h2>
+            <span class="exchange-rate">Completa ofertas y gana VirtualCoins automáticamente</span>
+        </div>
+
+        <div class="offerwall-box" id="offerwall-container">
+            <div class="offerwall-loading">
+                Cargando ofertas...
+                <div class="offerwall-note">
+                    Si no aparece nada, revisa tu conexión o desactiva AdBlock/VPN.
+                </div>
             </div>
         </div>
 
@@ -303,5 +342,52 @@
 
     <!-- ✅ Scripts externos -->
     <script defer src="js/puntos.js"></script>
+
+    <!-- ✅ Ayet Offerwall (integración directa aquí) -->
+    <script>
+      (function initAyetOfferwall() {
+        // Espera a que Firebase esté listo (firebase-config.js robusto expone waitForFirebase)
+        function start() {
+          try {
+            if (!window.firebase || !firebase.auth) return;
+
+            firebase.auth().onAuthStateChanged(function(user) {
+              const container = document.getElementById("offerwall-container");
+              if (!container) return;
+
+              if (!user) {
+                container.innerHTML = '<div class="offerwall-loading">Inicia sesión para ver las ofertas.</div>';
+                return;
+              }
+
+              // ⚠️ CAMBIA ESTO por tu Publisher ID real de Ayet
+              const publisherId = "PUBLISHER_ID_AQUI";
+
+              const iframe = document.createElement("iframe");
+              iframe.src = `https://wall.ayetstudios.com/?publisher_id=${publisherId}&user_id=${encodeURIComponent(user.uid)}`;
+              iframe.width = "100%";
+              iframe.height = "700";
+              iframe.style.border = "0";
+              iframe.loading = "lazy";
+
+              container.innerHTML = "";
+              container.appendChild(iframe);
+            });
+          } catch (e) {
+            const container = document.getElementById("offerwall-container");
+            if (container) {
+              container.innerHTML = '<div class="offerwall-loading">No se pudieron cargar las ofertas.</div>';
+            }
+          }
+        }
+
+        if (typeof window.waitForFirebase === "function") {
+          window.waitForFirebase(start);
+        } else {
+          // Fallback simple
+          window.addEventListener("load", start);
+        }
+      })();
+    </script>
 </body>
 </html>
