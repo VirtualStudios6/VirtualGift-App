@@ -1,9 +1,7 @@
 /* =========================================================
-   NOTIFICACIONES - VirtualGift (MINIMAL FIXED)
-   - Sin tabs / sin filtros
-   - Siempre renderiza todas las notificaciones
-   - Badge y lista sincronizados
-   - Expone funciones globales para onclick en el HTML
+   NOTIFICACIONES - VirtualGift (DEBUG + FIX)
+   - Minimal (sin tabs)
+   - Fallback si falta índice / permisos
    ========================================================= */
 
 (() => {
@@ -42,7 +40,7 @@
     );
   }
 
-  function waitForFirebase(callback, maxAttempts = 30) {
+  function waitForFirebase(callback, maxAttempts = 40) {
     let attempts = 0;
     const check = setInterval(() => {
       attempts++;
@@ -73,6 +71,29 @@
     if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} días`;
 
     return date.toLocaleDateString("es-ES", { day: "2-digit", month: "short" });
+  }
+
+  function tsToMillis(ts) {
+    if (!ts) return 0;
+    if (typeof ts.toMillis === "function") return ts.toMillis();
+    const d = ts.toDate ? ts.toDate() : new Date(ts);
+    return d instanceof Date ? d.getTime() : 0;
+  }
+
+  function showErrorBox(message) {
+    const container = $("notificationsContainer");
+    const loading = $("loadingContainer");
+    if (loading) loading.style.display = "none";
+    if (!container) return;
+
+    container.style.display = "block";
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <div style="font-weight:900; margin-bottom:6px;">No se pudieron cargar las notificaciones</div>
+        <div style="opacity:.9; word-break:break-word;">${message}</div>
+      </div>
+    `;
   }
 
   // ---------- UI ----------
@@ -144,7 +165,6 @@
       </div>
     `;
 
-    // Botones: evitar que el click del item se dispare
     const primaryBtn = div.querySelector('[data-action-url]');
     if (primaryBtn) {
       primaryBtn.addEventListener("click", (e) => {
@@ -174,8 +194,7 @@
     container.style.display = "block";
     container.innerHTML = "";
 
-    // ✅ Minimal: mostrar TODO siempre (sin filtros)
-    const filtered = allNotifications;
+    const filtered = allNotifications; // ✅ minimal: siempre todo
 
     if (!filtered || filtered.length === 0) {
       showEmptyState("No hay notificaciones");
@@ -188,9 +207,8 @@
   }
 
   // ---------- Firestore ----------
-  async function loadNotifications(userId) {
-    if (!window.db) return;
-
+  async function fetchNotifications(userId) {
+    // Intento #1: query “bonita” con orderBy (puede pedir índice)
     try {
       const snapshot = await window.db
         .collection("notifications")
@@ -199,20 +217,50 @@
         .limit(50)
         .get();
 
-      allNotifications = [];
-      snapshot.forEach((doc) => {
-        allNotifications.push({ id: doc.id, ...doc.data() });
-      });
+      const arr = [];
+      snapshot.forEach((doc) => arr.push({ id: doc.id, ...doc.data() }));
+      return arr;
+    } catch (e) {
+      console.error("Query con orderBy falló:", e);
 
+      // Intento #2: fallback SIN orderBy (no pide índice)
+      const snapshot2 = await window.db
+        .collection("notifications")
+        .where("userId", "==", userId)
+        .limit(50)
+        .get();
+
+      const arr2 = [];
+      snapshot2.forEach((doc) => arr2.push({ id: doc.id, ...doc.data() }));
+
+      // Ordena en el cliente
+      arr2.sort((a, b) => tsToMillis(b.timestamp) - tsToMillis(a.timestamp));
+      return arr2;
+    }
+  }
+
+  async function loadNotifications(userId) {
+    if (!window.db) return;
+
+    try {
+      const arr = await fetchNotifications(userId);
+
+      allNotifications = arr;
       updateBadgeCount();
       displayNotifications();
 
-      // Debug opcional:
-      // console.log("NOTIFICATIONS LOADED:", allNotifications.length, allNotifications);
+      console.log("UID LOGUEADO:", userId);
+      console.log("NOTIFICATIONS LOADED:", allNotifications.length, allNotifications);
 
     } catch (error) {
       console.error("Error al cargar notificaciones:", error);
-      showEmptyState("Error al cargar notificaciones");
+
+      const msg = String(error && (error.message || error)) || "Error desconocido";
+
+      // Mensajes típicos:
+      // - Missing or insufficient permissions (reglas)
+      // - The query requires an index (índice)
+      showErrorBox(msg);
     }
   }
 
@@ -232,7 +280,6 @@
     }
   }
 
-  // ✅ Necesaria global por onclick del HTML
   window.markAllAsRead = async function markAllAsRead() {
     if (!window.db || !currentUserId) return;
 
