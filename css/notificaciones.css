@@ -1,0 +1,456 @@
+/* ============================================ */
+/* NOTIFICACIONES.CSS - ESTILO UNIFICADO        */
+/* MISMA PALETA / SOMBRAS / CARDS QUE PUNTOS    */
+/* ============================================ */
+
+:root {
+  --primary: #8d17fb;
+  --secondary: #70189b;
+  --bg-primary: #020515;
+  --bg-secondary: #06011c;
+  --text-primary: #dcefff;
+  --text-secondary: rgba(182, 198, 217, 0.9);
+  --border: rgba(41, 50, 68, 0.75);
+  --shadow: 0 10px 35px rgba(0,0,0,0.45);
+  --ok: #22c55e;
+}
+
+/* Ocultar header dentro de Android App Mode */
+html.android-app .header,
+body.android-app .header {
+  display: none !important;
+}
+
+/* ============================================ */
+/* CONTENEDOR PRINCIPAL */
+/* ============================================ */
+.notifications-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 18px;
+  padding-bottom: 40px;
+}
+
+/* ============================================ */
+/* BOTÓN VOLVER (igual que puntos) */
+/* ============================================ */
+.notifications-container .back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 10px 18px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 800;
+  transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease;
+  -webkit-tap-highlight-color: transparent;
+  margin-bottom: 16px;
+}
+
+.notifications-container .back-button:active { transform: scale(0.98); }
+.notifications-container .back-button:hover {
+  border-color: rgba(141,23,251,.55);
+  box-shadow: var(--shadow);
+}
+
+/* ============================================ */
+/* HEADER TARJETA (igual vibe que points-header) */
+/* ============================================ */
+.notifications-container .notifications-header {
+  position: relative;
+  background: rgba(28, 31, 47, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 18px 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+  overflow: hidden;
+}
+
+.notifications-container .notifications-header::after {
+  content:"";
+  position:absolute;
+  inset:-80px auto auto -80px;
+  width: 260px;
+  height: 260px;
+  background: rgba(141, 23, 251, 0.16);
+  filter: blur(48px);
+  border-radius: 999px;
+  pointer-events:none;
+}
+
+.notifications-container .header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  position: relative;
+  z-index: 1;
+}
+
+.notifications-container .header-title {
+  margin: 0;
+  font-size: 1.25em;
+  font-weight: 950;
+  color: var(--text-primary);
+  letter-spacing: 0.2px;
+}
+
+/* ============================================ */
+/* BOTÓN "MARCAR TODO" (estilo pill similar a puntos) */
+/* ============================================ */
+.notifications-container .mark-all-read {
+  background: rgba(2,5,21,0.35);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--text-primary);
+  padding: 10px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 0.88em;
+  font-weight: 950;
+  transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 1;
+}
+
+.notifications-container .mark-all-read:active { transform: scale(0.985); }
+.notifications-container .mark-all-read:hover {
+  border-color: rgba(141,23,251,.55);
+  box-shadow: 0 0 18px rgba(141,23,251,0.18);
+}
+
+/* ============================================ */
+/* TABS (mismo feel de botones) */
+/* ============================================ */
+.notifications-container .notifications-tabs {
+  display: flex;
+  gap: 10px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  position: relative;
+  z-index: 1;
+}
+
+.notifications-container .tab {
+  background: rgba(2,5,21,0.35);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--text-secondary);
+  padding: 9px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.9em;
+  font-weight: 900;
+  white-space: nowrap;
+  transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease, color .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.notifications-container .tab:active { transform: scale(0.985); }
+.notifications-container .tab:hover {
+  border-color: rgba(141,23,251,.55);
+  box-shadow: 0 0 18px rgba(141,23,251,0.14);
+  color: var(--text-primary);
+}
+
+.notifications-container .tab.active {
+  border: none;
+  color: white;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  box-shadow: 0 0 18px rgba(141, 23, 251, 0.25);
+}
+
+/* Quitamos el underline viejo para que no choque */
+.notifications-container .tab.active::after { display: none; }
+
+/* ============================================ */
+/* LISTA */
+/* ============================================ */
+.notifications-container .notifications-list {
+  margin-top: 10px;
+}
+
+/* ============================================ */
+/* ITEM DE NOTIFICACIÓN (igual a cards de puntos) */
+/* ============================================ */
+.notifications-container .notification-item {
+  position: relative;
+  background: rgba(28, 31, 47, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+  transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease;
+  overflow: hidden;
+  display: flex;
+  gap: 14px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.notifications-container .notification-item::after {
+  content:"";
+  position:absolute;
+  inset:-90px -90px auto auto;
+  width: 220px;
+  height: 220px;
+  background: rgba(141, 23, 251, 0.12);
+  filter: blur(55px);
+  border-radius: 999px;
+  pointer-events:none;
+}
+
+.notifications-container .notification-item:hover {
+  border-color: rgba(141,23,251,.55);
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+
+.notifications-container .notification-item:active {
+  transform: scale(0.992);
+}
+
+/* UNREAD: similar a highlight pero sin salirse del estilo */
+.notifications-container .notification-item.unread {
+  border-color: rgba(141,23,251,.55);
+  box-shadow: 0 0 22px rgba(141,23,251,0.10);
+}
+
+.notifications-container .notification-item.unread::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 4px;
+  background: linear-gradient(180deg, var(--primary), var(--secondary));
+  border-radius: 999px;
+  z-index: 1;
+}
+
+/* ============================================ */
+/* ICONO (calcado a card-icon / redeem-icon) */
+/* ============================================ */
+.notifications-container .notification-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  background: rgba(2,5,21,0.35);
+  border: 1px solid rgba(255,255,255,0.10);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 18px rgba(141,23,251,0.14);
+  flex-shrink: 0;
+}
+
+/* Solo un toque por tipo, manteniendo el fondo base */
+.notifications-container .notification-icon.info    { box-shadow: 0 0 18px rgba(59,130,246,0.16); }
+.notifications-container .notification-icon.success { box-shadow: 0 0 18px rgba(34,197,94,0.18); }
+.notifications-container .notification-icon.warning { box-shadow: 0 0 18px rgba(245,158,11,0.18); }
+.notifications-container .notification-icon.gift    { box-shadow: 0 0 18px rgba(141,23,251,0.20); }
+.notifications-container .notification-icon.system  { box-shadow: 0 0 18px rgba(107,114,128,0.18); }
+
+/* ============================================ */
+/* TEXTO */
+/* ============================================ */
+.notifications-container .notification-content {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.notifications-container .notification-title {
+  font-size: 1.05em;
+  font-weight: 950;
+  color: rgba(220,239,255,0.95);
+  margin-bottom: 6px;
+}
+
+.notifications-container .notification-message {
+  font-size: 0.92em;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* ============================================ */
+/* FOOTER */
+/* ============================================ */
+.notifications-container .notification-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.notifications-container .notification-time {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  opacity: 0.75;
+  font-weight: 700;
+}
+
+.notifications-container .notification-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ============================================ */
+/* BOTONES ACCIÓN (mismo estilo que .btn / .redeem-action) */
+/* ============================================ */
+.notifications-container .action-btn {
+  padding: 10px 14px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 950;
+  font-size: 0.9em;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.notifications-container .action-btn:active { transform: scale(0.985); }
+
+.notifications-container .action-btn.primary {
+  border: none;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  color: white;
+  box-shadow: 0 0 18px rgba(141, 23, 251, 0.25);
+}
+
+.notifications-container .action-btn.primary:hover {
+  box-shadow: 0 0 24px rgba(141, 23, 251, 0.35);
+}
+
+.notifications-container .action-btn.secondary {
+  background: rgba(2,5,21,0.35);
+  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--text-primary);
+}
+
+.notifications-container .action-btn.secondary:hover {
+  border-color: rgba(141,23,251,.55);
+  box-shadow: 0 0 18px rgba(141,23,251,0.14);
+}
+
+/* ============================================ */
+/* LOADING / EMPTY */
+/* ============================================ */
+.notifications-container .loading {
+  text-align: center;
+  padding: 44px 20px;
+  color: var(--text-secondary);
+}
+
+.notifications-container .spinner {
+  border: 3px solid var(--border);
+  border-top: 3px solid var(--primary);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 15px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.notifications-container .empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+  background: rgba(28, 31, 47, 0.72);
+  border: 1px dashed rgba(141,23,251,0.35);
+  border-radius: 18px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+}
+
+.notifications-container .empty-icon {
+  font-size: 3.2rem;
+  margin-bottom: 12px;
+  opacity: 0.7;
+}
+
+/* ============================================ */
+/* PULL TO REFRESH (mismo estilo de cards) */
+/* ============================================ */
+.pull-refresh {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-60px);
+  background: rgba(28, 31, 47, 0.92);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.25s ease;
+  z-index: 1000;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+}
+
+.pull-refresh.pulling,
+.pull-refresh.refreshing {
+  transform: translateX(-50%) translateY(10px);
+}
+
+.pull-refresh .refresh-icon {
+  font-size: 1.15rem;
+  transition: transform 0.3s ease;
+}
+
+.pull-refresh.refreshing .refresh-icon {
+  animation: spin 1s linear infinite;
+}
+
+/* ============================================ */
+/* RESPONSIVE (igual criterio que puntos) */
+/* ============================================ */
+@media (max-width: 768px) {
+  .notifications-container {
+    padding: 16px;
+    padding-bottom: 80px;
+  }
+
+  .notifications-container .header-top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .notifications-container .notification-item {
+    padding: 16px;
+  }
+
+  .notifications-container .notification-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
+  }
+
+  .notifications-container .action-btn {
+    width: 100%;
+  }
+}
+
+@media (min-width: 769px) {
+  .notifications-container {
+    padding: 24px 40px;
+  }
+}
