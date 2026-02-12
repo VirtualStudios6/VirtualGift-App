@@ -1,12 +1,13 @@
 /* =========================================================
-   NOTIFICACIONES - VirtualGift
-   - Todo el JS que estaba inline, movido aquí
+   NOTIFICACIONES - VirtualGift (MINIMAL FIXED)
+   - Sin tabs / sin filtros
+   - Siempre renderiza todas las notificaciones
+   - Badge y lista sincronizados
    - Expone funciones globales para onclick en el HTML
    ========================================================= */
 
 (() => {
   let currentUserId = null;
-let currentFilter = "all";
   let allNotifications = [];
 
   // Pull to refresh
@@ -117,7 +118,7 @@ let currentFilter = "all";
     const timeAgo = getTimeAgo(notification.timestamp);
 
     div.innerHTML = `
-      <div class="notification-icon ${notification.type}">
+      <div class="notification-icon ${notification.type || ""}">
         ${icon}
       </div>
       <div class="notification-content">
@@ -143,7 +144,7 @@ let currentFilter = "all";
       </div>
     `;
 
-    // botones: evitar que el click del item se dispare
+    // Botones: evitar que el click del item se dispare
     const primaryBtn = div.querySelector('[data-action-url]');
     if (primaryBtn) {
       primaryBtn.addEventListener("click", (e) => {
@@ -173,12 +174,10 @@ let currentFilter = "all";
     container.style.display = "block";
     container.innerHTML = "";
 
-    const filtered =
-      currentFilter === "all"
-        ? allNotifications
-        : allNotifications.filter((n) => n.type === currentFilter);
+    // ✅ Minimal: mostrar TODO siempre (sin filtros)
+    const filtered = allNotifications;
 
-    if (filtered.length === 0) {
+    if (!filtered || filtered.length === 0) {
       showEmptyState("No hay notificaciones");
       return;
     }
@@ -187,7 +186,6 @@ let currentFilter = "all";
       container.appendChild(createNotificationItem(notification));
     });
   }
-
 
   // ---------- Firestore ----------
   async function loadNotifications(userId) {
@@ -208,6 +206,10 @@ let currentFilter = "all";
 
       updateBadgeCount();
       displayNotifications();
+
+      // Debug opcional:
+      // console.log("NOTIFICATIONS LOADED:", allNotifications.length, allNotifications);
+
     } catch (error) {
       console.error("Error al cargar notificaciones:", error);
       showEmptyState("Error al cargar notificaciones");
@@ -276,7 +278,6 @@ let currentFilter = "all";
         if (user) {
           currentUserId = user.uid;
           loadNotifications(user.uid);
-        
         } else {
           window.location.href = window.withAppFlag("index.html");
         }
