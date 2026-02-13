@@ -1,7 +1,8 @@
 /* =========================================================
-   NOTIFICACIONES - VirtualGift (DEBUG + FIX)
-   - Minimal (sin tabs)
-   - Fallback si falta índice / permisos
+   NOTIFICACIONES - VirtualGift (NEW FORMAT)
+   - Global (ALL) + personal (uid)
+   - title (<=20), subtitle (<=30), imageUrl opcional
+   - "Read/Delete" para ALL: se maneja local por usuario (localStorage)
    ========================================================= */
 
 (() => {
@@ -60,7 +61,6 @@
 
   function getTimeAgo(timestamp) {
     if (!timestamp) return "Ahora";
-
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
     const now = new Date();
     const diff = Math.floor((now - date) / 1000);
@@ -96,9 +96,48 @@
     `;
   }
 
+  // ---------- Local state for ALL (per-user) ----------
+  function storageKey(uid) {
+    return `vg_notifs_hidden_${uid}`;
+  }
+
+  function getHiddenSet(uid) {
+    try {
+      const raw = localStorage.getItem(storageKey(uid));
+      const arr = raw ? JSON.parse(raw) : [];
+      return new Set(Array.isArray(arr) ? arr : []);
+    } catch {
+      return new Set();
+    }
+  }
+
+  function saveHiddenSet(uid, set) {
+    try {
+      localStorage.setItem(storageKey(uid), JSON.stringify([...set]));
+    } catch {}
+  }
+
+  function hideForThisUser(notificationId) {
+    if (!currentUserId) return;
+    const set = getHiddenSet(currentUserId);
+    set.add(notificationId);
+    saveHiddenSet(currentUserId, set);
+  }
+
+  function isHiddenForThisUser(notificationId) {
+    if (!currentUserId) return false;
+    const set = getHiddenSet(currentUserId);
+    return set.has(notificationId);
+  }
+
   // ---------- UI ----------
   function updateBadgeCount() {
-    const unreadCount = allNotifications.filter((n) => !n.read).length;
+    // Badge = no leídas visibles (incluye ALL si no está ocultada localmente)
+    const unreadCount = allNotifications.filter((n) => {
+      if (isHiddenForThisUser(n.id)) return false;
+      return !n.read;
+    }).length;
+
     const badge = $("badgeCount");
     if (!badge) return;
 
@@ -122,62 +161,60 @@
     `;
   }
 
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
   function createNotificationItem(notification) {
     const div = document.createElement("div");
-    div.className = `notification-item ${notification.read ? "" : "unread"}`;
-    div.onclick = () => markAsRead(notification.id);
 
-    const iconMap = {
-      info: "📢",
-      success: "✅",
-      warning: "⚠️",
-      gift: "🎁",
-      system: "⚙️",
-    };
+    const isUnread = !notification.read;
+    div.className = `notification-item ${isUnread ? "unread" : ""}`;
+    div.onclick = () => markAsRead(notification);
 
-    const icon = iconMap[notification.type] || "🔔";
     const timeAgo = getTimeAgo(notification.timestamp);
 
+    const title = escapeHtml(notification.title || "Notificación");
+    const subtitle = escapeHtml(notification.subtitle || "");
+    const img = notification.imageUrl ? String(notification.imageUrl) : "";
+
     div.innerHTML = `
-      <div class="notification-icon ${notification.type || ""}">
-        ${icon}
-      </div>
+      <div class="notification-icon">🔔</div>
       <div class="notification-content">
-        <div class="notification-title">${notification.title || "Notificación"}</div>
-        <div class="notification-message">${notification.message || ""}</div>
+        <div class="notification-title">${title}</div>
+        <div class="notification-message">${subtitle}</div>
+
+        ${
+          img
+            ? `
+            <div class="notif-image-wrap">
+              <img class="notif-image" src="${escapeHtml(img)}" alt="Notificación" loading="lazy">
+            </div>
+          `
+            : ""
+        }
+
         <div class="notification-footer">
           <div class="notification-time">${timeAgo}</div>
-          ${
-            notification.actionUrl
-              ? `
-                <div class="notification-actions">
-                  <button class="action-btn primary" data-action-url="${notification.actionUrl}">
-                    ${notification.actionText || "Ver más"}
-                  </button>
-                  <button class="action-btn secondary" data-delete-id="${notification.id}">
-                    Eliminar
-                  </button>
-                </div>
-              `
-              : ""
-          }
+          <div class="notification-actions">
+            <button class="action-btn secondary" data-delete-id="${notification.id}">
+              Eliminar
+            </button>
+          </div>
         </div>
       </div>
     `;
-
-    const primaryBtn = div.querySelector('[data-action-url]');
-    if (primaryBtn) {
-      primaryBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        handleAction(primaryBtn.getAttribute("data-action-url"));
-      });
-    }
 
     const deleteBtn = div.querySelector("[data-delete-id]");
     if (deleteBtn) {
       deleteBtn.addEventListener("click", (e) => {
         e.stopPropagation();
-        deleteNotification(deleteBtn.getAttribute("data-delete-id"));
+        deleteNotification(notification);
       });
     }
 
@@ -194,7 +231,8 @@
     container.style.display = "block";
     container.innerHTML = "";
 
-    const filtered = allNotifications; // ✅ minimal: siempre todo
+    // ✅ Minimal: siempre todo, pero quitamos lo oculto localmente
+    const filtered = allNotifications.filter((n) => !isHiddenForThisUser(n.id));
 
     if (!filtered || filtered.length === 0) {
       showEmptyState("No hay notificaciones");
@@ -207,12 +245,13 @@
   }
 
   // ---------- Firestore ----------
-  async function fetchNotifications(userId) {
-    // Intento #1: query “bonita” con orderBy (puede pedir índice)
+  async function fetchNotifications(uid) {
+    // ✅ Necesitamos uid + ALL
+    // Intento #1: query con "in" + orderBy (pedirá índice)
     try {
       const snapshot = await window.db
         .collection("notifications")
-        .where("userId", "==", userId)
+        .where("userId", "in", [uid, "ALL"])
         .orderBy("timestamp", "desc")
         .limit(50)
         .get();
@@ -221,56 +260,68 @@
       snapshot.forEach((doc) => arr.push({ id: doc.id, ...doc.data() }));
       return arr;
     } catch (e) {
-      console.error("Query con orderBy falló:", e);
+      console.error("Query (in + orderBy) falló:", e);
 
-      // Intento #2: fallback SIN orderBy (no pide índice)
+      // Intento #2: fallback SIN orderBy (reduce necesidad de índice)
       const snapshot2 = await window.db
         .collection("notifications")
-        .where("userId", "==", userId)
+        .where("userId", "in", [uid, "ALL"])
         .limit(50)
         .get();
 
       const arr2 = [];
       snapshot2.forEach((doc) => arr2.push({ id: doc.id, ...doc.data() }));
 
-      // Ordena en el cliente
+      // Ordena en cliente
       arr2.sort((a, b) => tsToMillis(b.timestamp) - tsToMillis(a.timestamp));
       return arr2;
     }
   }
 
-  async function loadNotifications(userId) {
+  async function loadNotifications(uid) {
     if (!window.db) return;
 
     try {
-      const arr = await fetchNotifications(userId);
+      const arr = await fetchNotifications(uid);
 
-      allNotifications = arr;
+      // Normaliza campos (por si alguna doc vieja existe)
+      allNotifications = (arr || []).map((n) => ({
+        id: n.id,
+        userId: n.userId,
+        title: n.title || "",
+        subtitle: n.subtitle || n.message || "", // fallback por si quedó "message"
+        imageUrl: n.imageUrl || null,
+        read: Boolean(n.read),
+        timestamp: n.timestamp || null,
+      }));
+
       updateBadgeCount();
       displayNotifications();
 
-      console.log("UID LOGUEADO:", userId);
+      console.log("UID LOGUEADO:", uid);
       console.log("NOTIFICATIONS LOADED:", allNotifications.length, allNotifications);
-
     } catch (error) {
       console.error("Error al cargar notificaciones:", error);
-
       const msg = String(error && (error.message || error)) || "Error desconocido";
-
-      // Mensajes típicos:
-      // - Missing or insufficient permissions (reglas)
-      // - The query requires an index (índice)
       showErrorBox(msg);
     }
   }
 
-  async function markAsRead(notificationId) {
+  async function markAsRead(notification) {
     if (!window.db) return;
 
-    try {
-      await window.db.collection("notifications").doc(notificationId).update({ read: true });
+    // Si es ALL, no la marcamos en Firestore (sería global para todos).
+    if (notification.userId === "ALL") {
+      hideForThisUser(notification.id); // la consideramos "vista" localmente
+      updateBadgeCount();
+      displayNotifications();
+      return;
+    }
 
-      const n = allNotifications.find((x) => x.id === notificationId);
+    try {
+      await window.db.collection("notifications").doc(notification.id).update({ read: true });
+
+      const n = allNotifications.find((x) => x.id === notification.id);
       if (n) n.read = true;
 
       updateBadgeCount();
@@ -280,20 +331,32 @@
     }
   }
 
+  // Si quieres mantener el botón "marcar todo" (tu HTML lo tiene)
   window.markAllAsRead = async function markAllAsRead() {
     if (!window.db || !currentUserId) return;
 
     try {
       const batch = window.db.batch();
-      const unread = allNotifications.filter((n) => !n.read);
 
-      unread.forEach((n) => {
+      // 1) personales: marcar read=true en Firestore
+      const personalUnread = allNotifications.filter(
+        (n) => n.userId === currentUserId && !n.read && !isHiddenForThisUser(n.id)
+      );
+
+      personalUnread.forEach((n) => {
         const ref = window.db.collection("notifications").doc(n.id);
         batch.update(ref, { read: true });
         n.read = true;
       });
 
+      // 2) ALL: ocultarlas localmente
+      const globalUnread = allNotifications.filter(
+        (n) => n.userId === "ALL" && !isHiddenForThisUser(n.id)
+      );
+      globalUnread.forEach((n) => hideForThisUser(n.id));
+
       await batch.commit();
+
       updateBadgeCount();
       displayNotifications();
     } catch (error) {
@@ -301,21 +364,25 @@
     }
   };
 
-  async function deleteNotification(notificationId) {
+  async function deleteNotification(notification) {
     if (!window.db) return;
 
+    // Si es ALL, solo ocultamos localmente
+    if (notification.userId === "ALL") {
+      hideForThisUser(notification.id);
+      updateBadgeCount();
+      displayNotifications();
+      return;
+    }
+
     try {
-      await window.db.collection("notifications").doc(notificationId).delete();
-      allNotifications = allNotifications.filter((n) => n.id !== notificationId);
+      await window.db.collection("notifications").doc(notification.id).delete();
+      allNotifications = allNotifications.filter((n) => n.id !== notification.id);
       updateBadgeCount();
       displayNotifications();
     } catch (error) {
       console.error("Error al eliminar:", error);
     }
-  }
-
-  function handleAction(url) {
-    window.location.href = window.withAppFlag(url);
   }
 
   // ---------- Auth ----------
@@ -345,7 +412,6 @@
       if (window.scrollY === 0) {
         const currentY = e.changedTouches[0].screenY;
         const diff = currentY - touchStartY;
-
         if (diff > 0 && diff < 100) {
           pullRefreshEl.classList.add("pulling");
         }
@@ -361,9 +427,7 @@
         pullRefreshEl.classList.add("refreshing");
 
         loadNotifications(currentUserId).then(() => {
-          setTimeout(() => {
-            pullRefreshEl.classList.remove("refreshing");
-          }, 500);
+          setTimeout(() => pullRefreshEl.classList.remove("refreshing"), 500);
         });
       } else {
         pullRefreshEl.classList.remove("pulling");

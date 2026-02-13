@@ -1,6 +1,7 @@
 /* ============================================ */
 /* NOTIFICACIONES.CSS - ESTILO UNIFICADO        */
 /* MISMA PALETA / SOMBRAS / CARDS QUE PUNTOS    */
+/* + IMAGEN OPCIONAL (NEW)                      */
 /* ============================================ */
 
 :root {
@@ -102,7 +103,7 @@ body.android-app .header {
 }
 
 /* ============================================ */
-/* BOTÓN "MARCAR TODO" (estilo pill similar a puntos) */
+/* BOTÓN "MARCAR TODO" */
 /* ============================================ */
 .notifications-container .mark-all-read {
   background: rgba(2,5,21,0.35);
@@ -126,7 +127,7 @@ body.android-app .header {
 }
 
 /* ============================================ */
-/* TABS (mismo feel de botones) */
+/* TABS (si los usas, si no, no molestan) */
 /* ============================================ */
 .notifications-container .notifications-tabs {
   display: flex;
@@ -167,7 +168,6 @@ body.android-app .header {
   box-shadow: 0 0 18px rgba(141, 23, 251, 0.25);
 }
 
-/* Quitamos el underline viejo para que no choque */
 .notifications-container .tab.active::after { display: none; }
 
 /* ============================================ */
@@ -178,7 +178,7 @@ body.android-app .header {
 }
 
 /* ============================================ */
-/* ITEM DE NOTIFICACIÓN (igual a cards de puntos) */
+/* ITEM DE NOTIFICACIÓN */
 /* ============================================ */
 .notifications-container .notification-item {
   position: relative;
@@ -218,7 +218,6 @@ body.android-app .header {
   transform: scale(0.992);
 }
 
-/* UNREAD: similar a highlight pero sin salirse del estilo */
 .notifications-container .notification-item.unread {
   border-color: rgba(141,23,251,.55);
   box-shadow: 0 0 22px rgba(141,23,251,0.10);
@@ -237,7 +236,7 @@ body.android-app .header {
 }
 
 /* ============================================ */
-/* ICONO (calcado a card-icon / redeem-icon) */
+/* ICONO */
 /* ============================================ */
 .notifications-container .notification-icon {
   width: 46px;
@@ -255,7 +254,6 @@ body.android-app .header {
   flex-shrink: 0;
 }
 
-/* Solo un toque por tipo, manteniendo el fondo base */
 .notifications-container .notification-icon.info    { box-shadow: 0 0 18px rgba(59,130,246,0.16); }
 .notifications-container .notification-icon.success { box-shadow: 0 0 18px rgba(34,197,94,0.18); }
 .notifications-container .notification-icon.warning { box-shadow: 0 0 18px rgba(245,158,11,0.18); }
@@ -287,6 +285,23 @@ body.android-app .header {
 }
 
 /* ============================================ */
+/* ✅ NUEVO: IMAGEN OPCIONAL */
+/* ============================================ */
+.notifications-container .notif-image-wrap{
+  margin-top: 10px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(2,5,21,0.35);
+}
+
+.notifications-container .notif-image{
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ============================================ */
 /* FOOTER */
 /* ============================================ */
 .notifications-container .notification-footer {
@@ -312,7 +327,7 @@ body.android-app .header {
 }
 
 /* ============================================ */
-/* BOTONES ACCIÓN (mismo estilo que .btn / .redeem-action) */
+/* BOTONES ACCIÓN */
 /* ============================================ */
 .notifications-container .action-btn {
   padding: 10px 14px;
@@ -386,7 +401,7 @@ body.android-app .header {
 }
 
 /* ============================================ */
-/* PULL TO REFRESH (mismo estilo de cards) */
+/* PULL TO REFRESH */
 /* ============================================ */
 .pull-refresh {
   position: fixed;
@@ -421,7 +436,7 @@ body.android-app .header {
 }
 
 /* ============================================ */
-/* RESPONSIVE (igual criterio que puntos) */
+/* RESPONSIVE */
 /* ============================================ */
 @media (max-width: 768px) {
   .notifications-container {

@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - Notificaciones | VirtualGift</title>
+  <title>Admin - Notificación Global | VirtualGift</title>
 
   <link rel="stylesheet" href="css/inicio.css" />
   <link rel="stylesheet" href="css/admin-notificaciones.css" />
 
-  <!-- Android App Mode -->
   <script defer src="js/app-mode.js"></script>
 
   <!-- Firebase -->
@@ -26,20 +25,6 @@
       <img src="images/logo-virtual-login.png" alt="Virtual Studios Logo" class="logo-image" />
       <span class="logo-text">VIRTUAL<span class="logo-studios">GIFT</span></span>
     </div>
-
-    <div class="header-icons">
-      <div class="icon-users" onclick="window.location.href = withAppFlag('home.html')" style="cursor:pointer;">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
-      </div>
-
-      <div class="icon-notification" onclick="window.location.href = withAppFlag('notificaciones.html')" style="cursor:pointer;">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
-        </svg>
-      </div>
-    </div>
   </header>
 
   <main class="admin-notifs-container">
@@ -47,54 +32,33 @@
 
     <section class="admin-card">
       <div class="card-head">
-        <h1 class="card-title">📣 Admin · Enviar notificación</h1>
+        <h1 class="card-title">📣 Notificación Global</h1>
         <span class="chip" id="adminChip" style="display:none;">Admin</span>
       </div>
 
       <div class="form-grid">
-        <div class="form-group">
-          <label class="form-label">Enviar a</label>
-          <select class="form-input" id="targetUser">
-            <option value="ALL">🌍 Todos los usuarios (ALL)</option>
-          </select>
-          <div class="form-helper" id="usersHint">Cargando usuarios…</div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Tipo</label>
-          <select class="form-input" id="type">
-            <option value="info">info</option>
-            <option value="gift" selected>gift</option>
-            <option value="success">success</option>
-            <option value="warning">warning</option>
-            <option value="system">system</option>
-          </select>
+        <div class="form-group full">
+          <label class="form-label">Título (máx 20)</label>
+          <input class="form-input" id="title" maxlength="20" placeholder="Ej: Doble puntos!" />
+          <div class="form-helper"><span id="titleCount">0</span>/20</div>
         </div>
 
         <div class="form-group full">
-          <label class="form-label">Título</label>
-          <input class="form-input" id="title" maxlength="70" placeholder="Ej: Ganaste puntos 🎉" />
+          <label class="form-label">Subtítulo (máx 30)</label>
+          <input class="form-input" id="subtitle" maxlength="30" placeholder="Ej: Hoy por tiempo limitado" />
+          <div class="form-helper"><span id="subtitleCount">0</span>/30</div>
         </div>
 
         <div class="form-group full">
-          <label class="form-label">Mensaje</label>
-          <textarea class="form-input" id="message" rows="4" maxlength="280" placeholder="Escribe el mensaje..."></textarea>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Botón (opcional) · Texto</label>
-          <input class="form-input" id="actionText" maxlength="20" placeholder="Ej: Ver puntos" />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Botón (opcional) · URL</label>
-          <input class="form-input" id="actionUrl" placeholder="Ej: puntos.html" />
+          <label class="form-label">Imagen (opcional) · URL</label>
+          <input class="form-input" id="imageUrl" placeholder="https://..." />
+          <div class="form-helper">Tip: usa imágenes HTTPS y livianas (ej: 600–900px).</div>
         </div>
       </div>
 
       <div class="actions">
         <button class="btn btn-secondary" id="clearBtn">Limpiar</button>
-        <button class="btn btn-primary" id="sendBtn">Enviar</button>
+        <button class="btn btn-primary" id="sendBtn">Enviar a TODOS</button>
       </div>
 
       <div class="status" id="statusBox" style="display:none;"></div>
