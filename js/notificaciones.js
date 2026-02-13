@@ -1,8 +1,9 @@
 /* =========================================================
-   NOTIFICACIONES - VirtualGift (NEW FORMAT)
-   - Global (ALL) + personal (uid)
+   NOTIFICACIONES - VirtualGift (REALTIME)
+   - Realtime (onSnapshot) para uid + ALL
    - title (<=20), subtitle (<=30), imageUrl opcional
-   - "Read/Delete" para ALL: se maneja local por usuario (localStorage)
+   - Read/Delete para ALL: por usuario (localStorage)
+   - Fallback si falta índice / permisos
    ========================================================= */
 
 (() => {
@@ -13,6 +14,9 @@
   let touchStartY = 0;
   let touchEndY = 0;
   let pullRefreshEl = null;
+
+  // Realtime unsubscribe
+  let unsubscribeNotifs = null;
 
   // ---------- Utils ----------
   window.withAppFlag = function withAppFlag(url) {
@@ -132,7 +136,6 @@
 
   // ---------- UI ----------
   function updateBadgeCount() {
-    // Badge = no leídas visibles (incluye ALL si no está ocultada localmente)
     const unreadCount = allNotifications.filter((n) => {
       if (isHiddenForThisUser(n.id)) return false;
       return !n.read;
@@ -231,7 +234,6 @@
     container.style.display = "block";
     container.innerHTML = "";
 
-    // ✅ Minimal: siempre todo, pero quitamos lo oculto localmente
     const filtered = allNotifications.filter((n) => !isHiddenForThisUser(n.id));
 
     if (!filtered || filtered.length === 0) {
@@ -244,25 +246,29 @@
     });
   }
 
-  // ---------- Firestore ----------
-  async function fetchNotifications(uid) {
-    // ✅ Necesitamos uid + ALL
-    // Intento #1: query con "in" + orderBy (pedirá índice)
+  function normalizeNotifications(arr) {
+    // Normaliza campos (por si quedó alguna doc vieja)
+    const normalized = (arr || []).map((n) => ({
+      id: n.id,
+      userId: n.userId,
+      title: n.title || "",
+      subtitle: n.subtitle || n.message || "",
+      imageUrl: n.imageUrl || null,
+      read: Boolean(n.read),
+      timestamp: n.timestamp || null,
+    }));
+
+    // orden en cliente por si timestamp viene null en alguno
+    normalized.sort((a, b) => tsToMillis(b.timestamp) - tsToMillis(a.timestamp));
+
+    allNotifications = normalized;
+    updateBadgeCount();
+    displayNotifications();
+  }
+
+  // ---------- Firestore (REALTIME) ----------
+  async function fallbackGet(uid, originalError) {
     try {
-      const snapshot = await window.db
-        .collection("notifications")
-        .where("userId", "in", [uid, "ALL"])
-        .orderBy("timestamp", "desc")
-        .limit(50)
-        .get();
-
-      const arr = [];
-      snapshot.forEach((doc) => arr.push({ id: doc.id, ...doc.data() }));
-      return arr;
-    } catch (e) {
-      console.error("Query (in + orderBy) falló:", e);
-
-      // Intento #2: fallback SIN orderBy (reduce necesidad de índice)
       const snapshot2 = await window.db
         .collection("notifications")
         .where("userId", "in", [uid, "ALL"])
@@ -272,47 +278,59 @@
       const arr2 = [];
       snapshot2.forEach((doc) => arr2.push({ id: doc.id, ...doc.data() }));
 
-      // Ordena en cliente
-      arr2.sort((a, b) => tsToMillis(b.timestamp) - tsToMillis(a.timestamp));
-      return arr2;
-    }
-  }
-
-  async function loadNotifications(uid) {
-    if (!window.db) return;
-
-    try {
-      const arr = await fetchNotifications(uid);
-
-      // Normaliza campos (por si alguna doc vieja existe)
-      allNotifications = (arr || []).map((n) => ({
-        id: n.id,
-        userId: n.userId,
-        title: n.title || "",
-        subtitle: n.subtitle || n.message || "", // fallback por si quedó "message"
-        imageUrl: n.imageUrl || null,
-        read: Boolean(n.read),
-        timestamp: n.timestamp || null,
-      }));
-
-      updateBadgeCount();
-      displayNotifications();
-
-      console.log("UID LOGUEADO:", uid);
-      console.log("NOTIFICATIONS LOADED:", allNotifications.length, allNotifications);
-    } catch (error) {
-      console.error("Error al cargar notificaciones:", error);
-      const msg = String(error && (error.message || error)) || "Error desconocido";
+      normalizeNotifications(arr2);
+    } catch (e2) {
+      console.error("Fallback get falló:", e2);
+      const msg = String(originalError?.message || originalError || e2?.message || e2);
       showErrorBox(msg);
     }
   }
 
+  function stopRealtime() {
+    if (typeof unsubscribeNotifs === "function") {
+      unsubscribeNotifs();
+      unsubscribeNotifs = null;
+    }
+  }
+
+  function startRealtimeNotifications(uid) {
+    if (!window.db) return;
+
+    stopRealtime();
+
+    // Query realtime (puede pedir índice)
+    const q = window.db
+      .collection("notifications")
+      .where("userId", "in", [uid, "ALL"])
+      .orderBy("timestamp", "desc")
+      .limit(50);
+
+    unsubscribeNotifs = q.onSnapshot(
+      (snapshot) => {
+        const arr = [];
+        snapshot.forEach((doc) => arr.push({ id: doc.id, ...doc.data() }));
+
+        // no dependemos del orderBy: ordenamos igual en cliente
+        normalizeNotifications(arr);
+
+        console.log("UID LOGUEADO:", uid);
+        console.log("NOTIFICATIONS REALTIME:", allNotifications.length);
+      },
+      (err) => {
+        console.error("Realtime onSnapshot error:", err);
+        // fallback: get sin orderBy
+        fallbackGet(uid, err);
+      }
+    );
+  }
+
+  // ---------- Actions ----------
   async function markAsRead(notification) {
     if (!window.db) return;
 
     // Si es ALL, no la marcamos en Firestore (sería global para todos).
     if (notification.userId === "ALL") {
-      hideForThisUser(notification.id); // la consideramos "vista" localmente
+      hideForThisUser(notification.id);
       updateBadgeCount();
       displayNotifications();
       return;
@@ -331,14 +349,13 @@
     }
   }
 
-  // Si quieres mantener el botón "marcar todo" (tu HTML lo tiene)
   window.markAllAsRead = async function markAllAsRead() {
     if (!window.db || !currentUserId) return;
 
     try {
       const batch = window.db.batch();
 
-      // 1) personales: marcar read=true en Firestore
+      // 1) personales
       const personalUnread = allNotifications.filter(
         (n) => n.userId === currentUserId && !n.read && !isHiddenForThisUser(n.id)
       );
@@ -350,10 +367,10 @@
       });
 
       // 2) ALL: ocultarlas localmente
-      const globalUnread = allNotifications.filter(
+      const globalVisible = allNotifications.filter(
         (n) => n.userId === "ALL" && !isHiddenForThisUser(n.id)
       );
-      globalUnread.forEach((n) => hideForThisUser(n.id));
+      globalVisible.forEach((n) => hideForThisUser(n.id));
 
       await batch.commit();
 
@@ -391,8 +408,9 @@
       window.auth.onAuthStateChanged((user) => {
         if (user) {
           currentUserId = user.uid;
-          loadNotifications(user.uid);
+          startRealtimeNotifications(user.uid); // ✅ realtime
         } else {
+          stopRealtime();
           window.location.href = window.withAppFlag("index.html");
         }
       });
@@ -426,9 +444,9 @@
         pullRefreshEl.classList.remove("pulling");
         pullRefreshEl.classList.add("refreshing");
 
-        loadNotifications(currentUserId).then(() => {
-          setTimeout(() => pullRefreshEl.classList.remove("refreshing"), 500);
-        });
+        // Con realtime no hace falta recargar,
+        // pero lo dejamos como “feedback” visual
+        setTimeout(() => pullRefreshEl.classList.remove("refreshing"), 500);
       } else {
         pullRefreshEl.classList.remove("pulling");
       }
