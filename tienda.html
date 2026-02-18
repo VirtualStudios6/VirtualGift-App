@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#06011c">
+  <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
+  <title>Tienda Fortnite — VirtualGift</title>
+  <link rel="stylesheet" href="css/inicio.css">
+  <script defer src="js/app-mode.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script defer src="js/firebase-config.js"></script>
+  <script>
+    function withAppFlag(url) {
+      const isAndroidApp = document.documentElement.classList.contains("android-app") || document.body.classList.contains("android-app");
+      if (!isAndroidApp) return url;
+      if (url.includes("app=android")) return url;
+      const parts = url.split('#');
+      const base = parts[0];
+      const hash = parts[1] ? ('#' + parts[1]) : '';
+      const fixed = base.includes("?") ? (base + "&app=android") : (base + "?app=android");
+      return fixed + hash;
+    }
+  </script>
+  <style>
+    /* ===== TIENDA PAGE STYLES ===== */
+    .tienda-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(2,5,21,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .back-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.08);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.14); }
+    .back-btn svg { width: 18px; height: 18px; fill: white; }
+
+    .tienda-header-info { flex: 1; }
+    .tienda-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: white;
+    }
+    .tienda-subtitle {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 1px;
+    }
+
+    .reset-badge {
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.3);
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #ef4444;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+    .reset-badge::before {
+      content: '';
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #ef4444;
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* COUNTDOWN */
+    .countdown-bar {
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .countdown-label { font-size: 12px; color: #9ca3af; }
+    .countdown-timer {
+      font-size: 15px;
+      font-weight: 800;
+      color: #00d4ff;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 1px;
+    }
+
+    /* CATEGORY TABS */
+    .cat-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      position: sticky;
+      top: 61px;
+      z-index: 9;
+      background: rgba(6,1,28,0.95);
+      backdrop-filter: blur(8px);
+    }
+    .cat-tabs::-webkit-scrollbar { display: none; }
+    .cat-tab {
+      flex-shrink: 0;
+      padding: 7px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: #9ca3af;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .cat-tab.active {
+      background: #8d17fb;
+      border-color: #8d17fb;
+      color: white;
+    }
+    .cat-tab:hover:not(.active) { color: white; background: rgba(255,255,255,0.1); }
+
+    /* SECTIONS */
+    .tienda-section { padding: 6px 16px 20px; }
+    .tienda-section-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tienda-count {
+      font-size: 11px;
+      font-weight: 600;
+      color: #9ca3af;
+      background: rgba(255,255,255,0.07);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* SHOP GRID */
+    .shop-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    @media (min-width: 480px) {
+      .shop-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    }
+    @media (min-width: 769px) {
+      .shop-grid { grid-template-columns: repeat(6, 1fr); gap: 14px; }
+    }
+
+    .shop-item {
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: transform 0.2s, box-shadow 0.2s;
+      aspect-ratio: 0.75;
+      display: flex;
+      flex-direction: column;
+    }
+    .shop-item:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .shop-item:active { transform: scale(0.96); }
+
+    .shop-item-img {
+      flex: 1;
+      width: 100%;
+      object-fit: cover;
+      object-position: top center;
+      display: block;
+    }
+
+    .shop-item-info {
+      padding: 6px 8px 7px;
+      background: rgba(0,0,0,0.5);
+    }
+    .shop-item-name {
+      font-size: 10px;
+      font-weight: 700;
+      color: white;
+      line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .shop-item-price {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      margin-top: 3px;
+    }
+    .shop-item-price img {
+      width: 11px;
+      height: 11px;
+      object-fit: contain;
+    }
+    .shop-item-price span {
+      font-size: 10px;
+      font-weight: 700;
+      color: #7ec8e3;
+    }
+
+    /* EMPTY / LOADING */
+    .shop-loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: #9ca3af;
+    }
+    .shop-spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(255,255,255,0.08);
+      border-top-color: #8d17fb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 14px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOTAL BAR */
+    .total-bar {
+      padding: 12px 20px;
+      text-align: center;
+      font-size: 13px;
+      color: #9ca3af;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      margin-top: 10px;
+    }
+    .total-bar strong { color: white; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="tienda-header">
+    <button class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </button>
+    <div class="tienda-header-info">
+      <div class="tienda-title">🛒 Tienda Fortnite</div>
+      <div class="tienda-subtitle" id="itemCount">Cargando tienda...</div>
+    </div>
+    <div class="reset-badge" id="resetBadge">LIVE</div>
+  </div>
+
+  <!-- COUNTDOWN -->
+  <div class="countdown-bar">
+    <div class="countdown-label">🕐 Resetea en</div>
+    <div class="countdown-timer" id="countdown">--:--:--</div>
+  </div>
+
+  <!-- CATEGORY TABS -->
+  <div class="cat-tabs" id="catTabs">
+    <div class="cat-tab active" onclick="filterCategory('all', this)">Todo</div>
+  </div>
+
+  <!-- SHOP CONTENT -->
+  <div id="shopContent">
+    <div class="shop-loading">
+      <div class="shop-spinner"></div>
+      <p>Cargando tienda diaria...</p>
+    </div>
+  </div>
+
+  <div class="total-bar" id="totalBar" style="display:none"></div>
+
+  <script>
+    // ===== COUNTDOWN TO 8PM RD TIME =====
+    function updateCountdown() {
+      const now = new Date();
+      // RD is UTC-4
+      const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+      const rdNow = new Date(utcMs - 4 * 3600000);
+
+      let reset = new Date(rdNow);
+      reset.setHours(20, 0, 0, 0);
+      if (rdNow >= reset) reset.setDate(reset.getDate() + 1);
+
+      const diff = reset - rdNow;
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      document.getElementById('countdown').textContent =
+        `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // ===== RARITY COLORS =====
+    const RARITY_BG = {
+      "poco común": "linear-gradient(160deg,#3a3a3a,#1a1a1a)",
+      "poco comun": "linear-gradient(160deg,#3a3a3a,#1a1a1a)",
+      "common":     "linear-gradient(160deg,#3a3a3a,#1a1a1a)",
+      "infrecuente":"linear-gradient(160deg,#1e4a1e,#0d2a0d)",
+      "uncommon":   "linear-gradient(160deg,#1e4a1e,#0d2a0d)",
+      "raro":       "linear-gradient(160deg,#0d2a5a,#060f2a)",
+      "rare":       "linear-gradient(160deg,#0d2a5a,#060f2a)",
+      "épico":      "linear-gradient(160deg,#3a0a6a,#1a052a)",
+      "epico":      "linear-gradient(160deg,#3a0a6a,#1a052a)",
+      "epic":       "linear-gradient(160deg,#3a0a6a,#1a052a)",
+      "legendario": "linear-gradient(160deg,#5a2a0a,#2a1005)",
+      "legendary":  "linear-gradient(160deg,#5a2a0a,#2a1005)",
+      "mítico":     "linear-gradient(160deg,#5a4a0a,#2a2005)",
+      "mythic":     "linear-gradient(160deg,#5a4a0a,#2a2005)",
+      "serie icon": "linear-gradient(160deg,#054a4a,#021a1a)",
+      "icon":       "linear-gradient(160deg,#054a4a,#021a1a)",
+      "serie marvel":"linear-gradient(160deg,#4a0a0a,#1a0505)",
+      "marvel":     "linear-gradient(160deg,#4a0a0a,#1a0505)",
+    };
+
+    function getRarityBg(rarity) {
+      const key = String(rarity || "").toLowerCase().trim();
+      for (const [k, v] of Object.entries(RARITY_BG)) {
+        if (key.includes(k)) return v;
+      }
+      return "linear-gradient(160deg,#1a1a2e,#0d0d1a)";
+    }
+
+    // ===== CATEGORY LABELS =====
+    const CAT_LABELS = {
+      "outfit":        { label: "👕 Skins", emoji: "👕" },
+      "emote":         { label: "💃 Emotes", emoji: "💃" },
+      "backpack":      { label: "🎒 Mochilas", emoji: "🎒" },
+      "back pack":     { label: "🎒 Mochilas", emoji: "🎒" },
+      "back_pack":     { label: "🎒 Mochilas", emoji: "🎒" },
+      "pickaxe":       { label: "⛏️ Picos", emoji: "⛏️" },
+      "glider":        { label: "🪂 Planeadores", emoji: "🪂" },
+      "wrap":          { label: "🎨 Wraps", emoji: "🎨" },
+      "contrail":      { label: "✨ Estelas", emoji: "✨" },
+      "loading screen":{ label: "🖼️ Pantallas", emoji: "🖼️" },
+      "spray":         { label: "🖌️ Sprays", emoji: "🖌️" },
+      "toy":           { label: "🪀 Juguetes", emoji: "🪀" },
+      "music":         { label: "🎵 Música", emoji: "🎵" },
+      "banner":        { label: "🏳️ Banners", emoji: "🏳️" },
+      "other":         { label: "📦 Otros", emoji: "📦" },
+    };
+
+    function getCatKey(type) {
+      const t = String(type || "").toLowerCase().trim();
+      if (t.includes("outfit")) return "outfit";
+      if (t.includes("emote") || t.includes("dance")) return "emote";
+      if (t.includes("back") && t.includes("pack")) return "backpack";
+      if (t.includes("pickaxe") || t.includes("pico") || t.includes("harvesting")) return "pickaxe";
+      if (t.includes("glider") || t.includes("planeo")) return "glider";
+      if (t.includes("wrap")) return "wrap";
+      if (t.includes("contrail") || t.includes("estela")) return "contrail";
+      if (t.includes("loading") || t.includes("pantalla")) return "loading screen";
+      if (t.includes("spray")) return "spray";
+      if (t.includes("toy")) return "toy";
+      if (t.includes("music")) return "music";
+      if (t.includes("banner")) return "banner";
+      return "other";
+    }
+
+    const VBUCK = "https://fortnite-api.com/images/vbuck.png";
+
+    // ===== MAIN =====
+    let allItems = [];
+    let categorized = {};
+    let activeFilter = "all";
+
+    function waitDb(cb, max = 80) {
+      let i = 0;
+      const t = setInterval(() => {
+        i++;
+        if (window.db) { clearInterval(t); cb(); }
+        else if (i >= max) { clearInterval(t); showError(); }
+      }, 100);
+    }
+
+    function showError() {
+      document.getElementById('shopContent').innerHTML = `
+        <div class="shop-loading">
+          <p style="color:#ef4444">Error conectando con Firebase</p>
+        </div>`;
+    }
+
+    function buildCategoryTabs() {
+      const tabs = document.getElementById('catTabs');
+      // Clear except "Todo"
+      tabs.innerHTML = `<div class="cat-tab active" onclick="filterCategory('all', this)">🏪 Todo</div>`;
+
+      const order = ["outfit","emote","backpack","pickaxe","glider","wrap","contrail","spray","toy","music","loading screen","banner","other"];
+      for (const key of order) {
+        if (categorized[key] && categorized[key].length > 0) {
+          const info = CAT_LABELS[key] || { label: key, emoji: "📦" };
+          const btn = document.createElement('div');
+          btn.className = 'cat-tab';
+          btn.textContent = `${info.emoji} ${info.label.split(' ')[1] || info.label} (${categorized[key].length})`;
+          btn.onclick = function() { filterCategory(key, this); };
+          tabs.appendChild(btn);
+        }
+      }
+    }
+
+    function filterCategory(key, el) {
+      activeFilter = key;
+      document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+      el.classList.add('active');
+      renderShop();
+    }
+
+    function renderShop() {
+      const content = document.getElementById('shopContent');
+
+      if (activeFilter === 'all') {
+        // Show all categories in sections
+        const order = ["outfit","emote","backpack","pickaxe","glider","wrap","contrail","spray","toy","music","loading screen","banner","other"];
+        let html = '';
+        for (const key of order) {
+          if (!categorized[key] || !categorized[key].length) continue;
+          const info = CAT_LABELS[key] || { label: key, emoji: "📦" };
+          html += `
+            <div class="tienda-section">
+              <div class="tienda-section-title">
+                ${info.label}
+                <span class="tienda-count">${categorized[key].length}</span>
+              </div>
+              <div class="shop-grid">
+                ${categorized[key].map(item => renderItem(item)).join('')}
+              </div>
+            </div>`;
+        }
+        content.innerHTML = html || `<div class="shop-loading"><p>Tienda vacía hoy</p></div>`;
+      } else {
+        const items = categorized[activeFilter] || [];
+        const info = CAT_LABELS[activeFilter] || { label: activeFilter, emoji: "📦" };
+        content.innerHTML = `
+          <div class="tienda-section">
+            <div class="tienda-section-title">
+              ${info.label}
+              <span class="tienda-count">${items.length}</span>
+            </div>
+            <div class="shop-grid">
+              ${items.map(item => renderItem(item)).join('')}
+            </div>
+          </div>`;
+      }
+
+      // Total bar
+      const totalBar = document.getElementById('totalBar');
+      totalBar.style.display = 'block';
+      totalBar.innerHTML = `<strong>${allItems.length}</strong> items en la tienda hoy`;
+    }
+
+    function renderItem(item) {
+      const name = escapeHtml(item.name || "Item");
+      const img = item.imageUrl || "";
+      const price = item.price || 0;
+      const bg = getRarityBg(item.rarity);
+
+      return `
+        <div class="shop-item" style="background:${bg}">
+          ${img ? `<img class="shop-item-img" src="${escapeHtml(img)}" alt="${name}" loading="lazy" onerror="this.style.display='none'">` : `<div class="shop-item-img" style="flex:1"></div>`}
+          <div class="shop-item-info">
+            <div class="shop-item-name">${name}</div>
+            ${price ? `<div class="shop-item-price">
+              <img src="${VBUCK}" alt="V" onerror="this.style.display='none'">
+              <span>${price}</span>
+            </div>` : ''}
+          </div>
+        </div>`;
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replaceAll("&","&amp;").replaceAll("<","&lt;")
+        .replaceAll(">","&gt;").replaceAll('"',"&quot;");
+    }
+
+    function loadShop() {
+      window.db.collection("shopDailyItems")
+        .orderBy("sort", "asc")
+        .onSnapshot(snap => {
+          allItems = [];
+          categorized = {};
+          snap.forEach(doc => {
+            const item = { id: doc.id, ...doc.data() };
+            allItems.push(item);
+            const key = getCatKey(item.type);
+            if (!categorized[key]) categorized[key] = [];
+            categorized[key].push(item);
+          });
+
+          document.getElementById('itemCount').textContent = `${allItems.length} items hoy`;
+          buildCategoryTabs();
+          renderShop();
+
+        }, err => {
+          console.error(err);
+          showError();
+        });
+    }
+
+    // Auth check + load
+    function waitForFirebase(cb, max = 50) {
+      let i = 0;
+      const t = setInterval(() => {
+        i++;
+        if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function' && window.db) {
+          clearInterval(t); cb();
+        } else if (i >= max) { clearInterval(t); showError(); }
+      }, 100);
+    }
+
+    window.addEventListener('load', () => {
+      waitForFirebase(() => {
+        firebase.auth().onAuthStateChanged(user => {
+          if (!user) {
+            window.location.href = withAppFlag('index.html');
+          } else {
+            loadShop();
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
