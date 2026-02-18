@@ -1,41 +1,31 @@
+/* ============================================ */
+/* ADMIN-NOTIFICACIONES.JS - VirtualGift        */
+/* ✅ Guarda real: redirige si isAdmin !== true  */
+/* ✅ Usa window.waitForFirebase global          */
+/* ✅ sin funciones Firebase duplicadas         */
+/* ============================================ */
+
 (() => {
   function $(id) { return document.getElementById(id); }
 
-  window.withAppFlag = window.withAppFlag || function (url) {
-    const isAndroidApp =
-      document.documentElement.classList.contains("android-app") ||
-      document.body.classList.contains("android-app");
-    if (!isAndroidApp) return url;
-    if (url.includes("app=android")) return url;
+  /* ============================================ */
+  /* UTILS                                        */
+  /* ============================================ */
 
-    const parts = url.split("#");
-    const base = parts[0];
-    const hash = parts[1] ? "#" + parts[1] : "";
-    const fixed = base.includes("?") ? base + "&app=android" : base + "?app=android";
-    return fixed + hash;
-  };
-
-  function isFirebaseReady() {
-    return (
-      typeof firebase !== "undefined" &&
-      typeof firebase.auth === "function" &&
-      typeof firebase.firestore === "function" &&
-      window.auth && window.db
-    );
-  }
-
-  function waitForFirebase(callback, maxAttempts = 50) {
-    let attempts = 0;
-    const t = setInterval(() => {
-      attempts++;
-      if (isFirebaseReady()) {
-        clearInterval(t);
-        callback();
-      } else if (attempts >= maxAttempts) {
-        clearInterval(t);
-        window.location.href = window.withAppFlag("index.html");
-      }
-    }, 100);
+  // withAppFlag definida en el <head>, este es el fallback
+  if (typeof window.withAppFlag !== "function") {
+    window.withAppFlag = function(url) {
+      const isAndroidApp =
+        document.documentElement.classList.contains("android-app") ||
+        document.body.classList.contains("android-app");
+      if (!isAndroidApp) return url;
+      if (url.includes("app=android")) return url;
+      const parts = url.split("#");
+      const base  = parts[0];
+      const hash  = parts[1] ? "#" + parts[1] : "";
+      const fixed = base.includes("?") ? base + "&app=android" : base + "?app=android";
+      return fixed + hash;
+    };
   }
 
   function setStatus(kind, msg) {
@@ -59,15 +49,49 @@
     return d.toLocaleString("es-DO", { dateStyle: "medium", timeStyle: "short" });
   }
 
+  function escapeHtml(str) {
+    return String(str ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;");
+  }
+
+  /* ============================================ */
+  /* ESTADOS DE PANTALLA                          */
+  /* ============================================ */
+
+  function showLoading() {
+    $("loadingState").style.display  = "flex";
+    $("deniedState").style.display   = "none";
+    $("adminContent").style.display  = "none";
+  }
+
+  function showDenied() {
+    $("loadingState").style.display  = "none";
+    $("deniedState").style.display   = "flex";
+    $("adminContent").style.display  = "none";
+  }
+
+  function showAdmin() {
+    $("loadingState").style.display  = "none";
+    $("deniedState").style.display   = "none";
+    $("adminContent").style.display  = "block";
+  }
+
+  /* ============================================ */
+  /* CONTADORES DE CARACTERES                     */
+  /* ============================================ */
+
   function bindCounters() {
-    const title = $("title");
+    const title    = $("title");
     const subtitle = $("subtitle");
-    const titleCount = $("titleCount");
-    const subtitleCount = $("subtitleCount");
+    const tc = $("titleCount");
+    const sc = $("subtitleCount");
 
     function upd() {
-      if (titleCount) titleCount.textContent = (title?.value || "").length;
-      if (subtitleCount) subtitleCount.textContent = (subtitle?.value || "").length;
+      if (tc) tc.textContent = (title?.value    || "").length;
+      if (sc) sc.textContent = (subtitle?.value || "").length;
     }
 
     title?.addEventListener("input", upd);
@@ -75,10 +99,15 @@
     upd();
   }
 
+  /* ============================================ */
+  /* HISTORIAL RECIENTE                           */
+  /* ============================================ */
+
   async function loadRecent() {
     const list = $("recentList");
     if (!list) return;
-    list.innerHTML = "";
+
+    list.innerHTML = `<div class="recent-loading"><div class="recent-spinner"></div></div>`;
 
     try {
       const snap = await window.db
@@ -88,110 +117,182 @@
         .get();
 
       if (snap.empty) {
-        list.innerHTML = `<div class="recent-item"><div class="recent-left"><div class="recent-title">No hay notificaciones</div><div class="recent-meta">Envía una desde arriba.</div></div><div class="recent-right">—</div></div>`;
+        list.innerHTML = `
+          <div class="recent-item">
+            <div class="recent-left">
+              <div class="recent-title">Sin notificaciones aún</div>
+              <div class="recent-meta">Envía una desde el formulario de arriba.</div>
+            </div>
+          </div>`;
         return;
       }
 
+      list.innerHTML = "";
+
       snap.forEach((doc) => {
-        const n = doc.data() || {};
+        const n  = doc.data() || {};
         const el = document.createElement("div");
         el.className = "recent-item";
+
         el.innerHTML = `
           <div class="recent-left">
-            <div class="recent-title">${(n.title || "Notificación").toString()}</div>
+            <div class="recent-title">${escapeHtml(n.title || "Sin título")}</div>
             <div class="recent-meta">
-              <b>Sub:</b> ${(n.subtitle || "—").toString()} ·
-              <b>Para:</b> ${(n.userId || "—").toString()}
-              ${n.imageUrl ? ` · <b>Img:</b> ${(n.imageUrl || "").toString()}` : ""}
+              <b>Sub:</b> ${escapeHtml(n.subtitle || "—")} ·
+              <b>Para:</b> ${escapeHtml(n.userId  || "—")}
+              ${n.imageUrl ? ` · <b>Img:</b> ✓` : ""}
             </div>
           </div>
-          <div class="recent-right">${fmtDate(n.timestamp)}</div>
+          <div class="recent-right">${escapeHtml(fmtDate(n.timestamp))}</div>
         `;
+
         list.appendChild(el);
       });
     } catch (e) {
-      console.error(e);
-      list.innerHTML = `<div class="recent-item"><div class="recent-left"><div class="recent-title">Error</div><div class="recent-meta">${(e.message || e).toString()}</div></div><div class="recent-right">—</div></div>`;
+      console.error("loadRecent error:", e);
+      list.innerHTML = `
+        <div class="recent-item">
+          <div class="recent-left">
+            <div class="recent-title">Error cargando historial</div>
+            <div class="recent-meta">${escapeHtml(e.message || String(e))}</div>
+          </div>
+        </div>`;
     }
   }
+
+  /* ============================================ */
+  /* ENVIAR NOTIFICACIÓN                          */
+  /* ============================================ */
 
   async function sendGlobal() {
     clearStatus();
 
-    const title = ($("title")?.value || "").trim();
+    const title    = ($("title")?.value    || "").trim();
     const subtitle = ($("subtitle")?.value || "").trim();
     const imageUrl = ($("imageUrl")?.value || "").trim();
 
-    if (!title) return setStatus("err", "Pon un título.");
-    if (title.length > 20) return setStatus("err", "El título debe ser máx 20 caracteres.");
-    if (!subtitle) return setStatus("err", "Pon un subtítulo.");
-    if (subtitle.length > 30) return setStatus("err", "El subtítulo debe ser máx 30 caracteres.");
-    if (imageUrl && !/^https:\/\//i.test(imageUrl)) return setStatus("err", "La imagen debe ser URL HTTPS.");
+    if (!title)               return setStatus("err", "⚠️ El título es obligatorio.");
+    if (title.length > 20)   return setStatus("err", "⚠️ El título debe tener máximo 20 caracteres.");
+    if (!subtitle)            return setStatus("err", "⚠️ El subtítulo es obligatorio.");
+    if (subtitle.length > 30) return setStatus("err", "⚠️ El subtítulo debe tener máximo 30 caracteres.");
+    if (imageUrl && !/^https:\/\//i.test(imageUrl)) return setStatus("err", "⚠️ La imagen debe ser una URL HTTPS válida.");
 
     const btn = $("sendBtn");
     if (btn) btn.disabled = true;
 
     try {
-      const payload = {
-        userId: "ALL",
+      await window.db.collection("notifications").add({
+        userId:    "ALL",
         title,
         subtitle,
-        imageUrl: imageUrl || null,
-        read: false,
+        imageUrl:  imageUrl || null,
+        read:      false,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-      };
+      });
 
-      await window.db.collection("notifications").add(payload);
+      setStatus("ok", "✅ Notificación enviada a todos los usuarios.");
 
-      setStatus("ok", "✅ Enviada a TODOS.");
-      $("title").value = "";
+      // Limpiar formulario
+      $("title").value    = "";
       $("subtitle").value = "";
       $("imageUrl").value = "";
       bindCounters();
+
       await loadRecent();
     } catch (e) {
-      console.error(e);
-      setStatus("err", "❌ No se pudo enviar: " + (e.message || e));
+      console.error("sendGlobal error:", e);
+      setStatus("err", "❌ No se pudo enviar: " + escapeHtml(e.message || String(e)));
     } finally {
       if (btn) btn.disabled = false;
     }
   }
 
-  function checkAdminChip(user) {
-    const chip = $("adminChip");
-    if (!chip) return;
-    window.db.collection("users").doc(user.uid).get()
-      .then((doc) => {
-        const data = doc.data() || {};
-        chip.style.display = data.isAdmin === true ? "inline-flex" : "none";
-      })
-      .catch(() => { chip.style.display = "none"; });
+  /* ============================================ */
+  /* GUARD DE ADMIN                               */
+  /* ✅ Verifica isAdmin en Firestore antes de    */
+  /* mostrar cualquier contenido.                 */
+  /* ============================================ */
+
+  async function checkAdmin(user) {
+    try {
+      const doc  = await window.db.collection("users").doc(user.uid).get();
+      const data = doc.data() || {};
+
+      if (data.isAdmin !== true) {
+        console.warn("Acceso denegado: isAdmin !== true");
+        showDenied();
+        return;
+      }
+
+      // ✅ Es admin — mostrar panel
+      showAdmin();
+      await loadRecent();
+    } catch (e) {
+      console.error("checkAdmin error:", e);
+      showDenied();
+    }
   }
+
+  /* ============================================ */
+  /* UI BINDINGS                                  */
+  /* ============================================ */
 
   function bindUI() {
     $("sendBtn")?.addEventListener("click", sendGlobal);
 
     $("clearBtn")?.addEventListener("click", () => {
       clearStatus();
-      $("title").value = "";
-      $("subtitle").value = "";
-      $("imageUrl").value = "";
+      if ($("title"))    $("title").value    = "";
+      if ($("subtitle")) $("subtitle").value = "";
+      if ($("imageUrl")) $("imageUrl").value = "";
       bindCounters();
     });
 
     $("refreshBtn")?.addEventListener("click", loadRecent);
-  }
 
-  window.addEventListener("load", () => {
-    bindUI();
-    bindCounters();
-
-    waitForFirebase(() => {
-      window.auth.onAuthStateChanged(async (user) => {
-        if (!user) return (window.location.href = window.withAppFlag("index.html"));
-        checkAdminChip(user);
-        await loadRecent();
+    // Enter en los inputs envía el formulario
+    [$("title"), $("subtitle"), $("imageUrl")].forEach(el => {
+      el?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") { e.preventDefault(); sendGlobal(); }
       });
     });
+  }
+
+  /* ============================================ */
+  /* AUTENTICACIÓN                                */
+  /* ============================================ */
+
+  function initAuth() {
+    // Usa el waitForFirebase global del firebase-config.js
+    // No necesita storage, así que waitForFirebase (sin storage) es suficiente
+    window.waitForFirebase((err) => {
+      if (err) {
+        console.error("Firebase timeout en admin:", err);
+        showDenied();
+        return;
+      }
+
+      window.auth.onAuthStateChanged(async (user) => {
+        if (!user) {
+          window.location.href = window.withAppFlag("index.html");
+          return;
+        }
+
+        // Verificar admin en Firestore
+        await checkAdmin(user);
+      });
+    });
+  }
+
+  /* ============================================ */
+  /* INIT                                         */
+  /* ============================================ */
+
+  window.addEventListener("load", () => {
+    showLoading();
+    bindUI();
+    bindCounters();
+    initAuth();
   });
+
 })();

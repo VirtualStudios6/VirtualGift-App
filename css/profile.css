@@ -34,7 +34,11 @@ body {
   background: linear-gradient(180deg, var(--bg-primary), var(--bg-secondary));
   color: var(--text-primary);
   padding: 18px;
-  padding-bottom: 78px;
+  /* ✅ Safe area para notch y barra gestual Android */
+  padding-bottom: calc(78px + env(safe-area-inset-bottom));
+  padding-top: env(safe-area-inset-top);
+  padding-left: calc(18px + env(safe-area-inset-left));
+  padding-right: calc(18px + env(safe-area-inset-right));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
@@ -143,7 +147,6 @@ body {
   opacity: 0.95;
 }
 
-/* Botón de editar avatar (lápiz) */
 .edit-avatar-btn {
   position: absolute;
   right: -4px;
@@ -191,7 +194,7 @@ body {
 
 .user-name {
   font-size: 1.35em;
-  font-weight: 950;
+  font-weight: 900; /* ✅ 950 no existe, 900 es el máximo real */
   letter-spacing: 0.2px;
   line-height: 1.15;
   margin: 0;
@@ -289,7 +292,7 @@ body {
 
 .section-title {
   font-size: 1.05em;
-  font-weight: 950;
+  font-weight: 900; /* ✅ corregido */
   margin-bottom: 14px;
   display: flex;
   align-items: center;
@@ -311,7 +314,7 @@ body {
   border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.10);
   cursor: pointer;
-  font-weight: 950;
+  font-weight: 900; /* ✅ corregido */
   font-size: 0.95em;
   transition: transform 0.15s ease, box-shadow 0.2s ease, border-color .2s ease, background .2s ease;
   display: flex;
@@ -379,9 +382,7 @@ body {
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 .error-state {
@@ -412,7 +413,8 @@ body {
 .toast {
   position: fixed;
   left: 50%;
-  bottom: 18px;
+  /* ✅ Safe area para barra gestual de Android */
+  bottom: calc(18px + env(safe-area-inset-bottom));
   transform: translateX(-50%);
   background: rgba(28,31,47,0.95);
   border: 1px solid rgba(255,255,255,0.10);
@@ -429,19 +431,115 @@ body {
 }
 
 /* ============================================ */
+/* MODALES CUSTOM                              */
+/* ============================================ */
+.vg-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 5, 21, 0.80);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  /* ✅ Respeta safe areas dentro del overlay */
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
+}
+
+.vg-modal-box {
+  background: rgba(28, 31, 47, 0.98);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  padding: 24px 20px 20px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: modalIn .18s ease;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(8px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);    }
+}
+
+.vg-modal-message {
+  font-size: 1em;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.45;
+  text-align: center;
+}
+
+.vg-modal-input {
+  width: 100%;
+  padding: 13px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: rgba(2,5,21,0.55);
+  color: var(--text-primary);
+  font-size: 1em;
+  font-family: Inter, Roboto, Arial, sans-serif;
+  outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vg-modal-input:focus {
+  border-color: rgba(141,23,251,.65);
+  box-shadow: 0 0 0 3px rgba(141,23,251,0.15);
+}
+
+.vg-modal-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.vg-modal-btn {
+  padding: 13px 10px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95em;
+  font-weight: 900;
+  font-family: Inter, Roboto, Arial, sans-serif;
+  transition: transform .15s ease, opacity .15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vg-modal-btn:active {
+  transform: scale(0.97);
+  opacity: 0.88;
+}
+
+.vg-modal-btn-cancel {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.vg-modal-btn-confirm {
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  color: #fff;
+  box-shadow: 0 0 18px rgba(141,23,251,0.25);
+}
+
+/* ============================================ */
 /* RESPONSIVE */
 /* ============================================ */
 @media (max-width: 768px) {
   body {
     padding: 16px;
-    padding-bottom: 76px;
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+    padding-top: env(safe-area-inset-top);
   }
 
-  .avatar-wrap {
-    width: 86px;
-    height: 86px;
-  }
-
+  .avatar-wrap,
   .avatar {
     width: 86px;
     height: 86px;

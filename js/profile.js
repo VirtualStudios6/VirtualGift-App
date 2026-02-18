@@ -17,9 +17,6 @@ let __emailShown = false;
 /* UTILIDADES GENERALES */
 /* ============================================ */
 
-/**
- * Muestra un toast de notificación temporal
- */
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg;
@@ -28,9 +25,6 @@ function toast(msg) {
   window.__toastT = setTimeout(() => el.style.display = 'none', 2400);
 }
 
-/**
- * Cache bust para evitar que se cacheen las imágenes
- */
 function cacheBust(url) {
   const u = String(url || '').trim();
   if (!u) return u;
@@ -38,9 +32,6 @@ function cacheBust(url) {
   return u + sep + 'v=' + Date.now();
 }
 
-/**
- * Enmascara el email para mostrar solo parte (privacidad)
- */
 function maskEmail(email) {
   const e = String(email || '').trim();
   if (!e || !e.includes('@')) return e;
@@ -62,21 +53,121 @@ function maskEmail(email) {
 }
 
 /* ============================================ */
-/* GESTIÓN DE ESTADOS DE LA UI */
+/* MODALES CUSTOM (reemplaza prompt/confirm)    */
 /* ============================================ */
 
 /**
- * Muestra el contenido principal del perfil
+ * Inyecta los modales en el DOM una sola vez
  */
+function injectModals() {
+  if (document.getElementById('vg-modal-overlay')) return;
+
+  const html = `
+    <!-- Modal de confirmación -->
+    <div id="vg-modal-overlay" class="vg-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+      <div class="vg-modal-box">
+        <p id="vg-modal-message" class="vg-modal-message"></p>
+        <div class="vg-modal-actions">
+          <button id="vg-modal-cancel" class="vg-modal-btn vg-modal-btn-cancel">Cancelar</button>
+          <button id="vg-modal-confirm" class="vg-modal-btn vg-modal-btn-confirm">Confirmar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de input (nombre) -->
+    <div id="vg-input-overlay" class="vg-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
+      <div class="vg-modal-box">
+        <p class="vg-modal-message">¿Cómo quieres que aparezca tu nombre?</p>
+        <input id="vg-input-field" class="vg-modal-input" type="text" maxlength="40" autocomplete="off" />
+        <div class="vg-modal-actions">
+          <button id="vg-input-cancel" class="vg-modal-btn vg-modal-btn-cancel">Cancelar</button>
+          <button id="vg-input-confirm" class="vg-modal-btn vg-modal-btn-confirm">Guardar</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const wrapper = document.createElement('div');
+  wrapper.innerHTML = html;
+  document.body.appendChild(wrapper);
+}
+
+/**
+ * Muestra modal de confirmación
+ * @param {string} message
+ * @returns {Promise<boolean>}
+ */
+function showConfirmModal(message) {
+  return new Promise((resolve) => {
+    const overlay  = document.getElementById('vg-modal-overlay');
+    const msgEl    = document.getElementById('vg-modal-message');
+    const btnOk    = document.getElementById('vg-modal-confirm');
+    const btnCancel = document.getElementById('vg-modal-cancel');
+
+    msgEl.textContent = message;
+    overlay.style.display = 'flex';
+
+    const cleanup = (result) => {
+      overlay.style.display = 'none';
+      btnOk.removeEventListener('click', onOk);
+      btnCancel.removeEventListener('click', onCancel);
+      resolve(result);
+    };
+
+    const onOk     = () => cleanup(true);
+    const onCancel = () => cleanup(false);
+
+    btnOk.addEventListener('click', onOk);
+    btnCancel.addEventListener('click', onCancel);
+  });
+}
+
+/**
+ * Muestra modal de input de texto
+ * @param {string} currentValue - valor inicial del input
+ * @returns {Promise<string|null>} null si cancela
+ */
+function showInputModal(currentValue) {
+  return new Promise((resolve) => {
+    const overlay  = document.getElementById('vg-input-overlay');
+    const input    = document.getElementById('vg-input-field');
+    const btnOk    = document.getElementById('vg-input-confirm');
+    const btnCancel = document.getElementById('vg-input-cancel');
+
+    input.value = currentValue || '';
+    overlay.style.display = 'flex';
+
+    // Foco con pequeño delay para que el teclado abra bien en Android
+    setTimeout(() => input.focus(), 120);
+
+    const cleanup = (result) => {
+      overlay.style.display = 'none';
+      btnOk.removeEventListener('click', onOk);
+      btnCancel.removeEventListener('click', onCancel);
+      input.removeEventListener('keydown', onKey);
+      resolve(result);
+    };
+
+    const onOk     = () => cleanup(input.value);
+    const onCancel = () => cleanup(null);
+    const onKey    = (e) => { if (e.key === 'Enter') onOk(); };
+
+    btnOk.addEventListener('click', onOk);
+    btnCancel.addEventListener('click', onCancel);
+    input.addEventListener('keydown', onKey);
+  });
+}
+
+/* ============================================ */
+/* GESTIÓN DE ESTADOS DE LA UI */
+/* ============================================ */
+
 function showContent() {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('error').style.display = 'none';
   document.getElementById('content').style.display = 'block';
 }
 
-/**
- * Muestra el estado de error
- */
 function showError() {
   document.getElementById('loading').style.display = 'none';
   document.getElementById('content').style.display = 'none';
@@ -87,9 +178,6 @@ function showError() {
 /* GESTIÓN DE AVATAR */
 /* ============================================ */
 
-/**
- * Establece el avatar de forma segura con fallback
- */
 function safeSetAvatar(url) {
   const avatarEl = document.getElementById('avatar');
   const clean = (url && String(url).trim()) ? String(url).trim() : '';
@@ -103,9 +191,6 @@ function safeSetAvatar(url) {
   };
 }
 
-/**
- * Abre el selector de archivos para cambiar avatar
- */
 function openAvatarPicker() {
   const user = window.auth?.currentUser;
   if (!user) return;
@@ -115,34 +200,21 @@ function openAvatarPicker() {
   input.click();
 }
 
-/**
- * Carga una imagen desde un archivo
- */
 function loadImageFromFile(file) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve(img);
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Imagen inválida'));
-    };
+    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Imagen inválida')); };
     img.src = url;
   });
 }
 
-/**
- * Comprime una imagen a JPEG con tamaño y calidad especificados
- */
 async function compressImageToJpeg(file, maxSize = 512, quality = 0.75) {
   const img = await loadImageFromFile(file);
 
   const width = img.naturalWidth || img.width;
   const height = img.naturalHeight || img.height;
-
   const scale = Math.min(maxSize / width, maxSize / height, 1);
   const newW = Math.max(1, Math.round(width * scale));
   const newH = Math.max(1, Math.round(height * scale));
@@ -162,35 +234,23 @@ async function compressImageToJpeg(file, maxSize = 512, quality = 0.75) {
   return blob;
 }
 
-/**
- * Sube el blob del avatar a Firebase Storage
- */
 async function uploadAvatarBlob(user, blob) {
   const path = `avatars/${user.uid}.jpg`;
   const ref = window.storage.ref().child(path);
-  const metadata = {
-    contentType: 'image/jpeg',
-    cacheControl: 'public, max-age=3600'
-  };
+  const metadata = { contentType: 'image/jpeg', cacheControl: 'public, max-age=3600' };
 
   await ref.put(blob, metadata);
   return await ref.getDownloadURL();
 }
 
-/**
- * Guarda el avatar en Auth, Firestore y caché local
- */
 async function setAvatarEverywhere(user, photoURL) {
-  // 1) Firebase Auth
   await user.updateProfile({ photoURL });
 
-  // 2) Firestore
   await window.db.collection('users').doc(user.uid).set({
     photoURL,
     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
   }, { merge: true });
 
-  // 3) Caché local
   setCachedUserData({ photoURL });
 }
 
@@ -198,23 +258,17 @@ async function setAvatarEverywhere(user, photoURL) {
 /* GESTIÓN DE EMAIL */
 /* ============================================ */
 
-/**
- * Renderiza el email (mostrado u oculto) y actualiza el icono
- */
 function renderEmail() {
-  const el = document.getElementById('userEmail');
-  const btn = document.getElementById('btnToggleEmail');
-  const eyeOpen = document.getElementById('eyeOpen');
+  const el       = document.getElementById('userEmail');
+  const btn      = document.getElementById('btnToggleEmail');
+  const eyeOpen  = document.getElementById('eyeOpen');
   const eyeClosed = document.getElementById('eyeClosed');
 
-  const shown = __emailShown ? __emailRaw : maskEmail(__emailRaw);
-  el.textContent = shown || '';
+  el.textContent = __emailShown ? __emailRaw : maskEmail(__emailRaw);
 
-  // Cambiar icono según estado
-  eyeOpen.style.display = __emailShown ? 'none' : 'block';
+  eyeOpen.style.display  = __emailShown ? 'none' : 'block';
   eyeClosed.style.display = __emailShown ? 'block' : 'none';
 
-  // Desactivar botón si no hay email
   btn.disabled = !__emailRaw;
   btn.style.opacity = __emailRaw ? '1' : '0.5';
   btn.style.pointerEvents = __emailRaw ? 'auto' : 'none';
@@ -225,18 +279,23 @@ function renderEmail() {
 /* ============================================ */
 
 /**
- * Establece el chip de proveedor según el método de autenticación
+ * Configura el chip de proveedor y oculta el botón de contraseña
+ * si el usuario no tiene cuenta de contraseña
  */
 function setProviderChip(user) {
-  const chip = document.getElementById('chipProvider');
+  const chip      = document.getElementById('chipProvider');
+  const btnReset  = document.getElementById('btnResetPassword');
   const providers = (user.providerData || []).map(p => p.providerId);
 
   if (providers.includes('password')) {
     chip.textContent = '🔐 Cuenta con contraseña';
+    btnReset.style.display = 'flex';
   } else if (providers.includes('google.com')) {
-    chip.textContent = '🔐 Cuenta Google';
+    chip.textContent = '🔵 Cuenta Google';
+    btnReset.style.display = 'none'; // No aplica para Google
   } else {
     chip.textContent = '🔐 Cuenta segura';
+    btnReset.style.display = 'none';
   }
 }
 
@@ -244,16 +303,13 @@ function setProviderChip(user) {
 /* GESTIÓN DE CACHÉ LOCAL */
 /* ============================================ */
 
-/**
- * Obtiene datos del usuario desde el caché local
- */
 function getCachedUserData() {
   try {
     const cached = localStorage.getItem(CACHE_KEY);
     if (!cached) return null;
 
     const data = JSON.parse(cached);
-    const age = Date.now() - data.timestamp;
+    const age  = Date.now() - data.timestamp;
 
     if (age < CACHE_DURATION) return data.user;
 
@@ -264,12 +320,9 @@ function getCachedUserData() {
   }
 }
 
-/**
- * Guarda datos del usuario en el caché local (merge)
- */
 function setCachedUserData(userData) {
   try {
-    const prev = getCachedUserData() || {};
+    const prev   = getCachedUserData() || {};
     const merged = { ...prev, ...userData };
     localStorage.setItem(CACHE_KEY, JSON.stringify({
       user: merged,
@@ -282,96 +335,48 @@ function setCachedUserData(userData) {
 
 /* ============================================ */
 /* VERIFICACIÓN DE FIREBASE */
+/* Delegamos en window.waitForFirebaseStorage  */
+/* definido en firebase-config.js para evitar  */
+/* que window.storage=null cause spinner inf.  */
 /* ============================================ */
-
-/**
- * Verifica si Firebase está listo para usar
- */
-function isFirebaseReady() {
-  return typeof firebase !== 'undefined'
-    && typeof firebase.auth === 'function'
-    && typeof firebase.firestore === 'function'
-    && typeof firebase.storage === 'function'
-    && window.auth && window.db && window.storage;
-}
-
-/**
- * Espera a que Firebase esté listo
- */
-function waitForFirebase(callback, maxAttempts = 30) {
-  let attempts = 0;
-  const check = setInterval(() => {
-    attempts++;
-    if (isFirebaseReady()) {
-      clearInterval(check);
-      callback();
-    } else if (attempts >= maxAttempts) {
-      clearInterval(check);
-      console.error('Firebase timeout');
-      showError();
-    }
-  }, 100);
-}
 
 /* ============================================ */
 /* CARGA DE DATOS DEL USUARIO */
 /* ============================================ */
 
-/**
- * Carga los datos básicos del usuario desde Firebase Auth
- */
 function loadBasicUserData(user) {
-  // Nombre
   document.getElementById('userName').textContent = user.displayName || 'Usuario';
 
-  // Email
-  __emailRaw = user.email || '';
+  __emailRaw  = user.email || '';
   __emailShown = false;
   renderEmail();
 
-  // Avatar
   __lastStableAvatar = user.photoURL || '';
   safeSetAvatar(cacheBust(user.photoURL) || AVATAR_PLACEHOLDER);
 
-  // Chip de proveedor
   setProviderChip(user);
-
-  // Mostrar contenido
   showContent();
 }
 
-/**
- * Carga datos adicionales desde Firestore
- */
 async function loadFirestoreData(user) {
   try {
-    // 1) Intentar usar caché primero
     const cached = getCachedUserData();
     if (cached) {
-      if (cached.photoURL && !__isUploadingAvatar) {
-        safeSetAvatar(cacheBust(cached.photoURL));
-      }
-      if (cached.displayName) {
-        document.getElementById('userName').textContent = cached.displayName;
-      }
+      if (cached.photoURL && !__isUploadingAvatar) safeSetAvatar(cacheBust(cached.photoURL));
+      if (cached.displayName) document.getElementById('userName').textContent = cached.displayName;
 
-      // Refresh silencioso en background
       fetchAndUpdateFirestore(user, true);
       return;
     }
 
-    // 2) Si no hay caché, cargar desde Firestore
     await fetchAndUpdateFirestore(user, false);
   } catch (e) {
     console.warn('Error cargando datos de Firestore:', e);
   }
 }
 
-/**
- * Obtiene y actualiza datos desde Firestore
- */
 async function fetchAndUpdateFirestore(user, silent = false) {
-  const ref = window.db.collection('users').doc(user.uid);
+  const ref  = window.db.collection('users').doc(user.uid);
   const snap = await ref.get();
 
   if (!snap.exists) return;
@@ -379,26 +384,17 @@ async function fetchAndUpdateFirestore(user, silent = false) {
   const data = snap.data() || {};
   setCachedUserData(data);
 
-  // Actualizar nombre si existe
-  if (data.displayName) {
-    document.getElementById('userName').textContent = data.displayName;
-  }
-
-  // Actualizar avatar SOLO si no se está subiendo uno nuevo
-  if (data.photoURL && !__isUploadingAvatar) {
-    safeSetAvatar(cacheBust(data.photoURL));
-  }
+  if (data.displayName) document.getElementById('userName').textContent = data.displayName;
+  if (data.photoURL && !__isUploadingAvatar) safeSetAvatar(cacheBust(data.photoURL));
 }
 
 /* ============================================ */
 /* AUTENTICACIÓN */
 /* ============================================ */
 
-/**
- * Verifica la autenticación del usuario
- */
 function checkAuth() {
-  waitForFirebase(() => {
+  window.waitForFirebaseStorage((err) => {
+    if (err) { showError(); return; }
     window.auth.onAuthStateChanged(async (user) => {
       if (!user) {
         window.location.href = withAppFlag('index.html');
@@ -415,13 +411,11 @@ function checkAuth() {
 /* ACCIONES DEL USUARIO */
 /* ============================================ */
 
-/**
- * Permite al usuario cambiar su nombre
- */
 async function editName(user) {
   try {
     const current = document.getElementById('userName').textContent || '';
-    const next = prompt('¿Cómo quieres que aparezca tu nombre?', current);
+    const next    = await showInputModal(current);
+
     if (next === null) return;
 
     const name = String(next).trim();
@@ -431,18 +425,14 @@ async function editName(user) {
     }
 
     toast('Guardando nombre...');
+    document.getElementById('userName').textContent = name; // optimista
 
-    // ✅ Optimista: actualiza UI rápido
-    document.getElementById('userName').textContent = name;
-
-    // ✅ 1) Guardar en Firestore (principal para tu app)
     await window.db.collection('users').doc(user.uid).set({
       displayName: name,
-      username: name, // ✅ compatibilidad con welcome viejo
+      username: name,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     }, { merge: true });
 
-    // ✅ 2) Intentar actualizar en Auth (puede fallar en iOS a veces)
     try {
       await user.updateProfile({ displayName: name });
       try { await user.reload(); } catch {}
@@ -450,41 +440,24 @@ async function editName(user) {
       console.warn('Auth updateProfile falló, pero Firestore sí guardó:', authErr);
     }
 
-    // cache
     setCachedUserData({ displayName: name, username: name });
-
     toast('✅ Nombre actualizado');
   } catch (e) {
     console.error('Error editando nombre:', e);
-
     const msg = String(e?.code || e?.message || '');
-    if (msg.includes('permission-denied')) toast('❌ Sin permisos (Firestore Rules)');
+    if (msg.includes('permission-denied'))             toast('❌ Sin permisos (Firestore Rules)');
     else if (msg.includes('unavailable') || msg.includes('network')) toast('❌ Sin conexión. Intenta de nuevo');
-    else toast('❌ No se pudo cambiar el nombre');
+    else                                                toast('❌ No se pudo cambiar el nombre');
   }
 }
 
-/**
- * Envía un correo para resetear la contraseña
- */
 async function resetPassword(user) {
   try {
     const email = user?.email || '';
-    if (!email) {
-      toast('❌ No hay correo en la cuenta');
-      return;
-    }
+    if (!email) { toast('❌ No hay correo en la cuenta'); return; }
 
-    const providers = (user.providerData || []).map(p => p.providerId);
-
-    // Advertir si no es cuenta de contraseña
-    if (!providers.includes('password')) {
-      const confirmed = confirm(
-        'Tu cuenta parece ser de Google/otro proveedor. ' +
-        '¿Aún así quieres enviar el correo para cambiar contraseña?'
-      );
-      if (!confirmed) return;
-    }
+    const confirmed = await showConfirmModal('¿Enviar correo para cambiar contraseña a ' + email + '?');
+    if (!confirmed) return;
 
     toast('Enviando correo...');
     await window.auth.sendPasswordResetEmail(email);
@@ -495,17 +468,11 @@ async function resetPassword(user) {
   }
 }
 
-/**
- * Cierra la sesión del usuario
- */
-function logout() {
-  if (!confirm('¿Seguro que quieres cerrar sesión?')) return;
+async function logout() {
+  const confirmed = await showConfirmModal('¿Seguro que quieres cerrar sesión?');
+  if (!confirmed) return;
 
-  try {
-    localStorage.removeItem(CACHE_KEY);
-  } catch (err) {
-    console.warn('Error limpiando caché:', err);
-  }
+  try { localStorage.removeItem(CACHE_KEY); } catch (err) { console.warn('Error limpiando caché:', err); }
 
   if (window.auth) {
     window.auth.signOut()
@@ -520,9 +487,6 @@ function logout() {
 /* EVENT LISTENERS */
 /* ============================================ */
 
-/**
- * Maneja la selección de archivo de avatar
- */
 document.getElementById('avatarInput').addEventListener('change', async (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
@@ -530,11 +494,9 @@ document.getElementById('avatarInput').addEventListener('change', async (e) => {
   const user = window.auth?.currentUser;
   if (!user) return;
 
-  // Guardar avatar estable antes del preview
-  __lastStableAvatar = user.photoURL || __lastStableAvatar || '';
-  __isUploadingAvatar = true;
+  __lastStableAvatar   = user.photoURL || __lastStableAvatar || '';
+  __isUploadingAvatar  = true;
 
-  // Preview local inmediato
   let localUrl = '';
   try {
     localUrl = URL.createObjectURL(file);
@@ -546,86 +508,54 @@ document.getElementById('avatarInput').addEventListener('change', async (e) => {
   try {
     toast('Subiendo avatar...');
 
-    // 1) Comprimir imagen
     const blob = await compressImageToJpeg(file, 512, 0.75);
-
-    // 2) Subir a Storage
-    const url = await uploadAvatarBlob(user, blob);
-
-    // 3) Guardar en Auth, Firestore y caché
+    const url  = await uploadAvatarBlob(user, blob);
     await setAvatarEverywhere(user, url);
 
-    // 4) Recargar usuario para obtener datos actualizados
-    try {
-      await user.reload();
-    } catch (err) {
-      console.warn('Error recargando usuario:', err);
-    }
+    try { await user.reload(); } catch (err) { console.warn('Error recargando usuario:', err); }
 
-    // 5) Actualizar UI
     safeSetAvatar(cacheBust(url));
     __lastStableAvatar = url;
-
     toast('✅ Avatar actualizado');
   } catch (err) {
     console.error('Error subiendo avatar:', err);
-
-    // Restaurar avatar anterior en caso de error
     const fallback = __lastStableAvatar || user.photoURL || '';
     safeSetAvatar(cacheBust(fallback) || AVATAR_PLACEHOLDER);
 
-    // Mensajes de error específicos
     const msg = (err && err.code) ? String(err.code) : '';
-    if (msg.includes('storage/unauthorized')) {
-      toast('❌ Sin permiso para subir (Storage rules)');
-    } else if (msg.includes('storage/canceled')) {
-      toast('❌ Subida cancelada');
-    } else {
-      toast('❌ No se pudo subir el avatar');
-    }
+    if (msg.includes('storage/unauthorized')) toast('❌ Sin permiso para subir (Storage rules)');
+    else if (msg.includes('storage/canceled'))   toast('❌ Subida cancelada');
+    else                                         toast('❌ No se pudo subir el avatar');
   } finally {
     __isUploadingAvatar = false;
 
-    // Limpiar URL temporal
     if (localUrl) {
       setTimeout(() => {
-        try {
-          URL.revokeObjectURL(localUrl);
-        } catch (err) {
-          console.warn('Error revocando URL:', err);
-        }
+        try { URL.revokeObjectURL(localUrl); } catch (err) { console.warn('Error revocando URL:', err); }
       }, 1500);
     }
   }
 });
 
-/**
- * Configura los event listeners al cargar la página
- */
 function setupEventListeners() {
-  // Avatar: click en imagen o en botón de editar
   document.getElementById('avatar').addEventListener('click', openAvatarPicker);
   document.getElementById('btnEditAvatar').addEventListener('click', openAvatarPicker);
 
-  // Toggle mostrar/ocultar email
   document.getElementById('btnToggleEmail').addEventListener('click', () => {
     __emailShown = !__emailShown;
     renderEmail();
   });
 
-  // Editar nombre
   document.getElementById('btnEditName').addEventListener('click', () => {
     const user = window.auth?.currentUser;
     if (user) editName(user);
   });
 
-  // Resetear contraseña
   document.getElementById('btnResetPassword').addEventListener('click', () => {
     const user = window.auth?.currentUser;
     if (user) resetPassword(user);
   });
 
-  // Cerrar sesión
   document.getElementById('btnLogout').addEventListener('click', logout);
 }
 
@@ -633,8 +563,8 @@ function setupEventListeners() {
 /* INICIALIZACIÓN */
 /* ============================================ */
 
-// Iniciar cuando la página esté cargada
 window.addEventListener('load', () => {
+  injectModals();
   setupEventListeners();
   checkAuth();
 });

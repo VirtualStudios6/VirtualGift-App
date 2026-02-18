@@ -2,8 +2,10 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin - Notificación Global | VirtualGift</title>
+  <!-- ✅ viewport-fit=cover para safe-area-inset -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#06011c" />
+  <title>Admin · Notificaciones | VirtualGift</title>
 
   <link rel="stylesheet" href="css/inicio.css" />
   <link rel="stylesheet" href="css/admin-notificaciones.css" />
@@ -16,61 +18,110 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
 
+  <!-- ✅ withAppFlag definido antes de que cargue cualquier onclick -->
+  <script>
+    function withAppFlag(url) {
+      const isAndroidApp =
+        document.documentElement.classList.contains("android-app") ||
+        document.body.classList.contains("android-app");
+      if (!isAndroidApp) return url;
+      if (url.includes("app=android")) return url;
+      const parts = url.split("#");
+      const base  = parts[0];
+      const hash  = parts[1] ? "#" + parts[1] : "";
+      const fixed = base.includes("?") ? base + "&app=android" : base + "?app=android";
+      return fixed + hash;
+    }
+  </script>
+
   <script defer src="js/admin-notificaciones.js"></script>
 </head>
 
 <body>
+  <!-- ============================================ -->
+  <!-- HEADER -->
+  <!-- ============================================ -->
   <header class="header">
     <div class="logo">
-      <img src="images/logo-virtual-login.png" alt="Virtual Studios Logo" class="logo-image" />
+      <img src="images/logo-virtual-login.png" alt="VirtualGift Logo" class="logo-image" />
       <span class="logo-text">VIRTUAL<span class="logo-studios">GIFT</span></span>
     </div>
   </header>
 
-  <main class="admin-notifs-container">
-    <button class="back-button" onclick="window.location.href = withAppFlag('inicio.html')">← Volver al inicio</button>
+  <!-- ============================================ -->
+  <!-- ESTADO DE CARGA / ACCESO DENEGADO -->
+  <!-- ============================================ -->
+  <div id="loadingState" class="admin-gate">
+    <div class="gate-spinner"></div>
+    <p class="gate-text">Verificando permisos...</p>
+  </div>
 
+  <div id="deniedState" class="admin-gate" style="display:none;">
+    <div class="gate-icon">🚫</div>
+    <p class="gate-text">Acceso restringido</p>
+    <p class="gate-sub">No tienes permisos de administrador.</p>
+    <button class="btn btn-secondary" onclick="window.location.href=withAppFlag('inicio.html')" style="margin-top:16px;max-width:240px;">
+      ← Volver al inicio
+    </button>
+  </div>
+
+  <!-- ============================================ -->
+  <!-- CONTENIDO (solo visible si isAdmin=true) -->
+  <!-- ============================================ -->
+  <main id="adminContent" class="admin-notifs-container" style="display:none;">
+
+    <button class="back-button" onclick="window.location.href=withAppFlag('inicio.html')">
+      ← Volver al inicio
+    </button>
+
+    <!-- Enviar notificación global -->
     <section class="admin-card">
       <div class="card-head">
         <h1 class="card-title">📣 Notificación Global</h1>
-        <span class="chip" id="adminChip" style="display:none;">Admin</span>
+        <span class="chip" id="adminChip">Admin ✓</span>
       </div>
 
       <div class="form-grid">
         <div class="form-group full">
-          <label class="form-label">Título (máx 20)</label>
-          <input class="form-input" id="title" maxlength="20" placeholder="Ej: Doble puntos!" />
-          <div class="form-helper"><span id="titleCount">0</span>/20</div>
+          <label class="form-label" for="title">Título <span class="form-required">*</span></label>
+          <input class="form-input" id="title" maxlength="20" placeholder="Ej: ¡Doble puntos hoy!" autocomplete="off" />
+          <div class="form-helper"><span id="titleCount">0</span>/20 caracteres</div>
         </div>
 
         <div class="form-group full">
-          <label class="form-label">Subtítulo (máx 30)</label>
-          <input class="form-input" id="subtitle" maxlength="30" placeholder="Ej: Hoy por tiempo limitado" />
-          <div class="form-helper"><span id="subtitleCount">0</span>/30</div>
+          <label class="form-label" for="subtitle">Subtítulo <span class="form-required">*</span></label>
+          <input class="form-input" id="subtitle" maxlength="30" placeholder="Ej: Hoy por tiempo limitado" autocomplete="off" />
+          <div class="form-helper"><span id="subtitleCount">0</span>/30 caracteres</div>
         </div>
 
         <div class="form-group full">
-          <label class="form-label">Imagen (opcional) · URL</label>
-          <input class="form-input" id="imageUrl" placeholder="https://..." />
-          <div class="form-helper">Tip: usa imágenes HTTPS y livianas (ej: 600–900px).</div>
+          <label class="form-label" for="imageUrl">Imagen (opcional) · URL HTTPS</label>
+          <input class="form-input" id="imageUrl" type="url" placeholder="https://..." autocomplete="off" />
+          <div class="form-helper">Usa imágenes HTTPS ligeras (600–900 px recomendado).</div>
         </div>
       </div>
 
       <div class="actions">
         <button class="btn btn-secondary" id="clearBtn">Limpiar</button>
-        <button class="btn btn-primary" id="sendBtn">Enviar a TODOS</button>
+        <button class="btn btn-primary"   id="sendBtn">📤 Enviar a TODOS</button>
       </div>
 
       <div class="status" id="statusBox" style="display:none;"></div>
     </section>
 
+    <!-- Historial reciente -->
     <section class="admin-card">
       <div class="card-head">
         <h2 class="card-title">🧾 Enviadas recientemente</h2>
-        <button class="mini-btn" id="refreshBtn">Actualizar</button>
+        <button class="mini-btn" id="refreshBtn">🔄 Actualizar</button>
       </div>
-      <div id="recentList" class="recent-list"></div>
+      <div id="recentList" class="recent-list">
+        <div class="recent-loading">
+          <div class="recent-spinner"></div>
+        </div>
+      </div>
     </section>
+
   </main>
 </body>
 </html>
