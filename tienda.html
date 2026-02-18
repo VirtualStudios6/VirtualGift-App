@@ -39,220 +39,231 @@
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(255,255,255,0.06);
     }
-
     .back-btn {
-      width: 36px;
-      height: 36px;
+      width: 36px; height: 36px;
       border-radius: 50%;
       background: rgba(255,255,255,0.08);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: background 0.2s;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background 0.2s;
     }
     .back-btn:hover { background: rgba(255,255,255,0.14); }
     .back-btn svg { width: 18px; height: 18px; fill: white; }
-
     .tienda-header-info { flex: 1; }
-    .tienda-title {
-      font-size: 18px;
-      font-weight: 800;
-      color: white;
-    }
-    .tienda-subtitle {
-      font-size: 12px;
-      color: #9ca3af;
-      margin-top: 1px;
-    }
-
+    .tienda-title { font-size: 18px; font-weight: 800; color: white; }
+    .tienda-subtitle { font-size: 12px; color: #9ca3af; margin-top: 1px; }
     .reset-badge {
       background: rgba(239,68,68,0.15);
       border: 1px solid rgba(239,68,68,0.3);
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 700;
-      color: #ef4444;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      white-space: nowrap;
+      padding: 5px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; color: #ef4444;
+      display: flex; align-items: center; gap: 5px; white-space: nowrap;
     }
     .reset-badge::before {
-      content: '';
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: #ef4444;
+      content: ''; width: 6px; height: 6px;
+      border-radius: 50%; background: #ef4444;
       animation: pulse 1.5s infinite;
     }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    /* COUNTDOWN */
     .countdown-bar {
       background: rgba(255,255,255,0.03);
       border-bottom: 1px solid rgba(255,255,255,0.05);
       padding: 10px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: flex; align-items: center; justify-content: space-between;
     }
     .countdown-label { font-size: 12px; color: #9ca3af; }
     .countdown-timer {
-      font-size: 15px;
-      font-weight: 800;
-      color: #00d4ff;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: 1px;
+      font-size: 15px; font-weight: 800; color: #00d4ff;
+      font-variant-numeric: tabular-nums; letter-spacing: 1px;
     }
 
-    /* CATEGORY TABS */
     .cat-tabs {
-      display: flex;
-      gap: 8px;
-      padding: 14px 16px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      position: sticky;
-      top: 61px;
-      z-index: 9;
-      background: rgba(6,1,28,0.95);
-      backdrop-filter: blur(8px);
+      display: flex; gap: 8px; padding: 14px 16px;
+      overflow-x: auto; scrollbar-width: none;
+      position: sticky; top: 61px; z-index: 9;
+      background: rgba(6,1,28,0.95); backdrop-filter: blur(8px);
     }
     .cat-tabs::-webkit-scrollbar { display: none; }
     .cat-tab {
-      flex-shrink: 0;
-      padding: 7px 14px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
+      flex-shrink: 0; padding: 7px 14px; border-radius: 20px;
+      font-size: 12px; font-weight: 700; cursor: pointer;
       background: rgba(255,255,255,0.06);
       border: 1px solid rgba(255,255,255,0.08);
-      color: #9ca3af;
-      transition: all 0.2s;
-      white-space: nowrap;
+      color: #9ca3af; transition: all 0.2s; white-space: nowrap;
     }
-    .cat-tab.active {
-      background: #8d17fb;
-      border-color: #8d17fb;
-      color: white;
-    }
+    .cat-tab.active { background: #8d17fb; border-color: #8d17fb; color: white; }
     .cat-tab:hover:not(.active) { color: white; background: rgba(255,255,255,0.1); }
 
-    /* SECTIONS */
     .tienda-section { padding: 6px 16px 20px; }
     .tienda-section-title {
-      font-size: 15px;
-      font-weight: 800;
-      color: white;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      font-size: 15px; font-weight: 800; color: white;
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
     }
     .tienda-count {
-      font-size: 11px;
-      font-weight: 600;
-      color: #9ca3af;
-      background: rgba(255,255,255,0.07);
-      padding: 2px 8px;
-      border-radius: 10px;
+      font-size: 11px; font-weight: 600; color: #9ca3af;
+      background: rgba(255,255,255,0.07); padding: 2px 8px; border-radius: 10px;
     }
 
-    /* SHOP GRID */
     .shop-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
     }
-    @media (min-width: 480px) {
-      .shop-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
-    }
-    @media (min-width: 769px) {
-      .shop-grid { grid-template-columns: repeat(6, 1fr); gap: 14px; }
-    }
+    @media (min-width: 480px) { .shop-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; } }
+    @media (min-width: 769px) { .shop-grid { grid-template-columns: repeat(6, 1fr); gap: 14px; } }
 
     .shop-item {
-      border-radius: 12px;
-      overflow: hidden;
-      position: relative;
-      cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; overflow: hidden; position: relative;
+      cursor: pointer; border: 1px solid rgba(255,255,255,0.06);
       transition: transform 0.2s, box-shadow 0.2s;
-      aspect-ratio: 0.75;
-      display: flex;
-      flex-direction: column;
+      aspect-ratio: 0.75; display: flex; flex-direction: column;
     }
     .shop-item:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
     .shop-item:active { transform: scale(0.96); }
-
-    .shop-item-img {
-      flex: 1;
-      width: 100%;
-      object-fit: cover;
-      object-position: top center;
-      display: block;
-    }
-
-    .shop-item-info {
-      padding: 6px 8px 7px;
-      background: rgba(0,0,0,0.5);
-    }
+    .shop-item-img { flex: 1; width: 100%; object-fit: cover; object-position: top center; display: block; }
+    .shop-item-info { padding: 6px 8px 7px; background: rgba(0,0,0,0.5); }
     .shop-item-name {
-      font-size: 13px;
-      font-weight: 700;
-      color: white;
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 13px; font-weight: 700; color: white;
+      line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .shop-item-price {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      margin-top: 3px;
-    }
-    .shop-item-price img {
-      width: 1px;
-      height: 11px;
-      object-fit: contain;
-    }
-    .shop-item-price span {
-      font-size: 13px;
-      font-weight: 700;
-      color: #7ec8e3;
-    }
+    .shop-item-price { display: flex; align-items: center; gap: 3px; margin-top: 3px; }
+    .shop-item-price img { width: 11px; height: 11px; object-fit: contain; }
+    .shop-item-price span { font-size: 13px; font-weight: 700; color: #7ec8e3; }
 
-    /* EMPTY / LOADING */
+    /* ===== PLAY ICON en items con video ===== */
+    .shop-item-play {
+      position: absolute; top: 6px; right: 6px;
+      width: 22px; height: 22px;
+      background: rgba(0,0,0,0.6);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .shop-item-play svg { width: 12px; height: 12px; fill: white; margin-left: 1px; }
+
     .shop-loading {
-      text-align: center;
-      padding: 60px 20px;
-      color: #9ca3af;
+      text-align: center; padding: 60px 20px; color: #9ca3af;
     }
     .shop-spinner {
       width: 36px; height: 36px;
       border: 3px solid rgba(255,255,255,0.08);
-      border-top-color: #8d17fb;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 14px;
+      border-top-color: #8d17fb; border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 14px;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* TOTAL BAR */
     .total-bar {
-      padding: 12px 20px;
-      text-align: center;
-      font-size: 13px;
-      color: #9ca3af;
-      border-top: 1px solid rgba(255,255,255,0.05);
-      margin-top: 10px;
+      padding: 12px 20px; text-align: center;
+      font-size: 13px; color: #9ca3af;
+      border-top: 1px solid rgba(255,255,255,0.05); margin-top: 10px;
     }
     .total-bar strong { color: white; }
+
+    /* ===== MODAL PREVIEW ===== */
+    .preview-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .preview-overlay.open {
+      opacity: 1; pointer-events: all;
+    }
+    .preview-modal {
+      width: 100%; max-width: 480px;
+      border-radius: 24px 24px 0 0;
+      overflow: hidden;
+      background: #0f0d2a;
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      max-height: 90vh;
+      display: flex; flex-direction: column;
+    }
+    .preview-overlay.open .preview-modal {
+      transform: translateY(0);
+    }
+
+    /* Handle bar */
+    .modal-handle {
+      width: 40px; height: 4px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 2px; margin: 12px auto 0;
+      flex-shrink: 0;
+    }
+
+    /* Media container */
+    .preview-media {
+      position: relative;
+      background: #000;
+      flex-shrink: 0;
+    }
+    .preview-media video,
+    .preview-media img {
+      width: 100%;
+      max-height: 320px;
+      object-fit: contain;
+      display: block;
+    }
+    .preview-media-bg {
+      position: absolute; inset: 0;
+      filter: blur(20px) brightness(0.4);
+      z-index: 0;
+      background-size: cover;
+      background-position: center;
+    }
+    .preview-media video,
+    .preview-media img.preview-img {
+      position: relative; z-index: 1;
+    }
+
+    /* Close btn */
+    .modal-close {
+      position: absolute; top: 10px; right: 10px; z-index: 10;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(0,0,0,0.6); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close svg { width: 16px; height: 16px; fill: white; }
+
+    /* Info */
+    .preview-info {
+      padding: 16px 20px 32px;
+      overflow-y: auto;
+    }
+    .preview-rarity-bar {
+      height: 3px; border-radius: 2px; margin-bottom: 12px;
+    }
+    .preview-name {
+      font-size: 22px; font-weight: 900; color: white; line-height: 1.2;
+    }
+    .preview-type {
+      font-size: 12px; color: #9ca3af; margin-top: 4px; text-transform: uppercase;
+      letter-spacing: 0.5px; font-weight: 600;
+    }
+    .preview-desc {
+      font-size: 13px; color: #c4c4d4; margin-top: 10px; line-height: 1.5;
+    }
+    .preview-price-row {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 14px; padding-top: 14px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+    .preview-price-row img { width: 20px; height: 20px; object-fit: contain; }
+    .preview-price-row span {
+      font-size: 20px; font-weight: 900; color: #7ec8e3;
+    }
+    .preview-price-label {
+      font-size: 11px; color: #9ca3af; margin-left: auto;
+    }
+
+    /* Loading spinner dentro del modal */
+    .modal-video-loading {
+      position: absolute; inset: 0; z-index: 5;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.5);
+    }
+    .modal-video-loading .shop-spinner { margin: 0; }
   </style>
 </head>
 <body>
@@ -266,7 +277,7 @@
       <div class="tienda-title">🛒 Tienda Fortnite</div>
       <div class="tienda-subtitle" id="itemCount">Cargando tienda...</div>
     </div>
-    <div class="reset-badge" id="resetBadge">LIVE</div>
+    <div class="reset-badge">LIVE</div>
   </div>
 
   <!-- COUNTDOWN -->
@@ -277,7 +288,7 @@
 
   <!-- CATEGORY TABS -->
   <div class="cat-tabs" id="catTabs">
-    <div class="cat-tab active" onclick="filterCategory('all', this)">Todo</div>
+    <div class="cat-tab active" onclick="filterCategory('all', this)">🏪 Todo</div>
   </div>
 
   <!-- SHOP CONTENT -->
@@ -290,18 +301,30 @@
 
   <div class="total-bar" id="totalBar" style="display:none"></div>
 
+  <!-- ===== MODAL PREVIEW ===== -->
+  <div class="preview-overlay" id="previewOverlay" onclick="closePreview(event)">
+    <div class="preview-modal" id="previewModal">
+      <div class="modal-handle"></div>
+      <div class="preview-media" id="previewMedia">
+        <div class="preview-media-bg" id="previewBg"></div>
+        <button class="modal-close" onclick="closeModal()">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+        <!-- Video o imagen se inyecta aquí -->
+      </div>
+      <div class="preview-info" id="previewInfo"></div>
+    </div>
+  </div>
+
   <script>
-    // ===== COUNTDOWN TO 8PM RD TIME =====
+    // ===== COUNTDOWN =====
     function updateCountdown() {
       const now = new Date();
-      // RD is UTC-4
       const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
       const rdNow = new Date(utcMs - 4 * 3600000);
-
       let reset = new Date(rdNow);
       reset.setHours(20, 0, 0, 0);
       if (rdNow >= reset) reset.setDate(reset.getDate() + 1);
-
       const diff = reset - rdNow;
       const h = Math.floor(diff / 3600000);
       const m = Math.floor((diff % 3600000) / 60000);
@@ -337,6 +360,17 @@
       "marvel":      "linear-gradient(160deg,#c1282d,#5a0a0d)",
     };
 
+    const RARITY_SOLID = {
+      "poco común":"#818181","poco comun":"#818181","común":"#818181","comun":"#818181","common":"#818181",
+      "infrecuente":"#60a32e","uncommon":"#60a32e",
+      "raro":"#4f6fa8","rare":"#4f6fa8",
+      "épico":"#8b38cc","epico":"#8b38cc","epic":"#8b38cc",
+      "legendario":"#e8a224","legendary":"#e8a224",
+      "mítico":"#f0e13c","mitico":"#f0e13c","mythic":"#f0e13c",
+      "serie icon":"#21c9c3","icon":"#21c9c3",
+      "serie marvel":"#c1282d","marvel":"#c1282d",
+    };
+
     function getRarityBg(rarity) {
       const key = String(rarity || "").toLowerCase().trim();
       for (const [k, v] of Object.entries(RARITY_BG)) {
@@ -345,13 +379,19 @@
       return "linear-gradient(160deg,#1a1a2e,#0d0d1a)";
     }
 
+    function getRaritySolid(rarity) {
+      const key = String(rarity || "").toLowerCase().trim();
+      for (const [k, v] of Object.entries(RARITY_SOLID)) {
+        if (key.includes(k)) return v;
+      }
+      return "#8d17fb";
+    }
+
     // ===== CATEGORY LABELS =====
     const CAT_LABELS = {
       "outfit":        { label: "👕 Skins", emoji: "👕" },
       "emote":         { label: "💃 Emotes", emoji: "💃" },
       "backpack":      { label: "🎒 Mochilas", emoji: "🎒" },
-      "back pack":     { label: "🎒 Mochilas", emoji: "🎒" },
-      "back_pack":     { label: "🎒 Mochilas", emoji: "🎒" },
       "pickaxe":       { label: "⛏️ Picos", emoji: "⛏️" },
       "glider":        { label: "🪂 Planeadores", emoji: "🪂" },
       "wrap":          { label: "🎨 Wraps", emoji: "🎨" },
@@ -369,11 +409,11 @@
       if (t.includes("outfit")) return "outfit";
       if (t.includes("emote") || t.includes("dance")) return "emote";
       if (t.includes("back") && t.includes("pack")) return "backpack";
-      if (t.includes("pickaxe") || t.includes("pico") || t.includes("harvesting")) return "pickaxe";
-      if (t.includes("glider") || t.includes("planeo")) return "glider";
+      if (t.includes("pickaxe") || t.includes("harvesting")) return "pickaxe";
+      if (t.includes("glider")) return "glider";
       if (t.includes("wrap")) return "wrap";
-      if (t.includes("contrail") || t.includes("estela")) return "contrail";
-      if (t.includes("loading") || t.includes("pantalla")) return "loading screen";
+      if (t.includes("contrail")) return "contrail";
+      if (t.includes("loading")) return "loading screen";
       if (t.includes("spray")) return "spray";
       if (t.includes("toy")) return "toy";
       if (t.includes("music")) return "music";
@@ -383,32 +423,18 @@
 
     const VBUCK = "https://fortnite-api.com/images/vbuck.png";
 
-    // ===== MAIN =====
     let allItems = [];
     let categorized = {};
     let activeFilter = "all";
 
-    function waitDb(cb, max = 80) {
-      let i = 0;
-      const t = setInterval(() => {
-        i++;
-        if (window.db) { clearInterval(t); cb(); }
-        else if (i >= max) { clearInterval(t); showError(); }
-      }, 100);
-    }
-
     function showError() {
-      document.getElementById('shopContent').innerHTML = `
-        <div class="shop-loading">
-          <p style="color:#ef4444">Error conectando con Firebase</p>
-        </div>`;
+      document.getElementById('shopContent').innerHTML =
+        `<div class="shop-loading"><p style="color:#ef4444">Error conectando con Firebase</p></div>`;
     }
 
     function buildCategoryTabs() {
       const tabs = document.getElementById('catTabs');
-      // Clear except "Todo"
       tabs.innerHTML = `<div class="cat-tab active" onclick="filterCategory('all', this)">🏪 Todo</div>`;
-
       const order = ["outfit","emote","backpack","pickaxe","glider","wrap","contrail","spray","toy","music","loading screen","banner","other"];
       for (const key of order) {
         if (categorized[key] && categorized[key].length > 0) {
@@ -431,23 +457,17 @@
 
     function renderShop() {
       const content = document.getElementById('shopContent');
+      const order = ["outfit","emote","backpack","pickaxe","glider","wrap","contrail","spray","toy","music","loading screen","banner","other"];
 
       if (activeFilter === 'all') {
-        // Show all categories in sections
-        const order = ["outfit","emote","backpack","pickaxe","glider","wrap","contrail","spray","toy","music","loading screen","banner","other"];
         let html = '';
         for (const key of order) {
           if (!categorized[key] || !categorized[key].length) continue;
           const info = CAT_LABELS[key] || { label: key, emoji: "📦" };
           html += `
             <div class="tienda-section">
-              <div class="tienda-section-title">
-                ${info.label}
-                <span class="tienda-count">${categorized[key].length}</span>
-              </div>
-              <div class="shop-grid">
-                ${categorized[key].map(item => renderItem(item)).join('')}
-              </div>
+              <div class="tienda-section-title">${info.label}<span class="tienda-count">${categorized[key].length}</span></div>
+              <div class="shop-grid">${categorized[key].map(item => renderItem(item)).join('')}</div>
             </div>`;
         }
         content.innerHTML = html || `<div class="shop-loading"><p>Tienda vacía hoy</p></div>`;
@@ -456,17 +476,11 @@
         const info = CAT_LABELS[activeFilter] || { label: activeFilter, emoji: "📦" };
         content.innerHTML = `
           <div class="tienda-section">
-            <div class="tienda-section-title">
-              ${info.label}
-              <span class="tienda-count">${items.length}</span>
-            </div>
-            <div class="shop-grid">
-              ${items.map(item => renderItem(item)).join('')}
-            </div>
+            <div class="tienda-section-title">${info.label}<span class="tienda-count">${items.length}</span></div>
+            <div class="shop-grid">${items.map(item => renderItem(item)).join('')}</div>
           </div>`;
       }
 
-      // Total bar
       const totalBar = document.getElementById('totalBar');
       totalBar.style.display = 'block';
       totalBar.innerHTML = `<strong>${allItems.length}</strong> items en la tienda hoy`;
@@ -477,10 +491,13 @@
       const img = item.imageUrl || "";
       const price = item.price || 0;
       const bg = getRarityBg(item.rarity);
+      const hasVideo = !!item.videoUrl;
+      const idx = allItems.findIndex(i => i.id === item.id);
 
       return `
-        <div class="shop-item" style="background:${bg}">
+        <div class="shop-item" style="background:${bg}" onclick="openPreview(${idx})">
           ${img ? `<img class="shop-item-img" src="${escapeHtml(img)}" alt="${name}" loading="lazy" onerror="this.style.display='none'">` : `<div class="shop-item-img" style="flex:1"></div>`}
+          ${hasVideo ? `<div class="shop-item-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>` : ''}
           <div class="shop-item-info">
             <div class="shop-item-name">${name}</div>
             ${price ? `<div class="shop-item-price">
@@ -497,6 +514,110 @@
         .replaceAll(">","&gt;").replaceAll('"',"&quot;");
     }
 
+    // ===== MODAL PREVIEW =====
+    async function openPreview(idx) {
+      const item = allItems[idx];
+      if (!item) return;
+
+      const overlay = document.getElementById('previewOverlay');
+      const mediaEl = document.getElementById('previewMedia');
+      const bgEl = document.getElementById('previewBg');
+      const infoEl = document.getElementById('previewInfo');
+
+      const imgFull = item.imageFull || item.imageUrl || "";
+      const rarity = item.rarity || "";
+      const solidColor = getRaritySolid(rarity);
+
+      // Fondo blur
+      if (imgFull) bgEl.style.backgroundImage = `url('${imgFull}')`;
+
+      // Limpiar media anterior
+      mediaEl.querySelectorAll('video, img.preview-img').forEach(el => el.remove());
+
+      // Mostrar spinner
+      const spinner = document.createElement('div');
+      spinner.className = 'modal-video-loading';
+      spinner.innerHTML = '<div class="shop-spinner"></div>';
+      mediaEl.appendChild(spinner);
+
+      // Mostrar info y abrir modal de inmediato
+      infoEl.innerHTML = `
+        <div class="preview-rarity-bar" style="background:${solidColor}"></div>
+        <div class="preview-name">${escapeHtml(item.name || "Item")}</div>
+        <div class="preview-type">${escapeHtml(rarity)} · ${escapeHtml(item.type || "")}</div>
+        ${item.description ? `<div class="preview-desc">${escapeHtml(item.description)}</div>` : ''}
+        ${item.price ? `
+        <div class="preview-price-row">
+          <img src="${VBUCK}" alt="V" onerror="this.style.display='none'">
+          <span>${item.price}</span>
+          <span class="preview-price-label">V-Bucks</span>
+        </div>` : ''}`;
+
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+
+      // Buscar video en la API en tiempo real
+      let videoUrl = "";
+      try {
+        const res = await fetch(`https://fortnite-api.com/v2/cosmetics/br/${item.id}`);
+        const data = await res.json();
+        videoUrl = data?.data?.showcaseVideos?.[0] || "";
+      } catch(e) {
+        videoUrl = "";
+      }
+
+      spinner.remove();
+
+      if (videoUrl) {
+        const video = document.createElement('video');
+        video.src = videoUrl;
+        video.autoplay = true;
+        video.loop = true;
+        video.muted = false;
+        video.playsInline = true;
+        video.style.cssText = 'width:100%;max-height:320px;object-fit:contain;display:block;position:relative;z-index:1;';
+        video.onerror = () => {
+          video.remove();
+          const img = document.createElement('img');
+          img.src = imgFull;
+          img.className = 'preview-img';
+          img.style.cssText = 'width:100%;max-height:320px;object-fit:contain;display:block;position:relative;z-index:1;';
+          mediaEl.appendChild(img);
+        };
+        mediaEl.appendChild(video);
+      } else {
+        const img = document.createElement('img');
+        img.src = imgFull;
+        img.className = 'preview-img';
+        img.style.cssText = 'width:100%;max-height:320px;object-fit:contain;display:block;position:relative;z-index:1;';
+        mediaEl.appendChild(img);
+      }
+    }
+
+    function closeModal() {
+      const overlay = document.getElementById('previewOverlay');
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+      // Parar video
+      const video = overlay.querySelector('video');
+      if (video) { video.pause(); video.remove(); }
+    }
+
+    function closePreview(e) {
+      if (e.target === document.getElementById('previewOverlay')) closeModal();
+    }
+
+    // Swipe down para cerrar
+    let touchStartY = 0;
+    document.getElementById('previewModal').addEventListener('touchstart', e => {
+      touchStartY = e.touches[0].clientY;
+    });
+    document.getElementById('previewModal').addEventListener('touchend', e => {
+      const diff = e.changedTouches[0].clientY - touchStartY;
+      if (diff > 80) closeModal();
+    });
+
+    // ===== FIRESTORE =====
     function loadShop() {
       window.db.collection("shopDailyItems")
         .orderBy("sort", "asc")
@@ -510,18 +631,12 @@
             if (!categorized[key]) categorized[key] = [];
             categorized[key].push(item);
           });
-
           document.getElementById('itemCount').textContent = `${allItems.length} items hoy`;
           buildCategoryTabs();
           renderShop();
-
-        }, err => {
-          console.error(err);
-          showError();
-        });
+        }, err => { console.error(err); showError(); });
     }
 
-    // Auth check + load
     function waitForFirebase(cb, max = 50) {
       let i = 0;
       const t = setInterval(() => {
@@ -535,11 +650,8 @@
     window.addEventListener('load', () => {
       waitForFirebase(() => {
         firebase.auth().onAuthStateChanged(user => {
-          if (!user) {
-            window.location.href = withAppFlag('index.html');
-          } else {
-            loadShop();
-          }
+          if (!user) window.location.href = withAppFlag('index.html');
+          else loadShop();
         });
       });
     });

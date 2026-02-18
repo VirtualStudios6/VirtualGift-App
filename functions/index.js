@@ -74,11 +74,8 @@ exports.ayetPostback = onRequest(
 // FORTNITE SHOP SYNC
 // =====================
 
-// ✅ FIX 1: Correct endpoint + language param for consistent data
 const SHOP_URL = "https://fortnite-api.com/v2/shop?language=es";
-
-// ✅ FIX 2: Add your API key here
-const FORTNITE_API_KEY = "TU_API_KEY_AQUI"; // 👈 reemplaza con tu API key real
+const FORTNITE_API_KEY = "TU_API_KEY_AQUI";
 
 function safeStr(v) {
   return typeof v === "string" ? v : (v != null ? String(v) : "");
@@ -87,7 +84,6 @@ function safeStr(v) {
 async function syncShopNow() {
   console.log("Fetching Fortnite shop...");
 
-  // ✅ FIX 3: Send API key in headers
   const res = await fetch(SHOP_URL, {
     headers: {
       "Authorization": FORTNITE_API_KEY,
@@ -101,7 +97,6 @@ async function syncShopNow() {
 
   const json = await res.json();
 
-  // ✅ FIX 4: Correct path — API returns data.entries, NOT data.shop
   const entries = Array.isArray(json?.data?.entries)
     ? json.data.entries
     : [];
@@ -124,7 +119,6 @@ async function syncShopNow() {
   let saved = 0;
 
   for (const entry of entries) {
-    // ✅ CRITICAL FIX: API uses "brItems" not "items"
     const items = Array.isArray(entry.brItems) ? entry.brItems : [];
     const price = Number(entry.finalPrice || entry.regularPrice || 0);
 
@@ -132,7 +126,6 @@ async function syncShopNow() {
       const id = safeStr(it?.id);
       if (!id) continue;
 
-      // Usar siempre "value" (inglés fijo: "outfit", "emote") no displayValue que cambia con el idioma
       const typeDisplay = safeStr(it?.type?.value || "");
 
       // Best image: featured > icon > smallIcon
@@ -143,13 +136,28 @@ async function syncShopNow() {
         ""
       );
 
+      // ✅ NUEVO: guardar video de preview si existe
+      const videoUrl = safeStr(
+        it?.showcaseVideos?.[0] ||
+        it?.video ||
+        ""
+      );
+
+      // ✅ NUEVO: guardar imagen grande para el modal
+      const imageFull = safeStr(
+        it?.images?.featured ||
+        it?.images?.icon ||
+        ""
+      );
+
       batch.set(db.collection("shopDailyItems").doc(id), {
         name: safeStr(it?.name || ""),
-        // ✅ Store the human-readable type: "Outfit", "Emote", "Back Bling", etc.
         type: typeDisplay,
         rarity: safeStr(it?.rarity?.displayValue || it?.rarity?.value || ""),
         price: price,
         imageUrl: imageUrl,
+        imageFull: imageFull,       // ✅ imagen grande para modal
+        videoUrl: videoUrl,          // ✅ video de preview
         description: safeStr(it?.description || ""),
         sort: saved,
         updatedAt: now,
