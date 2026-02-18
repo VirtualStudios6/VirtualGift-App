@@ -732,3 +732,311 @@ body {
     box-shadow: var(--shadow-hover);
   }
 }
+/* ============================================ */
+/* SKINS GRID - MEJORADO */
+/* ============================================ */
+.skins-grid {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none; /* oculta scrollbar en Firefox */
+}
+.skins-grid::-webkit-scrollbar { display: none; } /* oculta en Chrome/Safari */
+
+@media (min-width: 769px) {
+  .skins-grid {
+    gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    overflow-x: visible;
+  }
+}
+
+/* ============================================ */
+/* SKIN CARD - ESTILO FORTNITE */
+/* ============================================ */
+.skin-card {
+  flex-shrink: 0;
+  width: 145px;
+  border-radius: 16px;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #1a1a2e 0%, #16213e 100%);
+  border: 1px solid rgba(255,255,255,0.07);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (min-width: 769px) {
+  .skin-card {
+    width: 100%;
+    border-radius: 20px;
+  }
+  .skin-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  }
+}
+
+@media (max-width: 768px) {
+  .skin-card:active { transform: scale(0.96); }
+}
+
+/* Badge de rareza - esquina superior izquierda */
+.skin-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 3;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 16px);
+}
+
+@media (min-width: 769px) {
+  .skin-badge {
+    top: 10px;
+    left: 10px;
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+}
+
+/* Imagen ocupa todo el ancho */
+.skin-image {
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #0f3460 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin: 0;
+  border-radius: 0;
+}
+
+.skin-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 0.3s ease;
+}
+
+.skin-card:hover .skin-image img {
+  transform: scale(1.05);
+}
+
+@media (min-width: 769px) {
+  .skin-image { height: 220px; }
+}
+
+/* Nombre y precio en la parte inferior */
+.skin-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  line-height: 1.3;
+  padding: 8px 10px 10px;
+  background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+  margin: 0;
+}
+
+@media (min-width: 769px) {
+  .skin-name { font-size: 13px; padding: 10px 14px 12px; }
+}
+
+/* ============================================ */
+/* EMOTES GRID - MEJORADO */
+/* ============================================ */
+.emotes-grid {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.emotes-grid::-webkit-scrollbar { display: none; }
+
+@media (min-width: 769px) {
+  .emotes-grid {
+    gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    overflow-x: visible;
+  }
+}
+
+/* ============================================ */
+/* EMOTE CARD - ESTILO FORTNITE */
+/* ============================================ */
+.emote-card {
+  flex-shrink: 0;
+  width: 145px;
+  border-radius: 16px;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #1a1025 0%, #0d1b2a 100%);
+  border: 1px solid rgba(255,255,255,0.07);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+@media (min-width: 769px) {
+  .emote-card {
+    width: 100%;
+    border-radius: 20px;
+  }
+  .emote-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  }
+}
+
+@media (max-width: 768px) {
+  .emote-card:active { transform: scale(0.96); }
+}
+
+/* Badge emote */
+.emote-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 3;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: white;
+  padding: 3px 8px;
+  border-radius: 20px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+@media (min-width: 769px) {
+  .emote-badge {
+    top: 10px;
+    left: 10px;
+    font-size: 10px;
+    padding: 4px 10px;
+  }
+}
+
+/* Imagen emote */
+.emote-image {
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(135deg, #1a0533 0%, #0d1b2a 50%, #1a0533 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin: 0;
+  border-radius: 0;
+}
+
+.emote-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 0.3s ease;
+}
+
+.emote-card:hover .emote-image img {
+  transform: scale(1.05);
+}
+
+@media (min-width: 769px) {
+  .emote-image { height: 220px; }
+}
+
+/* Nombre emote */
+.emote-name {
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  line-height: 1.3;
+  padding: 8px 10px 4px;
+  margin: 0;
+}
+
+@media (min-width: 769px) {
+  .emote-name { font-size: 13px; padding: 10px 14px 6px; }
+}
+
+/* Precio (rating div usado para precio) */
+.rating {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.7);
+  padding: 0 10px 10px;
+  margin: 0;
+}
+
+@media (min-width: 769px) {
+  .rating { font-size: 12px; padding: 0 14px 12px; }
+}
+/* ============================================ */
+/* CARD IMAGE Y INFO (nuevo sistema) */
+/* ============================================ */
+.card-image {
+  width: 100%;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.card-image img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 0.3s ease;
+}
+.skin-card:hover .card-image img,
+.emote-card:hover .card-image img { transform: scale(1.05); }
+
+@media (min-width: 769px) { .card-image { height: 220px; } }
+
+.card-info {
+  padding: 8px 10px 10px;
+  background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 100%);
+}
+@media (min-width: 769px) { .card-info { padding: 10px 14px 12px; } }
+
+.vbucks-price {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+}
+.vbuck-icon { width: 14px; height: 14px; object-fit: contain; }
+.vbucks-price span { font-size: 11px; font-weight: 700; color: #7ec8e3; }
+
+@media (min-width: 769px) {
+  .vbuck-icon { width: 16px; height: 16px; }
+  .vbucks-price span { font-size: 13px; }
+}
+
+/* Ocultar badge y rating viejos */
+.skin-badge, .emote-badge { display: none; }
+.rating { display: none; }
