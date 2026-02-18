@@ -1,6 +1,6 @@
 /* =========================================================
    SHOP LIVE - VirtualGift
-   - Colores por rareza
+   - Colores por rareza (oficiales Fortnite)
    - Icono V-Bucks real
    - Sin badge de tipo arriba
    ========================================================= */
@@ -9,48 +9,47 @@
   let unsubShop = null;
   let firstPaintDone = false;
 
-  const RARITY_COLORS = {
-    "common":    { bg: "linear-gradient(160deg, #4a4a4a 0%, #2a2a2a 100%)", border: "rgba(150,150,150,0.3)" },
-    "uncommon":  { bg: "linear-gradient(160deg, #2d6a2d 0%, #1a3d1a 100%)", border: "rgba(80,180,80,0.3)" },
-    "rare":      { bg: "linear-gradient(160deg, #1a4a8a 0%, #0d2a55 100%)", border: "rgba(80,140,255,0.4)" },
-    "epic":      { bg: "linear-gradient(160deg, #5a1a9a 0%, #2d0d55 100%)", border: "rgba(160,80,255,0.4)" },
-    "legendary": { bg: "linear-gradient(160deg, #9a5a1a 0%, #552d0d 100%)", border: "rgba(255,160,60,0.4)" },
-    "mythic":    { bg: "linear-gradient(160deg, #9a8a0d 0%, #55490d 100%)", border: "rgba(255,220,40,0.4)" },
-    "icon":      { bg: "linear-gradient(160deg, #0d7a7a 0%, #0d3d4a 100%)", border: "rgba(80,240,240,0.4)" },
-    "marvel":    { bg: "linear-gradient(160deg, #8a1a1a 0%, #4a0d0d 100%)", border: "rgba(220,60,60,0.4)" },
-    "dc":        { bg: "linear-gradient(160deg, #1a1a6a 0%, #0d0d3a 100%)", border: "rgba(80,80,220,0.4)" },
-    "default":   { bg: "linear-gradient(160deg, #1a1a2e 0%, #0d0d1a 100%)", border: "rgba(255,255,255,0.07)" },
-  };
-
-function getRarityStyle(rarity) {
-  const key = String(rarity || "").toLowerCase().trim();
-  const map = {
-    // Inglés
-    "common":    { bg: "linear-gradient(160deg, #4a4a4a 0%, #2a2a2a 100%)", border: "rgba(150,150,150,0.3)" },
-    "uncommon":  { bg: "linear-gradient(160deg, #2d6a2d 0%, #1a3d1a 100%)", border: "rgba(80,180,80,0.3)" },
-    "rare":      { bg: "linear-gradient(160deg, #1a4a8a 0%, #0d2a55 100%)", border: "rgba(80,140,255,0.4)" },
-    "epic":      { bg: "linear-gradient(160deg, #5a1a9a 0%, #2d0d55 100%)", border: "rgba(160,80,255,0.4)" },
-    "legendary": { bg: "linear-gradient(160deg, #9a5a1a 0%, #552d0d 100%)", border: "rgba(255,160,60,0.4)" },
-    "mythic":    { bg: "linear-gradient(160deg, #9a8a0d 0%, #55490d 100%)", border: "rgba(255,220,40,0.4)" },
-    "icon":      { bg: "linear-gradient(160deg, #0d7a7a 0%, #0d3d4a 100%)", border: "rgba(80,240,240,0.4)" },
-    "marvel":    { bg: "linear-gradient(160deg, #8a1a1a 0%, #4a0d0d 100%)", border: "rgba(220,60,60,0.4)" },
-    // Español
-    "poco común": { bg: "linear-gradient(160deg, #4a4a4a 0%, #2a2a2a 100%)", border: "rgba(150,150,150,0.3)" },
-    "poco comun": { bg: "linear-gradient(160deg, #4a4a4a 0%, #2a2a2a 100%)", border: "rgba(150,150,150,0.3)" },
-    "infrecuente":{ bg: "linear-gradient(160deg, #2d6a2d 0%, #1a3d1a 100%)", border: "rgba(80,180,80,0.3)" },
-    "raro":      { bg: "linear-gradient(160deg, #1a4a8a 0%, #0d2a55 100%)", border: "rgba(80,140,255,0.4)" },
-    "épico":     { bg: "linear-gradient(160deg, #5a1a9a 0%, #2d0d55 100%)", border: "rgba(160,80,255,0.4)" },
-    "epico":     { bg: "linear-gradient(160deg, #5a1a9a 0%, #2d0d55 100%)", border: "rgba(160,80,255,0.4)" },
-    "legendario":{ bg: "linear-gradient(160deg, #9a5a1a 0%, #552d0d 100%)", border: "rgba(255,160,60,0.4)" },
-    "mítico":    { bg: "linear-gradient(160deg, #9a8a0d 0%, #55490d 100%)", border: "rgba(255,220,40,0.4)" },
-    "serie icon":{ bg: "linear-gradient(160deg, #0d7a7a 0%, #0d3d4a 100%)", border: "rgba(80,240,240,0.4)" },
-    "serie marvel":{ bg: "linear-gradient(160deg, #8a1a1a 0%, #4a0d0d 100%)", border: "rgba(220,60,60,0.4)" },
-  };
-  for (const [k, v] of Object.entries(map)) {
-    if (key.includes(k)) return v;
+  function getRarityStyle(rarity) {
+    const key = String(rarity || "").toLowerCase().trim();
+    const map = {
+      // Común — gris
+      "poco común":  { bg: "linear-gradient(160deg,#818181,#3a3a3a)", border: "rgba(129,129,129,0.5)" },
+      "poco comun":  { bg: "linear-gradient(160deg,#818181,#3a3a3a)", border: "rgba(129,129,129,0.5)" },
+      "común":       { bg: "linear-gradient(160deg,#818181,#3a3a3a)", border: "rgba(129,129,129,0.5)" },
+      "comun":       { bg: "linear-gradient(160deg,#818181,#3a3a3a)", border: "rgba(129,129,129,0.5)" },
+      "common":      { bg: "linear-gradient(160deg,#818181,#3a3a3a)", border: "rgba(129,129,129,0.5)" },
+      // Infrecuente — verde
+      "infrecuente": { bg: "linear-gradient(160deg,#60a32e,#2a4d10)", border: "rgba(96,163,46,0.5)" },
+      "uncommon":    { bg: "linear-gradient(160deg,#60a32e,#2a4d10)", border: "rgba(96,163,46,0.5)" },
+      // Raro — azul
+      "raro":        { bg: "linear-gradient(160deg,#4f6fa8,#1f3a6a)", border: "rgba(79,111,168,0.6)" },
+      "rare":        { bg: "linear-gradient(160deg,#4f6fa8,#1f3a6a)", border: "rgba(79,111,168,0.6)" },
+      // Épico — morado
+      "épico":       { bg: "linear-gradient(160deg,#8b38cc,#4a1575)", border: "rgba(139,56,204,0.6)" },
+      "epico":       { bg: "linear-gradient(160deg,#8b38cc,#4a1575)", border: "rgba(139,56,204,0.6)" },
+      "epic":        { bg: "linear-gradient(160deg,#8b38cc,#4a1575)", border: "rgba(139,56,204,0.6)" },
+      // Legendario — naranja dorado
+      "legendario":  { bg: "linear-gradient(160deg,#e8a224,#7a4d08)", border: "rgba(232,162,36,0.6)" },
+      "legendary":   { bg: "linear-gradient(160deg,#e8a224,#7a4d08)", border: "rgba(232,162,36,0.6)" },
+      // Mítico — amarillo dorado
+      "mítico":      { bg: "linear-gradient(160deg,#f0e13c,#7a6e0a)", border: "rgba(240,225,60,0.6)" },
+      "mitico":      { bg: "linear-gradient(160deg,#f0e13c,#7a6e0a)", border: "rgba(240,225,60,0.6)" },
+      "mythic":      { bg: "linear-gradient(160deg,#f0e13c,#7a6e0a)", border: "rgba(240,225,60,0.6)" },
+      // Serie Icon — cyan
+      "serie icon":  { bg: "linear-gradient(160deg,#21c9c3,#0a5a57)", border: "rgba(33,201,195,0.6)" },
+      "icon":        { bg: "linear-gradient(160deg,#21c9c3,#0a5a57)", border: "rgba(33,201,195,0.6)" },
+      // Serie Marvel — rojo
+      "serie marvel":{ bg: "linear-gradient(160deg,#c1282d,#5a0a0d)", border: "rgba(193,40,45,0.6)" },
+      "marvel":      { bg: "linear-gradient(160deg,#c1282d,#5a0a0d)", border: "rgba(193,40,45,0.6)" },
+      // DC
+      "dc":          { bg: "linear-gradient(160deg,#1c4fd4,#0a1f6a)", border: "rgba(28,79,212,0.6)" },
+    };
+    for (const [k, v] of Object.entries(map)) {
+      if (key.includes(k)) return v;
+    }
+    return { bg: "linear-gradient(160deg,#1a1a2e,#0d0d1a)", border: "rgba(255,255,255,0.07)" };
   }
-  return { bg: "linear-gradient(160deg, #1a1a2e 0%, #0d0d1a 100%)", border: "rgba(255,255,255,0.07)" };
-}
+
   const VBUCK_ICON = "https://fortnite-api.com/images/vbuck.png";
 
   function isFirebaseReady() {
