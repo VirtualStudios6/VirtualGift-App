@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#06011c">
+  <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
+  <title>Cosméticos — VirtualGift</title>
+  <link rel="stylesheet" href="css/inicio.css">
+  <script defer src="js/app-mode.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script defer src="js/firebase-config.js"></script>
+  <script>
+    function withAppFlag(url) {
+      const isAndroidApp = document.documentElement.classList.contains("android-app") || document.body.classList.contains("android-app");
+      if (!isAndroidApp) return url;
+      if (url.includes("app=android")) return url;
+      const parts = url.split('#');
+      const base = parts[0];
+      const hash = parts[1] ? ('#' + parts[1]) : '';
+      const fixed = base.includes("?") ? (base + "&app=android") : (base + "?app=android");
+      return fixed + hash;
+    }
+  </script>
+  <style>
+    .cosm-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px; position: sticky; top: 0; z-index: 100;
+      background: rgba(2,5,21,0.95); backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.08); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background 0.2s;
+    }
+    .back-btn:hover { background: rgba(255,255,255,0.14); }
+    .back-btn svg { width: 18px; height: 18px; fill: white; }
+    .cosm-header-info { flex: 1; }
+    .cosm-title { font-size: 18px; font-weight: 800; color: white; }
+    .cosm-subtitle { font-size: 12px; color: #9ca3af; margin-top: 1px; }
+
+    .search-section {
+      padding: 14px 16px 0; position: sticky; top: 61px; z-index: 9;
+      background: rgba(6,1,28,0.97); backdrop-filter: blur(8px);
+    }
+    .search-bar {
+      display: flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 14px; padding: 10px 14px; transition: border-color 0.2s;
+    }
+    .search-bar:focus-within { border-color: rgba(141,23,251,0.6); }
+    .search-bar svg { width: 18px; height: 18px; fill: #9ca3af; flex-shrink: 0; }
+    .search-input { flex: 1; background: none; border: none; outline: none; color: white; font-size: 14px; font-weight: 500; }
+    .search-input::placeholder { color: #6b7280; }
+    .clear-btn {
+      background: rgba(255,255,255,0.1); border: none; border-radius: 50%;
+      width: 22px; height: 22px; display: none; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .clear-btn.visible { display: flex; }
+    .clear-btn svg { width: 12px; height: 12px; fill: white; }
+
+    .filter-section { padding: 10px 16px 12px; background: rgba(6,1,28,0.97); }
+    .filter-label { font-size: 10px; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+
+    .cat-chips, .rarity-chips {
+      display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 6px;
+    }
+    .cat-chips::-webkit-scrollbar, .rarity-chips::-webkit-scrollbar { display: none; }
+    .rarity-chips { margin-top: 8px; }
+
+    .cat-chip {
+      flex-shrink: 0; padding: 6px 12px; border-radius: 20px;
+      font-size: 12px; font-weight: 700; cursor: pointer;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08);
+      color: #9ca3af; transition: all 0.2s; white-space: nowrap; user-select: none;
+    }
+    .cat-chip.active { background: #8d17fb; border-color: #8d17fb; color: white; }
+    .cat-chip:hover:not(.active) { color: white; background: rgba(255,255,255,0.1); }
+
+    .rarity-chip {
+      flex-shrink: 0; padding: 5px 11px; border-radius: 20px;
+      font-size: 11px; font-weight: 700; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.08); color: #9ca3af;
+      background: rgba(255,255,255,0.05); transition: all 0.2s;
+      white-space: nowrap; user-select: none;
+    }
+    .rarity-chip:hover:not(.active) { color: white; }
+    .rarity-chip.active { color: white; border-color: transparent; }
+    .rarity-chip.active[data-rarity="common"]    { background: #555; }
+    .rarity-chip.active[data-rarity="uncommon"]  { background: #3a7018; }
+    .rarity-chip.active[data-rarity="rare"]      { background: #2a4d8a; }
+    .rarity-chip.active[data-rarity="epic"]      { background: #6a1eaa; }
+    .rarity-chip.active[data-rarity="legendary"] { background: #9a5c10; }
+    .rarity-chip.active[data-rarity="mythic"]    { background: #8a7810; }
+    .rarity-chip.active[data-rarity="icon"]      { background: #0a6e6a; }
+    .rarity-chip.active[data-rarity="marvel"]    { background: #8a1010; }
+
+    .results-info { padding: 6px 16px 4px; font-size: 12px; color: #6b7280; }
+    .results-info strong { color: #9ca3af; }
+
+    .cosm-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 8px 16px 24px;
+    }
+    @media (min-width: 480px) { .cosm-grid { grid-template-columns: repeat(4, 1fr); gap: 10px; } }
+    @media (min-width: 769px) { .cosm-grid { grid-template-columns: repeat(6, 1fr); gap: 14px; } }
+
+    .cosm-card {
+      border-radius: 12px; overflow: hidden; position: relative;
+      border: 1px solid rgba(255,255,255,0.06); aspect-ratio: 0.75;
+      display: flex; flex-direction: column; cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .cosm-card:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    .cosm-card:active { transform: scale(0.96); }
+    .cosm-card-img { flex: 1; width: 100%; object-fit: cover; object-position: top center; display: block; }
+    .cosm-card-info { padding: 6px 8px 7px; background: rgba(0,0,0,0.55); }
+    .cosm-card-name { font-size: 11px; font-weight: 700; color: white; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cosm-card-rarity { font-size: 9px; font-weight: 600; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase; letter-spacing: 0.3px; }
+    .cosm-card-music { position: absolute; top: 6px; right: 6px; width: 22px; height: 22px; background: rgba(0,0,0,0.65); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; }
+
+    .r-comun       { color: #a0a0a0; }
+    .r-infrecuente { color: #60a32e; }
+    .r-raro        { color: #4f9ce8; }
+    .r-epico       { color: #b94ff0; }
+    .r-legendario  { color: #e8a224; }
+    .r-mitico      { color: #f0e13c; }
+    .r-icon        { color: #21c9c3; }
+    .r-marvel      { color: #e03030; }
+    .r-otro        { color: #9ca3af; }
+
+    .cosm-loading { text-align: center; padding: 60px 20px; color: #9ca3af; }
+    .cosm-spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.08); border-top-color: #8d17fb; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .cosm-empty { text-align: center; padding: 60px 20px; color: #6b7280; }
+    .cosm-empty-icon { font-size: 40px; margin-bottom: 12px; }
+
+    .load-more-btn {
+      display: block; margin: 0 16px 32px; padding: 13px;
+      background: rgba(141,23,251,0.15); border: 1px solid rgba(141,23,251,0.3);
+      border-radius: 14px; color: #c084fc; font-size: 14px; font-weight: 700;
+      text-align: center; cursor: pointer; transition: background 0.2s;
+    }
+    .load-more-btn:hover { background: rgba(141,23,251,0.25); }
+
+    .cosm-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      display: flex; align-items: flex-end; justify-content: center;
+      opacity: 0; pointer-events: none; transition: opacity 0.25s ease;
+    }
+    .cosm-overlay.open { opacity: 1; pointer-events: all; }
+    .cosm-modal {
+      width: 100%; max-width: 480px; border-radius: 24px 24px 0 0; overflow: hidden;
+      background: #0f0d2a; transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+      max-height: 90vh; display: flex; flex-direction: column;
+    }
+    .cosm-overlay.open .cosm-modal { transform: translateY(0); }
+    .modal-handle { width: 40px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 12px auto 0; flex-shrink: 0; }
+    .modal-media { position: relative; background: #000; flex-shrink: 0; }
+    .modal-media img { width: 100%; max-height: 300px; object-fit: contain; display: block; position: relative; z-index: 1; }
+    .modal-media-bg { position: absolute; inset: 0; filter: blur(20px) brightness(0.35); z-index: 0; background-size: cover; background-position: center; }
+    .modal-close { position: absolute; top: 10px; right: 10px; z-index: 10; width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,0.6); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-close svg { width: 16px; height: 16px; fill: white; }
+    .modal-info { padding: 16px 20px 32px; overflow-y: auto; }
+    .modal-rarity-bar { height: 3px; border-radius: 2px; margin-bottom: 12px; }
+    .modal-name { font-size: 22px; font-weight: 900; color: white; line-height: 1.2; }
+    .modal-type { font-size: 12px; color: #9ca3af; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .modal-desc { font-size: 13px; color: #c4c4d4; margin-top: 10px; line-height: 1.5; }
+    .modal-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 12px; }
+    .modal-tag { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 20px; font-size: 11px; color: #9ca3af; font-weight: 600; }
+
+    .modal-audio-player {
+      margin-top: 14px; background: rgba(33,201,195,0.1);
+      border: 1px solid rgba(33,201,195,0.3); border-radius: 12px;
+      padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+    }
+    .audio-play-btn {
+      width: 40px; height: 40px; border-radius: 50%; background: #21c9c3;
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background 0.2s;
+    }
+    .audio-play-btn:hover { background: #1aada8; }
+    .audio-play-btn svg { width: 18px; height: 18px; fill: white; margin-left: 2px; }
+    .audio-info { flex: 1; }
+    .audio-label { font-size: 12px; font-weight: 700; color: #21c9c3; }
+    .audio-sublabel { font-size: 11px; color: #6b7280; margin-top: 2px; }
+    .audio-loading { font-size: 12px; color: #9ca3af; }
+  </style>
+</head>
+<body>
+
+  <div class="cosm-header">
+    <button class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </button>
+    <div class="cosm-header-info">
+      <div class="cosm-title">🎨 Cosméticos Fortnite</div>
+      <div class="cosm-subtitle" id="cosmSubtitle">Cargando...</div>
+    </div>
+  </div>
+
+  <div class="search-section">
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+      <input class="search-input" id="searchInput" type="text" placeholder="Buscar cosméticos..." autocomplete="off">
+      <button class="clear-btn" id="clearBtn" onclick="clearSearch()">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-label">Categoría</div>
+    <div class="cat-chips">
+      <div class="cat-chip active" data-type="" onclick="setCat(this)">🏪 Todo</div>
+      <div class="cat-chip" data-type="outfit" onclick="setCat(this)">👕 Skins</div>
+      <div class="cat-chip" data-type="emote" onclick="setCat(this)">💃 Emotes</div>
+      <div class="cat-chip" data-type="backpack" onclick="setCat(this)">🎒 Mochilas</div>
+      <div class="cat-chip" data-type="pickaxe" onclick="setCat(this)">⛏️ Picos</div>
+      <div class="cat-chip" data-type="glider" onclick="setCat(this)">🪂 Planeadores</div>
+      <div class="cat-chip" data-type="wrap" onclick="setCat(this)">🎨 Wraps</div>
+      <div class="cat-chip" data-type="contrail" onclick="setCat(this)">✨ Estelas</div>
+      <div class="cat-chip" data-type="spray" onclick="setCat(this)">🖌️ Sprays</div>
+      <div class="cat-chip" data-type="toy" onclick="setCat(this)">🪀 Juguetes</div>
+      <div class="cat-chip" data-type="music" onclick="setCat(this)">🎵 Música</div>
+      <div class="cat-chip" data-type="loadingscreen" onclick="setCat(this)">🖼️ Pantallas</div>
+      <div class="cat-chip" data-type="banner" onclick="setCat(this)">🏳️ Banners</div>
+    </div>
+    <div class="filter-label" style="margin-top:4px">Rareza</div>
+    <div class="rarity-chips">
+      <div class="rarity-chip active" data-rarity="" onclick="setRarity(this)">💎 Todas</div>
+      <div class="rarity-chip" data-rarity="mythic" onclick="setRarity(this)">⭐ Mítico</div>
+      <div class="rarity-chip" data-rarity="legendary" onclick="setRarity(this)">🟡 Legendario</div>
+      <div class="rarity-chip" data-rarity="epic" onclick="setRarity(this)">🟣 Épico</div>
+      <div class="rarity-chip" data-rarity="rare" onclick="setRarity(this)">🔵 Raro</div>
+      <div class="rarity-chip" data-rarity="uncommon" onclick="setRarity(this)">🟢 Infrecuente</div>
+      <div class="rarity-chip" data-rarity="common" onclick="setRarity(this)">⬜ Común</div>
+      <div class="rarity-chip" data-rarity="icon" onclick="setRarity(this)">🩵 Icon</div>
+      <div class="rarity-chip" data-rarity="marvel" onclick="setRarity(this)">🔴 Marvel</div>
+    </div>
+  </div>
+
+  <div class="results-info" id="resultsInfo"></div>
+  <div id="cosmGridWrapper">
+    <div class="cosm-loading"><div class="cosm-spinner"></div><p>Cargando cosméticos...</p></div>
+  </div>
+  <button class="load-more-btn" id="loadMoreBtn" style="display:none" onclick="loadMore()">Cargar más cosméticos</button>
+
+  <div class="cosm-overlay" id="cosmOverlay" onclick="closeModal(event)">
+    <div class="cosm-modal" id="cosmModal">
+      <div class="modal-handle"></div>
+      <div class="modal-media" id="modalMedia">
+        <div class="modal-media-bg" id="modalBg"></div>
+        <button class="modal-close" onclick="closeModalDirect()">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+        <img id="modalImg" src="" alt="">
+      </div>
+      <div class="modal-info" id="modalInfo"></div>
+    </div>
+  </div>
+
+  <script>
+    const RARITY_BG = {
+      "common":"linear-gradient(160deg,#818181,#3a3a3a)",
+      "uncommon":"linear-gradient(160deg,#60a32e,#2a4d10)",
+      "rare":"linear-gradient(160deg,#4f6fa8,#1f3a6a)",
+      "epic":"linear-gradient(160deg,#8b38cc,#4a1575)",
+      "legendary":"linear-gradient(160deg,#e8a224,#7a4d08)",
+      "mythic":"linear-gradient(160deg,#f0e13c,#7a6e0a)",
+      "icon":"linear-gradient(160deg,#21c9c3,#0a5a57)",
+      "marvel":"linear-gradient(160deg,#c1282d,#5a0a0d)",
+    };
+    const RARITY_SOLID = {
+      "common":"#818181","uncommon":"#60a32e","rare":"#4f6fa8",
+      "epic":"#8b38cc","legendary":"#e8a224","mythic":"#f0e13c",
+      "icon":"#21c9c3","marvel":"#c1282d",
+    };
+    const RARITY_CLASS = {
+      "common":"r-comun","uncommon":"r-infrecuente","rare":"r-raro",
+      "epic":"r-epico","legendary":"r-legendario","mythic":"r-mitico",
+      "icon":"r-icon","marvel":"r-marvel",
+    };
+    const RARITY_LABEL = {
+      "common":"Común","uncommon":"Infrecuente","rare":"Raro",
+      "epic":"Épico","legendary":"Legendario","mythic":"Mítico",
+      "icon":"Serie Icon","marvel":"Serie Marvel",
+    };
+
+    function getRarityKey(rarity) {
+      const r = String(rarity || "").toLowerCase();
+      if (r.includes("icon")) return "icon";
+      if (r.includes("marvel")) return "marvel";
+      if (r.includes("mythic")||r.includes("mítico")||r.includes("mitico")) return "mythic";
+      if (r.includes("legendary")||r.includes("legendario")) return "legendary";
+      if (r.includes("epic")||r.includes("épico")||r.includes("epico")) return "epic";
+      if (r.includes("rare")||r.includes("raro")) return "rare";
+      if (r.includes("uncommon")||r.includes("infrecuente")) return "uncommon";
+      if (r.includes("common")||r.includes("común")||r.includes("comun")) return "common";
+      return null;
+    }
+
+    function getBg(r) { return RARITY_BG[getRarityKey(r)] || "linear-gradient(160deg,#1a1a2e,#0d0d1a)"; }
+    function getSolid(r) { return RARITY_SOLID[getRarityKey(r)] || "#8d17fb"; }
+    function getRarityClass(r) { return RARITY_CLASS[getRarityKey(r)] || "r-otro"; }
+    function getRarityLabel(r) { return RARITY_LABEL[getRarityKey(r)] || String(r || "Desconocido"); }
+    function escHtml(s) { return String(s??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+    function isMusic(it) { return String(it?.type?.value||"").toLowerCase().includes("music"); }
+
+    let allItems = [], filteredItems = [], displayedCount = 0;
+    const PAGE_SIZE = 60;
+    let activeType = "", activeRarity = "";
+    let searchDebounce = null, currentAudio = null;
+    const RARITY_ORDER = ["mythic","icon","marvel","legendary","epic","rare","uncommon","common"];
+
+    async function loadCosmetics() {
+      try {
+        const res = await fetch("https://fortnite-api.com/v2/cosmetics/br?language=es");
+        if (!res.ok) throw new Error("API error");
+        const json = await res.json();
+        allItems = (json?.data || []).filter(it => it?.images?.icon || it?.images?.smallIcon || it?.images?.featured);
+        allItems.sort((a, b) => {
+          const ra = RARITY_ORDER.indexOf(getRarityKey(a?.rarity?.value||""));
+          const rb = RARITY_ORDER.indexOf(getRarityKey(b?.rarity?.value||""));
+          return (ra===-1?99:ra)-(rb===-1?99:rb);
+        });
+        document.getElementById('cosmSubtitle').textContent = `${allItems.length.toLocaleString()} cosméticos`;
+        applyFilters();
+      } catch(e) {
+        document.getElementById('cosmGridWrapper').innerHTML = `<div class="cosm-loading"><p style="color:#ef4444">Error cargando cosméticos.</p></div>`;
+      }
+    }
+
+    function setCat(el) {
+      document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      activeType = el.dataset.type;
+      applyFilters();
+    }
+
+    function setRarity(el) {
+      document.querySelectorAll('.rarity-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      activeRarity = el.dataset.rarity;
+      applyFilters();
+    }
+
+    function applyFilters() {
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      document.getElementById('clearBtn').classList.toggle('visible', !!search);
+      filteredItems = allItems.filter(it => {
+        const name = String(it?.name||"").toLowerCase();
+        const type = String(it?.type?.value||"").toLowerCase();
+        const rarity = getRarityKey(it?.rarity?.value||"")||"";
+        if (search && !name.includes(search)) return false;
+        if (activeType && !type.includes(activeType)) return false;
+        if (activeRarity && rarity !== activeRarity) return false;
+        return true;
+      });
+      displayedCount = 0;
+      renderGrid(true);
+    }
+
+    function clearSearch() { document.getElementById('searchInput').value=''; applyFilters(); }
+
+    function renderGrid(reset=false) {
+      const wrapper = document.getElementById('cosmGridWrapper');
+      const nextBatch = filteredItems.slice(displayedCount, displayedCount+PAGE_SIZE);
+      displayedCount += nextBatch.length;
+
+      if (reset) {
+        if (!filteredItems.length) {
+          wrapper.innerHTML = `<div class="cosm-empty"><div class="cosm-empty-icon">🔍</div><p>No se encontraron cosméticos</p></div>`;
+          document.getElementById('loadMoreBtn').style.display = 'none';
+          document.getElementById('resultsInfo').innerHTML = '';
+          return;
+        }
+        wrapper.innerHTML = `<div class="cosm-grid" id="innerGrid"></div>`;
+      }
+
+      const grid = document.getElementById('innerGrid');
+      nextBatch.forEach(it => grid.appendChild(buildCard(it)));
+
+      document.getElementById('resultsInfo').innerHTML =
+        `Mostrando <strong>${Math.min(displayedCount,filteredItems.length)}</strong> de <strong>${filteredItems.length}</strong>`;
+      document.getElementById('loadMoreBtn').style.display = displayedCount < filteredItems.length ? 'block' : 'none';
+    }
+
+    function loadMore() { renderGrid(false); }
+
+    function buildCard(it) {
+      const name = escHtml(it?.name||"Item");
+      const img = it?.images?.icon || it?.images?.smallIcon || "";
+      const rarity = it?.rarity?.value||"";
+      const card = document.createElement('div');
+      card.className = 'cosm-card';
+      card.style.background = getBg(rarity);
+      card.onclick = () => openModal(filteredItems.indexOf(it));
+      card.innerHTML = `
+        <img class="cosm-card-img" src="${escHtml(img)}" alt="${name}" loading="lazy" onerror="this.style.display='none'">
+        ${isMusic(it)?`<div class="cosm-card-music">🎵</div>`:''}
+        <div class="cosm-card-info">
+          <div class="cosm-card-name">${name}</div>
+          <div class="cosm-card-rarity ${getRarityClass(rarity)}">${getRarityLabel(rarity)}</div>
+        </div>`;
+      return card;
+    }
+
+    async function openModal(idx) {
+      const it = filteredItems[idx];
+      if (!it) return;
+      stopAudio();
+
+      const img = it?.images?.featured || it?.images?.icon || it?.images?.smallIcon || "";
+      const rarity = it?.rarity?.value||"";
+      const typeLabel = it?.type?.displayValue || it?.type?.value||"";
+      const intro = it?.introduction;
+
+      document.getElementById('modalBg').style.backgroundImage = `url('${img}')`;
+      document.getElementById('modalImg').src = img;
+      document.getElementById('modalImg').alt = it?.name||"";
+
+      const tags = [
+        it?.set?.value ? `<span class="modal-tag">📦 ${escHtml(it.set.value)}</span>` : '',
+        intro ? `<span class="modal-tag">🎮 Cap ${intro.chapter} T${intro.season}</span>` : '',
+        ...(it?.gameplayTags||[]).slice(0,2).map(t=>`<span class="modal-tag">${escHtml(t)}</span>`),
+      ].join('');
+
+      document.getElementById('modalInfo').innerHTML = `
+        <div class="modal-rarity-bar" style="background:${getSolid(rarity)}"></div>
+        <div class="modal-name">${escHtml(it?.name||"Item")}</div>
+        <div class="modal-type">${escHtml(getRarityLabel(rarity))} · ${escHtml(typeLabel)}</div>
+        ${it?.description?`<div class="modal-desc">${escHtml(it.description)}</div>`:''}
+        ${tags?`<div class="modal-tags">${tags}</div>`:''}
+        ${isMusic(it)?`<div id="audioSection"><div class="modal-audio-player"><span class="audio-loading">🎵 Cargando audio...</span></div></div>`:''}`;
+
+      document.getElementById('cosmOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+
+      if (isMusic(it)) {
+        try {
+          const res = await fetch(`https://fortnite-api.com/v2/cosmetics/br/${it.id}`);
+          const data = await res.json();
+          const musicUrl = data?.data?.musicUrl || "";
+          const audioSection = document.getElementById('audioSection');
+          if (audioSection) {
+            if (musicUrl) {
+              currentAudio = new Audio(musicUrl);
+              currentAudio.loop = true;
+              audioSection.innerHTML = `
+                <div class="modal-audio-player">
+                  <button class="audio-play-btn" id="audioPlayBtn" onclick="toggleAudio()">
+                    <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                  </button>
+                  <div class="audio-info">
+                    <div class="audio-label">🎵 Vista previa</div>
+                    <div class="audio-sublabel">${escHtml(it?.name||"")}</div>
+                  </div>
+                </div>`;
+              currentAudio.play().then(() => {
+                const btn = document.getElementById('audioPlayBtn');
+                if (btn) btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+              }).catch(()=>{});
+            } else {
+              audioSection.innerHTML = `<div class="modal-audio-player"><span class="audio-loading" style="color:#6b7280">Audio no disponible para este item</span></div>`;
+            }
+          }
+        } catch(e) {
+          const s = document.getElementById('audioSection');
+          if (s) s.innerHTML = '';
+        }
+      }
+    }
+
+    function toggleAudio() {
+      if (!currentAudio) return;
+      const btn = document.getElementById('audioPlayBtn');
+      if (currentAudio.paused) {
+        currentAudio.play();
+        if (btn) btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>`;
+      } else {
+        currentAudio.pause();
+        if (btn) btn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>`;
+      }
+    }
+
+    function stopAudio() { if (currentAudio) { currentAudio.pause(); currentAudio = null; } }
+
+    function closeModalDirect() {
+      stopAudio();
+      document.getElementById('cosmOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function closeModal(e) { if (e.target===document.getElementById('cosmOverlay')) closeModalDirect(); }
+
+    let touchStartY = 0;
+    document.getElementById('cosmModal').addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; });
+    document.getElementById('cosmModal').addEventListener('touchend', e => { if (e.changedTouches[0].clientY - touchStartY > 80) closeModalDirect(); });
+
+    document.getElementById('searchInput').addEventListener('input', () => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(applyFilters, 300);
+    });
+
+    function waitForFirebase(cb, max=50) {
+      let i=0;
+      const t = setInterval(()=>{
+        i++;
+        if (typeof firebase!=='undefined' && typeof firebase.auth==='function') { clearInterval(t); cb(); }
+        else if (i>=max) clearInterval(t);
+      }, 100);
+    }
+
+    window.addEventListener('load', () => {
+      waitForFirebase(() => {
+        firebase.auth().onAuthStateChanged(user => {
+          if (!user) window.location.href = withAppFlag('index.html');
+          else loadCosmetics();
+        });
+      });
+    });
+  </script>
+</body>
+</html>
