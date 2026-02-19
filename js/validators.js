@@ -1,101 +1,101 @@
+// js/validators.js
 // ==================== VALIDATORS ====================
-// Validaciones mejoradas para formularios
-// ====================================================
+// Validaciones reutilizables para formularios VirtualGift
+// =====================================================
 
 window.Validators = {
+
   /**
    * Valida correo electrónico
+   * @param {string} email
+   * @returns {{ valid: boolean, message: string }}
    */
-  email: function(email) {
-    if (!email || email.trim() === '') {
-      return { valid: false, message: 'El correo es requerido' };
-    }
+  email(email) {
+    const e = String(email || "").trim();
+    if (!e) return { valid: false, message: "El correo es requerido" };
 
-    var regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!regex.test(email)) {
-      return { valid: false, message: 'Correo electrónico inválido' };
-    }
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!regex.test(e)) return { valid: false, message: "Correo electrónico inválido" };
 
-    return { valid: true, message: '' };
+    return { valid: true, message: "" };
   },
 
   /**
-   * Valida nombre de usuario
+   * Valida nombre de usuario (login/registro)
+   * Reglas: 3–20 chars, solo letras/números/guion/guion-bajo, no inicia con número
+   * @param {string} username
+   * @returns {{ valid: boolean, message: string }}
    */
-  username: function(username) {
-    if (!username || username.trim() === '') {
-      return { valid: false, message: 'El nombre de usuario es requerido' };
-    }
+  username(username) {
+    const u = String(username || "").trim();
+    if (!u)          return { valid: false, message: "El nombre de usuario es requerido" };
+    if (u.length < 3)  return { valid: false, message: "Mínimo 3 caracteres" };
+    if (u.length > 20) return { valid: false, message: "Máximo 20 caracteres" };
 
-    var trimmed = username.trim();
+    if (!/^[a-zA-Z0-9_-]+$/.test(u))
+      return { valid: false, message: "Solo letras, números, guiones y guión bajo" };
 
-    if (trimmed.length < 3) {
-      return { valid: false, message: 'Mínimo 3 caracteres' };
-    }
+    if (/^[0-9]/.test(u))
+      return { valid: false, message: "No puede empezar con número" };
 
-    if (trimmed.length > 20) {
-      return { valid: false, message: 'Máximo 20 caracteres' };
-    }
+    return { valid: true, message: "" };
+  },
 
-    if (!/^[a-zA-Z0-9_-]+$/.test(trimmed)) {
-      return { valid: false, message: 'Solo letras, números, guiones y guión bajo' };
-    }
+  /**
+   * Valida nombre para mostrar (displayName / perfil)
+   * Reglas: 2–40 chars, permite cualquier carácter excepto < > { }
+   * @param {string} name
+   * @returns {{ valid: boolean, message: string }}
+   */
+  displayName(name) {
+    const n = String(name || "").trim();
+    if (!n)           return { valid: false, message: "El nombre es requerido" };
+    if (n.length < 2)  return { valid: false, message: "Mínimo 2 caracteres" };
+    if (n.length > 40) return { valid: false, message: "Máximo 40 caracteres" };
 
-    if (/^[0-9]/.test(trimmed)) {
-      return { valid: false, message: 'No puede empezar con número' };
-    }
+    if (/[<>{}]/.test(n))
+      return { valid: false, message: "El nombre contiene caracteres no permitidos" };
 
-    return { valid: true, message: '' };
+    return { valid: true, message: "" };
   },
 
   /**
    * Valida contraseña
+   * Calcula strength (0–100) e indica el primer requisito que falla
+   * @param {string} password
+   * @returns {{ valid: boolean, message: string, strength: number }}
    */
-  password: function(password) {
-    if (!password) {
-      return { valid: false, message: 'La contraseña es requerida', strength: 0 };
-    }
+  password(password) {
+    const p = String(password || "");
 
-    if (password.length < 8) {
-      return { valid: false, message: 'Mínimo 8 caracteres', strength: 0 };
-    }
+    if (!p)          return { valid: false, message: "La contraseña es requerida", strength: 0 };
+    if (p.length < 8) return { valid: false, message: "Mínimo 8 caracteres",         strength: 0 };
 
-    var strength = 0;
+    // Calcular fortaleza (0–100)
+    let strength = 0;
+    if (/[a-z]/.test(p)) strength += 25;
+    if (/[A-Z]/.test(p)) strength += 25;
+    if (/[0-9]/.test(p)) strength += 25;
+    if (/[!@#$%^&*(),.?":{}|<>]/.test(p)) strength += 25;
 
-    if (/[a-z]/.test(password)) strength += 25;
-    if (/[A-Z]/.test(password)) strength += 25;
-    if (/[0-9]/.test(password)) strength += 25;
-    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength += 25;
+    // Requisitos mínimos obligatorios
+    if (!/[a-z]/.test(p)) return { valid: false, message: "Debe incluir minúsculas", strength };
+    if (!/[A-Z]/.test(p)) return { valid: false, message: "Debe incluir mayúsculas", strength };
+    if (!/[0-9]/.test(p)) return { valid: false, message: "Debe incluir números",    strength };
 
-    if (!/[a-z]/.test(password)) {
-      return { valid: false, message: 'Debe incluir minúsculas', strength: strength };
-    }
-
-    if (!/[A-Z]/.test(password)) {
-      return { valid: false, message: 'Debe incluir mayúsculas', strength: strength };
-    }
-
-    if (!/[0-9]/.test(password)) {
-      return { valid: false, message: 'Debe incluir números', strength: strength };
-    }
-
-    return { valid: true, message: '', strength: strength };
+    return { valid: true, message: "", strength };
   },
 
   /**
    * Valida que las contraseñas coincidan
+   * @param {string} password
+   * @param {string} confirmPassword
+   * @returns {{ valid: boolean, message: string }}
    */
-  passwordsMatch: function(password, confirmPassword) {
-    if (!confirmPassword) {
-      return { valid: false, message: 'Confirma tu contraseña' };
-    }
+  passwordsMatch(password, confirmPassword) {
+    if (!confirmPassword)      return { valid: false, message: "Confirma tu contraseña" };
+    if (password !== confirmPassword) return { valid: false, message: "Las contraseñas no coinciden" };
+    return { valid: true, message: "" };
+  },
 
-    if (password !== confirmPassword) {
-      return { valid: false, message: 'Las contraseñas no coinciden' };
-    }
-
-    return { valid: true, message: '' };
-  }
 };
-
-console.log('✅ Validators cargado');
