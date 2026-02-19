@@ -132,7 +132,7 @@
         }
         .fn-shop-strip::-webkit-scrollbar { display: none; }
 
-        /* "Ver Tienda" card — primera del strip */
+        /* Cards fijas (Ver Tienda / Stats) */
         .fn-view-shop-card {
             flex-shrink: 0;
             width: 120px;
@@ -141,7 +141,7 @@
             overflow: hidden;
             position: relative;
             cursor: pointer;
-            border: 2px solid rgba(0, 212, 255, 0.5);
+            border: 2px solid rgba(0,212,255,0.5);
             background: #0a0a1a;
             text-decoration: none;
             transition: transform 0.2s;
@@ -160,9 +160,7 @@
             padding: 10px;
             background: linear-gradient(160deg, #0a1535 0%, #050d20 100%);
         }
-        .fn-view-shop-icon {
-            font-size: 28px;
-        }
+        .fn-view-shop-icon { font-size: 28px; }
         .fn-view-shop-text {
             font-size: 15px;
             font-weight: 900;
@@ -179,10 +177,7 @@
             align-items: center;
             gap: 3px;
         }
-        .fn-view-shop-sub::after {
-            content: '→';
-            font-size: 12px;
-        }
+        .fn-view-shop-sub::after { content: '→'; font-size: 12px; }
 
         /* Preview items en el strip */
         .fn-strip-item {
@@ -195,6 +190,7 @@
             border: 1px solid rgba(255,255,255,0.07);
             cursor: pointer;
             transition: transform 0.2s;
+            text-decoration: none;
         }
         .fn-strip-item:active { transform: scale(0.95); }
         .fn-strip-item img {
@@ -329,6 +325,8 @@
 
     <!-- STRIP DE PREVIEW DE LA TIENDA -->
     <div class="fn-shop-strip" id="fnShopStrip">
+
+        <!-- Card fija: Ver Tienda (inicio) -->
         <a href="tienda.html"
            onclick="this.href=withAppFlag('tienda.html')"
            class="fn-view-shop-card">
@@ -338,11 +336,26 @@
                 <div class="fn-view-shop-sub">Ver todo</div>
             </div>
         </a>
+
+        <!-- Skeletons mientras cargan los items -->
         <div class="fn-strip-skeleton"></div>
         <div class="fn-strip-skeleton"></div>
         <div class="fn-strip-skeleton"></div>
         <div class="fn-strip-skeleton"></div>
         <div class="fn-strip-skeleton"></div>
+
+        <!-- Card fija: Stats (final) -->
+        <a href="stats.html"
+           onclick="this.href=withAppFlag('stats.html')"
+           class="fn-view-shop-card"
+           style="border-color: rgba(168,85,247,0.5);">
+            <div class="fn-view-shop-inner" style="background: linear-gradient(160deg, #1a0535 0%, #0d0520 100%);">
+                <div class="fn-view-shop-icon"></div>
+                <div class="fn-view-shop-text">Mis Stats<br>FN</div>
+                <div class="fn-view-shop-sub" style="color: #a855f7;">Ver stats</div>
+            </div>
+        </a>
+
     </div>
 
     <!-- OFERTAS -->
@@ -500,17 +513,23 @@
         const strip = document.getElementById('fnShopStrip');
         if (!strip || !_allStripItems.length) return;
 
-        const viewCard = strip.querySelector('.fn-view-shop-card');
-        strip.innerHTML = '';
-        if (viewCard) strip.appendChild(viewCard);
+        // Guardar TODAS las cards fijas antes de limpiar
+        const fixedCards = Array.from(strip.querySelectorAll('.fn-view-shop-card'));
 
+        strip.innerHTML = '';
+
+        // Restaurar card "Ver Tienda" al inicio
+        if (fixedCards[0]) strip.appendChild(fixedCards[0]);
+
+        // Agregar items rotantes
         const total = _allStripItems.length;
         for (let i = 0; i < STRIP_VISIBLE; i++) {
             const item = _allStripItems[(_stripOffset + i) % total];
-            if (item && item.imageUrl) {
-                strip.appendChild(buildStripCard(item));
-            }
+            if (item && item.imageUrl) strip.appendChild(buildStripCard(item));
         }
+
+        // Restaurar card "Mis Stats" al final
+        if (fixedCards[1]) strip.appendChild(fixedCards[1]);
 
         _stripOffset = (_stripOffset + STRIP_VISIBLE) % total;
     }

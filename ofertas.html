@@ -1,91 +1,655 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ofertas - VirtualGift</title>
-
-  <link rel="stylesheet" href="css/inicio.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#06011c">
+  <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
+  <title>Ganar Coins — VirtualGift</title>
+  <link rel="stylesheet" href="css/inicio.css">
   <script defer src="js/app-mode.js"></script>
-
-  <!-- Firebase -->
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
-
-  <style>
-    .offers-wrap{max-width:1050px;margin:0 auto;padding:16px;}
-    .offerwall-box{width:100%;min-height:760px;border-radius:16px;overflow:hidden;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);}
-    .offerwall-loading{padding:16px;color:rgba(220,239,255,0.9);font-size:14px;}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
-    .title{font-size:18px;font-weight:800;color:#dcefff;}
-    .sub{font-size:12px;opacity:.85;color:rgba(220,239,255,.85);}
-    .btn-back{border:0;background:rgba(255,255,255,0.08);color:#dcefff;padding:10px 12px;border-radius:10px;cursor:pointer;}
-  </style>
-
   <script>
     function withAppFlag(url) {
-      const isAndroidApp =
-        document.documentElement.classList.contains("android-app") ||
-        document.body.classList.contains("android-app");
+      const isAndroidApp = document.documentElement.classList.contains("android-app") || document.body.classList.contains("android-app");
       if (!isAndroidApp) return url;
       if (url.includes("app=android")) return url;
       const parts = url.split('#');
-      const base = parts[0];
-      const hash = parts[1] ? ('#' + parts[1]) : '';
-      const fixed = base.includes("?") ? (base + "&app=android") : (base + "?app=android");
-      return fixed + hash;
+      const base = parts[0]; const hash = parts[1] ? ('#' + parts[1]) : '';
+      return (base.includes("?") ? base + "&app=android" : base + "?app=android") + hash;
     }
   </script>
+  <style>
+    :root {
+      --coin: #ffc837;
+      --coin-dim: rgba(255,200,55,0.12);
+      --cyan: #00d4ff;
+      --purple: #8b5cf6;
+      --green: #10b981;
+      --red: #ef4444;
+      --card: rgba(255,255,255,0.04);
+      --border: rgba(255,255,255,0.07);
+    }
+
+    /* ===== HEADER ===== */
+    .earn-header {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 18px; position: sticky; top: 0; z-index: 100;
+      background: rgba(2,5,21,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.07); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .back-btn svg { width: 18px; height: 18px; fill: white; }
+    .earn-header-title { flex: 1; font-size: 18px; font-weight: 800; color: white; }
+
+    /* Coins pill en header */
+    .header-coins {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--coin-dim); border: 1px solid rgba(255,200,55,0.25);
+      border-radius: 20px; padding: 6px 12px; flex-shrink: 0;
+    }
+    .header-coins-icon { font-size: 16px; }
+    .header-coins-val { font-size: 15px; font-weight: 800; color: var(--coin); }
+
+    /* ===== DAILY CHECK-IN ===== */
+    .checkin-section { padding: 16px 16px 0; }
+    .checkin-card {
+      border-radius: 18px; overflow: hidden; position: relative;
+      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+      border: 1px solid rgba(139,92,246,0.3); padding: 18px;
+    }
+    .checkin-card::before {
+      content: ''; position: absolute; top: -40px; right: -40px;
+      width: 150px; height: 150px; border-radius: 50%;
+      background: rgba(139,92,246,0.15); filter: blur(30px); pointer-events: none;
+    }
+    .checkin-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .checkin-title { font-size: 16px; font-weight: 800; color: white; }
+    .checkin-streak {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(255,200,55,0.15); border: 1px solid rgba(255,200,55,0.3);
+      border-radius: 20px; padding: 4px 10px;
+      font-size: 12px; font-weight: 700; color: var(--coin);
+    }
+    .checkin-days { display: flex; gap: 6px; margin-bottom: 14px; }
+    .checkin-day {
+      flex: 1; border-radius: 10px; padding: 8px 4px; text-align: center;
+      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+    }
+    .checkin-day.done { background: rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.5); }
+    .checkin-day.today { background: rgba(139,92,246,0.3); border-color: #8b5cf6; box-shadow: 0 0 12px rgba(139,92,246,0.4); }
+    .checkin-day-label { font-size: 9px; color: rgba(255,255,255,0.5); font-weight: 600; }
+    .checkin-day-coins { font-size: 11px; font-weight: 800; color: var(--coin); margin-top: 3px; }
+    .checkin-day.done .checkin-day-coins::before { content: '✓ '; }
+    .checkin-day.today .checkin-day-label { color: #c4b5fd; }
+    .checkin-btn {
+      width: 100%; padding: 13px; border-radius: 12px;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      border: none; color: white; font-size: 15px; font-weight: 800;
+      cursor: pointer; transition: opacity 0.2s; font-family: inherit;
+    }
+    .checkin-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .checkin-btn:active:not(:disabled) { transform: scale(0.98); }
+
+    /* ===== SECTION LABEL ===== */
+    .sec-label {
+      font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.4);
+      text-transform: uppercase; letter-spacing: 1.5px;
+      padding: 20px 16px 10px;
+    }
+
+    /* ===== OFFERWALL TABS ===== */
+    .wall-tabs {
+      display: flex; gap: 8px; padding: 0 16px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .wall-tabs::-webkit-scrollbar { display: none; }
+    .wall-tab {
+      flex-shrink: 0; display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px; border-radius: 12px; cursor: pointer;
+      background: var(--card); border: 1px solid var(--border);
+      transition: all 0.2s; user-select: none;
+    }
+    .wall-tab.active { border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.08); }
+    .wall-tab-logo { width: 24px; height: 24px; border-radius: 6px; object-fit: contain; flex-shrink: 0; }
+    .wall-tab-logo-emoji { font-size: 18px; }
+    .wall-tab-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.6); white-space: nowrap; }
+    .wall-tab.active .wall-tab-name { color: var(--cyan); }
+    .wall-tab-badge {
+      font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 8px;
+      background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.3);
+    }
+
+    /* ===== OFFERWALL FRAME ===== */
+    .wall-container { margin: 12px 16px 0; }
+    .wall-panel { display: none; }
+    .wall-panel.active { display: block; }
+    .wall-iframe-wrap {
+      border-radius: 16px; overflow: hidden;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      min-height: 700px;
+    }
+    .wall-iframe-wrap iframe {
+      display: block; width: 100%; border: none;
+      min-height: 700px;
+    }
+    .wall-loading {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 60px 20px; gap: 14px;
+    }
+    .wall-spinner {
+      width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.06);
+      border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .wall-loading-txt { font-size: 13px; color: rgba(255,255,255,0.4); }
+
+    /* Offerwall info card (cuando aún no está disponible) */
+    .wall-coming {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 50px 20px; text-align: center;
+    }
+    .wall-coming-icon { font-size: 48px; margin-bottom: 14px; }
+    .wall-coming-title { font-size: 16px; font-weight: 800; color: white; margin-bottom: 8px; }
+    .wall-coming-sub { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.6; max-width: 260px; }
+    .wall-coming-badge {
+      margin-top: 14px; padding: 6px 14px; border-radius: 20px;
+      background: rgba(255,200,55,0.1); border: 1px solid rgba(255,200,55,0.3);
+      font-size: 12px; font-weight: 700; color: var(--coin);
+    }
+
+    /* ===== QUICK ACTIONS (check-in, racha, etc.) ===== */
+    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; }
+    .quick-card {
+      border-radius: 16px; padding: 16px; cursor: pointer;
+      background: var(--card); border: 1px solid var(--border);
+      transition: transform 0.2s, border-color 0.2s;
+      text-decoration: none; display: block;
+    }
+    .quick-card:active { transform: scale(0.97); }
+    .quick-card-icon { font-size: 28px; margin-bottom: 8px; }
+    .quick-card-title { font-size: 14px; font-weight: 800; color: white; }
+    .quick-card-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+    .quick-card-reward {
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 8px; padding: 3px 8px; border-radius: 8px;
+      background: var(--coin-dim); font-size: 12px; font-weight: 700; color: var(--coin);
+    }
+
+    /* ===== HISTORIAL ===== */
+    .history-list { padding: 0 16px 100px; display: flex; flex-direction: column; gap: 8px; }
+    .history-item {
+      display: flex; align-items: center; gap: 12px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 14px; padding: 12px 14px;
+    }
+    .history-icon {
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+    }
+    .history-icon.earn { background: rgba(16,185,129,0.15); }
+    .history-icon.spend { background: rgba(239,68,68,0.12); }
+    .history-info { flex: 1; min-width: 0; }
+    .history-title { font-size: 13px; font-weight: 700; color: white; }
+    .history-date { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
+    .history-pts { font-size: 16px; font-weight: 800; }
+    .history-pts.earn { color: var(--green); }
+    .history-pts.spend { color: var(--red); }
+    .history-empty { text-align: center; padding: 30px; color: rgba(255,255,255,0.3); font-size: 13px; }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: #1e1b4b; border: 1px solid rgba(139,92,246,0.4);
+      border-radius: 12px; padding: 12px 20px;
+      font-size: 14px; font-weight: 700; color: white;
+      opacity: 0; transition: all 0.3s; z-index: 9999;
+      display: flex; align-items: center; gap: 8px; white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* Tabs de sección principal */
+    .main-tabs {
+      display: flex; background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 61px; z-index: 9;
+    }
+    .main-tab {
+      flex: 1; padding: 12px 8px; text-align: center;
+      font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.4);
+      cursor: pointer; border-bottom: 2px solid transparent;
+      transition: all 0.2s; user-select: none;
+    }
+    .main-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
+
+    .main-section { display: none; }
+    .main-section.active { display: block; }
+  </style>
 </head>
-
 <body>
-  <div class="offers-wrap">
-    <div class="topbar">
-      <div>
-        <div class="title">🎯 Ofertas para ganar puntos</div>
-        <div class="sub">Completa ofertas y gana VirtualCoins automáticamente.</div>
-      </div>
-      <button class="btn-back" onclick="window.location.href=withAppFlag('inicio.html')">← Volver</button>
-    </div>
 
-    <div class="offerwall-box" id="offerwall-container">
-      <div class="offerwall-loading">Cargando ofertas...</div>
+  <!-- HEADER -->
+  <div class="earn-header">
+    <button class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </button>
+    <div class="earn-header-title">💰 Ganar Coins</div>
+    <div class="header-coins">
+      <span class="header-coins-icon">🪙</span>
+      <span class="header-coins-val" id="headerCoins">—</span>
     </div>
   </div>
 
+  <!-- MAIN TABS -->
+  <div class="main-tabs">
+    <div class="main-tab active" onclick="switchMain('ofertas', this)">🎯 Ofertas</div>
+    <div class="main-tab" onclick="switchMain('checkin', this)">📅 Check-in</div>
+    <div class="main-tab" onclick="switchMain('historial', this)">📋 Historial</div>
+  </div>
+
+  <!-- ===== SECCIÓN OFERTAS ===== -->
+  <div class="main-section active" id="sec-ofertas">
+
+    <!-- Offerwall tabs -->
+    <div class="sec-label">Selecciona una plataforma</div>
+    <div class="wall-tabs" id="wallTabs">
+      <div class="wall-tab active" onclick="switchWall('ayet', this)">
+        <span class="wall-tab-logo-emoji">🎮</span>
+        <span class="wall-tab-name">AyetStudios</span>
+        <span class="wall-tab-badge">ACTIVO</span>
+      </div>
+      <div class="wall-tab" onclick="switchWall('lootably', this)">
+        <span class="wall-tab-logo-emoji">💎</span>
+        <span class="wall-tab-name">Lootably</span>
+        <span class="wall-tab-badge">ACTIVO</span>
+      </div>
+      <div class="wall-tab" onclick="switchWall('torox', this)">
+        <span class="wall-tab-logo-emoji">⚡</span>
+        <span class="wall-tab-name">Torox</span>
+        <span class="wall-tab-badge">ACTIVO</span>
+      </div>
+      <div class="wall-tab" onclick="switchWall('adgate', this)">
+        <span class="wall-tab-logo-emoji">📺</span>
+        <span class="wall-tab-name">AdGate</span>
+        <span class="wall-tab-badge">ACTIVO</span>
+      </div>
+      <div class="wall-tab" onclick="switchWall('offertoro', this)">
+        <span class="wall-tab-logo-emoji">🏆</span>
+        <span class="wall-tab-name">Offertoro</span>
+        <span class="wall-tab-badge">ACTIVO</span>
+      </div>
+    </div>
+
+    <!-- Panels -->
+    <div class="wall-container">
+
+      <div class="wall-panel active" id="panel-ayet">
+        <div class="wall-iframe-wrap">
+          <div class="wall-loading" id="load-ayet">
+            <div class="wall-spinner"></div>
+            <div class="wall-loading-txt">Cargando AyetStudios...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wall-panel" id="panel-lootably">
+        <div class="wall-iframe-wrap">
+          <div class="wall-loading" id="load-lootably">
+            <div class="wall-spinner"></div>
+            <div class="wall-loading-txt">Cargando Lootably...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wall-panel" id="panel-torox">
+        <div class="wall-iframe-wrap">
+          <div class="wall-loading" id="load-torox">
+            <div class="wall-spinner"></div>
+            <div class="wall-loading-txt">Cargando Torox...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wall-panel" id="panel-adgate">
+        <div class="wall-iframe-wrap">
+          <div class="wall-coming">
+            <div class="wall-coming-icon">📺</div>
+            <div class="wall-coming-title">AdGate Media</div>
+            <div class="wall-coming-sub">Ve videos y completa ofertas para ganar coins. Requiere registro en AdGate.</div>
+            <div class="wall-coming-badge">⏳ Configura tu API Key</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="wall-panel" id="panel-offertoro">
+        <div class="wall-iframe-wrap">
+          <div class="wall-coming">
+            <div class="wall-coming-icon">🏆</div>
+            <div class="wall-coming-title">Offertoro</div>
+            <div class="wall-coming-sub">Miles de ofertas de alto valor. Requiere registro en Offertoro.</div>
+            <div class="wall-coming-badge">⏳ Configura tu API Key</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== SECCIÓN CHECK-IN ===== -->
+  <div class="main-section" id="sec-checkin">
+    <div style="padding: 24px 16px;">
+      <div style="border-radius:18px; background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); border:1px solid rgba(139,92,246,0.3); padding:24px; text-align:center;">
+        <div style="font-size:48px; margin-bottom:12px;">🔥</div>
+        <div style="font-size:18px; font-weight:800; color:white; margin-bottom:8px;">Recompensa Diaria</div>
+        <div style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:20px; line-height:1.6;">
+          Tu racha diaria está en <strong>Mis Puntos</strong>.<br>¡Reclama tus coins y mantén la racha!
+        </div>
+        <button onclick="window.location.href=withAppFlag('puntos.html')"
+          style="width:100%; padding:13px; border-radius:12px; background:linear-gradient(135deg,#7c3aed,#a855f7); border:none; color:white; font-size:15px; font-weight:800; cursor:pointer; font-family:inherit;">
+          🎁 Ir a Mis Puntos
+        </button>
+      </div>
+    </div>
+
+    <div class="sec-label">Más formas de ganar</div>
+    <div class="quick-grid">
+      <div class="quick-card" onclick="switchMain('ofertas', document.querySelector('.main-tab'))">
+        <div class="quick-card-icon">🎯</div>
+        <div class="quick-card-title">Ofertas</div>
+        <div class="quick-card-sub">Completa tareas</div>
+        <div class="quick-card-reward">🪙 Hasta 5000</div>
+      </div>
+      <div class="quick-card" onclick="window.location.href=withAppFlag('minijuegos.html')">
+        <div class="quick-card-icon">🕹️</div>
+        <div class="quick-card-title">Minijuegos</div>
+        <div class="quick-card-sub">Juega y gana</div>
+        <div class="quick-card-reward">🪙 Hasta 100</div>
+      </div>
+      <div class="quick-card" onclick="switchMain('ofertas', document.querySelectorAll('.main-tab')[0]); setTimeout(()=>switchWall('lootably', document.querySelectorAll('.wall-tab')[1]),100)">
+        <div class="quick-card-icon">💎</div>
+        <div class="quick-card-title">Encuestas</div>
+        <div class="quick-card-sub">Comparte tu opinión</div>
+        <div class="quick-card-reward">🪙 Hasta 500</div>
+      </div>
+      <div class="quick-card" onclick="switchMain('ofertas', document.querySelectorAll('.main-tab')[0]); setTimeout(()=>switchWall('adgate', document.querySelectorAll('.wall-tab')[3]),100)">
+        <div class="quick-card-icon">📺</div>
+        <div class="quick-card-title">Videos</div>
+        <div class="quick-card-sub">Ve anuncios</div>
+        <div class="quick-card-reward">🪙 Hasta 50</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECCIÓN HISTORIAL ===== -->
+  <div class="main-section" id="sec-historial">
+    <div class="sec-label">Últimas transacciones</div>
+    <div class="history-list" id="historyList">
+      <div class="history-empty">Cargando historial...</div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
   <script>
-    (function initAyetOfferwall() {
-      const PUBLISHER_ID = "4093228";
+    const AYET_PUB_ID    = "4093228";
+    const LOOTABLY_ID    = "TU_LOOTABLY_PLACEMENT_ID";  // reemplaza
+    const TOROX_APP_ID   = "TU_TOROX_APP_ID";           // reemplaza
+    const TOROX_SITE_ID  = "TU_TOROX_SITE_ID";          // reemplaza
 
-      function start() {
-        if (!window.firebase || !firebase.auth) return;
+    // Coins diarios por día de racha
+    const CHECKIN_REWARDS = [10, 15, 20, 25, 30, 40, 75];
 
-        firebase.auth().onAuthStateChanged(function(user) {
-          const container = document.getElementById("offerwall-container");
-          if (!container) return;
+    let currentUser = null;
+    let wallsLoaded = {};
 
-          if (!user) {
-            container.innerHTML = '<div class="offerwall-loading">Inicia sesión para ver las ofertas.</div>';
-            return;
-          }
+    // ===== TOAST =====
+    function showToast(msg, duration = 2800) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), duration);
+    }
 
-          const iframe = document.createElement("iframe");
-          iframe.src = `https://wall.ayetstudios.com/?publisher_id=${encodeURIComponent(PUBLISHER_ID)}&user_id=${encodeURIComponent(user.uid)}`;
-          iframe.width = "100%";
-          iframe.height = "760";
-          iframe.style.border = "0";
-          iframe.loading = "lazy";
+    // ===== TABS PRINCIPALES =====
+    function switchMain(id, el) {
+      document.querySelectorAll('.main-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById('sec-' + id)?.classList.add('active');
+      if (el) el.classList.add('active');
+      if (id === 'historial') loadHistory();
+    }
 
-          container.innerHTML = "";
-          container.appendChild(iframe);
-        });
+    // ===== OFFERWALL =====
+    function switchWall(wall, el) {
+      document.querySelectorAll('.wall-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.wall-panel').forEach(p => p.classList.remove('active'));
+      el?.classList.add('active');
+      document.getElementById('panel-' + wall)?.classList.add('active');
+      if (!wallsLoaded[wall] && currentUser) loadWall(wall, currentUser.uid);
+    }
+
+    function loadWall(wall, uid) {
+      if (wallsLoaded[wall]) return;
+      wallsLoaded[wall] = true;
+
+      const panel = document.getElementById('panel-' + wall);
+      if (!panel) return;
+      const wrap = panel.querySelector('.wall-iframe-wrap');
+      if (!wrap) return;
+
+      let src = null;
+      if (wall === 'ayet') {
+        src = `https://wall.ayetstudios.com/?publisher_id=${encodeURIComponent(AYET_PUB_ID)}&user_id=${encodeURIComponent(uid)}`;
+      } else if (wall === 'lootably' && LOOTABLY_ID !== 'TU_LOOTABLY_PLACEMENT_ID') {
+        src = `https://wall.lootably.com/?placementID=${encodeURIComponent(LOOTABLY_ID)}&uid=${encodeURIComponent(uid)}`;
+      } else if (wall === 'torox' && TOROX_APP_ID !== 'TU_TOROX_APP_ID') {
+        src = `https://torox.io/ifr/show/${encodeURIComponent(TOROX_APP_ID)}/${encodeURIComponent(uid)}/${encodeURIComponent(TOROX_SITE_ID)}`;
       }
 
-      if (typeof window.waitForFirebase === "function") window.waitForFirebase(start);
-      else window.addEventListener("load", start);
-    })();
+      if (src) {
+        const iframe = document.createElement('iframe');
+        iframe.src = src;
+        iframe.style.cssText = 'width:100%;min-height:700px;border:none;display:block;';
+        wrap.innerHTML = '';
+        wrap.appendChild(iframe);
+      }
+      // Si no hay src configurado, deja el mensaje "coming soon"
+    }
+
+    // ===== CHECK-IN =====
+    function buildCheckinUI(streak, alreadyDone) {
+      const days = document.getElementById('checkinDays');
+      const btn = document.getElementById('checkinBtn');
+      const badge = document.getElementById('streakBadge');
+
+      badge.textContent = `🔥 ${streak} día${streak !== 1 ? 's' : ''}`;
+
+      let html = '';
+      CHECKIN_REWARDS.forEach((coins, i) => {
+        const dayNum = i + 1;
+        const done = i < (streak % 7);
+        const isToday = i === (streak % 7) && !alreadyDone;
+        let cls = 'checkin-day';
+        if (done) cls += ' done';
+        if (isToday) cls += ' today';
+        html += `<div class="${cls}">
+          <div class="checkin-day-label">Día ${dayNum}</div>
+          <div class="checkin-day-coins">🪙${coins}</div>
+        </div>`;
+      });
+      days.innerHTML = html;
+
+      if (alreadyDone) {
+        btn.textContent = '✅ Ya hiciste check-in hoy';
+        btn.disabled = true;
+      } else {
+        const reward = CHECKIN_REWARDS[streak % 7];
+        btn.textContent = `🎁 Reclamar +${reward} coins`;
+        btn.disabled = false;
+      }
+    }
+
+    async function loadCheckin(user) {
+      try {
+        const snap = await window.db.collection('users').doc(user.uid).get();
+        const data = snap.data() || {};
+        const streak = data.checkinStreak || 0;
+        const lastCheckin = data.lastCheckin?.toDate?.() || null;
+
+        const now = new Date();
+        const todayStr = now.toDateString();
+        const alreadyDone = lastCheckin && lastCheckin.toDateString() === todayStr;
+
+        buildCheckinUI(streak, alreadyDone);
+      } catch(e) {
+        console.error(e);
+        document.getElementById('checkinBtn').textContent = 'Error al cargar';
+      }
+    }
+
+    async function doCheckin() {
+      if (!currentUser) return;
+      const btn = document.getElementById('checkinBtn');
+      btn.disabled = true; btn.textContent = 'Procesando...';
+
+      try {
+        const userRef = window.db.collection('users').doc(currentUser.uid);
+        const snap = await userRef.get();
+        const data = snap.data() || {};
+
+        const streak = data.checkinStreak || 0;
+        const lastCheckin = data.lastCheckin?.toDate?.() || null;
+        const now = new Date();
+        const todayStr = now.toDateString();
+        const yesterdayStr = new Date(now - 86400000).toDateString();
+
+        if (lastCheckin && lastCheckin.toDateString() === todayStr) {
+          showToast('✅ Ya hiciste check-in hoy');
+          buildCheckinUI(streak, true);
+          return;
+        }
+
+        // Calcular nueva racha
+        const consecutive = lastCheckin && lastCheckin.toDateString() === yesterdayStr;
+        const newStreak = consecutive ? streak + 1 : 1;
+        const reward = CHECKIN_REWARDS[(newStreak - 1) % 7];
+        const currentPoints = data.points || 0;
+
+        await userRef.set({
+          checkinStreak: newStreak,
+          lastCheckin: firebase.firestore.Timestamp.now(),
+          points: currentPoints + reward,
+        }, { merge: true });
+
+        // Registrar en historial
+        await window.db.collection('pointsHistory').add({
+          userId: currentUser.uid,
+          type: 'daily_checkin',
+          points: reward,
+          streak: newStreak,
+          createdAt: firebase.firestore.Timestamp.now(),
+        });
+
+        document.getElementById('headerCoins').textContent = (currentPoints + reward).toLocaleString();
+        showToast(`🎉 +${reward} coins! Racha: ${newStreak} días 🔥`);
+        buildCheckinUI(newStreak, true);
+      } catch(e) {
+        console.error(e);
+        showToast('❌ Error al hacer check-in');
+        btn.disabled = false;
+        btn.textContent = 'Intentar de nuevo';
+      }
+    }
+
+    // ===== HISTORIAL =====
+    const TYPE_LABELS = {
+      ayet_offer: { icon: '🎯', label: 'Oferta completada' },
+      daily_checkin: { icon: '📅', label: 'Check-in diario' },
+      minigame: { icon: '🕹️', label: 'Minijuego' },
+      redeem: { icon: '🎁', label: 'Canje' },
+    };
+
+    function formatDate(ts) {
+      if (!ts) return '';
+      const d = ts.toDate ? ts.toDate() : new Date(ts);
+      return d.toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    async function loadHistory() {
+      if (!currentUser) return;
+      const list = document.getElementById('historyList');
+      list.innerHTML = '<div class="history-empty">Cargando...</div>';
+      try {
+        const snap = await window.db.collection('pointsHistory')
+          .where('userId', '==', currentUser.uid)
+          .orderBy('createdAt', 'desc')
+          .limit(30)
+          .get();
+
+        if (snap.empty) { list.innerHTML = '<div class="history-empty">Sin transacciones aún 🪙</div>'; return; }
+
+        let html = '';
+        snap.forEach(doc => {
+          const d = doc.data();
+          const info = TYPE_LABELS[d.type] || { icon: '🪙', label: d.type || 'Transacción' };
+          const isEarn = d.points > 0;
+          html += `<div class="history-item">
+            <div class="history-icon ${isEarn ? 'earn' : 'spend'}">${info.icon}</div>
+            <div class="history-info">
+              <div class="history-title">${info.label}</div>
+              <div class="history-date">${formatDate(d.createdAt)}</div>
+            </div>
+            <div class="history-pts ${isEarn ? 'earn' : 'spend'}">${isEarn ? '+' : ''}${d.points} 🪙</div>
+          </div>`;
+        });
+        list.innerHTML = html;
+      } catch(e) {
+        console.error(e);
+        list.innerHTML = '<div class="history-empty">Error cargando historial</div>';
+      }
+    }
+
+    // ===== INIT =====
+    function waitForFirebase(cb, max=80) {
+      let i=0;
+      const t = setInterval(()=>{
+        i++;
+        if (typeof firebase!=='undefined' && typeof firebase.auth==='function' && window.db) { clearInterval(t); cb(); }
+        else if (i>=max) clearInterval(t);
+      }, 100);
+    }
+
+    window.addEventListener('load', () => {
+      waitForFirebase(() => {
+        firebase.auth().onAuthStateChanged(async user => {
+          if (!user) { window.location.href = withAppFlag('index.html'); return; }
+          currentUser = user;
+
+          // Cargar coins en header
+          try {
+            const snap = await window.db.collection('users').doc(user.uid).get();
+            const pts = snap.data()?.points || 0;
+            document.getElementById('headerCoins').textContent = pts.toLocaleString();
+          } catch(e) {}
+
+          // Cargar Ayet por defecto
+          loadWall('ayet', user.uid);
+
+          // Cargar check-in
+          loadCheckin(user);
+        });
+      });
+    });
   </script>
 </body>
 </html>

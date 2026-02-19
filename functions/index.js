@@ -85,9 +85,7 @@ async function syncShopNow() {
   console.log("Fetching Fortnite shop...");
 
   const res = await fetch(SHOP_URL, {
-    headers: {
-      "Authorization": FORTNITE_API_KEY,
-    },
+    headers: { "Authorization": FORTNITE_API_KEY },
   });
 
   if (!res.ok) {
@@ -96,16 +94,11 @@ async function syncShopNow() {
   }
 
   const json = await res.json();
-
-  const entries = Array.isArray(json?.data?.entries)
-    ? json.data.entries
-    : [];
-
+  const entries = Array.isArray(json?.data?.entries) ? json.data.entries : [];
   console.log(`Found ${entries.length} entries in shop response`);
 
   const now = admin.firestore.Timestamp.now();
 
-  // Borrar anteriores
   const oldSnap = await db.collection("shopDailyItems").get();
   if (!oldSnap.empty) {
     const delBatch = db.batch();
@@ -132,39 +125,20 @@ async function syncShopNow() {
       const id = safeStr(it?.id);
       if (!id) continue;
 
-      const typeDisplay = safeStr(it?.type?.value || "");
-
       const imageUrl = safeStr(
-        it?.images?.featured ||
-        it?.images?.icon ||
-        it?.images?.smallIcon ||
-        ""
+        it?.images?.featured || it?.images?.icon || it?.images?.smallIcon || ""
       );
-
-      // Saltar items sin imagen
       if (!imageUrl) continue;
-
-      const videoUrl = safeStr(
-        it?.showcaseVideos?.[0] ||
-        it?.video ||
-        ""
-      );
-
-      const imageFull = safeStr(
-        it?.images?.featured ||
-        it?.images?.icon ||
-        ""
-      );
 
       const docId = `${saved}_${id}`;
       batch.set(db.collection("shopDailyItems").doc(docId), {
         name: safeStr(it?.name || ""),
-        type: typeDisplay,
+        type: safeStr(it?.type?.value || ""),
         rarity: safeStr(it?.rarity?.displayValue || it?.rarity?.value || ""),
         price: price,
         imageUrl: imageUrl,
-        imageFull: imageFull,
-        videoUrl: videoUrl,
+        imageFull: safeStr(it?.images?.featured || it?.images?.icon || ""),
+        videoUrl: safeStr(it?.showcaseVideos?.[0] || it?.video || ""),
         description: safeStr(it?.description || ""),
         sort: saved,
         updatedAt: now,
@@ -184,20 +158,12 @@ async function syncShopNow() {
   if (ops > 0) await batch.commit();
 
   await db.doc("shopDaily/current").set(
-    {
-      updatedAt: now,
-      totalItems: saved,
-      source: "fortnite-api.com",
-    },
+    { updatedAt: now, totalItems: saved, source: "fortnite-api.com" },
     { merge: true }
   );
 
   console.log(`✅ Saved ${saved} items to shopDailyItems`);
 }
-
-// =====================
-// MANUAL TRIGGER
-// =====================
 
 exports.forceFortniteShopSync = onRequest(
   { region: "us-central1" },
@@ -212,17 +178,7 @@ exports.forceFortniteShopSync = onRequest(
   }
 );
 
-// =====================
-// SCHEDULED (cada 8:05 pm)
-// =====================
-
 exports.syncFortniteShop = onSchedule(
-  {
-    schedule: "5 20 * * *",
-    timeZone: "America/Santo_Domingo",
-    region: "us-central1",
-  },
-  async () => {
-    await syncShopNow();
-  }
+  { schedule: "5 20 * * *", timeZone: "America/Santo_Domingo", region: "us-central1" },
+  async () => { await syncShopNow(); }
 );

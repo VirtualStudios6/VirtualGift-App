@@ -10,8 +10,6 @@
     <link rel="stylesheet" href="css/puntos.css">
 
     <script defer src="js/app-mode.js"></script>
-
-    <!-- Firebase -->
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -31,6 +29,74 @@
             return fixed + hash;
         }
     </script>
+
+    <style>
+        /* ===== CHECK-IN RACHA ===== */
+        .checkin-card {
+            border-radius: 18px; overflow: hidden; position: relative;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            border: 1px solid rgba(139,92,246,0.3);
+            padding: 18px; margin-bottom: 20px;
+        }
+        .checkin-card::before {
+            content: ''; position: absolute; top: -40px; right: -40px;
+            width: 150px; height: 150px; border-radius: 50%;
+            background: rgba(139,92,246,0.15); filter: blur(30px); pointer-events: none;
+        }
+        .checkin-top {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 14px;
+        }
+        .checkin-title { font-size: 16px; font-weight: 800; color: white; }
+        .checkin-streak {
+            display: flex; align-items: center; gap: 5px;
+            background: rgba(255,200,55,0.15); border: 1px solid rgba(255,200,55,0.3);
+            border-radius: 20px; padding: 4px 10px;
+            font-size: 12px; font-weight: 700; color: #ffc837;
+        }
+        .checkin-days {
+            display: flex; gap: 6px; margin-bottom: 14px;
+        }
+        .checkin-day {
+            flex: 1; border-radius: 10px; padding: 8px 4px; text-align: center;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+        }
+        .checkin-day.done {
+            background: rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.5);
+        }
+        .checkin-day.today {
+            background: rgba(139,92,246,0.3); border-color: #8b5cf6;
+            box-shadow: 0 0 12px rgba(139,92,246,0.4);
+        }
+        .checkin-day-label {
+            font-size: 9px; color: rgba(255,255,255,0.5); font-weight: 600;
+        }
+        .checkin-day.today .checkin-day-label { color: #c4b5fd; }
+        .checkin-day-coins {
+            font-size: 11px; font-weight: 800; color: #ffc837; margin-top: 3px;
+        }
+        .checkin-day.done .checkin-day-coins::before { content: '✓ '; }
+        .checkin-btn {
+            width: 100%; padding: 13px; border-radius: 12px;
+            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border: none; color: white; font-size: 15px; font-weight: 800;
+            cursor: pointer; transition: opacity 0.2s; font-family: inherit;
+        }
+        .checkin-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .checkin-btn:active:not(:disabled) { transform: scale(0.98); }
+
+        /* ===== TOAST ===== */
+        .vc-toast {
+            position: fixed; bottom: 90px; left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #1e1b4b; border: 1px solid rgba(139,92,246,0.4);
+            border-radius: 12px; padding: 12px 20px;
+            font-size: 14px; font-weight: 700; color: white;
+            opacity: 0; transition: all 0.3s; z-index: 9999;
+            white-space: nowrap;
+        }
+        .vc-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    </style>
 </head>
 
 <body>
@@ -59,16 +125,13 @@
         </div>
     </header>
 
-    <!-- CONTENEDOR -->
     <div class="points-container">
 
         <button class="back-button" onclick="window.location.href=withAppFlag('inicio.html')">
             ← Volver al inicio
         </button>
 
-        <!-- ================================ -->
         <!-- BALANCE -->
-        <!-- ================================ -->
         <div class="points-header">
             <div class="points-icon">
                 <svg viewBox="0 0 100 100">
@@ -83,28 +146,25 @@
             <div class="points-conversion">≈ $<span id="dollarValue">0.00</span> USD</div>
         </div>
 
-        <!-- ================================ -->
-        <!-- RECOMPENSA DIARIA -->
-        <!-- ================================ -->
-        <div class="daily-card">
-            <div class="daily-icon">🎁</div>
-            <div class="daily-info">
-                <div class="daily-title">Recompensa diaria</div>
-                <div class="daily-desc">+500 VirtualCoins gratis cada día que inicies sesión</div>
+        <!-- ===== CHECK-IN RACHA (reemplaza la daily card simple) ===== -->
+        <div class="checkin-card">
+            <div class="checkin-top">
+                <div class="checkin-title">🔥 Recompensa Diaria</div>
+                <div class="checkin-streak" id="streakBadge">🔥 0 días</div>
             </div>
-            <button class="daily-btn" id="dailyRewardBtn">Reclamar hoy</button>
+            <div class="checkin-days" id="checkinDays"></div>
+            <button class="checkin-btn" id="checkinBtn" onclick="doCheckin()" disabled>
+                Cargando...
+            </button>
         </div>
 
-        <!-- ================================ -->
         <!-- CANJE -->
-        <!-- ================================ -->
         <div class="section-header">
             <h2 class="section-title">🎯 Canjear VirtualCoins</h2>
         </div>
 
         <div class="redeem-section">
 
-            <!-- Paso 1: cuántos puntos -->
             <div class="form-group" style="margin-bottom: 16px;">
                 <label class="form-label">¿Cuántos VirtualCoins quieres canjear?</label>
                 <div class="redeem-input-wrap">
@@ -124,7 +184,6 @@
                 <div class="redeem-hint">Mínimo 20.000 · Múltiplo de 1.000 · 1.000 puntos = $1 USD</div>
             </div>
 
-            <!-- Paso 2: elegir plataforma -->
             <label class="form-label" style="display:block; margin-bottom: 10px;">
                 ¿Dónde quieres recibir el dinero?
             </label>
@@ -152,7 +211,6 @@
                 </div>
             </div>
 
-            <!-- Paso 3: botón proceder -->
             <button class="proceed-btn" id="proceedRedeemBtn" disabled>
                 Selecciona una plataforma
             </button>
@@ -161,9 +219,7 @@
 
     </div>
 
-    <!-- ================================ -->
     <!-- MODAL DE CANJE -->
-    <!-- ================================ -->
     <div id="redeemModal" class="modal">
         <div class="modal-backdrop"></div>
         <div class="modal-content">
@@ -171,9 +227,7 @@
                 <h3 class="modal-title" id="modalPlatformName">Canjear</h3>
                 <button class="modal-close" id="closeRedeemModal">✕</button>
             </div>
-
             <div class="modal-body">
-                <!-- Resumen del canje -->
                 <div class="modal-summary">
                     <div class="summary-row">
                         <span class="summary-label">VirtualCoins a canjear</span>
@@ -188,32 +242,16 @@
                         <span class="summary-value">24 – 48 horas</span>
                     </div>
                 </div>
-
-                <!-- Formulario -->
                 <form id="redeemForm" class="redeem-form">
                     <div class="form-group">
                         <label class="form-label">Nombre completo</label>
-                        <input
-                            type="text"
-                            id="redeemFullName"
-                            class="form-input"
-                            placeholder="Ej: Juan Pérez"
-                            autocomplete="name"
-                            required
-                        />
+                        <input type="text" id="redeemFullName" class="form-input"
+                            placeholder="Ej: Juan Pérez" autocomplete="name" required />
                     </div>
-
                     <div class="form-group">
                         <label class="form-label" id="redeemAccountLabel">Cuenta</label>
-                        <input
-                            type="text"
-                            id="redeemAccount"
-                            class="form-input"
-                            placeholder=""
-                            required
-                        />
+                        <input type="text" id="redeemAccount" class="form-input" placeholder="" required />
                     </div>
-
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" id="cancelRedeemBtn">Cancelar</button>
                         <button type="submit"  class="btn btn-primary"   id="confirmRedeemBtn">Confirmar</button>
@@ -223,6 +261,149 @@
         </div>
     </div>
 
+    <!-- TOAST -->
+    <div class="vc-toast" id="vcToast"></div>
+
     <script defer src="js/puntos.js"></script>
+
+    <script>
+        // ===== COINS DIARIOS POR DÍA DE RACHA =====
+        const CHECKIN_REWARDS = [10, 15, 20, 25, 30, 40, 75];
+
+        function showVcToast(msg, duration = 2800) {
+            const t = document.getElementById('vcToast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), duration);
+        }
+
+        function buildCheckinUI(streak, alreadyDone) {
+            const days  = document.getElementById('checkinDays');
+            const btn   = document.getElementById('checkinBtn');
+            const badge = document.getElementById('streakBadge');
+
+            badge.textContent = `🔥 ${streak} día${streak !== 1 ? 's' : ''}`;
+
+            let html = '';
+            CHECKIN_REWARDS.forEach((coins, i) => {
+                const done    = i < (streak % 7);
+                const isToday = (i === (streak % 7)) && !alreadyDone;
+                let cls = 'checkin-day';
+                if (done)    cls += ' done';
+                if (isToday) cls += ' today';
+                html += `<div class="${cls}">
+                    <div class="checkin-day-label">Día ${i + 1}</div>
+                    <div class="checkin-day-coins">🪙${coins}</div>
+                </div>`;
+            });
+            days.innerHTML = html;
+
+            if (alreadyDone) {
+                btn.textContent = '✅ Ya reclamaste hoy';
+                btn.disabled = true;
+            } else {
+                const reward = CHECKIN_REWARDS[streak % 7];
+                btn.textContent = `🎁 Reclamar +${reward} coins`;
+                btn.disabled = false;
+            }
+        }
+
+        async function loadCheckin(user) {
+            try {
+                const snap = await window.db.collection('users').doc(user.uid).get();
+                const data = snap.data() || {};
+                const streak = data.checkinStreak || 0;
+                const lastCheckin = data.lastCheckin?.toDate?.() || null;
+                const alreadyDone = lastCheckin &&
+                    lastCheckin.toDateString() === new Date().toDateString();
+                buildCheckinUI(streak, alreadyDone);
+            } catch(e) {
+                console.error('loadCheckin error:', e);
+                const btn = document.getElementById('checkinBtn');
+                btn.textContent = 'Error al cargar';
+            }
+        }
+
+        async function doCheckin() {
+            const user = window._vcCurrentUser;
+            if (!user) return;
+            const btn = document.getElementById('checkinBtn');
+            btn.disabled = true; btn.textContent = 'Procesando...';
+
+            try {
+                const userRef = window.db.collection('users').doc(user.uid);
+                const snap    = await userRef.get();
+                const data    = snap.data() || {};
+
+                const streak      = data.checkinStreak || 0;
+                const lastCheckin = data.lastCheckin?.toDate?.() || null;
+                const now         = new Date();
+                const todayStr    = now.toDateString();
+                const yesterdayStr= new Date(now - 86400000).toDateString();
+
+                if (lastCheckin && lastCheckin.toDateString() === todayStr) {
+                    showVcToast('✅ Ya reclamaste hoy');
+                    buildCheckinUI(streak, true);
+                    return;
+                }
+
+                const consecutive = lastCheckin && lastCheckin.toDateString() === yesterdayStr;
+                const newStreak   = consecutive ? streak + 1 : 1;
+                const reward      = CHECKIN_REWARDS[(newStreak - 1) % 7];
+                const currentPts  = data.points || 0;
+                const newPts      = currentPts + reward;
+
+                await userRef.set({
+                    checkinStreak: newStreak,
+                    lastCheckin: firebase.firestore.Timestamp.now(),
+                    points: newPts,
+                }, { merge: true });
+
+                await window.db.collection('pointsHistory').add({
+                    userId: user.uid,
+                    type: 'daily_checkin',
+                    points: reward,
+                    streak: newStreak,
+                    createdAt: firebase.firestore.Timestamp.now(),
+                });
+
+                // Actualizar balance en pantalla
+                const balanceEl = document.getElementById('totalPoints');
+                const dollarEl  = document.getElementById('dollarValue');
+                if (balanceEl) balanceEl.textContent = newPts.toLocaleString();
+                if (dollarEl)  dollarEl.textContent  = (newPts / 1000).toFixed(2);
+
+                showVcToast(`🎉 +${reward} coins! Racha: ${newStreak} días 🔥`);
+                buildCheckinUI(newStreak, true);
+            } catch(e) {
+                console.error('doCheckin error:', e);
+                showVcToast('❌ Error al reclamar');
+                btn.disabled = false;
+                btn.textContent = 'Intentar de nuevo';
+            }
+        }
+
+        // Esperar Firebase + exponer usuario para el check-in
+        function waitForFirebaseAndDb(cb, max = 80) {
+            let i = 0;
+            const t = setInterval(() => {
+                i++;
+                if (typeof firebase !== 'undefined' &&
+                    typeof firebase.auth === 'function' &&
+                    window.db) { clearInterval(t); cb(); }
+                else if (i >= max) clearInterval(t);
+            }, 100);
+        }
+
+        window.addEventListener('load', () => {
+            waitForFirebaseAndDb(() => {
+                firebase.auth().onAuthStateChanged(user => {
+                    if (!user) { window.location.href = withAppFlag('index.html'); return; }
+                    window._vcCurrentUser = user;
+                    loadCheckin(user);
+                });
+            });
+        });
+    </script>
 </body>
 </html>
