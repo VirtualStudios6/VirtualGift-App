@@ -119,7 +119,13 @@ async function syncShopNow() {
   let saved = 0;
 
   for (const entry of entries) {
-    const items = Array.isArray(entry.brItems) ? entry.brItems : [];
+    const items = [
+      ...(Array.isArray(entry.brItems) ? entry.brItems : []),
+      ...(Array.isArray(entry.tracks) ? entry.tracks : []),
+      ...(Array.isArray(entry.instruments) ? entry.instruments : []),
+      ...(Array.isArray(entry.cars) ? entry.cars : []),
+      ...(Array.isArray(entry.legoKits) ? entry.legoKits : []),
+    ];
     const price = Number(entry.finalPrice || entry.regularPrice || 0);
 
     for (const it of items) {
@@ -128,7 +134,6 @@ async function syncShopNow() {
 
       const typeDisplay = safeStr(it?.type?.value || "");
 
-      // Best image: featured > icon > smallIcon
       const imageUrl = safeStr(
         it?.images?.featured ||
         it?.images?.icon ||
@@ -136,28 +141,30 @@ async function syncShopNow() {
         ""
       );
 
-      // ✅ NUEVO: guardar video de preview si existe
+      // Saltar items sin imagen
+      if (!imageUrl) continue;
+
       const videoUrl = safeStr(
         it?.showcaseVideos?.[0] ||
         it?.video ||
         ""
       );
 
-      // ✅ NUEVO: guardar imagen grande para el modal
       const imageFull = safeStr(
         it?.images?.featured ||
         it?.images?.icon ||
         ""
       );
 
-      batch.set(db.collection("shopDailyItems").doc(id), {
+      const docId = `${saved}_${id}`;
+      batch.set(db.collection("shopDailyItems").doc(docId), {
         name: safeStr(it?.name || ""),
         type: typeDisplay,
         rarity: safeStr(it?.rarity?.displayValue || it?.rarity?.value || ""),
         price: price,
         imageUrl: imageUrl,
-        imageFull: imageFull,       // ✅ imagen grande para modal
-        videoUrl: videoUrl,          // ✅ video de preview
+        imageFull: imageFull,
+        videoUrl: videoUrl,
         description: safeStr(it?.description || ""),
         sort: saved,
         updatedAt: now,
@@ -206,12 +213,12 @@ exports.forceFortniteShopSync = onRequest(
 );
 
 // =====================
-// SCHEDULED (cada 8:10 pm)
+// SCHEDULED (cada 8:05 pm)
 // =====================
 
 exports.syncFortniteShop = onSchedule(
   {
-    schedule: "10 20 * * *",
+    schedule: "5 20 * * *",
     timeZone: "America/Santo_Domingo",
     region: "us-central1",
   },

@@ -231,13 +231,16 @@
             width: 120px;
             height: 180px;
             border-radius: 14px;
-            background: rgba(255,255,255,0.05);
-            animation: shimmer 1.5s infinite;
             background: linear-gradient(90deg,
                 rgba(255,255,255,0.04) 25%,
                 rgba(255,255,255,0.08) 50%,
                 rgba(255,255,255,0.04) 75%);
             background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
         }
     </style>
 </head>
@@ -302,11 +305,8 @@
         </div>
     </section>
 
-    <!-- ============================================ -->
-    <!-- FORTNITE SHOP SECTION — ESTILO DILLY        -->
-    <!-- ============================================ -->
+    <!-- FORTNITE SHOP SECTION -->
     <section class="fn-shop-section">
-        <!-- Header con título, countdown y botón -->
         <div class="fn-shop-header">
             <div class="fn-shop-left">
                 <div class="fn-shop-title">
@@ -314,7 +314,7 @@
                     <span class="fn-live-badge">LIVE</span>
                 </div>
                 <div class="fn-countdown-row">
-                    <span class="fn-countdown-label">Shop Reset:</span>
+                    <span class="fn-countdown-label">Nueva Tienda en:</span>
                     <span class="fn-countdown-timer" id="fnCountdown">--:--:--</span>
                 </div>
             </div>
@@ -329,7 +329,6 @@
 
     <!-- STRIP DE PREVIEW DE LA TIENDA -->
     <div class="fn-shop-strip" id="fnShopStrip">
-        <!-- "Ver Tienda" card siempre primero -->
         <a href="tienda.html"
            onclick="this.href=withAppFlag('tienda.html')"
            class="fn-view-shop-card">
@@ -339,7 +338,6 @@
                 <div class="fn-view-shop-sub">Ver todo</div>
             </div>
         </a>
-        <!-- Skeletons mientras cargan -->
         <div class="fn-strip-skeleton"></div>
         <div class="fn-strip-skeleton"></div>
         <div class="fn-strip-skeleton"></div>
@@ -376,26 +374,6 @@
                 <p class="skin-name">Top Ofertas</p>
             </div>
         </div>
-    </section>
-
-    <!-- NUEVAS SKINS -->
-    <section class="section">
-        <div class="section-header">
-            <h2 class="section-title">Nuevas Skins 👕</h2>
-            <span class="live-badge">LIVE</span>
-        </div>
-        <p class="section-subtitle">Fortnite (Tienda diaria)</p>
-        <div class="skins-grid" id="skinsGrid"></div>
-    </section>
-
-    <!-- NUEVOS EMOTES -->
-    <section class="section">
-        <div class="section-header">
-            <h2 class="section-title">Nuevos Emote 🎭</h2>
-            <span class="live-badge">LIVE</span>
-        </div>
-        <p class="section-subtitle">Fortnite (Tienda diaria)</p>
-        <div class="emotes-grid" id="emotesGrid"></div>
     </section>
 
     <!-- POPULAR -->
@@ -438,7 +416,6 @@
     <script defer src="js/carousel.js"></script>
     <script defer src="js/news-feed.js"></script>
     <script defer src="js/inicio.js"></script>
-    <script defer src="js/shop-live.js"></script>
 
     <script>
     // ===== COUNTDOWN =====
@@ -460,30 +437,30 @@
     setInterval(updateFnCountdown, 1000);
     updateFnCountdown();
 
-    // ===== SHOP STRIP =====
+    // ===== SHOP STRIP CON ROTACIÓN =====
     const RARITY_BG_STRIP = {
-    "poco común":  "linear-gradient(160deg,#818181,#3a3a3a)",
-    "poco comun":  "linear-gradient(160deg,#818181,#3a3a3a)",
-    "común":       "linear-gradient(160deg,#818181,#3a3a3a)",
-    "comun":       "linear-gradient(160deg,#818181,#3a3a3a)",
-    "common":      "linear-gradient(160deg,#818181,#3a3a3a)",
-    "infrecuente": "linear-gradient(160deg,#60a32e,#2a4d10)",
-    "uncommon":    "linear-gradient(160deg,#60a32e,#2a4d10)",
-    "raro":        "linear-gradient(160deg,#4f6fa8,#1f3a6a)",
-    "rare":        "linear-gradient(160deg,#4f6fa8,#1f3a6a)",
-    "épico":       "linear-gradient(160deg,#8b38cc,#4a1575)",
-    "epico":       "linear-gradient(160deg,#8b38cc,#4a1575)",
-    "epic":        "linear-gradient(160deg,#8b38cc,#4a1575)",
-    "legendario":  "linear-gradient(160deg,#e8a224,#7a4d08)",
-    "legendary":   "linear-gradient(160deg,#e8a224,#7a4d08)",
-    "mítico":      "linear-gradient(160deg,#f0e13c,#7a6e0a)",
-    "mitico":      "linear-gradient(160deg,#f0e13c,#7a6e0a)",
-    "mythic":      "linear-gradient(160deg,#f0e13c,#7a6e0a)",
-    "serie icon":  "linear-gradient(160deg,#21c9c3,#0a5a57)",
-    "icon":        "linear-gradient(160deg,#21c9c3,#0a5a57)",
-    "serie marvel":"linear-gradient(160deg,#c1282d,#5a0a0d)",
-    "marvel":      "linear-gradient(160deg,#c1282d,#5a0a0d)",
-};
+        "poco común":  "linear-gradient(160deg,#818181,#3a3a3a)",
+        "poco comun":  "linear-gradient(160deg,#818181,#3a3a3a)",
+        "común":       "linear-gradient(160deg,#818181,#3a3a3a)",
+        "comun":       "linear-gradient(160deg,#818181,#3a3a3a)",
+        "common":      "linear-gradient(160deg,#818181,#3a3a3a)",
+        "infrecuente": "linear-gradient(160deg,#60a32e,#2a4d10)",
+        "uncommon":    "linear-gradient(160deg,#60a32e,#2a4d10)",
+        "raro":        "linear-gradient(160deg,#4f6fa8,#1f3a6a)",
+        "rare":        "linear-gradient(160deg,#4f6fa8,#1f3a6a)",
+        "épico":       "linear-gradient(160deg,#8b38cc,#4a1575)",
+        "epico":       "linear-gradient(160deg,#8b38cc,#4a1575)",
+        "epic":        "linear-gradient(160deg,#8b38cc,#4a1575)",
+        "legendario":  "linear-gradient(160deg,#e8a224,#7a4d08)",
+        "legendary":   "linear-gradient(160deg,#e8a224,#7a4d08)",
+        "mítico":      "linear-gradient(160deg,#f0e13c,#7a6e0a)",
+        "mitico":      "linear-gradient(160deg,#f0e13c,#7a6e0a)",
+        "mythic":      "linear-gradient(160deg,#f0e13c,#7a6e0a)",
+        "serie icon":  "linear-gradient(160deg,#21c9c3,#0a5a57)",
+        "icon":        "linear-gradient(160deg,#21c9c3,#0a5a57)",
+        "serie marvel":"linear-gradient(160deg,#c1282d,#5a0a0d)",
+        "marvel":      "linear-gradient(160deg,#c1282d,#5a0a0d)",
+    };
 
     function getStripBg(rarity) {
         const key = String(rarity || "").toLowerCase().trim();
@@ -493,42 +470,73 @@
         return "linear-gradient(160deg,#1a1a2e,#0d0d1a)";
     }
 
+    function buildStripCard(item) {
+        const name = String(item.name || "").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const bg = getStripBg(item.rarity);
+        const price = item.price || 0;
+        const card = document.createElement('a');
+        card.href = withAppFlag('tienda.html');
+        card.className = 'fn-strip-item';
+        card.style.background = bg;
+        card.innerHTML = `
+            <img src="${item.imageUrl}" alt="${name}" loading="lazy" onerror="this.style.display='none'">
+            <div class="fn-strip-item-info">
+                <div class="fn-strip-item-name">${name}</div>
+                ${price ? `<div class="fn-strip-item-price">
+                    <img src="https://fortnite-api.com/images/vbuck.png" onerror="this.style.display='none'">
+                    <span>${price}</span>
+                </div>` : ''}
+            </div>`;
+        return card;
+    }
+
+    let _allStripItems = [];
+    let _stripOffset = 0;
+    let _stripRotationTimer = null;
+    const STRIP_VISIBLE = 18;
+    const STRIP_ROTATE_MS = 23000;
+
+    function renderStripPage() {
+        const strip = document.getElementById('fnShopStrip');
+        if (!strip || !_allStripItems.length) return;
+
+        const viewCard = strip.querySelector('.fn-view-shop-card');
+        strip.innerHTML = '';
+        if (viewCard) strip.appendChild(viewCard);
+
+        const total = _allStripItems.length;
+        for (let i = 0; i < STRIP_VISIBLE; i++) {
+            const item = _allStripItems[(_stripOffset + i) % total];
+            if (item && item.imageUrl) {
+                strip.appendChild(buildStripCard(item));
+            }
+        }
+
+        _stripOffset = (_stripOffset + STRIP_VISIBLE) % total;
+    }
+
+    function startStripRotation() {
+        if (_stripRotationTimer) clearInterval(_stripRotationTimer);
+        renderStripPage();
+        _stripRotationTimer = setInterval(renderStripPage, STRIP_ROTATE_MS);
+    }
+
     function loadShopStrip() {
         const strip = document.getElementById('fnShopStrip');
         if (!strip || !window.db) return;
 
         window.db.collection("shopDailyItems")
             .orderBy("sort", "asc")
-            .limit(10)
             .onSnapshot(snap => {
-                // Mantener el card "Ver Tienda" + agregar items
-                const viewCard = strip.querySelector('.fn-view-shop-card');
-                strip.innerHTML = '';
-                if (viewCard) strip.appendChild(viewCard);
-
+                _allStripItems = [];
                 snap.forEach(doc => {
                     const item = { id: doc.id, ...doc.data() };
-                    if (!item.imageUrl) return;
-
-                    const name = String(item.name || "").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-                    const bg = getStripBg(item.rarity);
-                    const price = item.price || 0;
-
-                    const card = document.createElement('a');
-                    card.href = withAppFlag('tienda.html');
-                    card.className = 'fn-strip-item';
-                    card.style.background = bg;
-                    card.innerHTML = `
-                        <img src="${item.imageUrl}" alt="${name}" loading="lazy" onerror="this.style.display='none'">
-                        <div class="fn-strip-item-info">
-                            <div class="fn-strip-item-name">${name}</div>
-                            ${price ? `<div class="fn-strip-item-price">
-                                <img src="https://fortnite-api.com/images/vbuck.png" onerror="this.style.display='none'">
-                                <span>${price}</span>
-                            </div>` : ''}
-                        </div>`;
-                    strip.appendChild(card);
+                    if (item.imageUrl) _allStripItems.push(item);
                 });
+                _stripOffset = Math.floor(Math.random() * _allStripItems.length);
+                startStripRotation();
+            }, err => {
+                console.error("ShopStrip error:", err);
             });
     }
 
