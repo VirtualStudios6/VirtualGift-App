@@ -1,254 +1,309 @@
-/* welcome.css */
-/* ✅ Requiere viewport-fit=cover en el <meta viewport> */
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#06011c">
 
-:root {
-  --primary-color:    #8d17fb;
-  --secondary-color:  #70189b;
-  --accent-color:     #68e3ff;
+  <link rel="icon" type="image/png" sizes="32x32" href="images/logo-virtual-login.png">
+  <link rel="apple-touch-icon" href="images/logo-virtual-login.png">
 
-  --dark-bg:           #020515;
-  --dark-bg-secondary: #06011c;
-  --card-bg:           rgba(28,31,47,0.92);
-  --card-bg-secondary: rgba(30,41,59,0.85);
+  <title>Bienvenido · VirtualGift</title>
 
-  --light-color: #dcefff;
-  --gray-color:  #b6c6d9;
-  --gray-dark:   #8ea2b8;
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
 
-  --border-color:  rgba(41,50,68,0.6);
-  --success-color: #28d27d;
-  --warning-color: #ffd45d;
-  --error-color:   #ef4444;
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script defer src="js/firebase-config.js"></script>
+  <script>
+    function withAppFlag(url) {
+      const isAndroidApp =
+        document.documentElement.classList.contains("android-app") ||
+        document.body.classList.contains("android-app");
+      if (!isAndroidApp) return url;
+      if (url.includes("app=android")) return url;
+      const parts = url.split("#");
+      const base  = parts[0];
+      const hash  = parts[1] ? "#" + parts[1] : "";
+      const fixed = base.includes("?") ? base + "&app=android" : base + "?app=android";
+      return fixed + hash;
+    }
+  </script>
+  <script defer src="js/app-mode.js"></script>
 
-  --spacing-xs: 5px; --spacing-sm: 10px; --spacing-md: 15px;
-  --spacing-lg: 20px; --spacing-xl: 30px; --spacing-2xl: 40px;
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  --border-radius: 12px; --border-radius-lg: 22px; --border-radius-xl: 32px;
+    :root {
+      --primary:   #8d17fb;
+      --primary-2: #70189b;
+      --accent:    #68e3ff;
+      --bg:        #06011c;
+      --card:      rgba(14, 10, 38, 0.92);
+      --border:    rgba(255,255,255,0.07);
+      --text:      #dcefff;
+      --muted:     #7a8fa8;
+      --gold:      #ffc837;
+      --gold-dim:  rgba(255,200,55,0.12);
+      --font:      'Inter', sans-serif;
+    }
 
-  --shadow-lg: 0 8px 40px rgba(0,0,0,0.55);
-  --shadow-xl: 0 15px 50px rgba(0,0,0,0.75);
-  --glow-primary: 0 0 22px rgba(141,23,251,0.45), 0 0 36px rgba(112,24,155,0.35);
+    html, body {
+      height: 100%; min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
 
-  --transition-normal: 0.3s cubic-bezier(.4,0,.2,1);
+    .bg-orbs {
+      position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+    }
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); opacity: 0.45;
+    }
+    .orb-1 {
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, #8d17fb 0%, transparent 70%);
+      top: -120px; left: -100px;
+      animation: drift1 14s ease-in-out infinite alternate;
+    }
+    .orb-2 {
+      width: 320px; height: 320px;
+      background: radial-gradient(circle, #2563eb 0%, transparent 70%);
+      bottom: -80px; right: -80px;
+      animation: drift2 18s ease-in-out infinite alternate;
+    }
+    .orb-3 {
+      width: 220px; height: 220px;
+      background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+      top: 45%; left: 60%;
+      animation: drift3 22s ease-in-out infinite alternate;
+    }
+    @keyframes drift1 { from{transform:translate(0,0) scale(1)} to{transform:translate(40px,30px) scale(1.1)} }
+    @keyframes drift2 { from{transform:translate(0,0) scale(1)} to{transform:translate(-30px,-20px) scale(1.08)} }
+    @keyframes drift3 { from{transform:translate(0,0) scale(1)} to{transform:translate(-20px,25px) scale(0.92)} }
 
-  --font-size-sm:   0.9rem;
-  --font-size-base: 1.04rem;
-  --font-size-lg:   1.18rem;
-  --font-size-xl:   1.35rem;
-  --font-size-2xl:  1.9rem;
-  --font-size-3xl:  2.5rem;
+    .bg-grid {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(141,23,251,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(141,23,251,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
 
-  --font: 'Inter', sans-serif;
-}
+    .welcome-container {
+      position: relative; z-index: 1;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px 16px;
+      padding-top: max(24px, env(safe-area-inset-top));
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
+    }
 
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    .welcome-card {
+      width: 100%; max-width: 400px;
+      background: var(--card);
+      border: 1px solid rgba(141,23,251,0.2);
+      border-radius: 26px;
+      padding: 36px 28px 32px;
+      box-shadow:
+        0 25px 80px rgba(0,0,0,0.6),
+        0 0 0 1px rgba(141,23,251,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      animation: cardIn 0.5s cubic-bezier(0.34,1.3,0.64,1) both;
+    }
+    @keyframes cardIn {
+      from { opacity:0; transform:translateY(24px) scale(0.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
 
-body {
-  min-height: 100vh;
-  background: linear-gradient(180deg, var(--dark-bg), var(--dark-bg-secondary));
-  color: var(--light-color);
-  font-family: var(--font);
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-xl);
-  padding-top:    calc(var(--spacing-xl) + env(safe-area-inset-top));
-  padding-bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom));
-  padding-left:   calc(var(--spacing-xl) + env(safe-area-inset-left));
-  padding-right:  calc(var(--spacing-xl) + env(safe-area-inset-right));
-  position: relative;
-  overflow: hidden;
-  -webkit-font-smoothing: antialiased;
-}
+    .logo {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 12px;
+      margin-bottom: 28px;
+      position: relative;
+    }
+    .logo-glow {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 130px; height: 130px;
+      background: radial-gradient(circle, rgba(141,23,251,0.35) 0%, transparent 70%);
+      filter: blur(18px); border-radius: 50%; pointer-events: none;
+    }
+    .logo img {
+      width: 68px; height: 68px; border-radius: 18px; object-fit: contain;
+      position: relative; z-index: 1;
+      filter: drop-shadow(0 4px 16px rgba(141,23,251,0.5));
+    }
+    .logo-wordmark {
+      font-size: 20px; font-weight: 900; letter-spacing: 2px; color: white;
+      position: relative; z-index: 1;
+    }
+    .logo-wordmark span { color: var(--primary); }
 
-/* ==================== CONTAINER ==================== */
-.welcome-container {
-  position: relative; z-index: 10; width: 100%;
-  display: flex; align-items: center; justify-content: center;
-  min-height: 100vh;
-  padding: var(--spacing-lg);
-  transition: transform var(--transition-normal);
-}
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 24px;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: linear-gradient(to right, transparent, rgba(255,255,255,0.08));
+    }
+    .divider::after { transform: scaleX(-1); }
+    .divider span {
+      font-size: 11px; font-weight: 700;
+      color: var(--muted); letter-spacing: 1px; text-transform: uppercase; white-space: nowrap;
+    }
 
-/* ==================== CARD ==================== */
-.welcome-card {
-  position: relative;
-  background: var(--card-bg);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  border-radius: var(--border-radius-xl);
-  padding: var(--spacing-2xl);
-  text-align: center;
-  box-shadow: var(--shadow-xl);
-  border: 1px solid var(--border-color);
-  max-width: 500px; width: 100%;
-  animation: slideIn 0.8s ease-out;
-  overflow: hidden;
-}
+    .user-info { text-align: center; margin-bottom: 20px; }
 
-.welcome-card::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 4px;
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
-  border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
-}
+    .user-avatar-wrap {
+      width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 14px;
+      background: linear-gradient(135deg, rgba(141,23,251,0.3), rgba(104,227,255,0.2));
+      border: 2px solid rgba(141,23,251,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 0 20px rgba(141,23,251,0.25);
+    }
 
-@keyframes slideIn {
-  from { transform: translateY(60px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
+    #userName {
+      font-size: 22px; font-weight: 800; color: white;
+      line-height: 1.1; margin-bottom: 12px;
+    }
 
-/* ==================== LOGO ==================== */
-.logo {
-  margin-bottom: var(--spacing-lg);
-  animation: fadeIn 0.8s ease-out 0.2s both;
-}
-.logo img {
-  width: 120px; height: 120px; object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(141,23,251,0.3));
-}
+    .points-pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--gold-dim);
+      border: 1px solid rgba(255,200,55,0.25);
+      border-radius: 20px; padding: 6px 14px;
+    }
+    .points-pill .coin-icon { font-size: 18px; }
+    #userPoints { font-size: 18px; font-weight: 800; color: var(--gold); }
+    .points-label {
+      font-size: 12px; font-weight: 700;
+      color: rgba(255,200,55,0.6); text-transform: uppercase; letter-spacing: 0.5px;
+    }
 
-/* ==================== TÍTULO ==================== */
-.welcome-title {
-  font-family: var(--font);
-  font-size: var(--font-size-3xl);
-  font-weight: 900;
-  margin-bottom: var(--spacing-lg);
-  background: linear-gradient(135deg, #ffffff, #cfe7ff);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: fadeIn 1s ease-out 0.4s both;
-  letter-spacing: -0.5px;
-}
+    #welcome-message {
+      font-size: 13.5px; font-weight: 500;
+      color: var(--muted); line-height: 1.65;
+      text-align: center; margin-bottom: 28px;
+    }
 
-/* ==================== USER INFO ==================== */
-.user-info {
-  margin-bottom: var(--spacing-xl);
-  animation: fadeIn 1s ease-out 0.6s both;
-}
-.user-info h2 {
-  font-family: var(--font);
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  color: var(--light-color);
-  margin-bottom: var(--spacing-md);
-}
+    #continue-btn {
+      width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 15px 24px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+      border: none; border-radius: 14px;
+      color: white; font-size: 16px; font-weight: 800;
+      font-family: var(--font); letter-spacing: 0.3px;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(141,23,251,0.4);
+      transition: all 0.2s ease;
+      position: relative; overflow: hidden;
+    }
+    #continue-btn::before {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+    }
+    #continue-btn:hover { transform:translateY(-1px); box-shadow:0 8px 28px rgba(141,23,251,0.55); }
+    #continue-btn:active { transform: scale(0.98); }
+    #continue-btn svg { width:18px; height:18px; fill:white; transition:transform 0.2s; }
+    #continue-btn:hover svg { transform: translateX(3px); }
 
-/* ==================== PUNTOS ==================== */
-.points-display {
-  background: var(--card-bg-secondary);
-  border-radius: var(--border-radius-lg);
-  padding: var(--spacing-lg);
-  margin: 0 auto var(--spacing-lg);
-  border: 1px solid var(--border-color);
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-sm);
-  max-width: 280px;
-}
-.points-display::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, var(--accent-color), var(--primary-color));
-  border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
-}
-.points-display i {
-  font-size: 1.8rem; color: var(--warning-color);
-  filter: drop-shadow(0 0 10px rgba(255,212,93,0.4));
-}
-.points-display #userPoints {
-  font-family: var(--font);
-  font-size: var(--font-size-2xl);
-  font-weight: 900;
-  color: var(--warning-color);
-  text-shadow: 0 0 15px rgba(255,212,93,0.3);
-  letter-spacing: -0.5px;
-}
-.points-display .points-label {
-  font-family: var(--font);
-  font-size: var(--font-size-base);
-  font-weight: 500;
-  color: var(--gray-color);
-}
+    /* EMAIL MODAL */
+    #vg-email-modal {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(2,5,21,.88);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    #vg-email-modal.visible { display: flex !important; }
+    .modal-box {
+      background: rgba(14,10,38,0.97);
+      border: 1px solid rgba(141,23,251,0.25);
+      border-radius: 24px; padding: 28px 24px 22px;
+      max-width: 320px; width: 100%;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.6);
+      text-align: center;
+      display: flex; flex-direction: column; gap: 18px;
+      animation: modalIn .22s cubic-bezier(0.34,1.4,0.64,1) both;
+    }
+    @keyframes modalIn {
+      from { opacity:0; transform:scale(.94) translateY(10px); }
+      to   { opacity:1; transform:scale(1) translateY(0); }
+    }
+    .modal-box .modal-icon { font-size: 2.6em; }
+    .modal-box p { font-size:.96em; font-weight:700; color:var(--text); line-height:1.6; margin:0; }
+    #vg-email-modal-ok {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color:#fff; border:none; padding:13px 20px; border-radius:14px;
+      font-weight:800; cursor:pointer; font-size:.95em; font-family:var(--font);
+      box-shadow: 0 4px 16px rgba(141,23,251,0.35);
+      transition: transform 0.15s;
+    }
+    #vg-email-modal-ok:active { transform:scale(0.97); }
+  </style>
+</head>
 
-/* ==================== MENSAJE ==================== */
-.welcome-message {
-  font-family: var(--font);
-  font-size: var(--font-size-base);
-  font-weight: 400;
-  color: var(--gray-color);
-  margin-bottom: var(--spacing-2xl);
-  line-height: 1.65;
-  animation: fadeIn 1s ease-out 0.8s both;
-  padding: 0 var(--spacing-md);
-}
+<body>
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="bg-grid" aria-hidden="true"></div>
 
-/* ==================== BOTÓN CONTINUAR ==================== */
-.continue-btn {
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  color: #ffffff;
-  border: none;
-  padding: 18px 40px;
-  border-radius: var(--border-radius-lg);
-  font-family: var(--font);
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-  letter-spacing: 0.2px;
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  position: relative; overflow: hidden;
-  box-shadow: var(--glow-primary);
-  animation: fadeIn 1s ease-out 1.0s both;
-  width: 100%; max-width: 320px;
-  margin: 0 auto;
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: var(--spacing-sm);
-  -webkit-tap-highlight-color: transparent;
-}
-.continue-btn::before {
-  content: ''; position: absolute; top: 0; left: -120%;
-  width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-  transition: left 0.6s;
-}
-@media (hover: hover) {
-  .continue-btn:hover::before { left: 120%; }
-  .continue-btn:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 0 30px rgba(141,23,251,0.6), 0 0 50px rgba(112,24,155,0.35);
-  }
-  .continue-btn:hover i { transform: translateX(5px); }
-}
-.continue-btn:active { transform: translateY(0) scale(0.98); }
-.continue-btn.loading { pointer-events: none; opacity: 0.7; }
-.continue-btn i { transition: transform 0.3s ease; }
+  <div class="welcome-container">
+    <div class="welcome-card">
 
-@keyframes spin { to { transform: rotate(360deg); } }
-.fa-spinner { animation: spin 1s linear infinite; }
+      <div class="logo">
+        <div class="logo-glow" aria-hidden="true"></div>
+        <img src="images/logo-virtual-login.png" alt="VirtualGift">
+        <div class="logo-wordmark">VIRTUAL<span>GIFT</span></div>
+      </div>
 
-/* ==================== RESPONSIVE ==================== */
-@media (max-width: 700px) {
-  .welcome-card { padding: var(--spacing-xl); }
-  .welcome-title { font-size: var(--font-size-2xl); }
-  .logo img { width: 100px; height: 100px; }
-  .continue-btn { padding: 15px 30px; font-size: var(--font-size-base); }
-  .points-display { padding: var(--spacing-md); }
-  .points-display #userPoints { font-size: var(--font-size-xl); }
-}
-@media (max-width: 450px) {
-  .welcome-title { font-size: var(--font-size-xl); }
-  .logo img { width: 80px; height: 80px; }
-  .points-display { padding: var(--spacing-sm); max-width: 240px; }
-  .points-display i { font-size: 1.5rem; }
-  .points-display #userPoints { font-size: var(--font-size-lg); }
-  .continue-btn { padding: 12px 24px; font-size: var(--font-size-sm); }
-  .welcome-message { font-size: var(--font-size-sm); }
-}
+      <div class="divider"><span>¡Hola de nuevo!</span></div>
+
+      <div class="user-info">
+        <div class="user-avatar-wrap">👋</div>
+        <div id="userName">Usuario</div>
+        <div class="points-pill">
+          <span class="coin-icon">🪙</span>
+          <span id="userPoints">0</span>
+          <span class="points-label">Coins</span>
+        </div>
+      </div>
+
+      <p id="welcome-message">
+        Nos alegra verte de nuevo. ¡Prepárate para ganar recompensas increíbles!
+      </p>
+
+      <button id="continue-btn">
+        Continuar
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+
+    </div>
+  </div>
+
+  <div id="vg-email-modal">
+    <div class="modal-box">
+      <div class="modal-icon">📧</div>
+      <p>Por favor, verifica tu email para acceder a VirtualGift.</p>
+      <button id="vg-email-modal-ok">Entendido</button>
+    </div>
+  </div>
+
+  <script defer src="js/welcome.js"></script>
+</body>
+</html>
