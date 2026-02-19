@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#06011c">
   <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
   <title>Tienda Fortnite — VirtualGift</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/inicio.css">
   <script defer src="js/app-mode.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -129,7 +132,6 @@
     .shop-item-price img { width: 11px; height: 11px; object-fit: contain; }
     .shop-item-price span { font-size: 13px; font-weight: 700; color: #7ec8e3; }
 
-    /* ===== PLAY ICON en items con video ===== */
     .shop-item-play {
       position: absolute; top: 6px; right: 6px;
       width: 22px; height: 22px;
@@ -157,67 +159,41 @@
     }
     .total-bar strong { color: white; }
 
-    /* ===== MODAL PREVIEW ===== */
     .preview-overlay {
       position: fixed; inset: 0; z-index: 1000;
       background: rgba(0,0,0,0.85);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       display: flex; align-items: flex-end; justify-content: center;
       opacity: 0; pointer-events: none;
       transition: opacity 0.25s ease;
     }
-    .preview-overlay.open {
-      opacity: 1; pointer-events: all;
-    }
+    .preview-overlay.open { opacity: 1; pointer-events: all; }
     .preview-modal {
       width: 100%; max-width: 480px;
-      border-radius: 24px 24px 0 0;
-      overflow: hidden;
+      border-radius: 24px 24px 0 0; overflow: hidden;
       background: #0f0d2a;
       transform: translateY(100%);
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-      max-height: 90vh;
-      display: flex; flex-direction: column;
+      max-height: 90vh; display: flex; flex-direction: column;
     }
-    .preview-overlay.open .preview-modal {
-      transform: translateY(0);
-    }
-
-    /* Handle bar */
+    .preview-overlay.open .preview-modal { transform: translateY(0); }
     .modal-handle {
       width: 40px; height: 4px;
       background: rgba(255,255,255,0.2);
-      border-radius: 2px; margin: 12px auto 0;
-      flex-shrink: 0;
+      border-radius: 2px; margin: 12px auto 0; flex-shrink: 0;
     }
-
-    /* Media container */
-    .preview-media {
-      position: relative;
-      background: #000;
-      flex-shrink: 0;
-    }
-    .preview-media video,
-    .preview-media img {
-      width: 100%;
-      max-height: 320px;
-      object-fit: contain;
-      display: block;
+    .preview-media { position: relative; background: #000; flex-shrink: 0; }
+    .preview-media video, .preview-media img {
+      width: 100%; max-height: 320px; object-fit: contain; display: block;
     }
     .preview-media-bg {
       position: absolute; inset: 0;
-      filter: blur(20px) brightness(0.4);
-      z-index: 0;
-      background-size: cover;
-      background-position: center;
+      filter: blur(20px) brightness(0.4); z-index: 0;
+      background-size: cover; background-position: center;
     }
-    .preview-media video,
-    .preview-media img.preview-img {
+    .preview-media video, .preview-media img.preview-img {
       position: relative; z-index: 1;
     }
-
-    /* Close btn */
     .modal-close {
       position: absolute; top: 10px; right: 10px; z-index: 10;
       width: 32px; height: 32px; border-radius: 50%;
@@ -225,39 +201,22 @@
       display: flex; align-items: center; justify-content: center;
     }
     .modal-close svg { width: 16px; height: 16px; fill: white; }
-
-    /* Info */
-    .preview-info {
-      padding: 16px 20px 32px;
-      overflow-y: auto;
-    }
-    .preview-rarity-bar {
-      height: 3px; border-radius: 2px; margin-bottom: 12px;
-    }
-    .preview-name {
-      font-size: 22px; font-weight: 900; color: white; line-height: 1.2;
-    }
+    .preview-info { padding: 16px 20px 32px; overflow-y: auto; }
+    .preview-rarity-bar { height: 3px; border-radius: 2px; margin-bottom: 12px; }
+    .preview-name { font-size: 22px; font-weight: 900; color: white; line-height: 1.2; }
     .preview-type {
-      font-size: 12px; color: #9ca3af; margin-top: 4px; text-transform: uppercase;
-      letter-spacing: 0.5px; font-weight: 600;
+      font-size: 12px; color: #9ca3af; margin-top: 4px;
+      text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;
     }
-    .preview-desc {
-      font-size: 13px; color: #c4c4d4; margin-top: 10px; line-height: 1.5;
-    }
+    .preview-desc { font-size: 13px; color: #c4c4d4; margin-top: 10px; line-height: 1.5; }
     .preview-price-row {
       display: flex; align-items: center; gap: 8px;
       margin-top: 14px; padding-top: 14px;
       border-top: 1px solid rgba(255,255,255,0.07);
     }
     .preview-price-row img { width: 20px; height: 20px; object-fit: contain; }
-    .preview-price-row span {
-      font-size: 20px; font-weight: 900; color: #7ec8e3;
-    }
-    .preview-price-label {
-      font-size: 11px; color: #9ca3af; margin-left: auto;
-    }
-
-    /* Loading spinner dentro del modal */
+    .preview-price-row span { font-size: 20px; font-weight: 900; color: #7ec8e3; }
+    .preview-price-label { font-size: 11px; color: #9ca3af; margin-left: auto; }
     .modal-video-loading {
       position: absolute; inset: 0; z-index: 5;
       display: flex; align-items: center; justify-content: center;
@@ -301,7 +260,7 @@
 
   <div class="total-bar" id="totalBar" style="display:none"></div>
 
-  <!-- ===== MODAL PREVIEW ===== -->
+  <!-- MODAL PREVIEW -->
   <div class="preview-overlay" id="previewOverlay" onclick="closePreview(event)">
     <div class="preview-modal" id="previewModal">
       <div class="modal-handle"></div>
@@ -310,7 +269,6 @@
         <button class="modal-close" onclick="closeModal()">
           <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
-        <!-- Video o imagen se inyecta aquí -->
       </div>
       <div class="preview-info" id="previewInfo"></div>
     </div>
@@ -337,53 +295,31 @@
 
     // ===== RARITY COLORS =====
     const RARITY_BG = {
-      "poco común":  "linear-gradient(160deg,#818181,#3a3a3a)",
-      "poco comun":  "linear-gradient(160deg,#818181,#3a3a3a)",
-      "común":       "linear-gradient(160deg,#818181,#3a3a3a)",
-      "comun":       "linear-gradient(160deg,#818181,#3a3a3a)",
-      "common":      "linear-gradient(160deg,#818181,#3a3a3a)",
-      "infrecuente": "linear-gradient(160deg,#60a32e,#2a4d10)",
-      "uncommon":    "linear-gradient(160deg,#60a32e,#2a4d10)",
-      "raro":        "linear-gradient(160deg,#4f6fa8,#1f3a6a)",
-      "rare":        "linear-gradient(160deg,#4f6fa8,#1f3a6a)",
-      "épico":       "linear-gradient(160deg,#8b38cc,#4a1575)",
-      "epico":       "linear-gradient(160deg,#8b38cc,#4a1575)",
-      "epic":        "linear-gradient(160deg,#8b38cc,#4a1575)",
-      "legendario":  "linear-gradient(160deg,#e8a224,#7a4d08)",
-      "legendary":   "linear-gradient(160deg,#e8a224,#7a4d08)",
-      "mítico":      "linear-gradient(160deg,#f0e13c,#7a6e0a)",
-      "mitico":      "linear-gradient(160deg,#f0e13c,#7a6e0a)",
-      "mythic":      "linear-gradient(160deg,#f0e13c,#7a6e0a)",
-      "serie icon":  "linear-gradient(160deg,#21c9c3,#0a5a57)",
-      "icon":        "linear-gradient(160deg,#21c9c3,#0a5a57)",
-      "serie marvel":"linear-gradient(160deg,#c1282d,#5a0a0d)",
-      "marvel":      "linear-gradient(160deg,#c1282d,#5a0a0d)",
+      "poco común":"linear-gradient(160deg,#818181,#3a3a3a)","poco comun":"linear-gradient(160deg,#818181,#3a3a3a)",
+      "común":"linear-gradient(160deg,#818181,#3a3a3a)","comun":"linear-gradient(160deg,#818181,#3a3a3a)","common":"linear-gradient(160deg,#818181,#3a3a3a)",
+      "infrecuente":"linear-gradient(160deg,#60a32e,#2a4d10)","uncommon":"linear-gradient(160deg,#60a32e,#2a4d10)",
+      "raro":"linear-gradient(160deg,#4f6fa8,#1f3a6a)","rare":"linear-gradient(160deg,#4f6fa8,#1f3a6a)",
+      "épico":"linear-gradient(160deg,#8b38cc,#4a1575)","epico":"linear-gradient(160deg,#8b38cc,#4a1575)","epic":"linear-gradient(160deg,#8b38cc,#4a1575)",
+      "legendario":"linear-gradient(160deg,#e8a224,#7a4d08)","legendary":"linear-gradient(160deg,#e8a224,#7a4d08)",
+      "mítico":"linear-gradient(160deg,#f0e13c,#7a6e0a)","mitico":"linear-gradient(160deg,#f0e13c,#7a6e0a)","mythic":"linear-gradient(160deg,#f0e13c,#7a6e0a)",
+      "serie icon":"linear-gradient(160deg,#21c9c3,#0a5a57)","icon":"linear-gradient(160deg,#21c9c3,#0a5a57)",
+      "serie marvel":"linear-gradient(160deg,#c1282d,#5a0a0d)","marvel":"linear-gradient(160deg,#c1282d,#5a0a0d)",
     };
-
     const RARITY_SOLID = {
       "poco común":"#818181","poco comun":"#818181","común":"#818181","comun":"#818181","common":"#818181",
-      "infrecuente":"#60a32e","uncommon":"#60a32e",
-      "raro":"#4f6fa8","rare":"#4f6fa8",
-      "épico":"#8b38cc","epico":"#8b38cc","epic":"#8b38cc",
-      "legendario":"#e8a224","legendary":"#e8a224",
-      "mítico":"#f0e13c","mitico":"#f0e13c","mythic":"#f0e13c",
-      "serie icon":"#21c9c3","icon":"#21c9c3",
+      "infrecuente":"#60a32e","uncommon":"#60a32e","raro":"#4f6fa8","rare":"#4f6fa8",
+      "épico":"#8b38cc","epico":"#8b38cc","epic":"#8b38cc","legendario":"#e8a224","legendary":"#e8a224",
+      "mítico":"#f0e13c","mitico":"#f0e13c","mythic":"#f0e13c","serie icon":"#21c9c3","icon":"#21c9c3",
       "serie marvel":"#c1282d","marvel":"#c1282d",
     };
-
     function getRarityBg(rarity) {
-      const key = String(rarity || "").toLowerCase().trim();
-      for (const [k, v] of Object.entries(RARITY_BG)) {
-        if (key.includes(k)) return v;
-      }
+      const key = String(rarity||"").toLowerCase().trim();
+      for (const [k,v] of Object.entries(RARITY_BG)) { if (key.includes(k)) return v; }
       return "linear-gradient(160deg,#1a1a2e,#0d0d1a)";
     }
-
     function getRaritySolid(rarity) {
-      const key = String(rarity || "").toLowerCase().trim();
-      for (const [k, v] of Object.entries(RARITY_SOLID)) {
-        if (key.includes(k)) return v;
-      }
+      const key = String(rarity||"").toLowerCase().trim();
+      for (const [k,v] of Object.entries(RARITY_SOLID)) { if (key.includes(k)) return v; }
       return "#8d17fb";
     }
 
@@ -403,13 +339,12 @@
       "banner":        { label: "🏳️ Banners", emoji: "🏳️" },
       "other":         { label: "📦 Otros", emoji: "📦" },
     };
-
     function getCatKey(type) {
-      const t = String(type || "").toLowerCase().trim();
+      const t = String(type||"").toLowerCase().trim();
       if (t.includes("outfit")) return "outfit";
-      if (t.includes("emote") || t.includes("dance")) return "emote";
-      if (t.includes("back") && t.includes("pack")) return "backpack";
-      if (t.includes("pickaxe") || t.includes("harvesting")) return "pickaxe";
+      if (t.includes("emote")||t.includes("dance")) return "emote";
+      if (t.includes("back")&&t.includes("pack")) return "backpack";
+      if (t.includes("pickaxe")||t.includes("harvesting")) return "pickaxe";
       if (t.includes("glider")) return "glider";
       if (t.includes("wrap")) return "wrap";
       if (t.includes("contrail")) return "contrail";
@@ -422,10 +357,7 @@
     }
 
     const VBUCK = "https://fortnite-api.com/images/vbuck.png";
-
-    let allItems = [];
-    let categorized = {};
-    let activeFilter = "all";
+    let allItems = [], categorized = {}, activeFilter = "all";
 
     function showError() {
       document.getElementById('shopContent').innerHTML =
@@ -437,11 +369,11 @@
       tabs.innerHTML = `<div class="cat-tab active" onclick="filterCategory('all', this)">🏪 Todo</div>`;
       const order = ["outfit","emote","backpack","pickaxe","glider","wrap","contrail","spray","toy","music","loading screen","banner","other"];
       for (const key of order) {
-        if (categorized[key] && categorized[key].length > 0) {
+        if (categorized[key]?.length > 0) {
           const info = CAT_LABELS[key] || { label: key, emoji: "📦" };
           const btn = document.createElement('div');
           btn.className = 'cat-tab';
-          btn.textContent = `${info.emoji} ${info.label.split(' ')[1] || info.label} (${categorized[key].length})`;
+          btn.textContent = `${info.emoji} ${info.label.split(' ')[1]||info.label} (${categorized[key].length})`;
           btn.onclick = function() { filterCategory(key, this); };
           tabs.appendChild(btn);
         }
@@ -458,29 +390,25 @@
     function renderShop() {
       const content = document.getElementById('shopContent');
       const order = ["outfit","emote","backpack","pickaxe","glider","wrap","contrail","spray","toy","music","loading screen","banner","other"];
-
       if (activeFilter === 'all') {
         let html = '';
         for (const key of order) {
-          if (!categorized[key] || !categorized[key].length) continue;
+          if (!categorized[key]?.length) continue;
           const info = CAT_LABELS[key] || { label: key, emoji: "📦" };
-          html += `
-            <div class="tienda-section">
-              <div class="tienda-section-title">${info.label}<span class="tienda-count">${categorized[key].length}</span></div>
-              <div class="shop-grid">${categorized[key].map(item => renderItem(item)).join('')}</div>
-            </div>`;
+          html += `<div class="tienda-section">
+            <div class="tienda-section-title">${info.label}<span class="tienda-count">${categorized[key].length}</span></div>
+            <div class="shop-grid">${categorized[key].map(item => renderItem(item)).join('')}</div>
+          </div>`;
         }
         content.innerHTML = html || `<div class="shop-loading"><p>Tienda vacía hoy</p></div>`;
       } else {
         const items = categorized[activeFilter] || [];
         const info = CAT_LABELS[activeFilter] || { label: activeFilter, emoji: "📦" };
-        content.innerHTML = `
-          <div class="tienda-section">
-            <div class="tienda-section-title">${info.label}<span class="tienda-count">${items.length}</span></div>
-            <div class="shop-grid">${items.map(item => renderItem(item)).join('')}</div>
-          </div>`;
+        content.innerHTML = `<div class="tienda-section">
+          <div class="tienda-section-title">${info.label}<span class="tienda-count">${items.length}</span></div>
+          <div class="shop-grid">${items.map(item => renderItem(item)).join('')}</div>
+        </div>`;
       }
-
       const totalBar = document.getElementById('totalBar');
       totalBar.style.display = 'block';
       totalBar.innerHTML = `<strong>${allItems.length}</strong> items en la tienda hoy`;
@@ -493,102 +421,70 @@
       const bg = getRarityBg(item.rarity);
       const hasVideo = !!item.videoUrl;
       const idx = allItems.findIndex(i => i.id === item.id);
-
-      return `
-        <div class="shop-item" style="background:${bg}" onclick="openPreview(${idx})">
-          ${img ? `<img class="shop-item-img" src="${escapeHtml(img)}" alt="${name}" loading="lazy" onerror="this.style.display='none'">` : `<div class="shop-item-img" style="flex:1"></div>`}
-          ${hasVideo ? `<div class="shop-item-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>` : ''}
-          <div class="shop-item-info">
-            <div class="shop-item-name">${name}</div>
-            ${price ? `<div class="shop-item-price">
-              <img src="${VBUCK}" alt="V" onerror="this.style.display='none'">
-              <span>${price}</span>
-            </div>` : ''}
-          </div>
-        </div>`;
+      return `<div class="shop-item" style="background:${bg}" onclick="openPreview(${idx})">
+        ${img ? `<img class="shop-item-img" src="${escapeHtml(img)}" alt="${name}" loading="lazy" onerror="this.style.display='none'">` : `<div class="shop-item-img" style="flex:1"></div>`}
+        ${hasVideo ? `<div class="shop-item-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>` : ''}
+        <div class="shop-item-info">
+          <div class="shop-item-name">${name}</div>
+          ${price ? `<div class="shop-item-price"><img src="${VBUCK}" alt="V" onerror="this.style.display='none'"><span>${price}</span></div>` : ''}
+        </div>
+      </div>`;
     }
 
     function escapeHtml(str) {
-      return String(str ?? "")
-        .replaceAll("&","&amp;").replaceAll("<","&lt;")
-        .replaceAll(">","&gt;").replaceAll('"',"&quot;");
+      return String(str??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;");
     }
 
-    // ===== MODAL PREVIEW =====
     async function openPreview(idx) {
       const item = allItems[idx];
       if (!item) return;
-
       const overlay = document.getElementById('previewOverlay');
       const mediaEl = document.getElementById('previewMedia');
       const bgEl = document.getElementById('previewBg');
       const infoEl = document.getElementById('previewInfo');
-
       const imgFull = item.imageFull || item.imageUrl || "";
-      const rarity = item.rarity || "";
-      const solidColor = getRaritySolid(rarity);
-
-      // Fondo blur
+      const solidColor = getRaritySolid(item.rarity);
       if (imgFull) bgEl.style.backgroundImage = `url('${imgFull}')`;
-
-      // Limpiar media anterior
       mediaEl.querySelectorAll('video, img.preview-img').forEach(el => el.remove());
-
-      // Mostrar spinner
       const spinner = document.createElement('div');
       spinner.className = 'modal-video-loading';
       spinner.innerHTML = '<div class="shop-spinner"></div>';
       mediaEl.appendChild(spinner);
-
-      // Mostrar info y abrir modal de inmediato
       infoEl.innerHTML = `
         <div class="preview-rarity-bar" style="background:${solidColor}"></div>
         <div class="preview-name">${escapeHtml(item.name || "Item")}</div>
-        <div class="preview-type">${escapeHtml(rarity)} · ${escapeHtml(item.type || "")}</div>
+        <div class="preview-type">${escapeHtml(item.rarity||"")} · ${escapeHtml(item.type||"")}</div>
         ${item.description ? `<div class="preview-desc">${escapeHtml(item.description)}</div>` : ''}
-        ${item.price ? `
-        <div class="preview-price-row">
+        ${item.price ? `<div class="preview-price-row">
           <img src="${VBUCK}" alt="V" onerror="this.style.display='none'">
           <span>${item.price}</span>
           <span class="preview-price-label">V-Bucks</span>
         </div>` : ''}`;
-
       overlay.classList.add('open');
       document.body.style.overflow = 'hidden';
-
-      // Buscar video en la API en tiempo real
       let videoUrl = "";
       try {
         const res = await fetch(`https://fortnite-api.com/v2/cosmetics/br/${item.id}`);
         const data = await res.json();
         videoUrl = data?.data?.showcaseVideos?.[0] || "";
-      } catch(e) {
-        videoUrl = "";
-      }
-
+      } catch(e) { videoUrl = ""; }
       spinner.remove();
-
       if (videoUrl) {
         const video = document.createElement('video');
-        video.src = videoUrl;
-        video.autoplay = true;
-        video.loop = true;
-        video.muted = false;
-        video.playsInline = true;
+        video.src = videoUrl; video.autoplay = true; video.loop = true;
+        video.muted = false; video.playsInline = true;
         video.style.cssText = 'width:100%;max-height:320px;object-fit:contain;display:block;position:relative;z-index:1;';
         video.onerror = () => {
           video.remove();
           const img = document.createElement('img');
-          img.src = imgFull;
-          img.className = 'preview-img';
+          img.src = imgFull; img.className = 'preview-img';
           img.style.cssText = 'width:100%;max-height:320px;object-fit:contain;display:block;position:relative;z-index:1;';
           mediaEl.appendChild(img);
         };
         mediaEl.appendChild(video);
       } else {
         const img = document.createElement('img');
-        img.src = imgFull;
-        img.className = 'preview-img';
+        img.src = imgFull; img.className = 'preview-img';
         img.style.cssText = 'width:100%;max-height:320px;object-fit:contain;display:block;position:relative;z-index:1;';
         mediaEl.appendChild(img);
       }
@@ -598,52 +494,40 @@
       const overlay = document.getElementById('previewOverlay');
       overlay.classList.remove('open');
       document.body.style.overflow = '';
-      // Parar video
       const video = overlay.querySelector('video');
       if (video) { video.pause(); video.remove(); }
     }
-
     function closePreview(e) {
       if (e.target === document.getElementById('previewOverlay')) closeModal();
     }
 
-    // Swipe down para cerrar
     let touchStartY = 0;
-    document.getElementById('previewModal').addEventListener('touchstart', e => {
-      touchStartY = e.touches[0].clientY;
-    });
+    document.getElementById('previewModal').addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; });
     document.getElementById('previewModal').addEventListener('touchend', e => {
-      const diff = e.changedTouches[0].clientY - touchStartY;
-      if (diff > 80) closeModal();
+      if (e.changedTouches[0].clientY - touchStartY > 80) closeModal();
     });
 
-    // ===== FIRESTORE =====
     function loadShop() {
-      window.db.collection("shopDailyItems")
-        .orderBy("sort", "asc")
-        .onSnapshot(snap => {
-          allItems = [];
-          categorized = {};
-          snap.forEach(doc => {
-            const item = { id: doc.id, ...doc.data() };
-            allItems.push(item);
-            const key = getCatKey(item.type);
-            if (!categorized[key]) categorized[key] = [];
-            categorized[key].push(item);
-          });
-          document.getElementById('itemCount').textContent = `${allItems.length} items hoy`;
-          buildCategoryTabs();
-          renderShop();
-        }, err => { console.error(err); showError(); });
+      window.db.collection("shopDailyItems").orderBy("sort","asc").onSnapshot(snap => {
+        allItems = []; categorized = {};
+        snap.forEach(doc => {
+          const item = { id: doc.id, ...doc.data() };
+          allItems.push(item);
+          const key = getCatKey(item.type);
+          if (!categorized[key]) categorized[key] = [];
+          categorized[key].push(item);
+        });
+        document.getElementById('itemCount').textContent = `${allItems.length} items hoy`;
+        buildCategoryTabs(); renderShop();
+      }, err => { console.error(err); showError(); });
     }
 
-    function waitForFirebase(cb, max = 50) {
-      let i = 0;
-      const t = setInterval(() => {
+    function waitForFirebase(cb, max=50) {
+      let i=0;
+      const t = setInterval(()=>{
         i++;
-        if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function' && window.db) {
-          clearInterval(t); cb();
-        } else if (i >= max) { clearInterval(t); showError(); }
+        if (typeof firebase!=='undefined' && typeof firebase.auth==='function' && window.db) { clearInterval(t); cb(); }
+        else if (i>=max) { clearInterval(t); showError(); }
       }, 100);
     }
 

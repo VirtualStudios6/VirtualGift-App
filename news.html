@@ -6,6 +6,9 @@
   <meta name="theme-color" content="#06011c">
   <title>Noticia - VirtualGift</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/news-vg.css">
 
   <!-- Firebase -->
@@ -21,10 +24,7 @@
 
     <div class="article-card">
       <div class="article-header">
-        <!-- ✅ Imagen principal -->
         <img id="headerImage" class="header-image" alt="Imagen principal de la noticia" style="display:none;" />
-
-        <!-- ✅ Fallback si no hay imagen -->
         <div class="header-fallback" id="headerFallback">
           <span>VIRTUALGIFT</span>
         </div>
@@ -36,22 +36,15 @@
             <span class="status-dot"></span>
             <span id="statusText">Noticia</span>
           </span>
-
           <span class="category-badge" id="categoryText">Gaming</span>
           <span class="date-text" id="dateText">—</span>
         </div>
 
         <h1 id="titleText">Cargando...</h1>
 
-        <div class="article-body" id="blocksContainer">
-          <!-- Aquí se renderizan los bloques desde Firestore -->
-        </div>
+        <div class="article-body" id="blocksContainer"></div>
 
-        <!-- ✅ Galería opcional (si existe en Firestore: gallery: ["url1","url2"...]) -->
-        <div id="galleryContainer" class="gallery" style="display:none;">
-          <!-- Aquí se renderizan las imágenes de la galería -->
-        </div>
-
+        <div id="galleryContainer" class="gallery" style="display:none;"></div>
       </div>
     </div>
   </div>

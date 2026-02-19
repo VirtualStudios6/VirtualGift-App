@@ -2,374 +2,229 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Política de Privacidad de VirtualGift - Protección y uso de datos personales">
-  <meta name="keywords" content="privacidad, datos, política, seguridad, protección de datos">
-  <meta name="author" content="VirtualGift">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#06011c">
-  
-  <!-- Open Graph -->
-  <meta property="og:title" content="Política de Privacidad - VirtualGift">
-  <meta property="og:description" content="Política de Privacidad de la aplicación VirtualGift">
-  <meta property="og:type" content="website">
-  
-  <!-- Seguridad -->
-  <meta http-equiv="X-Content-Type-Options" content="nosniff">
-  <meta http-equiv="X-Frame-Options" content="DENY">
-  <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-  
   <title>Política de Privacidad - VirtualGift</title>
-  
-  <!-- Estilos -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
-  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="icon" href="../images/logo-virtual-login.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-color: #8d17fb;      /* Morado principal VirtualGift */
-      --secondary-color: #70189b;    /* Morado profundo (hover / subtítulos) */
-      --accent-color: #8d17fb;       /* Enlaces y acentos */
-      --dark-bg: #020515;            /* Fondo principal */
-      --darker-bg: #06011c;          /* Fondo degradado */
-      --card-bg: #1c1f2f;            /* Tarjeta / contenedor */
-      --text-color: #dcefff;         /* Texto principal */
-      --gray-color: #b6c6d9;         /* Texto secundario */
-      --border-color: #293244;       /* Líneas y bordes suaves */
+      --primary: #8d17fb; --secondary: #70189b; --accent: #c084fc;
+      --bg: #03010f; --bg2: #06011c; --card: rgba(14,11,30,0.95);
+      --card-border: rgba(141,23,251,0.2); --text: #f0eaff;
+      --text-2: rgba(200,185,230,0.8); --text-3: rgba(160,145,190,0.6);
+      --border: rgba(60,45,90,0.7);
+      --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
     }
-    
-    * { box-sizing: border-box; }
-    
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { background: var(--bg); }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(180deg, var(--dark-bg), var(--darker-bg));
-      color: var(--text-color);
-      line-height: 1.6;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
+      font-family: var(--font-body);
+      background: linear-gradient(160deg, var(--bg), var(--bg2));
+      color: var(--text); min-height: 100vh;
+      padding: calc(16px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom));
+      -webkit-font-smoothing: antialiased;
     }
-    
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 15px;
-      width: 100%;
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background:
+        radial-gradient(ellipse 60% 50% at 10% 5%, rgba(141,23,251,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 90% 90%, rgba(112,24,155,0.12) 0%, transparent 60%);
     }
-    
-    .terms-container {
-      background-color: var(--card-bg);
-      border-radius: 16px;
-      padding: clamp(20px, 4vw, 40px);
-      margin-bottom: 30px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-      border: 1px solid var(--border-color);
+    .container { max-width: 780px; margin: 0 auto; position: relative; z-index: 1; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 16px; border-radius: 12px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: var(--text-2); font-size: 14px; font-weight: 600;
+      font-family: var(--font-body); cursor: pointer; text-decoration: none;
+      transition: all .2s; margin-bottom: 20px; -webkit-tap-highlight-color:transparent;
     }
-    
-    .terms-header {
-      margin-bottom: 30px;
-      text-align: center;
+    .back-btn:hover { border-color: rgba(141,23,251,.4); color: var(--text); }
+    .back-btn svg { width:16px; height:16px; fill: currentColor; flex-shrink:0; }
+    .legal-card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 24px; padding: clamp(20px,5vw,40px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
-    
-    .terms-header h2 {
-      font-size: clamp(22px, 4vw, 28px);
-      margin-bottom: 10px;
-      color: var(--text-color);
+    .legal-header { text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .legal-header .icon { font-size: 40px; margin-bottom: 12px; }
+    .legal-header h1 { font-family: var(--font-display); font-size: clamp(22px,5vw,30px); font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .legal-header .date { font-size: 13px; color: var(--text-3); }
+    .section { margin-bottom: 28px; }
+    .section h2 {
+      font-family: var(--font-display); font-size: clamp(15px,4vw,18px); font-weight: 700;
+      color: var(--accent); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
     }
-    
-    .last-updated {
-      color: var(--gray-color);
-      font-size: clamp(12px, 3vw, 14px);
+    .section h2 .num {
+      width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+      background: rgba(141,23,251,0.2); border: 1px solid rgba(141,23,251,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: var(--accent);
     }
-    
-    .terms-section { margin-bottom: 25px; }
-    
-    .terms-section h3 {
-      font-size: clamp(18px, 4vw, 20px);
-      margin-bottom: 12px;
-      color: var(--primary-color);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    
-    .terms-section h4 {
-      font-size: clamp(16px, 3.5vw, 18px);
-      margin: 15px 0 10px 0;
-      color: var(--secondary-color);
-    }
-    
-    .terms-section p, .terms-section ul {
-      margin-bottom: 12px;
-      color: var(--gray-color);
-      font-size: clamp(14px, 3vw, 16px);
-    }
-    
-    .terms-section ul { padding-left: 20px; }
-    .terms-section li { margin-bottom: 6px; line-height: 1.5; }
-    
-    .footer {
-      text-align: center;
-      padding: 20px 0;
-      color: var(--gray-color);
-      font-size: clamp(12px, 3vw, 14px);
-      border-top: 1px solid rgba(220,239,255,0.1);
-    }
-    
-    .table-container {
-      overflow-x: auto;
-      margin: 15px 0;
-      border-radius: 8px;
-      border: 1px solid var(--border-color);
-      background: rgba(0,0,0,0.15);
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 600px;
-      background: rgba(28,31,47,0.5);
-    }
-    
-    th, td {
-      padding: clamp(10px, 2vw, 12px) clamp(12px, 2vw, 15px);
-      text-align: left;
-      border-bottom: 1px solid rgba(220,239,255,0.1);
-      font-size: clamp(13px, 3vw, 15px);
-      color: var(--gray-color);
-    }
-    
-    th {
-      background: rgba(141,23,251,0.12);
-      color: var(--text-color);
-      font-weight: 600;
-      white-space: nowrap;
-      border-bottom: 1px solid rgba(141,23,251,0.35);
-    }
-    
-    tr:hover { background: rgba(141,23,251,0.06); }
-    
+    .section h3 { font-size: 14px; font-weight: 700; color: var(--text-2); margin: 14px 0 8px; }
+    .section p, .section ul { font-size: clamp(13px,3vw,15px); color: var(--text-2); line-height: 1.7; margin-bottom: 10px; }
+    .section ul { padding-left: 18px; } .section li { margin-bottom: 5px; }
     .highlight {
-      background: rgba(141, 23, 251, 0.08);
-      padding: clamp(12px, 3vw, 15px);
-      border-left: 4px solid var(--primary-color);
-      margin: 12px 0;
-      border-radius: 6px;
-      font-size: clamp(14px, 3vw, 16px);
-      color: var(--text-color);
+      background: rgba(141,23,251,0.08); border-left: 3px solid var(--primary);
+      padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 12px 0;
+      font-size: 14px; color: var(--text); line-height: 1.6;
     }
-    
-    a {
-      color: var(--accent-color);
-      text-decoration: none;
-    }
-    a:hover { color: var(--secondary-color); text-decoration: underline; }
-    
-    /* Móviles */
-    @media (max-width: 768px) {
-      .container { padding: 10px; }
-      .terms-container { padding: 20px 15px; border-radius: 10px; }
-      .terms-section h3 { gap: 6px; }
-      .terms-section h3 i { font-size: 18px; }
-      .terms-section ul { padding-left: 15px; }
-      .table-container { border: 1px solid var(--border-color); }
-    }
-    
-    @media (max-width: 480px) {
-      .terms-header { margin-bottom: 20px; }
-      .terms-section { margin-bottom: 20px; }
-      .terms-section h3 { font-size: 16px; }
-      .terms-section p, .terms-section ul { font-size: 14px; }
-      th, td { padding: 8px 10px; font-size: 13px; }
-    }
-    
-    @media (max-width: 360px) {
-      .terms-container { padding: 15px 10px; }
-      .terms-section h3 { font-size: 15px; }
-    }
+    .section-divider { height: 1px; background: var(--border); margin: 24px 0; }
+    /* TABLE */
+    .table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); margin: 14px 0; }
+    table { width: 100%; border-collapse: collapse; min-width: 480px; }
+    th, td { padding: 12px 14px; text-align: left; font-size: 13px; color: var(--text-2); border-bottom: 1px solid rgba(255,255,255,0.05); }
+    th { background: rgba(141,23,251,0.12); color: var(--text); font-weight: 700; font-family: var(--font-display); border-bottom: 1px solid rgba(141,23,251,0.25); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(141,23,251,0.04); }
+    a { color: var(--accent); text-decoration: none; } a:hover { text-decoration: underline; }
+    .legal-footer { text-align: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-3); }
+    @media (max-width: 480px) { .legal-card { border-radius: 18px; } }
   </style>
 </head>
 <body>
   <div class="container">
-    <!-- Privacy Policy Content -->
-    <div class="terms-container">
-      <div class="terms-header">
-        <h2>Política de Privacidad</h2>
-        <p class="last-updated">Última actualización: 2 de enero, 2026</p>
+    <a href="../index.html" class="back-btn">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Volver
+    </a>
+
+    <div class="legal-card">
+      <div class="legal-header">
+        <div class="icon">🔒</div>
+        <h1>Política de Privacidad</h1>
+        <div class="date">Última actualización: 2 de enero, 2026</div>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-user-shield"></i> 1. Responsable del Tratamiento</h3>
-        <p><b>Empresa:</b> VirtualStudios<br>
-        <b>Email de contacto:</b> ceovirtualstudios@gmail.com<br>
-        <b>Ubicación:</b> República Dominicana</p>
+      <div class="section">
+        <h2><span class="num">1</span> Responsable del Tratamiento</h2>
+        <p><strong>Empresa:</strong> VirtualStudios<br>
+        <strong>Email:</strong> ceovirtualstudios@gmail.com<br>
+        <strong>Ubicación:</strong> República Dominicana</p>
       </div>
+      <div class="section-divider"></div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-database"></i> 2. Información que Recopilamos</h3>
-        <p><b>Información que usted nos proporciona:</b></p>
+      <div class="section">
+        <h2><span class="num">2</span> Información que Recopilamos</h2>
+        <h3>Información que usted nos proporciona</h3>
         <ul>
           <li>Datos de cuenta (nombre de usuario, correo electrónico, contraseña)</li>
           <li>Perfil público (avatar, nombre de usuario)</li>
           <li>Información de soporte o contacto</li>
-          <li>Contenido de encuestas o promociones</li>
         </ul>
-        
-        <p><b>Información recopilada automáticamente:</b></p>
+        <h3>Información recopilada automáticamente</h3>
         <ul>
-          <li><b>Datos de uso:</b> Sorteos en los que participa, recompensas ganadas, funcionalidades que utiliza</li>
-          <li><b>Datos técnicos:</b> Dirección IP, tipo de dispositivo, modelo, sistema operativo, identificadores únicos de dispositivo (Advertising ID/IDFA)</li>
+          <li><strong>Datos de uso:</strong> Sorteos en los que participa, recompensas ganadas</li>
+          <li><strong>Datos técnicos:</strong> IP, tipo de dispositivo, sistema operativo, Advertising ID</li>
         </ul>
-        
-        <p><b>Información de terceros:</b></p>
+        <h3>Información de terceros</h3>
         <ul>
-          <li>Datos de proveedores de autenticación (Google, Discord, etc.)</li>
-          <li>Datos de proveedores de analíticas y publicidad (Google Firebase, Facebook Audience Network)</li>
+          <li>Datos de proveedores de autenticación (Google, Facebook)</li>
+          <li>Datos de analíticas y publicidad (Firebase, Facebook Audience Network)</li>
         </ul>
       </div>
+      <div class="section-divider"></div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-balance-scale"></i> 3. Finalidades y Bases Legales del Tratamiento</h3>
-        <div class="table-container">
+      <div class="section">
+        <h2><span class="num">3</span> Finalidades y Bases Legales</h2>
+        <div class="table-wrap">
           <table>
-            <thead>
-              <tr>
-                <th>Finalidad</th>
-                <th>Base Legal</th>
-              </tr>
-            </thead>
+            <thead><tr><th>Finalidad</th><th>Base Legal</th></tr></thead>
             <tbody>
-              <tr>
-                <td>Crear y gestionar su cuenta</td>
-                <td>Consentimiento del usuario</td>
-              </tr>
-              <tr>
-                <td>Permitirle participar en sorteos y entregar premios</td>
-                <td>Ejecución de un contrato</td>
-              </tr>
-              <tr>
-                <td>Prevenir fraudes y abusos</td>
-                <td>Interés legítimo (proteger nuestro servicio)</td>
-              </tr>
-              <tr>
-                <td>Enviar notificaciones sobre la app</td>
-                <td>Interés legítimo (comunicaciones esenciales)</td>
-              </tr>
-              <tr>
-                <td>Enviar comunicaciones promocionales y marketing</td>
-                <td>Su consentimiento (retirable en configuración)</td>
-              </tr>
-              <tr>
-                <td>Analizar el uso de la app para mejoras</td>
-                <td>Interés legítimo (optimizar experiencia)</td>
-              </tr>
-              <tr>
-                <td>Mostrar publicidad personalizada</td>
-                <td>Consentimiento del usuario</td>
-              </tr>
+              <tr><td>Crear y gestionar su cuenta</td><td>Consentimiento</td></tr>
+              <tr><td>Participar en sorteos y entregar premios</td><td>Ejecución de contrato</td></tr>
+              <tr><td>Prevenir fraudes y abusos</td><td>Interés legítimo</td></tr>
+              <tr><td>Enviar notificaciones de la app</td><td>Interés legítimo</td></tr>
+              <tr><td>Comunicaciones promocionales</td><td>Consentimiento (retirable)</td></tr>
+              <tr><td>Analizar uso para mejoras</td><td>Interés legítimo</td></tr>
+              <tr><td>Mostrar publicidad personalizada</td><td>Consentimiento</td></tr>
             </tbody>
           </table>
         </div>
       </div>
+      <div class="section-divider"></div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-share-alt"></i> 4. Compartición de sus Datos</h3>
-        <p>Compartimos su información con los siguientes tipos de terceros:</p>
+      <div class="section">
+        <h2><span class="num">4</span> Compartición de Datos</h2>
         <ul>
-          <li><b>Proveedores de Servicios:</b>
-            <ul>
-              <li><b>Alojamiento e Infraestructura:</b> Google Firebase (Firestore, Authentication)</li>
-              <li><b>Analíticas:</b> Google Analytics for Firebase, Facebook Analytics</li>
-              <li><b>Publicidad:</b> Redes de anunciantes (Google AdMob, Facebook Audience Network, AppLovin)</li>
-              <li><b>Comunicaciones:</b> Servicios de email (Mailchimp, SendGrid)</li>
-            </ul>
-          </li>
-          <li><b>Cumplimiento Legal:</b> Cuando sea necesario para cumplir con obligaciones legales</li>
-          <li><b>Reorganización de la Empresa:</b> En caso de fusión, adquisición o venta de activos</li>
+          <li><strong>Infraestructura:</strong> Google Firebase (Firestore, Authentication)</li>
+          <li><strong>Analíticas:</strong> Google Analytics for Firebase, Facebook Analytics</li>
+          <li><strong>Publicidad:</strong> Google AdMob, Facebook Audience Network, AppLovin</li>
+          <li><strong>Cumplimiento legal:</strong> Cuando sea exigido por ley</li>
         </ul>
       </div>
+      <div class="section-divider"></div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-globe"></i> 5. Transferencias Internacionales</h3>
-        <p>Sus datos pueden ser procesados en servidores ubicados fuera de su país de residencia (por ejemplo, en Estados Unidos). Garantizamos que todas estas transferencias se realizan con las salvaguardas legales adecuadas, como la firma de Cláusulas Contractuales Estándar aprobadas por la Comisión Europea, para asegurar un nivel de protección equivalente.</p>
+      <div class="section">
+        <h2><span class="num">5</span> Transferencias Internacionales</h2>
+        <p>Sus datos pueden procesarse en servidores fuera de su país (ej. EE.UU.). Garantizamos salvaguardas legales adecuadas para proteger su información en todas las transferencias.</p>
       </div>
+      <div class="section-divider"></div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-ad"></i> 6. Publicidad y Sus Opciones</h3>
-        <p>Trabajamos con partners publicitarios que utilizan tecnologías (cookies, SDKs, Advertising ID) para mostrar anuncios personalizados.</p>
-        
+      <div class="section">
+        <h2><span class="num">6</span> Publicidad y Sus Opciones</h2>
+        <p>Nuestros partners publicitarios usan tecnologías (cookies, SDKs, Advertising ID) para anuncios personalizados.</p>
         <div class="highlight">
-          <p><b>Puede gestionar sus preferencias de publicidad:</b></p>
-          <ul>
-            <li><b>En dispositivos Android:</b> Ajustes → Google → Anuncios → Eliminar ID de publicidad</li>
-            <li><b>Dentro de la app:</b> Ajustes de VirtualGift → Preferencias de privacidad</li>
-          </ul>
+          <strong>Gestiona tus preferencias:</strong><br>
+          • Android: Ajustes → Google → Anuncios → Eliminar ID de publicidad<br>
+          • En la app: Ajustes → Preferencias de privacidad
         </div>
-        
-        <p><b>Políticas de terceros recomendadas:</b></p>
         <ul>
-          <li><a href="https://policies.google.com/privacy">Política de Privacidad de Google</a></li>
-          <li><a href="https://www.facebook.com/about/privacy/">Política de Privacidad de Meta (Facebook)</a></li>
+          <li><a href="https://policies.google.com/privacy" target="_blank">Política de Privacidad de Google ↗</a></li>
+          <li><a href="https://www.facebook.com/about/privacy/" target="_blank">Política de Privacidad de Meta ↗</a></li>
         </ul>
       </div>
+      <div class="section-divider"></div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-hourglass-half"></i> 7. Conservación de los Datos</h3>
-        <p>Mantendremos sus datos personales durante el tiempo que su cuenta esté activa o sea necesaria para prestarle el servicio. Si elimina su cuenta, eliminaremos o anonimizaremos sus datos personales en un plazo máximo de 90 días, excepto cuando sea necesario retener cierta información para cumplir con obligaciones legales (ej: registros de transacciones financieras por motivos fiscales), resolver disputas o hacer cumplir nuestros acuerdos.</p>
+      <div class="section">
+        <h2><span class="num">7</span> Conservación de Datos</h2>
+        <p>Mantenemos sus datos mientras su cuenta esté activa. Al eliminarla, borramos o anonimizamos su información en un máximo de <strong>90 días</strong>, salvo obligaciones legales.</p>
       </div>
+      <div class="section-divider"></div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-user-check"></i> 8. Sus Derechos (Según su Ubicación)</h3>
-        <p>Dependiendo de su residencia (especialmente si se encuentra en el EEE, Reino Unido o California), puede tener los siguientes derechos:</p>
+      <div class="section">
+        <h2><span class="num">8</span> Sus Derechos</h2>
         <ul>
           <li>Acceder, rectificar o borrar sus datos</li>
-          <li>Restringir u oponerse al procesamiento de sus datos</li>
+          <li>Restringir u oponerse al procesamiento</li>
           <li>Portabilidad de sus datos</li>
-          <li>Retirar su consentimiento</li>
-          <li>Opt-out de la venta o compartición de sus datos con fines de publicidad (derecho "Do Not Sell or Share My Personal Information")</li>
+          <li>Retirar su consentimiento en cualquier momento</li>
+          <li>Opt-out de la venta de datos personales</li>
         </ul>
-        
         <div class="highlight">
-          <p>Para ejercer cualquier derecho, contacte en <b>ceovirtualstudios@gmail.com</b>. Le responderemos en un plazo máximo de 30 días. Para proteger su privacidad, podemos solicitarle información que verifique su identidad antes de proceder.</p>
+          Para ejercer cualquier derecho contacte a <strong>ceovirtualstudios@gmail.com</strong>. Respondemos en un máximo de 30 días.
         </div>
       </div>
+      <div class="section-divider"></div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-lock"></i> 9. Seguridad de los Datos</h3>
-        <p>Implementamos medidas de seguridad técnicas y organizativas robustas, incluyendo el uso de cifrado (SSL/TLS), firewalls y acceso restringido a los datos. Sin embargo, ningún método de transmisión por Internet o almacenamiento electrónico es 100% seguro. Si bien nos esforzamos por proteger su información, no podemos garantizar su seguridad absoluta.</p>
+      <div class="section">
+        <h2><span class="num">9</span> Seguridad</h2>
+        <p>Implementamos cifrado SSL/TLS, firewalls y acceso restringido. Ningún método de transmisión es 100% seguro, pero hacemos todo lo posible para proteger su información.</p>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="num">10</span> Menores de Edad</h2>
+        <p>VirtualGift no está dirigida a menores de <strong>16 años</strong>. Si descubrimos una cuenta de menor, será eliminada inmediatamente. Contacte a ceovirtualstudios@gmail.com si tiene conocimiento de esto.</p>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="num">11</span> Cambios en esta Política</h2>
+        <p>Notificaremos cambios importantes a través de la app o por correo. El uso continuado implica aceptación de la política revisada.</p>
+      </div>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="num">12</span> Contacto</h2>
+        <p>📧 <strong>ceovirtualstudios@gmail.com</strong><br>🏢 VirtualStudios — República Dominicana</p>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-cookie-bite"></i> 10. Cookies y Tecnologías Similares</h3>
-        <p>Utilizamos las siguientes tecnologías:</p>
-        <ul>
-          <li><b>Cookies esenciales:</b> Necesarias para el funcionamiento de la app</li>
-          <li><b>Cookies de analíticas:</b> Nos ayudan a entender cómo se utiliza la app</li>
-          <li><b>Cookies de publicidad:</b> Utilizadas por nuestros partners para intereses y mostrar anuncios relevantes</li>
-        </ul>
-      </div>
-
-      <div class="terms-section">
-        <h3><i class="fas fa-child"></i> 11. Menores de Edad</h3>
-        <p>VirtualGift no está dirigida a menores de 16 años (o 13 años en EE.UU., o la edad de consentimiento digital en su país). No recopilamos intencionadamente información de menores. Si un padre/madre descubre que su hijo nos ha proporcionado datos sin su consentimiento, debe contactarnos de inmediato para que eliminemos dicha información y cerremos la cuenta.</p>
-      </div>
-
-      <div class="terms-section">
-        <h3><i class="fas fa-sync"></i> 12. Cambios en esta Política</h3>
-        <p>Podemos actualizar esta política ocasionalmente. Le notificaremos sobre cambios materiales a través de un aviso destacado en la app o por correo electrónico. La fecha de "Última actualización" indicará cuándo se hicieron los últimos cambios. El uso continuado de la app tras los cambios implica la aceptación de la política revisada.</p>
-      </div>
-
-      <div class="terms-section">
-        <h3><i class="fas fa-envelope"></i> 13. Contacto</h3>
-        <p>Para cualquier pregunta, duda o para ejercer sus derechos sobre sus datos personales, no dude en contactar con nuestro responsable de privacidad en:</p>
-        <p>📧 <b>ceovirtualstudios@gmail.com</b><br>
-           🏢 VirtualStudios – República Dominicana</p>
-      </div>
+      <div class="legal-footer"><p>© 2026 VirtualGift · Todos los derechos reservados</p></div>
     </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-      <p>&copy; 2026 VirtualGift. Todos los derechos reservados.</p>
-    </footer>
   </div>
 </body>
 </html>

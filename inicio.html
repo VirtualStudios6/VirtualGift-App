@@ -7,6 +7,9 @@
     <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
     <title>VirtualGift</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/inicio.css">
     <script defer src="js/app-mode.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -177,7 +180,7 @@
             align-items: center;
             gap: 3px;
         }
-        .fn-view-shop-sub::after { content: '→'; font-size: 12px; }
+        .fn-view-shop-sub::after { content: '\2192'; font-size: 12px; }
 
         /* Preview items en el strip */
         .fn-strip-item {
@@ -350,7 +353,7 @@
            class="fn-view-shop-card"
            style="border-color: rgba(168,85,247,0.5);">
             <div class="fn-view-shop-inner" style="background: linear-gradient(160deg, #1a0535 0%, #0d0520 100%);">
-                <div class="fn-view-shop-icon"></div>
+                <div class="fn-view-shop-icon">📊</div>
                 <div class="fn-view-shop-text">Mis Stats<br>FN</div>
                 <div class="fn-view-shop-sub" style="color: #a855f7;">Ver stats</div>
             </div>
@@ -513,22 +516,18 @@
         const strip = document.getElementById('fnShopStrip');
         if (!strip || !_allStripItems.length) return;
 
-        // Guardar TODAS las cards fijas antes de limpiar
         const fixedCards = Array.from(strip.querySelectorAll('.fn-view-shop-card'));
 
         strip.innerHTML = '';
 
-        // Restaurar card "Ver Tienda" al inicio
         if (fixedCards[0]) strip.appendChild(fixedCards[0]);
 
-        // Agregar items rotantes
         const total = _allStripItems.length;
         for (let i = 0; i < STRIP_VISIBLE; i++) {
             const item = _allStripItems[(_stripOffset + i) % total];
             if (item && item.imageUrl) strip.appendChild(buildStripCard(item));
         }
 
-        // Restaurar card "Mis Stats" al final
         if (fixedCards[1]) strip.appendChild(fixedCards[1]);
 
         _stripOffset = (_stripOffset + STRIP_VISIBLE) % total;

@@ -2,11 +2,13 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <!-- ✅ viewport-fit=cover NECESARIO para safe-area-inset en Android/iOS -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#06011c" />
   <title>Notificaciones - VirtualGift</title>
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/inicio.css" />
   <link rel="stylesheet" href="css/notificaciones.css" />
 
@@ -18,7 +20,6 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
 
-  <!-- ✅ withAppFlag definido localmente igual que en las otras páginas -->
   <script>
     function withAppFlag(url) {
       const isAndroidApp =
@@ -38,9 +39,6 @@
 </head>
 
 <body>
-  <!-- ============================================ -->
-  <!-- HEADER -->
-  <!-- ============================================ -->
   <header class="header">
     <div class="logo">
       <img src="images/logo-virtual-login.png" alt="VirtualGift Logo" class="logo-image" />
@@ -77,14 +75,10 @@
     </div>
   </header>
 
-  <!-- Pull to refresh -->
   <div class="pull-refresh" id="pullRefresh">
     <div class="refresh-icon">🔄</div>
   </div>
 
-  <!-- ============================================ -->
-  <!-- CONTENIDO -->
-  <!-- ============================================ -->
   <main class="notifications-container">
 
     <button class="back-button" onclick="window.location.href=withAppFlag('inicio.html')">

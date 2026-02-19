@@ -2,239 +2,165 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#06011c">
   <title>Términos de Servicio - VirtualGift</title>
-
+  <link rel="icon" href="../images/logo-virtual-login.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --primary-color: #8d17fb;      /* Morado principal */
-      --secondary-color: #70189b;    /* Morado profundo */
-      --accent-color: #1e293b;       /* Azul oscuro/acento */
-      --dark-bg: #020515;            /* Fondo principal */
-      --darker-bg: #06011c;          /* Fondo degradado */
-      --card-bg: #1c1f2f;            /* Tarjeta / contenedor */
-      --text-color: #dcefff;         /* Texto principal */
-      --gray-color: #b6c6d9;         /* Texto secundario */
-      --border-color: #293244;       /* Líneas suaves */
+      --primary: #8d17fb;
+      --secondary: #70189b;
+      --accent: #c084fc;
+      --bg: #03010f;
+      --bg2: #06011c;
+      --card: rgba(14,11,30,0.95);
+      --card-border: rgba(141,23,251,0.2);
+      --text: #f0eaff;
+      --text-2: rgba(200,185,230,0.8);
+      --text-3: rgba(160,145,190,0.6);
+      --border: rgba(60,45,90,0.7);
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
     }
-    
-    * {
-      box-sizing: border-box;
-    }
-    
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { background: var(--bg); }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(180deg, var(--dark-bg), var(--darker-bg));
-      color: var(--text-color);
-      line-height: 1.6;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
+      font-family: var(--font-body);
+      background: linear-gradient(160deg, var(--bg), var(--bg2));
+      color: var(--text); min-height: 100vh;
+      padding: calc(16px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom));
+      -webkit-font-smoothing: antialiased;
     }
-    
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 15px;
-      width: 100%;
+    /* BG */
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background:
+        radial-gradient(ellipse 60% 50% at 10% 5%, rgba(141,23,251,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 90% 90%, rgba(112,24,155,0.12) 0%, transparent 60%);
     }
-    
-    .terms-container {
-      background-color: var(--card-bg);
-      border-radius: 16px;
-      padding: clamp(20px, 4vw, 40px);
-      margin-bottom: 30px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-      border: 1px solid var(--border-color);
+    .container { max-width: 780px; margin: 0 auto; position: relative; z-index: 1; }
+    /* BACK */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 16px; border-radius: 12px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: var(--text-2); font-size: 14px; font-weight: 600;
+      font-family: var(--font-body); cursor: pointer; text-decoration: none;
+      transition: all .2s; margin-bottom: 20px; -webkit-tap-highlight-color:transparent;
     }
-    
-    .terms-header {
-      margin-bottom: 30px;
-      text-align: center;
+    .back-btn:hover { border-color: rgba(141,23,251,.4); color: var(--text); }
+    .back-btn svg { width:16px; height:16px; fill: currentColor; flex-shrink:0; }
+    /* CARD */
+    .legal-card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 24px; padding: clamp(20px,5vw,40px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
-    
-    .terms-header h2 {
-      font-size: clamp(22px, 4vw, 28px);
-      margin-bottom: 10px;
-      color: var(--text-color);
+    /* HEADER */
+    .legal-header { text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .legal-header .icon { font-size: 40px; margin-bottom: 12px; }
+    .legal-header h1 { font-family: var(--font-display); font-size: clamp(22px,5vw,30px); font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .legal-header .date { font-size: 13px; color: var(--text-3); }
+    /* SECTION */
+    .section { margin-bottom: 28px; }
+    .section h2 {
+      font-family: var(--font-display); font-size: clamp(15px,4vw,18px); font-weight: 700;
+      color: var(--accent); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
     }
-    
-    .last-updated {
-      color: var(--gray-color);
-      font-size: clamp(12px, 3vw, 14px);
+    .section h2 .num {
+      width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
+      background: rgba(141,23,251,0.2); border: 1px solid rgba(141,23,251,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; color: var(--accent);
     }
-    
-    .terms-section {
-      margin-bottom: 25px;
-    }
-    
-    .terms-section h3 {
-      font-size: clamp(18px, 4vw, 20px);
-      margin-bottom: 12px;
-      color: var(--primary-color);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    
-    .terms-section h4 {
-      font-size: clamp(16px, 3.5vw, 18px);
-      margin: 15px 0 10px 0;
-      color: var(--secondary-color);
-    }
-    
-    .terms-section p, .terms-section ul {
-      margin-bottom: 12px;
-      color: var(--gray-color);
-      font-size: clamp(14px, 3vw, 16px);
-    }
-    
-    .terms-section ul {
-      padding-left: 20px;
-    }
-    
-    .terms-section li {
-      margin-bottom: 6px;
-      line-height: 1.5;
-    }
-    
-    .footer {
-      text-align: center;
-      padding: 20px 0;
-      color: var(--gray-color);
-      font-size: clamp(12px, 3vw, 14px);
-      border-top: 1px solid rgba(220,239,255,0.1);
-    }
-    
+    .section h3 { font-size: 14px; font-weight: 700; color: var(--text-2); margin: 14px 0 8px; }
+    .section p, .section ul { font-size: clamp(13px,3vw,15px); color: var(--text-2); line-height: 1.7; margin-bottom: 10px; }
+    .section ul { padding-left: 18px; }
+    .section li { margin-bottom: 5px; }
+    /* CALLOUTS */
     .highlight {
-      background: rgba(141, 23, 251, 0.08);
-      padding: clamp(12px, 3vw, 15px);
-      border-left: 4px solid var(--primary-color);
-      margin: 12px 0;
-      border-radius: 6px;
-      font-size: clamp(14px, 3vw, 16px);
-      color: var(--text-color);
+      background: rgba(141,23,251,0.08); border-left: 3px solid var(--primary);
+      padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 12px 0;
+      font-size: 14px; color: var(--text); line-height: 1.6;
     }
-    
     .warning {
-      background: rgba(112, 24, 155, 0.08);
-      padding: clamp(12px, 3vw, 15px);
-      border-left: 4px solid var(--secondary-color);
-      margin: 12px 0;
-      border-radius: 6px;
-      font-size: clamp(14px, 3vw, 16px);
-      color: var(--text-color);
+      background: rgba(239,68,68,0.07); border-left: 3px solid #ef4444;
+      padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 12px 0;
+      font-size: 14px; color: var(--text); line-height: 1.6;
     }
-    
-    /* Mejoras específicas para móviles */
-    @media (max-width: 768px) {
-      .container {
-        padding: 10px;
-      }
-      
-      .terms-container {
-        padding: 20px 15px;
-        border-radius: 10px;
-      }
-      
-      .terms-section h3 {
-        gap: 6px;
-      }
-      
-      .terms-section h3 i {
-        font-size: 18px;
-      }
-      
-      .terms-section ul {
-        padding-left: 15px;
-      }
-    }
-    
+    /* DIVIDER */
+    .section-divider { height: 1px; background: var(--border); margin: 24px 0; }
+    /* FOOTER */
+    .legal-footer { text-align: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-3); }
     @media (max-width: 480px) {
-      .terms-header {
-        margin-bottom: 20px;
-      }
-      
-      .terms-section {
-        margin-bottom: 20px;
-      }
-      
-      .terms-section h3 {
-        font-size: 16px;
-      }
-      
-      .terms-section p, .terms-section ul {
-        font-size: 14px;
-      }
-    }
-    
-    @media (max-width: 360px) {
-      .terms-container {
-        padding: 15px 10px;
-      }
-      
-      .terms-section h3 {
-        font-size: 15px;
-      }
+      .legal-card { border-radius: 18px; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="terms-container">
-      <div class="terms-header">
-        <h2>Términos de Servicio</h2>
-        <p class="last-updated">Última actualización: 2 de enero, 2026</p>
+    <a href="../index.html" class="back-btn">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Volver
+    </a>
+
+    <div class="legal-card">
+      <div class="legal-header">
+        <div class="icon">📜</div>
+        <h1>Términos de Servicio</h1>
+        <div class="date">Última actualización: 2 de enero, 2026</div>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-file-contract"></i> 1. Aceptación de los Términos</h3>
+      <div class="section">
+        <h2><span class="num">1</span> Aceptación de los Términos</h2>
         <p>Al acceder o utilizar VirtualGift (la "Aplicación"), usted acepta estar sujeto a estos Términos de Servicio. Si no está de acuerdo con estos términos, no debe utilizar nuestra aplicación.</p>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-user-check"></i> 2. Elegibilidad y Cuenta</h3>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="num">2</span> Elegibilidad y Cuenta</h2>
         <ul>
           <li>Debe tener al menos <strong>16 años</strong> (o la edad de consentimiento en su país) para utilizar VirtualGift.</li>
-          <li><strong>Una cuenta por persona</strong> — Cuentas múltiples resultarán en descalificación permanente.</li>
+          <li><strong>Una cuenta por persona</strong> — cuentas múltiples resultarán en descalificación permanente.</li>
           <li>Debe proporcionar información precisa y actualizada al registrarse.</li>
           <li>Es responsable de mantener la confidencialidad de su cuenta y contraseña.</li>
         </ul>
-        
         <div class="warning">
-          <p><strong>Prohibido:</strong> Cuentas falsas, bots, scripts automáticos, o cualquier método que proporcione ventaja injusta en los sorteos.</p>
+          <strong>⚠️ Prohibido:</strong> Cuentas falsas, bots, scripts automáticos, o cualquier método que proporcione ventaja injusta en los sorteos.
         </div>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-gift"></i> 3. Sorteos y Premios</h3>
-        
-        <h4>3.1 Participación en Sorteos</h4>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="num">3</span> Sorteos y Premios</h2>
+        <h3>3.1 Participación</h3>
         <ul>
           <li>La participación en sorteos es gratuita a menos que se especifique lo contrario.</li>
           <li>Cada sorteo tiene reglas específicas publicadas en la aplicación.</li>
           <li>Nos reservamos el derecho de cancelar o modificar sorteos en cualquier momento.</li>
         </ul>
-
-        <h4>3.2 Entrega de Premios</h4>
+        <h3>3.2 Entrega de Premios</h3>
         <ul>
           <li>Los premios se entregarán dentro de los <strong>30 días</strong> posteriores a la verificación del ganador.</li>
           <li>El ganador debe responder dentro de <strong>7 días</strong> al ser notificado.</li>
           <li>Los premios no son transferibles ni canjeables por efectivo.</li>
-          <li>Somos responsables únicamente por la entrega del premio, no por su calidad o funcionamiento.</li>
         </ul>
-
-        <h4>3.3 Impuestos y Responsabilidades</h4>
+        <h3>3.3 Impuestos</h3>
         <ul>
           <li>El ganador es responsable de cualquier impuesto aplicable sobre premios.</li>
-          <li>VirtualGift no se hace responsable por premios perdidos, robados o dañados durante el envío.</li>
+          <li>VirtualGift no se hace responsable por premios perdidos o dañados durante el envío.</li>
         </ul>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-ban"></i> 4. Conducta Prohibida</h3>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="num">4</span> Conducta Prohibida</h2>
         <p>No puede utilizar VirtualGift para:</p>
         <ul>
           <li>Crear cuentas múltiples o falsas.</li>
@@ -246,58 +172,60 @@
         </ul>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-lock"></i> 5. Propiedad Intelectual</h3>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="num">5</span> Propiedad Intelectual</h2>
         <p>VirtualGift y todo su contenido (logos, diseño, software) son propiedad de VirtualStudios. No puede copiar, modificar o distribuir ningún elemento sin autorización.</p>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-exclamation-triangle"></i> 6. Limitación de Responsabilidad</h3>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="num">6</span> Limitación de Responsabilidad</h2>
         <div class="highlight">
-          <p><strong>VirtualGift se proporciona "TAL CUAL" y "SEGÚN DISPONIBILIDAD".</strong> No garantizamos que la aplicación esté libre de errores o que esté siempre disponible.</p>
+          <strong>VirtualGift se proporciona "TAL CUAL" y "SEGÚN DISPONIBILIDAD".</strong> No garantizamos que la aplicación esté libre de errores o que esté siempre disponible.
         </div>
         <ul>
           <li>No somos responsables por pérdidas indirectas o daños consecuentes.</li>
           <li>La responsabilidad máxima de VirtualGift es de <strong>$100 USD</strong>.</li>
-          <li>No garantizamos la ganancia de premios.</li>
           <li>Los sorteos están sujetos a disponibilidad y pueden cambiar sin previo aviso.</li>
         </ul>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-gavel"></i> 7. Terminación</h3>
-        <p>Podemos suspender o terminar su cuenta en cualquier momento por:</p>
-        <ul>
-          <li>Violación de estos términos.</li>
-          <li>Actividad fraudulenta.</li>
-          <li>Comportamiento abusivo hacia otros usuarios.</li>
-          <li>Cualquier actividad que dañe la integridad de nuestra plataforma.</li>
-        </ul>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="num">7</span> Terminación</h2>
+        <p>Podemos suspender o terminar su cuenta en cualquier momento por violación de estos términos, actividad fraudulenta, comportamiento abusivo o cualquier actividad que dañe la integridad de nuestra plataforma.</p>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-sync"></i> 8. Cambios en los Términos</h3>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="num">8</span> Cambios en los Términos</h2>
         <p>Podemos actualizar estos términos ocasionalmente. Los cambios importantes se notificarán a través de la aplicación. El uso continuado después de los cambios implica aceptación.</p>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-balance-scale"></i> 9. Ley Aplicable</h3>
-        <p>Estos términos se rigen por las leyes de la República Dominicana. Cualquier disputa se resolverá en Santiago de los Caballeros, República Dominicana.</p>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="num">9</span> Ley Aplicable</h2>
+        <p>Estos términos se rigen por las leyes de la <strong>República Dominicana</strong>. Cualquier disputa se resolverá en Santiago de los Caballeros, República Dominicana.</p>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-envelope"></i> 10. Contacto</h3>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="num">10</span> Contacto</h2>
         <p>Para preguntas sobre estos términos:</p>
-        <p>📧 <strong>ceovirtualstudios@gmail.com</strong><br>
-           🏢 <strong>VirtualStudios - República Dominicana</strong></p>
+        <p>📧 <strong>ceovirtualstudios@gmail.com</strong><br>🏢 VirtualStudios — República Dominicana</p>
+      </div>
+
+      <div class="legal-footer">
+        <p>© 2026 VirtualGift · Todos los derechos reservados</p>
       </div>
     </div>
-
-    <footer class="footer">
-      <p>&copy; 2026 VirtualGift. Todos los derechos reservados.</p>
-    </footer>
   </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </body>
 </html>

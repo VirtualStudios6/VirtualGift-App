@@ -2,199 +2,146 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pautas para el Usuario - VirtualGift</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#06011c">
-
+  <title>Pautas para el Usuario - VirtualGift</title>
+  <link rel="icon" href="../images/logo-virtual-login.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Paleta VirtualGift */
-      --primary-color: #8d17fb;      /* Morado principal */
-      --secondary-color: #70189b;    /* Morado profundo */
-      --accent-color: #8d17fb;       /* Enlaces / acentos */
-
-      --dark-bg: #020515;            /* Fondo principal */
-      --darker-bg: #06011c;          /* Degradado inferior */
-      --card-bg: #1c1f2f;            /* Contenedores */
-
-      --text-color: #dcefff;         /* Texto principal */
-      --gray-color: #b6c6d9;         /* Texto secundario */
-      --border-color: #293244;       /* Bordes suaves */
-
-      /* Estados */
-      --success-color: #28d27d;
+      --primary: #8d17fb; --secondary: #70189b; --accent: #c084fc;
+      --bg: #03010f; --bg2: #06011c; --card: rgba(14,11,30,0.95);
+      --card-border: rgba(141,23,251,0.2); --text: #f0eaff;
+      --text-2: rgba(200,185,230,0.8); --text-3: rgba(160,145,190,0.6);
+      --border: rgba(60,45,90,0.7); --green: #10b981; --red: #ef4444;
+      --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
     }
-    
-    * { box-sizing: border-box; }
-    
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { background: var(--bg); }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(180deg, var(--dark-bg), var(--darker-bg));
-      color: var(--text-color);
-      line-height: 1.6;
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
+      font-family: var(--font-body);
+      background: linear-gradient(160deg, var(--bg), var(--bg2));
+      color: var(--text); min-height: 100vh;
+      padding: calc(16px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom));
+      -webkit-font-smoothing: antialiased;
     }
-    
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 15px;
-      width: 100%;
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background:
+        radial-gradient(ellipse 60% 50% at 10% 5%, rgba(141,23,251,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 40% at 90% 90%, rgba(112,24,155,0.12) 0%, transparent 60%);
     }
-    
-    .terms-container {
-      background-color: var(--card-bg);
-      border-radius: 16px;
-      padding: clamp(20px, 4vw, 40px);
-      margin-bottom: 30px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-      border: 1px solid var(--border-color);
+    .container { max-width: 780px; margin: 0 auto; position: relative; z-index: 1; }
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 16px; border-radius: 12px;
+      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+      color: var(--text-2); font-size: 14px; font-weight: 600;
+      font-family: var(--font-body); cursor: pointer; text-decoration: none;
+      transition: all .2s; margin-bottom: 20px; -webkit-tap-highlight-color:transparent;
     }
-    
-    .terms-header {
-      margin-bottom: 30px;
-      text-align: center;
+    .back-btn:hover { border-color: rgba(141,23,251,.4); color: var(--text); }
+    .back-btn svg { width:16px; height:16px; fill: currentColor; flex-shrink:0; }
+    .legal-card {
+      background: var(--card); border: 1px solid var(--card-border);
+      border-radius: 24px; padding: clamp(20px,5vw,40px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
-    
-    .terms-header h2 {
-      font-size: clamp(22px, 4vw, 28px);
-      margin-bottom: 10px;
-      color: var(--text-color);
+    .legal-header { text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+    .legal-header .icon { font-size: 40px; margin-bottom: 12px; }
+    .legal-header h1 { font-family: var(--font-display); font-size: clamp(22px,5vw,30px); font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .legal-header .date { font-size: 13px; color: var(--text-3); }
+    .section { margin-bottom: 28px; }
+    .section h2 {
+      font-family: var(--font-display); font-size: clamp(15px,4vw,18px); font-weight: 700;
+      color: var(--accent); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 10px;
     }
-    
-    .last-updated {
-      color: var(--gray-color);
-      font-size: clamp(12px, 3vw, 14px);
+    .section h2 .emoji { font-size: 20px; }
+    .section h3 { font-size: 14px; font-weight: 700; color: var(--text-2); margin: 14px 0 8px; }
+    .section p, .section ul { font-size: clamp(13px,3vw,15px); color: var(--text-2); line-height: 1.7; margin-bottom: 10px; }
+    .section ul { padding-left: 18px; } .section li { margin-bottom: 5px; }
+    .callout-green {
+      background: rgba(16,185,129,0.08); border-left: 3px solid var(--green);
+      padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 12px 0;
+      font-size: 14px; color: var(--text); line-height: 1.6;
     }
-    
-    .terms-section { margin-bottom: 25px; }
-    
-    .terms-section h3 {
-      font-size: clamp(18px, 4vw, 20px);
-      margin-bottom: 12px;
-      color: var(--primary-color);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
+    .callout-red {
+      background: rgba(239,68,68,0.08); border-left: 3px solid var(--red);
+      padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 12px 0;
+      font-size: 14px; color: var(--text); line-height: 1.6;
     }
-    
-    .terms-section h4 {
-      font-size: clamp(16px, 3.5vw, 18px);
-      margin: 15px 0 10px 0;
-      color: var(--secondary-color);
+    .callout-purple {
+      background: rgba(141,23,251,0.08); border-left: 3px solid var(--primary);
+      padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 12px 0;
+      font-size: 14px; color: var(--text); line-height: 1.6;
     }
-    
-    .terms-section p, .terms-section ul {
-      margin-bottom: 12px;
-      color: var(--gray-color);
-      font-size: clamp(14px, 3vw, 16px);
+    /* Consequence cards */
+    .consequence-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+    .consequence-card {
+      padding: 14px; border-radius: 14px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.03);
     }
-    
-    .terms-section ul { padding-left: 20px; }
-    .terms-section li { margin-bottom: 6px; line-height: 1.5; }
-    
-    .footer {
-      text-align: center;
-      padding: 20px 0;
-      color: var(--gray-color);
-      font-size: clamp(12px, 3vw, 14px);
-      border-top: 1px solid rgba(220,239,255,0.1);
-    }
-    
-    /* Bloques informativos */
-    .warning {
-      background: rgba(112, 24, 155, 0.10);      /* morado profundo suave */
-      padding: clamp(12px, 3vw, 15px);
-      border-left: 4px solid var(--secondary-color);
-      margin: 12px 0;
-      border-radius: 6px;
-      font-size: clamp(14px, 3vw, 16px);
-      color: var(--text-color);
-    }
-    
-    .success {
-      background: rgba(40, 210, 125, 0.10);
-      padding: clamp(12px, 3vw, 15px);
-      border-left: 4px solid var(--success-color);
-      margin: 12px 0;
-      border-radius: 6px;
-      font-size: clamp(14px, 3vw, 16px);
-      color: var(--text-color);
-    }
-
-    /* Enlaces en caso de que aparezcan */
-    a { color: var(--accent-color); text-decoration: none; }
-    a:hover { color: var(--secondary-color); text-decoration: underline; }
-    
-    /* Móviles */
-    @media (max-width: 768px) {
-      .container { padding: 10px; }
-      .terms-container { padding: 20px 15px; border-radius: 10px; }
-      .terms-section h3 { gap: 6px; }
-      .terms-section h3 i { font-size: 18px; }
-      .terms-section ul { padding-left: 15px; }
-    }
-    
+    .consequence-card .c-icon { font-size: 22px; margin-bottom: 6px; }
+    .consequence-card .c-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .consequence-card .c-desc { font-size: 12px; color: var(--text-3); line-height: 1.5; }
+    .section-divider { height: 1px; background: var(--border); margin: 24px 0; }
+    .legal-footer { text-align: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-3); }
     @media (max-width: 480px) {
-      .terms-header { margin-bottom: 20px; }
-      .terms-section { margin-bottom: 20px; }
-      .terms-section h3 { font-size: 16px; }
-      .terms-section p, .terms-section ul { font-size: 14px; }
-      .terms-section h4 { font-size: 15px; }
-    }
-    
-    @media (max-width: 360px) {
-      .terms-container { padding: 15px 10px; }
-      .terms-section h3 { font-size: 15px; }
-      .terms-section ul { padding-left: 12px; }
+      .legal-card { border-radius: 18px; }
+      .consequence-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="terms-container">
-      <div class="terms-header">
-        <h2>Pautas para el Usuario</h2>
-        <p class="last-updated">Última actualización: 2 de enero, 2026</p>
+    <a href="../index.html" class="back-btn">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+      Volver
+    </a>
+
+    <div class="legal-card">
+      <div class="legal-header">
+        <div class="icon">🎮</div>
+        <h1>Pautas para el Usuario</h1>
+        <div class="date">Última actualización: 2 de enero, 2026</div>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-users"></i> Bienvenido a VirtualGift</h3>
-        <p>VirtualGift es una comunidad de usuarios que disfrutan participando en sorteos y ganando premios. Estas pautas existen para mantener un ambiente justo, seguro y divertido para todos los Gamers.</p>
-        
-        <div class="success">
-          <p><strong>¡Sé justo, juega limpio y diviértete!</strong> Reporta cualquier comportamiento sospechoso para ayudar a mantener la integridad de nuestra plataforma.</p>
+      <div class="section">
+        <h2><span class="emoji">👾</span> Bienvenido a VirtualGift</h2>
+        <p>VirtualGift es una comunidad de Gamers que disfrutan participando en sorteos y ganando premios. Estas pautas existen para mantener un ambiente justo, seguro y divertido para todos.</p>
+        <div class="callout-green">
+          <strong>🏆 ¡Sé justo, juega limpio y diviértete!</strong> Reporta cualquier comportamiento sospechoso para ayudar a mantener la integridad de la plataforma.
         </div>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-ban"></i> Conducta Prohibida - Cero Tolerancia</h3>
-        
-        <div class="warning">
-          <p><strong>La violación de estas reglas resultará en la eliminación inmediata de tu cuenta y descalificación permanente de todos los sorteos.</strong></p>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="emoji">🚫</span> Conducta Prohibida — Cero Tolerancia</h2>
+        <div class="callout-red">
+          <strong>La violación de estas reglas resultará en la eliminación inmediata de tu cuenta y descalificación permanente de todos los sorteos.</strong>
         </div>
 
-        <h4>🚫 Fraude en Sorteos</h4>
+        <h3>🚫 Fraude en Sorteos</h3>
         <ul>
-          <li><strong>Cuentas múltiples</strong> - Una persona, una cuenta</li>
-          <li><strong>Bots o scripts automáticos</strong> para participar en sorteos</li>
+          <li><strong>Cuentas múltiples</strong> — una persona, una cuenta</li>
+          <li><strong>Bots o scripts automáticos</strong> para participar</li>
           <li><strong>Manipulación del sistema</strong> de cualquier tipo</li>
           <li><strong>Información falsa</strong> en el registro o perfil</li>
           <li><strong>Suplantación de identidad</strong> de otros usuarios</li>
         </ul>
 
-        <h4>🚫 Comportamiento Abusivo</h4>
+        <h3>🚫 Comportamiento Abusivo</h3>
         <ul>
-          <li><strong>Acoso</strong> a otros usuarios a través de comentarios o mensajes</li>
+          <li><strong>Acoso</strong> a otros usuarios por cualquier medio</li>
           <li><strong>Amenazas</strong> o lenguaje violento</li>
-          <li><strong>Discriminación</strong> por raza, género, religión, nacionalidad, etc.</li>
-          <li><strong>Spam</strong> o contenido comercial no autorizado</li>
+          <li><strong>Discriminación</strong> por raza, género, religión, etc.</li>
+          <li><strong>Spam</strong> o publicidad no autorizada</li>
         </ul>
 
-        <h4>🚫 Contenido Inapropiado</h4>
+        <h3>🚫 Contenido Inapropiado</h3>
         <ul>
           <li><strong>Contenido sexual</strong> o explícito</li>
           <li><strong>Imágenes violentas</strong> o perturbadoras</li>
@@ -203,90 +150,102 @@
         </ul>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-shield-alt"></i> Juego Limpio - Nuestras Reglas</h3>
-        
-        <h4>✅ Participación Justa</h4>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="emoji">✅</span> Juego Limpio</h2>
+
+        <h3>✅ Participación Justa</h3>
         <ul>
           <li><strong>Participa manualmente</strong> en cada sorteo</li>
-          <li><strong>Una entrada por persona</strong> por sorteo (a menos que se especifique lo contrario)</li>
-          <li><strong>Usa tu cuenta personal</strong> - no compartas credenciales</li>
+          <li><strong>Una entrada por persona</strong> por sorteo (salvo que se indique)</li>
+          <li><strong>Usa tu cuenta personal</strong> — no compartas credenciales</li>
           <li><strong>Mantén tu información actualizada</strong> para recibir premios</li>
         </ul>
 
-        <h4>✅ Comunicación Respetuosa</h4>
+        <h3>✅ Comunicación Respetuosa</h3>
         <ul>
           <li><strong>Sé amable</strong> en comentarios y chats</li>
-          <li><strong>Reporta problemas</strong> en lugar de confrontar</li>
-          <li><strong>Respeta a los ganadores</strong> - ¡todos tienen oportunidad!</li>
-          <li><strong>Comparte experiencias positivas</strong> con la comunidad</li>
+          <li><strong>Reporta problemas</strong> en lugar de confrontar directamente</li>
+          <li><strong>Respeta a los ganadores</strong> — ¡todos tienen su oportunidad!</li>
         </ul>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-exclamation-circle"></i> Seguridad de la Cuenta</h3>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="emoji">🔐</span> Seguridad de la Cuenta</h2>
         <ul>
-          <li><strong>Protege tu contraseña</strong> - no la compartas con nadie</li>
+          <li><strong>Protege tu contraseña</strong> — no la compartas</li>
           <li><strong>Usa un email válido</strong> que revises regularmente</li>
           <li><strong>Reporta actividad sospechosa</strong> inmediatamente</li>
           <li><strong>Cierra sesión</strong> en dispositivos compartidos</li>
         </ul>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-child"></i> Protección de Menores</h3>
-        <div class="warning">
-          <p><strong>VirtualGift está prohibido para menores de 16 años.</strong> No recopilamos intencionadamente información de menores. Si descubrimos una cuenta de menor, será eliminada inmediatamente.</p>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="emoji">👶</span> Protección de Menores</h2>
+        <div class="callout-red">
+          <strong>VirtualGift está prohibido para menores de 16 años.</strong> Si descubrimos una cuenta de menor, será eliminada inmediatamente.
         </div>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-flag"></i> Reportar Problemas</h3>
-        <p>Si ves alguna violación de estas pautas, por favor repórtala inmediatamente:</p>
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="emoji">🚩</span> Reportar Problemas</h2>
         <ul>
           <li><strong>En la app:</strong> Usa el botón "Reportar" en perfiles o comentarios</li>
-          <li><strong>Por email:</strong> <strong>ceovirtualstudios@gmail.com</strong></li>
-          <li><strong>Específica:</strong> Incluye screenshots y detalles del problema</li>
+          <li><strong>Por email:</strong> ceovirtualstudios@gmail.com</li>
+          <li><strong>Incluye:</strong> Screenshots y detalles del problema</li>
         </ul>
-        
-        <div class="success">
-          <p><strong>Tu reporte ayuda a mantener VirtualGift seguro y justo para todos.</strong> Revisamos cada reporte cuidadosamente y tomamos acción rápida.</p>
+        <div class="callout-green">
+          Tu reporte ayuda a mantener VirtualGift seguro y justo. Revisamos cada caso y tomamos acción rápida.
         </div>
       </div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-balance-scale"></i> Consecuencias</h3>
-        <p>Las violaciones de estas pautas resultarán en:</p>
-        <ul>
-          <li><strong>Advertencia</strong> - Para infracciones menores primera vez</li>
-          <li><strong>Suspensión temporal</strong> - Para violaciones repetidas</li>
-          <li><strong>Eliminación permanente</strong> - Para fraude, acoso o violaciones graves</li>
-          <li><strong>Acción legal</strong> - Para actividades criminales</li>
-        </ul>
-      </div>
+      <div class="section-divider"></div>
 
-      <div class="terms-section">
-        <h3><i class="fas fa-handshake"></i> Compromiso de la Comunidad</h3>
-        <p>Al usar VirtualGift, te comprometes a:</p>
-        <ul>
-          <li>Jugar limpio y respetar las reglas</li>
-          <li>Tratar a otros usuarios con respeto</li>
-          <li>Reportar comportamiento sospechoso</li>
-          <li>Disfrutar responsablemente de los sorteos</li>
-          <li>Ayudar a mantener VirtualGift como un espacio seguro</li>
-        </ul>
-        
-        <div class="success">
-          <p><strong>¡Gracias por ser parte de VirtualGift y ayudar a crear la mejor comunidad Gamer!</strong></p>
+      <div class="section">
+        <h2><span class="emoji">⚖️</span> Consecuencias</h2>
+        <div class="consequence-grid">
+          <div class="consequence-card">
+            <div class="c-icon">⚠️</div>
+            <div class="c-title">Advertencia</div>
+            <div class="c-desc">Para infracciones menores por primera vez</div>
+          </div>
+          <div class="consequence-card">
+            <div class="c-icon">⏸️</div>
+            <div class="c-title">Suspensión temporal</div>
+            <div class="c-desc">Para violaciones repetidas o moderadas</div>
+          </div>
+          <div class="consequence-card">
+            <div class="c-icon">🚫</div>
+            <div class="c-title">Ban permanente</div>
+            <div class="c-desc">Fraude, acoso o violaciones graves</div>
+          </div>
+          <div class="consequence-card">
+            <div class="c-icon">⚖️</div>
+            <div class="c-title">Acción legal</div>
+            <div class="c-desc">Para actividades criminales</div>
+          </div>
         </div>
       </div>
+
+      <div class="section-divider"></div>
+
+      <div class="section">
+        <h2><span class="emoji">🤝</span> Compromiso de la Comunidad</h2>
+        <p>Al usar VirtualGift, te comprometes a jugar limpio, tratar a otros con respeto, reportar comportamiento sospechoso y disfrutar responsablemente de los sorteos.</p>
+        <div class="callout-purple">
+          <strong>¡Gracias por ser parte de VirtualGift y ayudar a crear la mejor comunidad Gamer! 🎮</strong>
+        </div>
+      </div>
+
+      <div class="legal-footer"><p>© 2026 VirtualGift · Todos los derechos reservados</p></div>
     </div>
-
-    <footer class="footer">
-      <p>&copy; 2026 VirtualGift. Todos los derechos reservados.</p>
-    </footer>
   </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
 </body>
 </html>
