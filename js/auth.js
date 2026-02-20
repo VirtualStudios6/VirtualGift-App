@@ -42,10 +42,12 @@ function providerFromUser(user) {
   return 'email';
 }
 
-// Detecta Android WebView
 function isAndroidWebView() {
   return /Android/.test(navigator.userAgent) && /wv/.test(navigator.userAgent);
 }
+
+// ✅ Flag global para bloquear el redirect de onAuthStateChanged durante el registro
+let _isRegistering = false;
 
 // ==================== ESTADO GLOBAL ====================
 const State = {
@@ -83,7 +85,6 @@ const State = {
   }
 };
 
-// CSS para el spinner en botón
 (function injectSpinnerCSS() {
   if (document.getElementById('auth-spin-css')) return;
   const s = document.createElement('style');
@@ -245,12 +246,14 @@ const FormManager = {
 
     if (!isFirebaseReady()) { NotificationManager.show('Firebase no está listo', 'error'); return; }
 
+    // ✅ FIX RACE CONDITION: bloquear redirect de onAuthStateChanged durante registro
+    _isRegistering = true;
     State.setLoading(true);
+
     try {
       const { user } = await firebase.auth().createUserWithEmailAndPassword(email, password);
 
-      // ✅ FIX PRINCIPAL: guardar username en Firebase Auth
-      // Así user.displayName estará disponible en welcome.js y en toda la app
+      // Guardar displayName en Firebase Auth
       try {
         await user.updateProfile({ displayName: username });
         console.log('✅ displayName guardado en Auth:', username);
@@ -264,10 +267,9 @@ const FormManager = {
         console.log('✅ Email de verificación enviado a:', email);
       } catch(e) {
         console.error('❌ Error enviando verificación:', e.code, e.message);
-        NotificationManager.show('Cuenta creada, pero hubo un problema enviando el email de verificación.', 'error');
       }
 
-      // ✅ FIX: guardar username Y displayName en Firestore para máxima consistencia
+      // ✅ Guardar en Firestore ANTES de signOut (el flag bloquea el redirect)
       await firebase.firestore().collection('users').doc(user.uid).set({
         uid: user.uid,
         username,
@@ -289,6 +291,7 @@ const FormManager = {
       console.log('✅ Firestore: usuario creado | username:', username, '| points:', CONFIG.INITIAL_USER_POINTS);
 
       NotificationManager.show('¡Cuenta creada! Revisa tu email para verificarla 📧', 'success');
+
       await firebase.auth().signOut();
 
       setTimeout(() => this.showForm('login-form'), 2000);
@@ -297,6 +300,7 @@ const FormManager = {
       console.error('❌ Error registro:', error.code, error.message);
       ErrorHandler.handle(error, 'Registration');
     } finally {
+      _isRegistering = false; // ✅ Liberar flag siempre
       State.setLoading(false);
     }
   },
@@ -314,7 +318,6 @@ const FormManager = {
     };
 
     if (!doc.exists) {
-      // Primera vez (Google/Facebook sin doc previo)
       const nameFromAuth = user.displayName || 'Usuario';
       await userRef.set({
         ...base,
@@ -330,7 +333,6 @@ const FormManager = {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true });
     } else {
-      // ✅ Usuario existente: preservar el username/displayName guardado en registro
       const existingData = doc.data() || {};
       const savedName = existingData.username || existingData.displayName || user.displayName || 'Usuario';
       await userRef.set({
@@ -456,6 +458,9 @@ const FacebookAuth = {
 const SessionManager = {
   init() {
     firebase.auth().onAuthStateChanged(user => {
+      // ✅ FIX: ignorar el evento si estamos en medio del registro
+      if (_isRegistering) return;
+
       const isInLogin =
         window.location.pathname.endsWith('/') ||
         window.location.pathname.includes('index.html') ||
@@ -464,12 +469,10 @@ const SessionManager = {
       if (user && isInLogin) window.location.href = CONFIG.LOGIN_REDIRECT_URL;
     });
 
-    // ✅ Una sola llamada a getRedirectResult
     handleSocialRedirectResult();
   }
 };
 
-// ✅ Manejo unificado del resultado de redirect (Google y Facebook)
 async function handleSocialRedirectResult() {
   if (!isFirebaseReady()) return;
   try {
