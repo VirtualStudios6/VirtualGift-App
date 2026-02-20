@@ -46,7 +46,7 @@ function isAndroidWebView() {
   return /Android/.test(navigator.userAgent) && /wv/.test(navigator.userAgent);
 }
 
-// ✅ Flag global para bloquear el redirect de onAuthStateChanged durante el registro
+// ✅ Flag para bloquear redirect de onAuthStateChanged durante el registro
 let _isRegistering = false;
 
 // ==================== ESTADO GLOBAL ====================
@@ -246,7 +246,6 @@ const FormManager = {
 
     if (!isFirebaseReady()) { NotificationManager.show('Firebase no está listo', 'error'); return; }
 
-    // ✅ FIX RACE CONDITION: bloquear redirect de onAuthStateChanged durante registro
     _isRegistering = true;
     State.setLoading(true);
 
@@ -269,7 +268,16 @@ const FormManager = {
         console.error('❌ Error enviando verificación:', e.code, e.message);
       }
 
-      // ✅ Guardar en Firestore ANTES de signOut (el flag bloquea el redirect)
+      // ✅ FIX: forzar refresh del token antes de escribir en Firestore
+      // Esto garantiza que las reglas de seguridad reconozcan al usuario recién creado
+      try {
+        await user.getIdToken(true);
+        console.log('✅ Token refrescado');
+      } catch(e) {
+        console.warn('⚠️ No se pudo refrescar el token:', e.message);
+      }
+
+      // Escribir en Firestore
       await firebase.firestore().collection('users').doc(user.uid).set({
         uid: user.uid,
         username,
@@ -300,7 +308,7 @@ const FormManager = {
       console.error('❌ Error registro:', error.code, error.message);
       ErrorHandler.handle(error, 'Registration');
     } finally {
-      _isRegistering = false; // ✅ Liberar flag siempre
+      _isRegistering = false;
       State.setLoading(false);
     }
   },
@@ -458,7 +466,7 @@ const FacebookAuth = {
 const SessionManager = {
   init() {
     firebase.auth().onAuthStateChanged(user => {
-      // ✅ FIX: ignorar el evento si estamos en medio del registro
+      // ✅ Ignorar evento si estamos en medio del registro
       if (_isRegistering) return;
 
       const isInLogin =
