@@ -249,7 +249,16 @@ const FormManager = {
     try {
       const { user } = await firebase.auth().createUserWithEmailAndPassword(email, password);
 
-      // ✅ Fix: log claro si falla el email de verificación
+      // ✅ FIX PRINCIPAL: guardar username en Firebase Auth
+      // Así user.displayName estará disponible en welcome.js y en toda la app
+      try {
+        await user.updateProfile({ displayName: username });
+        console.log('✅ displayName guardado en Auth:', username);
+      } catch(e) {
+        console.error('❌ Error guardando displayName en Auth:', e.code, e.message);
+      }
+
+      // Email de verificación
       try {
         await user.sendEmailVerification();
         console.log('✅ Email de verificación enviado a:', email);
@@ -258,9 +267,11 @@ const FormManager = {
         NotificationManager.show('Cuenta creada, pero hubo un problema enviando el email de verificación.', 'error');
       }
 
+      // ✅ FIX: guardar username Y displayName en Firestore para máxima consistencia
       await firebase.firestore().collection('users').doc(user.uid).set({
         uid: user.uid,
         username,
+        displayName: username,
         email,
         provider: 'email',
         photoURL: '',
@@ -274,6 +285,8 @@ const FormManager = {
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         lastLogin: firebase.firestore.FieldValue.serverTimestamp()
       });
+
+      console.log('✅ Firestore: usuario creado | username:', username, '| points:', CONFIG.INITIAL_USER_POINTS);
 
       NotificationManager.show('¡Cuenta creada! Revisa tu email para verificarla 📧', 'success');
       await firebase.auth().signOut();
@@ -301,9 +314,12 @@ const FormManager = {
     };
 
     if (!doc.exists) {
+      // Primera vez (Google/Facebook sin doc previo)
+      const nameFromAuth = user.displayName || 'Usuario';
       await userRef.set({
         ...base,
-        username: user.displayName || 'Usuario',
+        username:    nameFromAuth,
+        displayName: nameFromAuth,
         points: CONFIG.INITIAL_USER_POINTS,
         level: CONFIG.INITIAL_USER_LEVEL,
         experience: CONFIG.INITIAL_USER_EXPERIENCE,
@@ -314,9 +330,13 @@ const FormManager = {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       }, { merge: true });
     } else {
+      // ✅ Usuario existente: preservar el username/displayName guardado en registro
+      const existingData = doc.data() || {};
+      const savedName = existingData.username || existingData.displayName || user.displayName || 'Usuario';
       await userRef.set({
         ...base,
-        username: doc.data()?.username || user.displayName || 'Usuario'
+        username:    savedName,
+        displayName: savedName
       }, { merge: true });
     }
   },
@@ -357,10 +377,8 @@ const GoogleAuth = {
 
     try {
       if (isAndroidWebView()) {
-        // En WebView usamos redirect
         await firebase.auth().signInWithRedirect(provider);
       } else {
-        // En navegador usamos popup (más rápido y confiable)
         const result = await firebase.auth().signInWithPopup(provider);
         if (result.user) {
           await FormManager.upsertUserProfile(result.user);
@@ -374,7 +392,6 @@ const GoogleAuth = {
         error.code === 'auth/popup-blocked' ||
         error.code === 'auth/operation-not-supported-in-this-environment'
       ) {
-        // Fallback a redirect si el popup fue bloqueado
         try {
           await firebase.auth().signInWithRedirect(provider);
         } catch (e) {
@@ -385,7 +402,6 @@ const GoogleAuth = {
         ErrorHandler.handle(error, 'GoogleLogin');
         State.setLoading(false);
       } else {
-        // Usuario cerró el popup manualmente
         State.setLoading(false);
       }
     }
@@ -448,7 +464,7 @@ const SessionManager = {
       if (user && isInLogin) window.location.href = CONFIG.LOGIN_REDIRECT_URL;
     });
 
-    // ✅ Fix: una sola llamada a getRedirectResult (se consume una sola vez)
+    // ✅ Una sola llamada a getRedirectResult
     handleSocialRedirectResult();
   }
 };
