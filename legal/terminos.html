@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -6,8 +5,14 @@
   <meta name="theme-color" content="#06011c">
   <title>Términos de Servicio - VirtualGift</title>
   <link rel="icon" href="../images/logo-virtual-login.png">
+
+  <!-- Preconnect -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- Inter Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
+
   <style>
     :root {
       --primary: #8d17fb;
@@ -21,80 +26,188 @@
       --text-2: rgba(200,185,230,0.8);
       --text-3: rgba(160,145,190,0.6);
       --border: rgba(60,45,90,0.7);
-      --font-display: 'Syne', sans-serif;
-      --font-body: 'DM Sans', sans-serif;
+      --font-main: 'Inter', sans-serif;
     }
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    *, *::before, *::after {
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+    }
+
     html { background: var(--bg); }
+
     body {
-      font-family: var(--font-body);
+      font-family: var(--font-main);
+      font-optical-sizing: auto;
       background: linear-gradient(160deg, var(--bg), var(--bg2));
-      color: var(--text); min-height: 100vh;
+      color: var(--text);
+      min-height: 100vh;
       padding: calc(16px + env(safe-area-inset-top)) 16px calc(32px + env(safe-area-inset-bottom));
       -webkit-font-smoothing: antialiased;
     }
-    /* BG */
+
     body::before {
-      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      content:'';
+      position:fixed;
+      inset:0;
+      pointer-events:none;
+      z-index:0;
       background:
         radial-gradient(ellipse 60% 50% at 10% 5%, rgba(141,23,251,0.18) 0%, transparent 60%),
         radial-gradient(ellipse 40% 40% at 90% 90%, rgba(112,24,155,0.12) 0%, transparent 60%);
     }
-    .container { max-width: 780px; margin: 0 auto; position: relative; z-index: 1; }
-    /* BACK */
-    .back-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 10px 16px; border-radius: 12px;
-      background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-      color: var(--text-2); font-size: 14px; font-weight: 600;
-      font-family: var(--font-body); cursor: pointer; text-decoration: none;
-      transition: all .2s; margin-bottom: 20px; -webkit-tap-highlight-color:transparent;
+
+    .container {
+      max-width: 780px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
     }
-    .back-btn:hover { border-color: rgba(141,23,251,.4); color: var(--text); }
-    .back-btn svg { width:16px; height:16px; fill: currentColor; flex-shrink:0; }
-    /* CARD */
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .2s;
+      margin-bottom: 20px;
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .back-btn:hover {
+      border-color: rgba(141,23,251,.4);
+      color: var(--text);
+    }
+
+    .back-btn svg {
+      width:16px;
+      height:16px;
+      fill: currentColor;
+      flex-shrink:0;
+    }
+
     .legal-card {
-      background: var(--card); border: 1px solid var(--card-border);
-      border-radius: 24px; padding: clamp(20px,5vw,40px);
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: clamp(20px,5vw,40px);
       box-shadow: 0 20px 60px rgba(0,0,0,0.5);
     }
-    /* HEADER */
-    .legal-header { text-align: center; margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
-    .legal-header .icon { font-size: 40px; margin-bottom: 12px; }
-    .legal-header h1 { font-family: var(--font-display); font-size: clamp(22px,5vw,30px); font-weight: 800; color: var(--text); margin-bottom: 6px; }
-    .legal-header .date { font-size: 13px; color: var(--text-3); }
-    /* SECTION */
+
+    .legal-header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .legal-header .icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .legal-header h1 {
+      font-size: clamp(22px,5vw,30px);
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+
+    .legal-header .date {
+      font-size: 13px;
+      color: var(--text-3);
+    }
+
     .section { margin-bottom: 28px; }
+
     .section h2 {
-      font-family: var(--font-display); font-size: clamp(15px,4vw,18px); font-weight: 700;
-      color: var(--accent); margin-bottom: 12px;
-      display: flex; align-items: center; gap: 8px;
+      font-size: clamp(15px,4vw,18px);
+      font-weight: 700;
+      color: var(--accent);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+
     .section h2 .num {
-      width: 26px; height: 26px; border-radius: 8px; flex-shrink: 0;
-      background: rgba(141,23,251,0.2); border: 1px solid rgba(141,23,251,0.3);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 800; color: var(--accent);
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      background: rgba(141,23,251,0.2);
+      border: 1px solid rgba(141,23,251,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent);
     }
-    .section h3 { font-size: 14px; font-weight: 700; color: var(--text-2); margin: 14px 0 8px; }
-    .section p, .section ul { font-size: clamp(13px,3vw,15px); color: var(--text-2); line-height: 1.7; margin-bottom: 10px; }
+
+    .section h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-2);
+      margin: 14px 0 8px;
+    }
+
+    .section p,
+    .section ul {
+      font-size: clamp(13px,3vw,15px);
+      color: var(--text-2);
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
     .section ul { padding-left: 18px; }
     .section li { margin-bottom: 5px; }
-    /* CALLOUTS */
+
     .highlight {
-      background: rgba(141,23,251,0.08); border-left: 3px solid var(--primary);
-      padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 12px 0;
-      font-size: 14px; color: var(--text); line-height: 1.6;
+      background: rgba(141,23,251,0.08);
+      border-left: 3px solid var(--primary);
+      padding: 14px 16px;
+      border-radius: 0 10px 10px 0;
+      margin: 12px 0;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
     }
+
     .warning {
-      background: rgba(239,68,68,0.07); border-left: 3px solid #ef4444;
-      padding: 14px 16px; border-radius: 0 10px 10px 0; margin: 12px 0;
-      font-size: 14px; color: var(--text); line-height: 1.6;
+      background: rgba(239,68,68,0.07);
+      border-left: 3px solid #ef4444;
+      padding: 14px 16px;
+      border-radius: 0 10px 10px 0;
+      margin: 12px 0;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
     }
-    /* DIVIDER */
-    .section-divider { height: 1px; background: var(--border); margin: 24px 0; }
-    /* FOOTER */
-    .legal-footer { text-align: center; margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-3); }
+
+    .section-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 24px 0;
+    }
+
+    .legal-footer {
+      text-align: center;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 12px;
+      color: var(--text-3);
+    }
+
     @media (max-width: 480px) {
       .legal-card { border-radius: 18px; }
     }

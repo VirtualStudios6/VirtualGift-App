@@ -75,7 +75,7 @@ exports.ayetPostback = onRequest(
 // =====================
 
 const SHOP_URL = "https://fortnite-api.com/v2/shop?language=es";
-const FORTNITE_API_KEY = "TU_API_KEY_AQUI";
+const FORTNITE_API_KEY = "73ffb01e-97df-46f7-b5ee-4023c5c020f5";
 
 function safeStr(v) {
   return typeof v === "string" ? v : (v != null ? String(v) : "");

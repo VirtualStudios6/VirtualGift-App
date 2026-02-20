@@ -42,6 +42,11 @@ function providerFromUser(user) {
   return 'email';
 }
 
+// Detecta Android WebView
+function isAndroidWebView() {
+  return /Android/.test(navigator.userAgent) && /wv/.test(navigator.userAgent);
+}
+
 // ==================== ESTADO GLOBAL ====================
 const State = {
   isLoading: false,
@@ -57,18 +62,14 @@ const State = {
 
       btn.disabled = loading;
 
-      // Guardar HTML original (con iconos SVG intactos)
       if (!btn.dataset.originalHtml) {
         btn.dataset.originalHtml = btn.innerHTML;
       }
 
       if (loading) {
-        // Para btn-primary: preservar estructura con <span>
         if (btn.classList.contains('btn-primary')) {
           btn.innerHTML = `<span>Conectando...</span><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:white;animation:spin .7s linear infinite"><path d="M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z"/></svg>`;
         } else {
-          // btn-social: añadir texto sin borrar el logo SVG
-          const span = btn.querySelector('span') || btn;
           if (!btn.dataset.loadingActive) {
             btn.dataset.loadingActive = '1';
             btn.insertAdjacentHTML('beforeend', '<span class="btn-loading-txt" style="opacity:.75;font-size:12px;margin-left:4px;">Conectando...</span>');
@@ -105,8 +106,6 @@ const NotificationManager = {
 // ==================== MANEJO DE FORMULARIOS ====================
 const FormManager = {
   init() {
-    // Los tabs del nuevo index.html usan switchTab() directamente.
-    // Estos listeners son por compatibilidad (por si otra página los usa).
     document.getElementById('show-register')?.addEventListener('click', e => {
       e.preventDefault(); this.showForm('register-form');
     });
@@ -114,7 +113,6 @@ const FormManager = {
       e.preventDefault(); this.showForm('login-form');
     });
 
-    // Recuperación
     document.getElementById('forgot-password')?.addEventListener('click', e => {
       e.preventDefault(); this.showRecoveryForm();
     });
@@ -128,26 +126,22 @@ const FormManager = {
       this.sendRecoveryEmail();
     });
 
-    // Submit y botones
     document.getElementById('login-form')?.addEventListener('submit', e => {
       e.preventDefault(); this.handleLogin();
     });
     document.getElementById('login-btn')?.addEventListener('click', () => this.handleLogin());
     document.getElementById('register-btn')?.addEventListener('click', () => this.handleRegistration());
 
-    // Fuerza de contraseña (si el inline de index.html no lo manejó aún)
     document.getElementById('password')?.addEventListener('input', e => {
       this.checkPasswordStrength(e.target.value);
     });
   },
 
   showForm(formId) {
-    // Ocultar todos los formularios
     document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
     document.getElementById(formId)?.classList.add('active');
     this.hideRecoveryForm();
 
-    // Sincronizar con el tab indicator del nuevo index.html
     const isRegister = formId === 'register-form';
     const indicator  = document.getElementById('tabIndicator');
     const tabLogin   = document.getElementById('tabLogin');
@@ -184,6 +178,7 @@ const FormManager = {
       NotificationManager.show('Enlace enviado a tu correo 📧', 'success');
       this.hideRecoveryForm();
     } catch (error) {
+      console.error('❌ Error enviando recuperación:', error.code, error.message);
       ErrorHandler.handle(error, 'RecoveryEmail');
     } finally {
       State.setLoading(false);
@@ -218,6 +213,7 @@ const FormManager = {
       setTimeout(() => window.location.href = CONFIG.LOGIN_REDIRECT_URL, 800);
 
     } catch (error) {
+      console.error('❌ Error login:', error.code, error.message);
       ErrorHandler.handle(error, 'Login');
     } finally {
       State.setLoading(false);
@@ -253,7 +249,14 @@ const FormManager = {
     try {
       const { user } = await firebase.auth().createUserWithEmailAndPassword(email, password);
 
-      try { await user.sendEmailVerification(); } catch(e) { console.warn('Verificación:', e); }
+      // ✅ Fix: log claro si falla el email de verificación
+      try {
+        await user.sendEmailVerification();
+        console.log('✅ Email de verificación enviado a:', email);
+      } catch(e) {
+        console.error('❌ Error enviando verificación:', e.code, e.message);
+        NotificationManager.show('Cuenta creada, pero hubo un problema enviando el email de verificación.', 'error');
+      }
 
       await firebase.firestore().collection('users').doc(user.uid).set({
         uid: user.uid,
@@ -278,6 +281,7 @@ const FormManager = {
       setTimeout(() => this.showForm('login-form'), 2000);
 
     } catch (error) {
+      console.error('❌ Error registro:', error.code, error.message);
       ErrorHandler.handle(error, 'Registration');
     } finally {
       State.setLoading(false);
@@ -352,28 +356,38 @@ const GoogleAuth = {
     provider.addScope('email');
 
     try {
-      await firebase.auth().signInWithRedirect(provider);
-    } catch (error) {
-      ErrorHandler.handle(error, 'GoogleLogin');
-      State.setLoading(false);
-    }
-  },
-
-  async handleRedirectResult() {
-    if (!isFirebaseReady()) return;
-    try {
-      const result = await firebase.auth().getRedirectResult();
-      if (result.user) {
-        await FormManager.upsertUserProfile(result.user);
-        NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}! 🎮`, 'success');
-        setTimeout(() => window.location.href = CONFIG.LOGIN_REDIRECT_URL, 800);
+      if (isAndroidWebView()) {
+        // En WebView usamos redirect
+        await firebase.auth().signInWithRedirect(provider);
+      } else {
+        // En navegador usamos popup (más rápido y confiable)
+        const result = await firebase.auth().signInWithPopup(provider);
+        if (result.user) {
+          await FormManager.upsertUserProfile(result.user);
+          NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}! 🎮`, 'success');
+          setTimeout(() => window.location.href = CONFIG.LOGIN_REDIRECT_URL, 800);
+        }
       }
     } catch (error) {
-      if (error.code && error.code !== 'auth/popup-closed-by-user') {
-        ErrorHandler.handle(error, 'GoogleRedirect');
+      console.error('❌ Google login error:', error.code, error.message);
+      if (
+        error.code === 'auth/popup-blocked' ||
+        error.code === 'auth/operation-not-supported-in-this-environment'
+      ) {
+        // Fallback a redirect si el popup fue bloqueado
+        try {
+          await firebase.auth().signInWithRedirect(provider);
+        } catch (e) {
+          ErrorHandler.handle(e, 'GoogleRedirect');
+          State.setLoading(false);
+        }
+      } else if (error.code !== 'auth/popup-closed-by-user') {
+        ErrorHandler.handle(error, 'GoogleLogin');
+        State.setLoading(false);
+      } else {
+        // Usuario cerró el popup manualmente
+        State.setLoading(false);
       }
-    } finally {
-      State.setLoading(false);
     }
   }
 };
@@ -388,29 +402,36 @@ const FacebookAuth = {
     NotificationManager.show('Conectando con Facebook...', 'info');
 
     const provider = new firebase.auth.FacebookAuthProvider();
-    try {
-      await firebase.auth().signInWithRedirect(provider);
-    } catch (error) {
-      ErrorHandler.handle(error, 'FacebookLogin');
-      State.setLoading(false);
-    }
-  },
 
-  async handleRedirectResult() {
-    if (!isFirebaseReady()) return;
     try {
-      const result = await firebase.auth().getRedirectResult();
-      if (result.user) {
-        await FormManager.upsertUserProfile(result.user);
-        NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}! 🎮`, 'success');
-        setTimeout(() => window.location.href = CONFIG.LOGIN_REDIRECT_URL, 800);
+      if (isAndroidWebView()) {
+        await firebase.auth().signInWithRedirect(provider);
+      } else {
+        const result = await firebase.auth().signInWithPopup(provider);
+        if (result.user) {
+          await FormManager.upsertUserProfile(result.user);
+          NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}! 🎮`, 'success');
+          setTimeout(() => window.location.href = CONFIG.LOGIN_REDIRECT_URL, 800);
+        }
       }
     } catch (error) {
-      if (error.code && error.code !== 'auth/popup-closed-by-user') {
-        ErrorHandler.handle(error, 'FacebookRedirect');
+      console.error('❌ Facebook login error:', error.code, error.message);
+      if (
+        error.code === 'auth/popup-blocked' ||
+        error.code === 'auth/operation-not-supported-in-this-environment'
+      ) {
+        try {
+          await firebase.auth().signInWithRedirect(provider);
+        } catch (e) {
+          ErrorHandler.handle(e, 'FacebookRedirect');
+          State.setLoading(false);
+        }
+      } else if (error.code !== 'auth/popup-closed-by-user') {
+        ErrorHandler.handle(error, 'FacebookLogin');
+        State.setLoading(false);
+      } else {
+        State.setLoading(false);
       }
-    } finally {
-      State.setLoading(false);
     }
   }
 };
@@ -427,10 +448,30 @@ const SessionManager = {
       if (user && isInLogin) window.location.href = CONFIG.LOGIN_REDIRECT_URL;
     });
 
-    GoogleAuth.handleRedirectResult();
-    FacebookAuth.handleRedirectResult();
+    // ✅ Fix: una sola llamada a getRedirectResult (se consume una sola vez)
+    handleSocialRedirectResult();
   }
 };
+
+// ✅ Manejo unificado del resultado de redirect (Google y Facebook)
+async function handleSocialRedirectResult() {
+  if (!isFirebaseReady()) return;
+  try {
+    const result = await firebase.auth().getRedirectResult();
+    if (result && result.user) {
+      await FormManager.upsertUserProfile(result.user);
+      NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}! 🎮`, 'success');
+      setTimeout(() => window.location.href = CONFIG.LOGIN_REDIRECT_URL, 800);
+    }
+  } catch (error) {
+    console.error('❌ Social redirect error:', error.code, error.message);
+    if (error.code && error.code !== 'auth/popup-closed-by-user') {
+      ErrorHandler.handle(error, 'SocialRedirect');
+    }
+  } finally {
+    State.setLoading(false);
+  }
+}
 
 // ==================== INICIALIZACIÓN ====================
 function initializeApp() {
