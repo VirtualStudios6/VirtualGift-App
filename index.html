@@ -126,7 +126,7 @@
             <input type="checkbox" id="terms">
             <span class="toggle-slider"></span>
           </label>
-          <span>Acepto los <a href="#" class="link">Términos y Condiciones</a></span>
+          <span>Acepto los <a href="#" class="link" onclick="openTermsSheet(event)">Términos y Condiciones</a></span>
         </div>
 
         <button type="button" id="register-btn" class="btn-primary">
@@ -160,9 +160,9 @@
       <footer>
         <p>© 2026 VIRTUALGIFT · Todos los derechos reservados</p>
         <div class="footer-links">
-          <a href="legal/terminos.html">Términos</a>
-          <a href="legal/Politicas.html">Privacidad</a>
           <a href="legal/pautas.html">Pautas</a>
+          <a href="legal/Politicas.html">Privacidad</a>
+          <a href="legal/terminos.html">Términos</a>
         </div>
       </footer>
 
@@ -184,6 +184,21 @@
         <span>Enviar enlace</span>
       </button>
       <button type="button" id="cancel-recovery" class="btn-ghost">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- TERMS BOTTOM SHEET -->
+  <div id="terms-overlay" class="terms-overlay" onclick="closeTermsSheet()"></div>
+  <div id="terms-sheet" class="terms-sheet">
+    <div class="terms-sheet-handle"></div>
+    <div class="terms-sheet-header">
+      <h3>Términos y Condiciones</h3>
+      <button class="terms-close-btn" onclick="closeTermsSheet()">
+        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+    <div class="terms-sheet-body">
+      <iframe src="legal/terminos.html?modal=1" frameborder="0"></iframe>
     </div>
   </div>
 
@@ -214,7 +229,6 @@
       }
     }
 
-    // Links antiguos por si auth.js los usa
     const showRegisterEl = document.getElementById('show-register');
     const showLoginEl    = document.getElementById('show-login');
     if (showRegisterEl) showRegisterEl.addEventListener('click', e => { e.preventDefault(); switchTab('register'); });
@@ -250,8 +264,41 @@
         lbl.style.color = color;
       });
     }
+
+    // ===== TERMS BOTTOM SHEET =====
+    function openTermsSheet(e) {
+      e.preventDefault();
+      document.getElementById('terms-overlay').classList.add('active');
+      document.getElementById('terms-sheet').classList.add('active');
+    }
+
+    function closeTermsSheet() {
+      document.getElementById('terms-overlay').classList.remove('active');
+      document.getElementById('terms-sheet').classList.remove('active');
+    }
   </script>
 
   <script defer src="js/auth.js"></script>
+  <script>
+  // ===== ENTER LOGIN FLOW =====
+  const loginEmail = document.getElementById('login-email');
+  const loginPassword = document.getElementById('login-password');
+  const loginBtn = document.getElementById('login-btn');
+
+  // Enter en email → pasa a contraseña
+  loginEmail.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      loginPassword.focus();
+    }
+  });
+
+  loginPassword.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      loginBtn.click();
+    }
+  });
+</script>
 </body>
 </html>

@@ -335,10 +335,18 @@
         <p>📧 <strong>ceovirtualstudios@gmail.com</strong><br>🏢 VirtualStudios — República Dominicana</p>
       </div>
 
-      <div class="legal-footer">
-        <p>© 2026 VirtualGift · Todos los derechos reservados</p>
-      </div>
+<div class="legal-footer">
+      <p>© 2026 VirtualGift · Todos los derechos reservados</p>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (new URLSearchParams(window.location.search).get('modal') === '1') {
+        const backBtn = document.querySelector('.back-btn');
+        if (backBtn) backBtn.style.display = 'none';
+      }
+    });
+  </script>
 </body>
 </html>
