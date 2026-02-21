@@ -22,6 +22,7 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 18px;
+  padding-top: calc(62px + env(safe-area-inset-top) + 18px); /* ✅ compensa header fijo */
   padding-bottom: calc(40px + env(safe-area-inset-bottom));
   padding-left:  calc(18px + env(safe-area-inset-left));
   padding-right: calc(18px + env(safe-area-inset-right));
@@ -365,7 +366,6 @@
 }
 
 .redeem-form { display: flex; flex-direction: column; gap: 14px; }
-
 .form-group { display: flex; flex-direction: column; gap: 5px; }
 
 .form-label {
@@ -425,21 +425,12 @@
 .btn:disabled { opacity: 0.55; pointer-events: none; }
 
 /* ============================================ */
-/* MODAL CUSTOM (showModal de puntos.js) */
-/* ============================================ */
-.redeem-error:not(:empty) { display: block; }
-
-@keyframes fadeUp {
-  from { opacity:0; transform: translateY(12px) scale(0.97); }
-  to   { opacity:1; transform: translateY(0) scale(1); }
-}
-
-/* ============================================ */
 /* RESPONSIVE */
 /* ============================================ */
 @media (max-width: 768px) {
   .points-container {
     padding: 16px;
+    padding-top: calc(62px + env(safe-area-inset-top) + 16px);
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
   .points-container .points-balance { font-size: 2.35em; }
@@ -451,5 +442,5 @@
   .platforms-grid { grid-template-columns: repeat(2,1fr); }
 }
 @media (min-width: 769px) {
-  .points-container { padding: 24px 40px; }
+  .points-container { padding: 24px 40px; padding-top: calc(62px + env(safe-area-inset-top) + 24px); }
 }

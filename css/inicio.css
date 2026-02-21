@@ -6,11 +6,6 @@ body.android-app .header { display: none !important; }
 html.android-app body, body.android-app { padding-top: 0 !important; }
 
 /* ============================================ */
-/* SAFE AREA */
-/* ============================================ */
-.header { padding-top: calc(20px + env(safe-area-inset-top)); }
-
-/* ============================================ */
 /* SKELETON LOADER */
 /* ============================================ */
 .skeleton-news {
@@ -60,6 +55,7 @@ body {
   color: var(--text);
   font-family: var(--font);
   font-weight: 400;
+  padding-top: calc(62px + env(safe-area-inset-top)); /* ✅ compensa header fijo */
   padding-bottom: calc(40px + env(safe-area-inset-bottom));
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
@@ -67,89 +63,6 @@ body {
 
 @media (max-width: 768px)  { body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); } }
 @media (min-width: 769px)  { body { padding-bottom: calc(60px + env(safe-area-inset-bottom)); } }
-
-/* ============================================ */
-/* HEADER */
-/* ============================================ */
-.header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 20px;
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(2,5,21,0.78);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border-soft);
-}
-@media (max-width: 768px) { .header { padding: 15px 16px; } }
-@media (min-width: 769px) {
-  .header {
-    padding: 30px 60px; max-width: 1600px; margin: 0 auto;
-    left: 0; right: 0; border-radius: 0 0 18px 18px;
-  }
-}
-
-/* ============================================ */
-/* LOGO */
-/* ============================================ */
-.logo { display: flex; align-items: center; gap: 8px; }
-.logo-image { width: 35px; height: 35px; object-fit: contain; border-radius: 6px; }
-@media (min-width: 769px) { .logo-image { width: 50px; height: 50px; } }
-
-.logo-text {
-  font-family: var(--font);
-  font-weight: 900;
-  font-size: 18px;
-  color: white; letter-spacing: 0.5px;
-}
-@media (min-width: 769px) { .logo-text { font-size: 22px; } }
-.logo-studios { color: var(--muted); margin-left: 2px; font-weight: 400; }
-
-/* ============================================ */
-/* ICONOS DEL HEADER */
-/* ============================================ */
-.header-icons { display: flex; gap: 15px; align-items: center; }
-
-.icon-users, .icon-notification, .icon-coin {
-  width: 40px; height: 40px;
-  background-color: var(--surface-2); border-radius: 50%;
-  position: relative; display: flex; align-items: center; justify-content: center;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease, opacity 0.2s ease;
-}
-.icon-users:hover { transform: scale(1.1); opacity: 0.9; }
-.icon-users:active { transform: scale(0.95); }
-
-@media (min-width: 769px) {
-  .icon-users, .icon-notification, .icon-coin { width: 45px; height: 45px; }
-  .icon-users:hover, .icon-notification:hover, .icon-coin:hover {
-    background-color: #2a2a3e; transform: scale(1.05);
-  }
-  .icon-users:hover { transform: scale(1.12); }
-}
-
-.icon-users svg, .icon-notification svg, .icon-coin svg { width: 20px; height: 20px; fill: white; }
-@media (min-width: 769px) {
-  .icon-users svg, .icon-notification svg, .icon-coin svg { width: 22px; height: 22px; }
-}
-
-.icon-coin {
-  background-color: transparent; width: 40px; height: 40px;
-}
-@media (min-width: 769px) { .icon-coin { width: 45px; height: 45px; } }
-.icon-coin:hover { background-color: rgba(255,255,255,0.05) !important; transform: scale(1.1) !important; }
-.icon-coin svg { width: 100% !important; height: 100% !important; fill: none; }
-
-/* ============================================ */
-/* BADGE NOTIFICACIONES */
-/* ============================================ */
-.notification-badge {
-  position: absolute; top: -5px; right: -5px;
-  background-color: #ef4444; color: white;
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: 700;
-  width: 22px; height: 22px; border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-}
 
 /* ============================================ */
 /* SECCIONES */
@@ -451,7 +364,7 @@ body {
 @media (min-width: 769px) { .skin-name, .emote-name, .game-name { font-size: 16px; } }
 
 /* ============================================ */
-/* CARD SYSTEM (nuevo) */
+/* CARD SYSTEM */
 /* ============================================ */
 .card-image {
   width: 100%; height: 160px;

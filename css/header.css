@@ -1,0 +1,90 @@
+/* ============================================ */
+/* HEADER COMPARTIDO - VirtualGift             */
+/* Incluir en todas las páginas con header     */
+/* ============================================ */
+
+.header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 18px;
+  padding-top: env(safe-area-inset-top);
+  height: calc(62px + env(safe-area-inset-top));
+  background: rgba(2,5,21,0.85);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(41,50,68,0.75);
+}
+
+/* ============================================ */
+/* LOGO                                        */
+/* ============================================ */
+.logo {
+  display: flex; align-items: center; gap: 8px;
+  text-decoration: none; cursor: default;
+}
+.logo-image {
+  width: 32px; height: 32px; object-fit: contain;
+}
+.logo-text {
+  font-family: 'Inter', sans-serif;
+  font-size: 16px; font-weight: 900;
+  color: #dcefff; letter-spacing: 1px;
+}
+.logo-studios { color: #dcefff; }
+
+/* ============================================ */
+/* ICONOS DEL HEADER                           */
+/* ============================================ */
+.header-icons {
+  display: flex; align-items: center; gap: 8px;
+}
+
+.icon-users,
+.icon-coin,
+.icon-notification {
+  width: 42px; height: 42px; border-radius: 12px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(41,50,68,0.75);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.icon-users:active,
+.icon-coin:active,
+.icon-notification:active { transform: scale(0.93); }
+.icon-users:hover,
+.icon-coin:hover { border-color: rgba(141,23,251,0.4); background: rgba(141,23,251,0.08); }
+
+.icon-users svg,
+.icon-notification svg {
+  width: 22px; height: 22px; fill: rgba(182,198,217,0.9);
+}
+.icon-coin svg { width: 28px; height: 28px; }
+
+/* Icono notificaciones — igual que usuario */
+.icon-notification svg { fill: rgba(182,198,217,0.9); }
+
+/* Badge de notificaciones */
+.notification-badge {
+  position: absolute; top: -4px; right: -4px;
+  background: #ef4444; color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 10px; font-weight: 800;
+  min-width: 18px; height: 18px;
+  border-radius: 999px; padding: 0 4px;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid #020515;
+  pointer-events: none;
+}
+
+/* ============================================ */
+/* ESPACIADO DEL BODY PARA COMPENSAR HEADER    */
+/* Agrega esta clase al contenedor principal   */
+/* de cada página: class="page-content"        */
+/* ============================================ */
+.page-content {
+  padding-top: calc(62px + env(safe-area-inset-top) + 24px);
+  padding-bottom: calc(30px + env(safe-area-inset-bottom));
+  padding-left:  calc(16px + env(safe-area-inset-left));
+  padding-right: calc(16px + env(safe-area-inset-right));
+}

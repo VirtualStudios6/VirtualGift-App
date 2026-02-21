@@ -3,7 +3,10 @@
 /* ============================================ */
 const AVATAR_PLACEHOLDER = 'images/logo-virtual-login.png';
 const CACHE_KEY = 'vg_user_cache_profile';
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutos
+const CACHE_DURATION = 5 * 60 * 1000;
+
+// ✅ Cambia esto por tu correo de soporte
+const SUPPORT_EMAIL = 'soporte@virtualgift.com';
 
 /* ============================================ */
 /* VARIABLES GLOBALES */
@@ -53,17 +56,13 @@ function maskEmail(email) {
 }
 
 /* ============================================ */
-/* MODALES CUSTOM (reemplaza prompt/confirm)    */
+/* MODALES CUSTOM                              */
 /* ============================================ */
 
-/**
- * Inyecta los modales en el DOM una sola vez
- */
 function injectModals() {
   if (document.getElementById('vg-modal-overlay')) return;
 
   const html = `
-    <!-- Modal de confirmación -->
     <div id="vg-modal-overlay" class="vg-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
       <div class="vg-modal-box">
         <p id="vg-modal-message" class="vg-modal-message"></p>
@@ -74,7 +73,6 @@ function injectModals() {
       </div>
     </div>
 
-    <!-- Modal de input (nombre) -->
     <div id="vg-input-overlay" class="vg-modal-overlay" style="display:none;" role="dialog" aria-modal="true">
       <div class="vg-modal-box">
         <p class="vg-modal-message">¿Cómo quieres que aparezca tu nombre?</p>
@@ -92,19 +90,16 @@ function injectModals() {
   document.body.appendChild(wrapper);
 }
 
-/**
- * Muestra modal de confirmación
- * @param {string} message
- * @returns {Promise<boolean>}
- */
-function showConfirmModal(message) {
+function showConfirmModal(message, confirmLabel = 'Confirmar', confirmClass = 'vg-modal-btn-confirm') {
   return new Promise((resolve) => {
-    const overlay  = document.getElementById('vg-modal-overlay');
-    const msgEl    = document.getElementById('vg-modal-message');
-    const btnOk    = document.getElementById('vg-modal-confirm');
+    const overlay   = document.getElementById('vg-modal-overlay');
+    const msgEl     = document.getElementById('vg-modal-message');
+    const btnOk     = document.getElementById('vg-modal-confirm');
     const btnCancel = document.getElementById('vg-modal-cancel');
 
-    msgEl.textContent = message;
+    msgEl.textContent    = message;
+    btnOk.textContent    = confirmLabel;
+    btnOk.className      = `vg-modal-btn ${confirmClass}`;
     overlay.style.display = 'flex';
 
     const cleanup = (result) => {
@@ -122,22 +117,16 @@ function showConfirmModal(message) {
   });
 }
 
-/**
- * Muestra modal de input de texto
- * @param {string} currentValue - valor inicial del input
- * @returns {Promise<string|null>} null si cancela
- */
 function showInputModal(currentValue) {
   return new Promise((resolve) => {
-    const overlay  = document.getElementById('vg-input-overlay');
-    const input    = document.getElementById('vg-input-field');
-    const btnOk    = document.getElementById('vg-input-confirm');
+    const overlay   = document.getElementById('vg-input-overlay');
+    const input     = document.getElementById('vg-input-field');
+    const btnOk     = document.getElementById('vg-input-confirm');
     const btnCancel = document.getElementById('vg-input-cancel');
 
-    input.value = currentValue || '';
+    input.value           = currentValue || '';
     overlay.style.display = 'flex';
 
-    // Foco con pequeño delay para que el teclado abra bien en Android
     setTimeout(() => input.focus(), 120);
 
     const cleanup = (result) => {
@@ -182,19 +171,39 @@ function safeSetAvatar(url) {
   const avatarEl = document.getElementById('avatar');
   const clean = (url && String(url).trim()) ? String(url).trim() : '';
 
+  function applyPlaceholderStyle() {
+    avatarEl.style.objectFit  = 'contain';
+    avatarEl.style.padding    = '12px';
+    avatarEl.style.background = 'rgba(141,23,251,0.12)';
+  }
+
+  function applyPhotoStyle() {
+    avatarEl.style.objectFit  = 'cover';
+    avatarEl.style.padding    = '0';
+    avatarEl.style.background = 'rgba(255,255,255,0.06)';
+  }
+
+  const isPlaceholder = !clean || clean.includes('logo-virtual-login');
+
   avatarEl.onerror = null;
   avatarEl.src = clean || AVATAR_PLACEHOLDER;
+
+  if (isPlaceholder) {
+    applyPlaceholderStyle();
+  } else {
+    applyPhotoStyle();
+  }
 
   avatarEl.onerror = () => {
     avatarEl.onerror = null;
     avatarEl.src = AVATAR_PLACEHOLDER;
+    applyPlaceholderStyle();
   };
 }
 
 function openAvatarPicker() {
   const user = window.auth?.currentUser;
   if (!user) return;
-
   const input = document.getElementById('avatarInput');
   input.value = '';
   input.click();
@@ -204,7 +213,7 @@ function loadImageFromFile(file) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
-    img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+    img.onload  = () => { URL.revokeObjectURL(url); resolve(img); };
     img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Imagen inválida')); };
     img.src = url;
   });
@@ -213,14 +222,14 @@ function loadImageFromFile(file) {
 async function compressImageToJpeg(file, maxSize = 512, quality = 0.75) {
   const img = await loadImageFromFile(file);
 
-  const width = img.naturalWidth || img.width;
+  const width  = img.naturalWidth  || img.width;
   const height = img.naturalHeight || img.height;
-  const scale = Math.min(maxSize / width, maxSize / height, 1);
-  const newW = Math.max(1, Math.round(width * scale));
-  const newH = Math.max(1, Math.round(height * scale));
+  const scale  = Math.min(maxSize / width, maxSize / height, 1);
+  const newW   = Math.max(1, Math.round(width  * scale));
+  const newH   = Math.max(1, Math.round(height * scale));
 
   const canvas = document.createElement('canvas');
-  canvas.width = newW;
+  canvas.width  = newW;
   canvas.height = newH;
 
   const ctx = canvas.getContext('2d');
@@ -235,8 +244,8 @@ async function compressImageToJpeg(file, maxSize = 512, quality = 0.75) {
 }
 
 async function uploadAvatarBlob(user, blob) {
-  const path = `avatars/${user.uid}.jpg`;
-  const ref = window.storage.ref().child(path);
+  const path     = `avatars/${user.uid}.jpg`;
+  const ref      = window.storage.ref().child(path);
   const metadata = { contentType: 'image/jpeg', cacheControl: 'public, max-age=3600' };
 
   await ref.put(blob, metadata);
@@ -259,48 +268,44 @@ async function setAvatarEverywhere(user, photoURL) {
 /* ============================================ */
 
 function renderEmail() {
-  const el       = document.getElementById('userEmail');
-  const btn      = document.getElementById('btnToggleEmail');
-  const eyeOpen  = document.getElementById('eyeOpen');
+  const el        = document.getElementById('userEmail');
+  const eyeOpen   = document.getElementById('eyeOpen');
   const eyeClosed = document.getElementById('eyeClosed');
+  const btn       = document.getElementById('btnToggleEmail');
 
   el.textContent = __emailShown ? __emailRaw : maskEmail(__emailRaw);
 
-  eyeOpen.style.display  = __emailShown ? 'none' : 'block';
+  eyeOpen.style.display   = __emailShown ? 'none'  : 'block';
   eyeClosed.style.display = __emailShown ? 'block' : 'none';
 
-  btn.disabled = !__emailRaw;
-  btn.style.opacity = __emailRaw ? '1' : '0.5';
+  btn.disabled         = !__emailRaw;
+  btn.style.opacity    = __emailRaw ? '1' : '0.5';
   btn.style.pointerEvents = __emailRaw ? 'auto' : 'none';
 }
 
 /* ============================================ */
-/* GESTIÓN DE PROVEEDOR DE AUTENTICACIÓN */
+/* PROVEEDOR DE AUTENTICACIÓN */
 /* ============================================ */
 
-/**
- * Configura el chip de proveedor y oculta el botón de contraseña
- * si el usuario no tiene cuenta de contraseña
- */
 function setProviderChip(user) {
-  const chip      = document.getElementById('chipProvider');
-  const btnReset  = document.getElementById('btnResetPassword');
+  const chip     = document.getElementById('chipProvider');
+  const btnReset = document.getElementById('btnResetPassword');
   const providers = (user.providerData || []).map(p => p.providerId);
 
   if (providers.includes('password')) {
-    chip.textContent = '🔐 Cuenta con contraseña';
+    chip.textContent      = '🔐 Cuenta con contraseña';
     btnReset.style.display = 'flex';
   } else if (providers.includes('google.com')) {
-    chip.textContent = '🔵 Cuenta Google';
-    btnReset.style.display = 'none'; // No aplica para Google
+    chip.textContent      = '🔵 Cuenta Google';
+    btnReset.style.display = 'none';
   } else {
-    chip.textContent = '🔐 Cuenta segura';
+    chip.textContent      = '🔐 Cuenta segura';
     btnReset.style.display = 'none';
   }
 }
 
 /* ============================================ */
-/* GESTIÓN DE CACHÉ LOCAL */
+/* CACHÉ LOCAL */
 /* ============================================ */
 
 function getCachedUserData() {
@@ -334,20 +339,13 @@ function setCachedUserData(userData) {
 }
 
 /* ============================================ */
-/* VERIFICACIÓN DE FIREBASE */
-/* Delegamos en window.waitForFirebaseStorage  */
-/* definido en firebase-config.js para evitar  */
-/* que window.storage=null cause spinner inf.  */
-/* ============================================ */
-
-/* ============================================ */
-/* CARGA DE DATOS DEL USUARIO */
+/* CARGA DE DATOS */
 /* ============================================ */
 
 function loadBasicUserData(user) {
   document.getElementById('userName').textContent = user.displayName || 'Usuario';
 
-  __emailRaw  = user.email || '';
+  __emailRaw   = user.email || '';
   __emailShown = false;
   renderEmail();
 
@@ -364,11 +362,9 @@ async function loadFirestoreData(user) {
     if (cached) {
       if (cached.photoURL && !__isUploadingAvatar) safeSetAvatar(cacheBust(cached.photoURL));
       if (cached.displayName) document.getElementById('userName').textContent = cached.displayName;
-
       fetchAndUpdateFirestore(user, true);
       return;
     }
-
     await fetchAndUpdateFirestore(user, false);
   } catch (e) {
     console.warn('Error cargando datos de Firestore:', e);
@@ -400,7 +396,6 @@ function checkAuth() {
         window.location.href = withAppFlag('index.html');
         return;
       }
-
       loadBasicUserData(user);
       await loadFirestoreData(user);
     });
@@ -408,7 +403,7 @@ function checkAuth() {
 }
 
 /* ============================================ */
-/* ACCIONES DEL USUARIO */
+/* ACCIONES                                    */
 /* ============================================ */
 
 async function editName(user) {
@@ -419,13 +414,10 @@ async function editName(user) {
     if (next === null) return;
 
     const name = String(next).trim();
-    if (name.length < 2) {
-      toast('Pon un nombre más largo 🙂');
-      return;
-    }
+    if (name.length < 2) { toast('Pon un nombre más largo 🙂'); return; }
 
     toast('Guardando nombre...');
-    document.getElementById('userName').textContent = name; // optimista
+    document.getElementById('userName').textContent = name;
 
     await window.db.collection('users').doc(user.uid).set({
       displayName: name,
@@ -445,9 +437,9 @@ async function editName(user) {
   } catch (e) {
     console.error('Error editando nombre:', e);
     const msg = String(e?.code || e?.message || '');
-    if (msg.includes('permission-denied'))             toast('❌ Sin permisos (Firestore Rules)');
-    else if (msg.includes('unavailable') || msg.includes('network')) toast('❌ Sin conexión. Intenta de nuevo');
-    else                                                toast('❌ No se pudo cambiar el nombre');
+    if (msg.includes('permission-denied'))                             toast('❌ Sin permisos (Firestore Rules)');
+    else if (msg.includes('unavailable') || msg.includes('network'))  toast('❌ Sin conexión. Intenta de nuevo');
+    else                                                               toast('❌ No se pudo cambiar el nombre');
   }
 }
 
@@ -472,7 +464,7 @@ async function logout() {
   const confirmed = await showConfirmModal('¿Seguro que quieres cerrar sesión?');
   if (!confirmed) return;
 
-  try { localStorage.removeItem(CACHE_KEY); } catch (err) { console.warn('Error limpiando caché:', err); }
+  try { localStorage.removeItem(CACHE_KEY); } catch {}
 
   if (window.auth) {
     window.auth.signOut()
@@ -480,6 +472,86 @@ async function logout() {
       .catch(() => window.location.href = withAppFlag('index.html'));
   } else {
     window.location.href = withAppFlag('index.html');
+  }
+}
+
+// ✅ NUEVO: Reportar problema via mailto
+function reportProblem(user) {
+  const nombre    = document.getElementById('userName')?.textContent || 'Usuario';
+  const email     = user?.email || 'No disponible';
+  const uid       = user?.uid   || 'No disponible';
+  const userAgent = navigator.userAgent || 'No disponible';
+  const fecha     = new Date().toLocaleString('es-DO');
+
+  const subject = encodeURIComponent('🐛 Reporte de problema - VirtualGift');
+  const body    = encodeURIComponent(
+`Hola, quiero reportar un problema en VirtualGift.
+
+-- Descripción del problema --
+[Escribe aquí qué pasó, cuándo ocurrió y qué estabas haciendo]
+
+-- Pasos para reproducirlo --
+1.
+2.
+3.
+
+-- Información del sistema --
+Usuario: ${nombre}
+Email: ${email}
+UID: ${uid}
+Fecha: ${fecha}
+Dispositivo: ${userAgent}
+
+-- Capturas de pantalla --
+[Adjunta aquí capturas del problema si las tienes]
+`
+  );
+
+  window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
+}
+
+// ✅ NUEVO: Eliminar cuenta con doble confirmación
+async function deleteAccount(user) {
+  // Primera confirmación
+  const primera = await showConfirmModal(
+    '⚠️ ¿Eliminar tu cuenta?\n\nEsta acción es permanente. Perderás todos tus puntos, historial y datos.',
+    'Continuar',
+    'vg-modal-btn-danger'
+  );
+  if (!primera) return;
+
+  // Segunda confirmación (doble seguridad)
+  const segunda = await showConfirmModal(
+    '🗑️ Confirmación final\n\n¿Estás completamente seguro? No hay vuelta atrás.',
+    'Sí, eliminar mi cuenta',
+    'vg-modal-btn-danger'
+  );
+  if (!segunda) return;
+
+  toast('Eliminando cuenta...');
+
+  try {
+    // 1. Eliminar documento de Firestore
+    await window.db.collection('users').doc(user.uid).delete();
+
+    // 2. Limpiar caché local
+    try { localStorage.removeItem(CACHE_KEY); } catch {}
+
+    // 3. Eliminar cuenta de Firebase Auth
+    await user.delete();
+
+    // 4. Redirigir al login
+    window.location.href = withAppFlag('index.html');
+
+  } catch (e) {
+    console.error('Error eliminando cuenta:', e);
+
+    // Firebase requiere re-autenticación si el login fue hace mucho tiempo
+    if (e.code === 'auth/requires-recent-login') {
+      toast('Por seguridad, cierra sesión, vuelve a iniciar y repite esta acción.');
+    } else {
+      toast('❌ No se pudo eliminar la cuenta. Intenta de nuevo.');
+    }
   }
 }
 
@@ -494,8 +566,8 @@ document.getElementById('avatarInput').addEventListener('change', async (e) => {
   const user = window.auth?.currentUser;
   if (!user) return;
 
-  __lastStableAvatar   = user.photoURL || __lastStableAvatar || '';
-  __isUploadingAvatar  = true;
+  __lastStableAvatar  = user.photoURL || __lastStableAvatar || '';
+  __isUploadingAvatar = true;
 
   let localUrl = '';
   try {
@@ -523,15 +595,15 @@ document.getElementById('avatarInput').addEventListener('change', async (e) => {
     safeSetAvatar(cacheBust(fallback) || AVATAR_PLACEHOLDER);
 
     const msg = (err && err.code) ? String(err.code) : '';
-    if (msg.includes('storage/unauthorized')) toast('❌ Sin permiso para subir (Storage rules)');
-    else if (msg.includes('storage/canceled'))   toast('❌ Subida cancelada');
-    else                                         toast('❌ No se pudo subir el avatar');
+    if (msg.includes('storage/unauthorized'))  toast('❌ Sin permiso para subir (Storage rules)');
+    else if (msg.includes('storage/canceled')) toast('❌ Subida cancelada');
+    else                                       toast('❌ No se pudo subir el avatar');
   } finally {
     __isUploadingAvatar = false;
 
     if (localUrl) {
       setTimeout(() => {
-        try { URL.revokeObjectURL(localUrl); } catch (err) { console.warn('Error revocando URL:', err); }
+        try { URL.revokeObjectURL(localUrl); } catch {}
       }, 1500);
     }
   }
@@ -557,6 +629,17 @@ function setupEventListeners() {
   });
 
   document.getElementById('btnLogout').addEventListener('click', logout);
+
+  // ✅ NUEVOS
+  document.getElementById('btnReport').addEventListener('click', () => {
+    const user = window.auth?.currentUser;
+    if (user) reportProblem(user);
+  });
+
+  document.getElementById('btnDeleteAccount').addEventListener('click', () => {
+    const user = window.auth?.currentUser;
+    if (user) deleteAccount(user);
+  });
 }
 
 /* ============================================ */

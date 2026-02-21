@@ -11,6 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/inicio.css">
+    <link rel="stylesheet" href="css/header.css"> <!-- ✅ una sola vez -->
     <script defer src="js/app-mode.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -103,7 +104,6 @@
             letter-spacing: 2px;
         }
 
-        /* Botón cosméticos */
         .fn-cosmetics-btn {
             display: flex;
             align-items: center;
@@ -124,7 +124,6 @@
         .fn-cosmetics-btn:hover { background: rgba(255,255,255,0.12); }
         .fn-cosmetics-btn svg { width: 16px; height: 16px; fill: white; flex-shrink: 0; }
 
-        /* SHOP PREVIEW STRIP */
         .fn-shop-strip {
             display: flex;
             gap: 8px;
@@ -135,7 +134,6 @@
         }
         .fn-shop-strip::-webkit-scrollbar { display: none; }
 
-        /* Cards fijas (Ver Tienda / Stats) */
         .fn-view-shop-card {
             flex-shrink: 0;
             width: 120px;
@@ -182,7 +180,6 @@
         }
         .fn-view-shop-sub::after { content: '\2192'; font-size: 12px; }
 
-        /* Preview items en el strip */
         .fn-strip-item {
             flex-shrink: 0;
             width: 120px;
@@ -224,7 +221,6 @@
         .fn-strip-item-price img { width: 10px; height: 10px; object-fit: contain; }
         .fn-strip-item-price span { font-size: 10px; font-weight: 700; color: #7ec8e3; }
 
-        /* Skeleton para el strip */
         .fn-strip-skeleton {
             flex-shrink: 0;
             width: 120px;
@@ -328,37 +324,25 @@
 
     <!-- STRIP DE PREVIEW DE LA TIENDA -->
     <div class="fn-shop-strip" id="fnShopStrip">
-
-        <!-- Card fija: Ver Tienda (inicio) -->
-        <a href="tienda.html"
-           onclick="this.href=withAppFlag('tienda.html')"
-           class="fn-view-shop-card">
+        <a href="tienda.html" onclick="this.href=withAppFlag('tienda.html')" class="fn-view-shop-card">
             <div class="fn-view-shop-inner">
                 <div class="fn-view-shop-icon">🛒</div>
                 <div class="fn-view-shop-text">Ver<br>Tienda</div>
                 <div class="fn-view-shop-sub">Ver todo</div>
             </div>
         </a>
-
-        <!-- Skeletons mientras cargan los items -->
         <div class="fn-strip-skeleton"></div>
         <div class="fn-strip-skeleton"></div>
         <div class="fn-strip-skeleton"></div>
         <div class="fn-strip-skeleton"></div>
         <div class="fn-strip-skeleton"></div>
-
-        <!-- Card fija: Stats (final) -->
-        <a href="stats.html"
-           onclick="this.href=withAppFlag('stats.html')"
-           class="fn-view-shop-card"
-           style="border-color: rgba(168,85,247,0.5);">
+        <a href="stats.html" onclick="this.href=withAppFlag('stats.html')" class="fn-view-shop-card" style="border-color: rgba(168,85,247,0.5);">
             <div class="fn-view-shop-inner" style="background: linear-gradient(160deg, #1a0535 0%, #0d0520 100%);">
                 <div class="fn-view-shop-icon">📊</div>
                 <div class="fn-view-shop-text">Mis Stats<br>FN</div>
                 <div class="fn-view-shop-sub" style="color: #a855f7;">Ver stats</div>
             </div>
         </a>
-
     </div>
 
     <!-- OFERTAS -->
@@ -434,7 +418,6 @@
     <script defer src="js/inicio.js"></script>
 
     <script>
-    // ===== COUNTDOWN =====
     function updateFnCountdown() {
         const now = new Date();
         const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
@@ -453,7 +436,6 @@
     setInterval(updateFnCountdown, 1000);
     updateFnCountdown();
 
-    // ===== SHOP STRIP CON ROTACIÓN =====
     const RARITY_BG_STRIP = {
         "poco común":  "linear-gradient(160deg,#818181,#3a3a3a)",
         "poco comun":  "linear-gradient(160deg,#818181,#3a3a3a)",
@@ -515,21 +497,15 @@
     function renderStripPage() {
         const strip = document.getElementById('fnShopStrip');
         if (!strip || !_allStripItems.length) return;
-
         const fixedCards = Array.from(strip.querySelectorAll('.fn-view-shop-card'));
-
         strip.innerHTML = '';
-
         if (fixedCards[0]) strip.appendChild(fixedCards[0]);
-
         const total = _allStripItems.length;
         for (let i = 0; i < STRIP_VISIBLE; i++) {
             const item = _allStripItems[(_stripOffset + i) % total];
             if (item && item.imageUrl) strip.appendChild(buildStripCard(item));
         }
-
         if (fixedCards[1]) strip.appendChild(fixedCards[1]);
-
         _stripOffset = (_stripOffset + STRIP_VISIBLE) % total;
     }
 
@@ -542,7 +518,6 @@
     function loadShopStrip() {
         const strip = document.getElementById('fnShopStrip');
         if (!strip || !window.db) return;
-
         window.db.collection("shopDailyItems")
             .orderBy("sort", "asc")
             .onSnapshot(snap => {
@@ -553,9 +528,7 @@
                 });
                 _stripOffset = Math.floor(Math.random() * _allStripItems.length);
                 startStripRotation();
-            }, err => {
-                console.error("ShopStrip error:", err);
-            });
+            }, err => { console.error("ShopStrip error:", err); });
     }
 
     function waitDbStrip(max = 80) {

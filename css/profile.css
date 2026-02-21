@@ -365,3 +365,35 @@ body {
   .avatar-wrap, .avatar { width: 86px; height: 86px; }
   .user-name { font-size: 1.2em; }
 }
+.btn-ghost-danger {
+  background: transparent;
+  border: 1px solid rgba(239,68,68,0.2);
+  color: rgba(239,68,68,0.5);
+  font-size: 0.85em;
+  font-weight: 500;
+}
+.btn-ghost-danger:hover {
+  border-color: rgba(239,68,68,0.45);
+  color: rgba(239,68,68,0.75);
+}
+/* ============================================ */
+/* BOTÓN ELIMINAR CUENTA (discreto)            */
+/* ============================================ */
+.btn-ghost-danger {
+  background: transparent;
+  border: 1px solid rgba(239,68,68,0.2);
+  color: rgba(239,68,68,0.45);
+  font-size: 0.85em;
+  font-weight: 500;
+}
+.btn-ghost-danger:hover {
+  border-color: rgba(239,68,68,0.45);
+  color: rgba(239,68,68,0.75);
+}
+
+/* Estilo del botón confirmar en rojo (para modal de eliminar cuenta) */
+.vg-modal-btn-danger {
+  background: linear-gradient(90deg, #ef4444, #b91c1c);
+  color: #fff;
+  box-shadow: 0 0 18px rgba(239,68,68,0.25);
+}
