@@ -52,6 +52,7 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 18px;
+  padding-top: calc(62px + env(safe-area-inset-top) + 16px); /* ← esta línea */
   padding-bottom: calc(40px + env(safe-area-inset-bottom));
   padding-left:  calc(18px + env(safe-area-inset-left));
   padding-right: calc(18px + env(safe-area-inset-right));
@@ -67,10 +68,10 @@
   background: rgba(255,255,255,0.03);
   border: 1px solid var(--border);
   color: var(--text-primary);
-  padding: 10px 18px;
-  border-radius: 14px;
+  padding: 9px 16px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
   transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease;
   -webkit-tap-highlight-color: transparent;

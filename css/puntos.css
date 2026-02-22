@@ -21,33 +21,27 @@
 .points-container {
   max-width: 900px;
   margin: 0 auto;
-  padding: 18px;
-  padding-top: calc(62px + env(safe-area-inset-top) + 18px); /* ✅ compensa header fijo */
+  padding: 16px;
+  padding-top: 16px;
   padding-bottom: calc(40px + env(safe-area-inset-bottom));
-  padding-left:  calc(18px + env(safe-area-inset-left));
-  padding-right: calc(18px + env(safe-area-inset-right));
+  padding-left:  calc(16px + env(safe-area-inset-left));
+  padding-right: calc(16px + env(safe-area-inset-right));
   font-family: var(--font);
 }
 
 /* ============================================ */
 /* BOTÓN VOLVER */
 /* ============================================ */
-.points-container .back-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255,255,255,0.03);
+.back-button {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,0.04);
   border: 1px solid var(--border);
-  color: var(--text-primary);
-  padding: 10px 18px;
-  border-radius: 14px;
-  cursor: pointer;
-  font-family: var(--font);
-  font-size: 14px;
-  font-weight: 600;
-  transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease;
+  color: var(--text-secondary);
+  padding: 9px 16px; border-radius: 12px;
+  font-family: var(--font); font-size: 13px; font-weight: 600;
+  cursor: pointer; margin-bottom: 20px;
+  transition: border-color 0.2s, color 0.2s;
   -webkit-tap-highlight-color: transparent;
-  margin-bottom: 16px;
 }
 .points-container .back-button:active { transform: scale(0.98); }
 .points-container .back-button:hover {
@@ -430,7 +424,7 @@
 @media (max-width: 768px) {
   .points-container {
     padding: 16px;
-    padding-top: calc(62px + env(safe-area-inset-top) + 16px);
+    padding-top: 16px;
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
   .points-container .points-balance { font-size: 2.35em; }
@@ -442,5 +436,5 @@
   .platforms-grid { grid-template-columns: repeat(2,1fr); }
 }
 @media (min-width: 769px) {
-  .points-container { padding: 24px 40px; padding-top: calc(62px + env(safe-area-inset-top) + 24px); }
+  .points-container { padding: 24px 40px; padding-top: 16px; }
 }
