@@ -198,7 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
             email:               user.email || "",
             provider,
             photoURL:            user.photoURL || "",
-            points:              prevData.points ?? 100,
+            points:              prevData.points ?? 175,
             level:               prevData.level  ?? 1,
             experience:          prevData.experience ?? 0,
             nextLevel:           prevData.nextLevel  ?? 200,
