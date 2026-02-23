@@ -28,7 +28,13 @@
       return fixed + hash;
     }
   </script>
+
   <style>
+    /* ✅ Reset padding del body que viene de inicio.css/header.css */
+    body {
+      padding-top: 0 !important;
+    }
+
     /* ===== TIENDA PAGE STYLES ===== */
     .tienda-header {
       display: flex;
@@ -276,7 +282,6 @@
   </div>
 
   <script>
-    // ===== COUNTDOWN =====
     function updateCountdown() {
       const now = new Date();
       const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
@@ -294,7 +299,6 @@
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // ===== RARITY COLORS =====
     const RARITY_BG = {
       "poco común":"linear-gradient(160deg,#818181,#3a3a3a)","poco comun":"linear-gradient(160deg,#818181,#3a3a3a)",
       "común":"linear-gradient(160deg,#818181,#3a3a3a)","comun":"linear-gradient(160deg,#818181,#3a3a3a)","common":"linear-gradient(160deg,#818181,#3a3a3a)",
@@ -324,7 +328,6 @@
       return "#8d17fb";
     }
 
-    // ===== CATEGORY LABELS =====
     const CAT_LABELS = {
       "outfit":        { label: "👕 Skins", emoji: "👕" },
       "emote":         { label: "💃 Emotes", emoji: "💃" },

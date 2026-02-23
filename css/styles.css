@@ -63,6 +63,7 @@ body {
 .orb {
   position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.35;
   animation: orbFloat 12s ease-in-out infinite;
+  will-change: transform;
 }
 .orb-1 {
   width: 400px; height: 400px;
@@ -134,10 +135,17 @@ body {
   position: relative; z-index: 1;
   filter: drop-shadow(0 8px 20px rgba(141,23,251,0.5));
   animation: logoFloat 3.5s ease-in-out infinite;
+
+  /* ✅ Fix: fuerza GPU layer — evita saltos en distintos PCs/browsers */
+  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 @keyframes logoFloat {
-  0%,100% { transform: translateY(0); }
-  50%      { transform: translateY(-6px); }
+  0%,100% { transform: translateY(0) translateZ(0); }
+  50%      { transform: translateY(-6px) translateZ(0); }
 }
 .logo-wordmark {
   font-family: var(--font);
@@ -522,6 +530,7 @@ footer p {
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
 /* ============================================ */
 /* TERMS BOTTOM SHEET                          */
 /* ============================================ */

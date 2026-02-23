@@ -16,9 +16,6 @@
   --font: 'Inter', sans-serif;
 }
 
-/* ============================================ */
-/* RESET Y BASE */
-/* ============================================ */
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
 body {
@@ -38,9 +35,6 @@ body {
 
 .container { max-width: 900px; margin: 0 auto; }
 
-/* ============================================ */
-/* BARRA SUPERIOR */
-/* ============================================ */
 .top-bar {
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 16px;
@@ -52,18 +46,13 @@ body {
   border: 1px solid var(--border);
   color: var(--text-primary);
   padding: 9px 16px; border-radius: 12px; cursor: pointer;
-  font-family: var(--font);
-  font-size: 13px;
-  font-weight: 600;
+  font-family: var(--font); font-size: 13px; font-weight: 600;
   transition: transform .15s ease, border-color .2s ease, box-shadow .2s ease;
   -webkit-tap-highlight-color: transparent;
 }
 .back-btn:active { transform: scale(0.98); }
 .back-btn:hover  { border-color: rgba(141,23,251,.55); box-shadow: var(--shadow); }
 
-/* ============================================ */
-/* TARJETA DE PERFIL */
-/* ============================================ */
 .profile-card {
   position: relative;
   background: rgba(28,31,47,0.92);
@@ -84,11 +73,7 @@ body {
   gap: 14px; z-index: 1;
 }
 
-/* ============================================ */
-/* AVATAR */
-/* ============================================ */
 .avatar-wrap { position: relative; width: 92px; height: 92px; flex: 0 0 auto; }
-
 .avatar {
   width: 92px; height: 92px; border-radius: 50%;
   border: 4px solid rgba(2,5,21,0.75);
@@ -116,39 +101,24 @@ body {
 .edit-avatar-btn:active { transform: scale(0.98); }
 .edit-avatar-btn svg { width: 18px; height: 18px; }
 
-/* ============================================ */
-/* INFO DEL PERFIL */
-/* ============================================ */
 .profile-meta {
   flex: 1 1 auto; min-width: 0;
   display: flex; flex-direction: column; gap: 6px;
 }
-
 .user-name {
-  font-family: var(--font);
-  font-size: 1.35em;
-  font-weight: 900;
+  font-family: var(--font); font-size: 1.35em; font-weight: 900;
   letter-spacing: -0.3px; line-height: 1.15; margin: 0;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-
-.email-row {
-  display: flex; align-items: center; gap: 8px; min-width: 0;
-}
-
+.email-row { display: flex; align-items: center; gap: 8px; min-width: 0; }
 .user-email {
-  font-family: var(--font);
-  font-size: 0.9em;
-  font-weight: 400;
+  font-family: var(--font); font-size: 0.9em; font-weight: 400;
   color: var(--text-secondary); opacity: 0.95;
   word-break: break-word; min-width: 0;
   overflow: hidden; text-overflow: ellipsis;
   white-space: nowrap; flex: 1 1 auto;
 }
 
-/* ============================================ */
-/* BOTÓN ICONO */
-/* ============================================ */
 .icon-btn {
   width: 36px; height: 36px; border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.10);
@@ -163,17 +133,12 @@ body {
 .icon-btn:active { transform: scale(0.985); }
 .icon-btn svg { width: 18px; height: 18px; }
 
-/* ============================================ */
-/* CHIPS */
-/* ============================================ */
 .hint {
   position: relative; z-index: 1;
   margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px;
 }
 .chip {
-  font-family: var(--font);
-  font-size: 12px;
-  font-weight: 600;
+  font-family: var(--font); font-size: 12px; font-weight: 600;
   color: rgba(220,239,255,0.95);
   background: rgba(0,0,0,0.22);
   border: 1px solid rgba(255,255,255,0.10);
@@ -181,44 +146,34 @@ body {
   backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
 }
 
-/* ============================================ */
-/* SECCIONES */
-/* ============================================ */
 .section {
   background: rgba(28,31,47,0.92);
   border: 1px solid var(--border);
   border-radius: 18px; padding: 18px;
   box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+  width: 100%;
 }
 .section-title {
-  font-family: var(--font);
-  font-size: 1.0em;
-  font-weight: 700;
+  font-family: var(--font); font-size: 1.0em; font-weight: 700;
   margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
   color: rgba(220,239,255,0.95);
   text-transform: uppercase; letter-spacing: 0.5px;
 }
 
-/* ============================================ */
-/* BOTONES DE ACCIÓN */
-/* ============================================ */
 .action-buttons { display: grid; grid-template-columns: 1fr; gap: 12px; }
 
 .btn {
+  width: 100%;
   padding: 14px 16px; border-radius: 14px;
   border: 1px solid rgba(255,255,255,0.10);
-  cursor: pointer;
-  font-family: var(--font);
-  font-weight: 600;
-  font-size: 0.95em;
+  cursor: pointer; font-family: var(--font);
+  font-weight: 600; font-size: 0.95em;
   transition: transform 0.15s ease, box-shadow 0.2s ease, border-color .2s ease, background .2s ease;
   display: flex; align-items: center; justify-content: center; gap: 10px;
-  background: rgba(2,5,21,0.35);
-  color: var(--text-primary);
-  -webkit-tap-highlight-color: transparent;
+  background: rgba(2,5,21,0.35); color: var(--text-primary);
+  -webkit-tap-highlight-color: transparent; box-sizing: border-box;
 }
 .btn:active { transform: scale(0.985); }
-
 .btn-primary {
   border: none;
   background: linear-gradient(90deg, var(--primary), var(--secondary));
@@ -226,30 +181,17 @@ body {
   box-shadow: 0 0 18px rgba(141,23,251,0.25);
 }
 .btn-primary:hover { box-shadow: 0 0 24px rgba(141,23,251,0.35); }
-
-.btn-warning {
-  background: rgba(245,158,11,0.12);
-  border: 1px solid rgba(245,158,11,0.35);
-  color: #ffe7bf;
-}
-.btn-danger {
-  background: rgba(239,68,68,0.12);
-  border: 1px solid rgba(239,68,68,0.35);
-  color: #ffd5d5;
-}
+.btn-warning { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.35); color: #ffe7bf; }
+.btn-danger  { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.35);  color: #ffd5d5; }
 .btn[disabled] { opacity: .55; pointer-events: none; }
 
-/* ============================================ */
-/* ESTADOS CARGA / ERROR */
-/* ============================================ */
 .loading {
   text-align: center; padding: 40px 20px;
   min-height: 70vh; display: flex; flex-direction: column;
   align-items: center; justify-content: center; gap: 14px;
 }
 .spinner {
-  border: 3px solid var(--border);
-  border-top: 3px solid var(--primary);
+  border: 3px solid var(--border); border-top: 3px solid var(--primary);
   border-radius: 50%; width: 50px; height: 50px;
   animation: spin 1s linear infinite;
 }
@@ -262,16 +204,8 @@ body {
   justify-content: center; min-height: 70vh;
 }
 .error-icon { font-size: 4em; margin-bottom: 14px; opacity: 0.55; }
-.error-message {
-  font-family: var(--font);
-  font-size: 0.95em;
-  font-weight: 400;
-  margin-bottom: 18px; line-height: 1.5;
-}
+.error-message { font-family: var(--font); font-size: 0.95em; font-weight: 400; margin-bottom: 18px; line-height: 1.5; }
 
-/* ============================================ */
-/* TOAST */
-/* ============================================ */
 .toast {
   position: fixed; left: 50%;
   bottom: calc(18px + env(safe-area-inset-bottom));
@@ -282,14 +216,9 @@ body {
   color: var(--text-primary); box-shadow: var(--shadow);
   display: none; z-index: 9999;
   max-width: 92vw; text-align: center;
-  font-family: var(--font);
-  font-weight: 600;
-  font-size: 13px;
+  font-family: var(--font); font-weight: 600; font-size: 13px;
 }
 
-/* ============================================ */
-/* MODALES CUSTOM */
-/* ============================================ */
 .vg-modal-overlay {
   position: fixed; inset: 0;
   background: rgba(2,5,21,0.80);
@@ -299,8 +228,7 @@ body {
   padding-bottom: calc(24px + env(safe-area-inset-bottom));
 }
 .vg-modal-box {
-  background: rgba(28,31,47,0.98);
-  border: 1px solid var(--border);
+  background: rgba(28,31,47,0.98); border: 1px solid var(--border);
   border-radius: 22px; padding: 24px 20px 20px;
   box-shadow: 0 20px 60px rgba(0,0,0,0.55);
   width: 100%; max-width: 360px;
@@ -309,73 +237,57 @@ body {
 }
 @keyframes modalIn {
   from { opacity:0; transform: scale(0.96) translateY(8px); }
-  to   { opacity:1; transform: scale(1)    translateY(0); }
+  to   { opacity:1; transform: scale(1) translateY(0); }
 }
-.vg-modal-message {
-  font-family: var(--font);
-  font-size: 1em;
-  font-weight: 600;
-  color: var(--text-primary); line-height: 1.5; text-align: center;
-}
+.vg-modal-message { font-family: var(--font); font-size: 1em; font-weight: 600; color: var(--text-primary); line-height: 1.5; text-align: center; }
 .vg-modal-input {
   width: 100%; padding: 13px 14px; border-radius: 14px;
-  border: 1px solid var(--border);
-  background: rgba(2,5,21,0.55);
-  color: var(--text-primary);
-  font-family: var(--font); font-size: 1em; font-weight: 400;
-  outline: none;
-  transition: border-color .2s ease, box-shadow .2s ease;
+  border: 1px solid var(--border); background: rgba(2,5,21,0.55);
+  color: var(--text-primary); font-family: var(--font); font-size: 1em; font-weight: 400;
+  outline: none; transition: border-color .2s ease, box-shadow .2s ease;
   -webkit-tap-highlight-color: transparent;
 }
-.vg-modal-input:focus {
-  border-color: rgba(141,23,251,.65);
-  box-shadow: 0 0 0 3px rgba(141,23,251,0.15);
-}
-.vg-modal-actions {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-}
+.vg-modal-input:focus { border-color: rgba(141,23,251,.65); box-shadow: 0 0 0 3px rgba(141,23,251,0.15); }
+.vg-modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .vg-modal-btn {
   padding: 13px 10px; border-radius: 14px; border: none; cursor: pointer;
-  font-family: var(--font);
-  font-size: 0.95em;
-  font-weight: 700;
+  font-family: var(--font); font-size: 0.95em; font-weight: 700;
   transition: transform .15s ease, opacity .15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 .vg-modal-btn:active { transform: scale(0.97); opacity: 0.88; }
-.vg-modal-btn-cancel {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid var(--border);
-  color: var(--text-secondary); font-weight: 600;
-}
-.vg-modal-btn-confirm {
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-  color: #fff; box-shadow: 0 0 18px rgba(141,23,251,0.25);
-}
+.vg-modal-btn-cancel { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text-secondary); font-weight: 600; }
+.vg-modal-btn-confirm { background: linear-gradient(90deg, var(--primary), var(--secondary)); color: #fff; box-shadow: 0 0 18px rgba(141,23,251,0.25); }
 
 /* ============================================ */
-/* RESPONSIVE */
+/* RESPONSIVE MÓVIL                            */
 /* ============================================ */
 @media (max-width: 768px) {
   body {
-    padding: 16px;
+    padding: 12px;
     padding-bottom: calc(76px + env(safe-area-inset-bottom));
     padding-top: env(safe-area-inset-top);
+    padding-left:  calc(12px + env(safe-area-inset-left));
+    padding-right: calc(12px + env(safe-area-inset-right));
   }
-  .avatar-wrap, .avatar { width: 86px; height: 86px; }
+  .container { width: 100%; }
+  .profile-card { border-radius: 16px; padding: 16px; }
+  .avatar-wrap, .avatar { width: 80px; height: 80px; }
+  .edit-avatar-btn { width: 30px; height: 30px; }
   .user-name { font-size: 1.2em; }
+  .user-email { font-size: 0.82em; }
+  .section { border-radius: 16px; padding: 16px; }
+  .action-buttons { gap: 10px; }
+  .btn { padding: 13px 14px; font-size: 0.9em; border-radius: 12px; }
+  .hint { gap: 8px; margin-top: 12px; }
+  .chip { font-size: 11px; padding: 6px 10px; }
 }
-.btn-ghost-danger {
-  background: transparent;
-  border: 1px solid rgba(239,68,68,0.2);
-  color: rgba(239,68,68,0.5);
-  font-size: 0.85em;
-  font-weight: 500;
+
+@media (max-width: 360px) {
+  .user-name { font-size: 1.05em; }
+  .avatar-wrap, .avatar { width: 72px; height: 72px; }
 }
-.btn-ghost-danger:hover {
-  border-color: rgba(239,68,68,0.45);
-  color: rgba(239,68,68,0.75);
-}
+
 /* ============================================ */
 /* BOTÓN ELIMINAR CUENTA (discreto)            */
 /* ============================================ */
@@ -383,17 +295,11 @@ body {
   background: transparent;
   border: 1px solid rgba(239,68,68,0.2);
   color: rgba(239,68,68,0.45);
-  font-size: 0.85em;
-  font-weight: 500;
+  font-size: 0.85em; font-weight: 500;
 }
-.btn-ghost-danger:hover {
-  border-color: rgba(239,68,68,0.45);
-  color: rgba(239,68,68,0.75);
-}
+.btn-ghost-danger:hover { border-color: rgba(239,68,68,0.45); color: rgba(239,68,68,0.75); }
 
-/* Estilo del botón confirmar en rojo (para modal de eliminar cuenta) */
 .vg-modal-btn-danger {
   background: linear-gradient(90deg, #ef4444, #b91c1c);
-  color: #fff;
-  box-shadow: 0 0 18px rgba(239,68,68,0.25);
+  color: #fff; box-shadow: 0 0 18px rgba(239,68,68,0.25);
 }

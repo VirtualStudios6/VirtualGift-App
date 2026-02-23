@@ -1,8 +1,8 @@
 // js/welcome.js
-// ✅ Compatible con welcome.html viejo y nuevo
+// ✅ Compatible con welcome.html nuevo
 // ✅ Bienvenida inteligente: primer login vs retorno
-// ✅ Usa window.waitForFirebase global
-// ✅ Sin alert() nativo
+// ✅ Sin alert() nativo — usa modal custom
+// ✅ Sin dependencia de Font Awesome
 
 const POINTS_CACHE_KEY      = "vg_points_cache";
 const POINTS_CACHE_DURATION = 2 * 60 * 1000;
@@ -12,9 +12,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const userPointsElem = document.getElementById("userPoints");
   const welcomeMessage = document.getElementById("welcome-message");
   const continueBtn    = document.getElementById("continue-btn");
-  const welcomeTitle   = document.querySelector(".welcome-title");   // HTML viejo
-  const dividerLabel   = document.querySelector(".divider span");    // HTML nuevo
-  const avatarWrap     = document.querySelector(".user-avatar-wrap"); // HTML nuevo
+  const dividerLabel   = document.querySelector(".divider span");
+  const avatarWrap     = document.querySelector(".user-avatar-wrap");
 
   /* ------------------------------------------ */
   /* withAppFlag fallback                         */
@@ -42,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
       const modal = document.getElementById("vg-email-modal");
       const btn   = document.getElementById("vg-email-modal-ok");
       if (!modal || !btn) { resolve(); return; }
-      // Funciona con HTML viejo (style inline) y nuevo (clase .visible)
       modal.style.display = "flex";
       modal.classList.add("visible");
       const onOk = () => {
@@ -59,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
   /* Mensajes                                     */
   /* ------------------------------------------ */
   function getMsgFirstTime(name) {
-    return `¡Bienvenido a VirtualGift, ${name}! 🎉 Nos alegra tenerte aquí por primera vez. Explora, juega y gana recompensas increíbles.`;
+    return `¡Bienvenido a VirtualGift, ${name}! 🎉 Estamos contentos de tenerte aquí. Explora, juega y gana recompensas increíbles.`;
   }
 
   const RETURN_MSGS = [
@@ -75,19 +73,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   /* ------------------------------------------ */
-  /* Aplicar UI                                   */
+  /* Aplicar UI según si es primer login o no     */
   /* ------------------------------------------ */
   function applyFirstTimeUI(name) {
-    if (welcomeTitle)   welcomeTitle.textContent  = "¡Bienvenido!";           // viejo
-    if (dividerLabel)   dividerLabel.textContent  = "¡Primera vez aquí!";     // nuevo
-    if (avatarWrap)     avatarWrap.textContent     = "🎉";                     // nuevo
+    if (dividerLabel)   dividerLabel.textContent  = "¡Primera vez aquí!";
+    if (avatarWrap)     avatarWrap.textContent     = "🎉";
     if (welcomeMessage) welcomeMessage.textContent = getMsgFirstTime(name);
   }
 
   function applyReturnUI(name) {
-    if (welcomeTitle)   welcomeTitle.textContent  = "¡Bienvenido de vuelta!"; // viejo
-    if (dividerLabel)   dividerLabel.textContent  = "¡Hola de nuevo!";        // nuevo
-    if (avatarWrap)     avatarWrap.textContent     = "👋";                     // nuevo
+    if (dividerLabel)   dividerLabel.textContent  = "¡Hola de nuevo!";
+    if (avatarWrap)     avatarWrap.textContent     = "👋";
     if (welcomeMessage) welcomeMessage.textContent = getMsgReturn(name);
   }
 
@@ -134,13 +130,25 @@ document.addEventListener("DOMContentLoaded", () => {
   if (cached !== null) animatePoints(cached);
 
   /* ------------------------------------------ */
-  /* Botón continuar                              */
+  /* Botón continuar — SVG spinner sin FA         */
   /* ------------------------------------------ */
+  const SPINNER_SVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="animation:btnSpin .7s linear infinite;vertical-align:middle">
+    <circle cx="12" cy="12" r="9" stroke="rgba(255,255,255,0.3)" stroke-width="3"/>
+    <path d="M12 3a9 9 0 0 1 9 9" stroke="white" stroke-width="3" stroke-linecap="round"/>
+  </svg>`;
+
+  // Inyectar keyframe si no existe
+  if (!document.getElementById("btn-spin-style")) {
+    const s = document.createElement("style");
+    s.id = "btn-spin-style";
+    s.textContent = "@keyframes btnSpin { to { transform: rotate(360deg); } }";
+    document.head.appendChild(s);
+  }
+
   if (continueBtn) {
     continueBtn.addEventListener("click", () => {
       continueBtn.disabled = true;
-      // Compatible con ícono FA (viejo) y SVG (nuevo)
-      continueBtn.innerHTML = `Cargando… <i class="fas fa-spinner fa-spin"></i>`;
+      continueBtn.innerHTML = `Cargando… ${SPINNER_SVG}`;
       setTimeout(() => { window.location.href = withAppFlag("inicio.html"); }, 600);
     });
   }
@@ -159,6 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
     firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) { window.location.href = withAppFlag("index.html"); return; }
 
+      // Solo verificar email si es registro con email/contraseña
       if (!user.emailVerified && user.providerData?.[0]?.providerId === "password") {
         await showEmailModal();
         await firebase.auth().signOut();
@@ -173,7 +182,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const snap     = await userRef.get();
         const prevData = snap.exists ? (snap.data() || {}) : {};
 
-        // isFirstTime: doc no existe, o existe pero nunca tuvo loginCount
         const loginCount  = safeNumber(prevData.loginCount, 0);
         const isFirstTime = !snap.exists || loginCount === 0;
 
@@ -217,6 +225,7 @@ document.addEventListener("DOMContentLoaded", () => {
           applyReturnUI(name);
         }
 
+        // Obtener puntos actualizados
         const finalSnap = await userRef.get();
         const data      = finalSnap.data() || {};
         const points    = safeNumber(data.points, 0);
