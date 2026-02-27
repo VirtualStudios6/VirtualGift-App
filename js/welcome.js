@@ -1,9 +1,3 @@
-// js/welcome.js
-// ✅ Compatible con welcome.html nuevo
-// ✅ Bienvenida inteligente: primer login vs retorno
-// ✅ Sin alert() nativo — usa modal custom
-// ✅ Sin dependencia de Font Awesome
-
 const POINTS_CACHE_KEY      = "vg_points_cache";
 const POINTS_CACHE_DURATION = 2 * 60 * 1000;
 

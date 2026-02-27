@@ -1,9 +1,5 @@
 /* =========================================================
    NOTIFICACIONES.JS - VirtualGift (REALTIME)
-   - onSnapshot para userId + "ALL"
-   - Campos: title, subtitle, imageUrl (opcional)
-   - Notifs "ALL": visibilidad gestionada por localStorage
-   - Fallback automático si falta índice en Firestore
    ========================================================= */
 
 (() => {
@@ -11,16 +7,12 @@
   let allNotifications = [];
   let unsubscribeNotifs = null;
 
-  // Pull to refresh
   let touchStartY = 0;
   let pullRefreshEl = null;
 
   /* ============================================ */
   /* UTILS                                        */
   /* ============================================ */
-
-  // withAppFlag puede ya estar definido en el <head>.
-  // Si no, lo definimos aquí como fallback.
   if (typeof window.withAppFlag !== "function") {
     window.withAppFlag = function(url) {
       const isAndroidApp =
@@ -63,12 +55,10 @@
     if (!timestamp) return "Ahora";
     const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
     const diff = Math.floor((Date.now() - date) / 1000);
-
     if (diff < 60)     return "Ahora";
     if (diff < 3600)   return `Hace ${Math.floor(diff / 60)} min`;
     if (diff < 86400)  return `Hace ${Math.floor(diff / 3600)}h`;
     if (diff < 604800) return `Hace ${Math.floor(diff / 86400)} días`;
-
     return date.toLocaleDateString("es-ES", { day: "2-digit", month: "short" });
   }
 
@@ -91,7 +81,6 @@
   /* ============================================ */
   /* VISIBILIDAD LOCAL (para notifs "ALL")        */
   /* ============================================ */
-
   function storageKey(uid) { return `vg_notifs_hidden_${uid}`; }
 
   function getHiddenSet(uid) {
@@ -128,10 +117,20 @@
       !isHiddenForThisUser(n.id) && !n.read
     ).length;
 
+    // Badge del header
     const badge = $("badgeCount");
-    if (!badge) return;
-    badge.textContent = unread;
-    badge.style.display = unread > 0 ? "flex" : "none";
+    if (badge) {
+      badge.textContent   = unread;
+      badge.style.display = unread > 0 ? "flex" : "none";
+    }
+
+    // ✅ Chip del sidebar desktop
+    const chip      = $("sidebarUnreadChip");
+    const chipCount = $("sidebarUnreadCount");
+    if (chip && chipCount) {
+      chipCount.textContent = unread;
+      chip.style.display    = unread > 0 ? "inline-flex" : "none";
+    }
   }
 
   function showEmptyState(message) {
@@ -164,7 +163,7 @@
   }
 
   function createNotificationItem(notification) {
-    const div   = document.createElement("div");
+    const div    = document.createElement("div");
     const unread = !notification.read;
 
     div.className = `notification-item ${unread ? "unread" : ""}`;
@@ -180,7 +179,6 @@
       <div class="notification-content">
         <div class="notification-title">${title}</div>
         ${subtitle ? `<div class="notification-message">${subtitle}</div>` : ""}
-
         ${imgSrc ? `
           <div class="notif-image-wrap">
             <img class="notif-image"
@@ -190,7 +188,6 @@
                  onerror="this.parentElement.style.display='none'">
           </div>
         ` : ""}
-
         <div class="notification-footer">
           <div class="notification-time">${timeAgo}</div>
           <div class="notification-actions">
@@ -254,7 +251,6 @@
   /* ============================================ */
   /* FIRESTORE REALTIME + FALLBACK               */
   /* ============================================ */
-
   async function fallbackGet(uid, originalError) {
     try {
       const snap = await window.db
@@ -305,11 +301,9 @@
   /* ============================================ */
   /* ACCIONES                                     */
   /* ============================================ */
-
   async function markAsRead(notification) {
     if (!window.db) return;
 
-    // Notifs "ALL": solo ocultamos localmente
     if (notification.userId === "ALL") {
       hideForThisUser(notification.id);
       updateBadgeCount();
@@ -317,7 +311,7 @@
       return;
     }
 
-    if (notification.read) return; // ya leída
+    if (notification.read) return;
 
     try {
       await window.db.collection("notifications").doc(notification.id).update({ read: true });
@@ -330,7 +324,6 @@
     }
   }
 
-  // Expuesta globalmente para el onclick del HTML
   window.markAllAsRead = async function() {
     if (!window.db || !currentUserId) return;
 
@@ -346,7 +339,6 @@
         n.read = true;
       });
 
-      // ALL: ocultar localmente
       allNotifications
         .filter(n => n.userId === "ALL" && !isHiddenForThisUser(n.id))
         .forEach(n => hideForThisUser(n.id));
@@ -383,7 +375,6 @@
   /* ============================================ */
   /* AUTENTICACIÓN                                */
   /* ============================================ */
-
   function checkAuth() {
     waitForFirebase(() => {
       window.auth.onAuthStateChanged((user) => {
@@ -400,10 +391,7 @@
 
   /* ============================================ */
   /* PULL TO REFRESH                              */
-  /* Cosmético: con realtime el snapshot ya       */
-  /* actualiza solo. Solo es feedback visual.     */
   /* ============================================ */
-
   function setupPullToRefresh() {
     pullRefreshEl = $("pullRefresh");
     if (!pullRefreshEl) return;
@@ -421,11 +409,9 @@
 
     document.addEventListener("touchend", (e) => {
       const diff = e.changedTouches[0].screenY - touchStartY;
-
       if (diff > 80 && window.scrollY === 0) {
         pullRefreshEl.classList.remove("pulling");
         pullRefreshEl.classList.add("refreshing");
-        // El realtime ya actualizó; solo mostramos el spinner brevemente
         setTimeout(() => pullRefreshEl.classList.remove("refreshing"), 600);
       } else {
         pullRefreshEl.classList.remove("pulling");
@@ -436,7 +422,6 @@
   /* ============================================ */
   /* INIT                                         */
   /* ============================================ */
-
   window.addEventListener("load", () => {
     setupPullToRefresh();
     checkAuth();

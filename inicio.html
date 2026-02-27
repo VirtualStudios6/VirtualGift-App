@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/inicio.css">
-    <link rel="stylesheet" href="css/header.css"> <!-- ✅ una sola vez -->
+    <link rel="stylesheet" href="css/header.css">
     <script defer src="js/app-mode.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -32,219 +32,12 @@
             return fixed + hash;
         }
     </script>
-
-    <style>
-        /* ===== FORTNITE SHOP HEADER SECTION ===== */
-        .fn-shop-section {
-            padding: 16px 16px 0;
-        }
-
-        .fn-shop-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            gap: 10px;
-        }
-
-        .fn-shop-left {}
-
-        .fn-shop-title {
-            font-size: 22px;
-            font-weight: 900;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            line-height: 1;
-        }
-
-        .fn-live-badge {
-            background: #ef4444;
-            color: white;
-            font-size: 10px;
-            font-weight: 800;
-            padding: 3px 8px;
-            border-radius: 6px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            letter-spacing: 0.3px;
-            animation: livePulse 2s infinite;
-        }
-        .fn-live-badge::before {
-            content: '';
-            width: 5px; height: 5px;
-            border-radius: 50%;
-            background: white;
-            animation: pulse 1.5s infinite;
-        }
-        @keyframes livePulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); }
-            50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); }
-        }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-
-        .fn-countdown-row {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            margin-top: 5px;
-        }
-        .fn-countdown-label {
-            font-size: 13px;
-            color: #9ca3af;
-            font-weight: 600;
-        }
-        .fn-countdown-timer {
-            font-size: 18px;
-            font-weight: 800;
-            color: #00d4ff;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: 2px;
-        }
-
-        .fn-cosmetics-btn {
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 30px;
-            padding: 9px 16px;
-            color: white;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 700;
-            white-space: nowrap;
-            flex-shrink: 0;
-            transition: background 0.2s;
-            cursor: pointer;
-        }
-        .fn-cosmetics-btn:hover { background: rgba(255,255,255,0.12); }
-        .fn-cosmetics-btn svg { width: 16px; height: 16px; fill: white; flex-shrink: 0; }
-
-        .fn-shop-strip {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding: 10px 16px 16px;
-            scrollbar-width: none;
-            -webkit-overflow-scrolling: touch;
-        }
-        .fn-shop-strip::-webkit-scrollbar { display: none; }
-
-        .fn-view-shop-card {
-            flex-shrink: 0;
-            width: 120px;
-            height: 180px;
-            border-radius: 14px;
-            overflow: hidden;
-            position: relative;
-            cursor: pointer;
-            border: 2px solid rgba(0,212,255,0.5);
-            background: #0a0a1a;
-            text-decoration: none;
-            transition: transform 0.2s;
-            display: flex;
-            flex-direction: column;
-        }
-        .fn-view-shop-card:active { transform: scale(0.95); }
-
-        .fn-view-shop-inner {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 10px;
-            background: linear-gradient(160deg, #0a1535 0%, #050d20 100%);
-        }
-        .fn-view-shop-icon { font-size: 28px; }
-        .fn-view-shop-text {
-            font-size: 15px;
-            font-weight: 900;
-            color: white;
-            text-align: center;
-            line-height: 1.2;
-            letter-spacing: 0.3px;
-        }
-        .fn-view-shop-sub {
-            font-size: 10px;
-            color: #00d4ff;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 3px;
-        }
-        .fn-view-shop-sub::after { content: '\2192'; font-size: 12px; }
-
-        .fn-strip-item {
-            flex-shrink: 0;
-            width: 120px;
-            height: 180px;
-            border-radius: 14px;
-            overflow: hidden;
-            position: relative;
-            border: 1px solid rgba(255,255,255,0.07);
-            cursor: pointer;
-            transition: transform 0.2s;
-            text-decoration: none;
-        }
-        .fn-strip-item:active { transform: scale(0.95); }
-        .fn-strip-item img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            object-position: top center;
-        }
-        .fn-strip-item-info {
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            padding: 6px 8px 7px;
-            background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 100%);
-        }
-        .fn-strip-item-name {
-            font-size: 14px;
-            font-weight: 700;
-            color: white;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .fn-strip-item-price {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            margin-top: 2px;
-        }
-        .fn-strip-item-price img { width: 20px; height: 20px; object-fit: contain; }
-        .fn-strip-item-price span { font-size: 13px; font-weight: 700; color: #7ec8e3; }
-
-        .fn-strip-skeleton {
-            flex-shrink: 0;
-            width: 120px;
-            height: 180px;
-            border-radius: 14px;
-            background: linear-gradient(90deg,
-                rgba(255,255,255,0.04) 25%,
-                rgba(255,255,255,0.08) 50%,
-                rgba(255,255,255,0.04) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-        }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-    </style>
 </head>
 
 <body>
     <!-- HEADER -->
     <header class="header">
-        <div class="logo">
-            <img src="images/logo-virtual-login.png" alt="VirtualGift" class="logo-image">
+<div class="logo" id="appLogo" style="cursor:pointer;">            <img src="images/logo-virtual-login.png" alt="VirtualGift" class="logo-image">
             <span class="logo-text">VIRTUAL<span class="logo-studios">GIFT</span></span>
         </div>
         <div class="header-icons">
@@ -323,26 +116,34 @@
     </section>
 
     <!-- STRIP DE PREVIEW DE LA TIENDA -->
-    <div class="fn-shop-strip" id="fnShopStrip">
-        <a href="tienda.html" onclick="this.href=withAppFlag('tienda.html')" class="fn-view-shop-card">
-            <div class="fn-view-shop-inner">
-                <div class="fn-view-shop-icon">🛒</div>
-                <div class="fn-view-shop-text">Ver<br>Tienda</div>
-                <div class="fn-view-shop-sub">Ver todo</div>
-            </div>
-        </a>
-        <div class="fn-strip-skeleton"></div>
-        <div class="fn-strip-skeleton"></div>
-        <div class="fn-strip-skeleton"></div>
-        <div class="fn-strip-skeleton"></div>
-        <div class="fn-strip-skeleton"></div>
-        <a href="stats.html" onclick="this.href=withAppFlag('stats.html')" class="fn-view-shop-card" style="border-color: rgba(168,85,247,0.5);">
-            <div class="fn-view-shop-inner" style="background: linear-gradient(160deg, #1a0535 0%, #0d0520 100%);">
-                <div class="fn-view-shop-icon">📊</div>
-                <div class="fn-view-shop-text">Mis Stats<br>FN</div>
-                <div class="fn-view-shop-sub" style="color: #a855f7;">Ver stats</div>
-            </div>
-        </a>
+    <div class="fn-strip-wrapper">
+        <button class="fn-strip-arrow fn-strip-arrow--left" id="fnArrowLeft" aria-label="Anterior">
+            <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+        </button>
+        <div class="fn-shop-strip" id="fnShopStrip">
+            <a href="tienda.html" onclick="this.href=withAppFlag('tienda.html')" class="fn-view-shop-card">
+                <div class="fn-view-shop-inner">
+                    <div class="fn-view-shop-icon">🛒</div>
+                    <div class="fn-view-shop-text">Ver<br>Tienda</div>
+                    <div class="fn-view-shop-sub">Ver todo</div>
+                </div>
+            </a>
+            <div class="fn-strip-skeleton"></div>
+            <div class="fn-strip-skeleton"></div>
+            <div class="fn-strip-skeleton"></div>
+            <div class="fn-strip-skeleton"></div>
+            <div class="fn-strip-skeleton"></div>
+            <a href="stats.html" onclick="this.href=withAppFlag('stats.html')" class="fn-view-shop-card" style="border-color: rgba(168,85,247,0.5);">
+                <div class="fn-view-shop-inner" style="background: linear-gradient(160deg, #1a0535 0%, #0d0520 100%);">
+                    <div class="fn-view-shop-icon">📊</div>
+                    <div class="fn-view-shop-text">Mis Stats<br>FN</div>
+                    <div class="fn-view-shop-sub" style="color: #a855f7;">Ver stats</div>
+                </div>
+            </a>
+        </div>
+        <button class="fn-strip-arrow fn-strip-arrow--right" id="fnArrowRight" aria-label="Siguiente">
+            <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </button>
     </div>
 
     <!-- OFERTAS -->
@@ -418,6 +219,9 @@
     <script defer src="js/inicio.js"></script>
 
     <script>
+    // ============================================
+    // COUNTDOWN FORTNITE SHOP
+    // ============================================
     function updateFnCountdown() {
         const now = new Date();
         const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
@@ -436,6 +240,9 @@
     setInterval(updateFnCountdown, 1000);
     updateFnCountdown();
 
+    // ============================================
+    // RARITY BACKGROUNDS
+    // ============================================
     const RARITY_BG_STRIP = {
         "poco común":  "linear-gradient(160deg,#818181,#3a3a3a)",
         "poco comun":  "linear-gradient(160deg,#818181,#3a3a3a)",
@@ -468,6 +275,9 @@
         return "linear-gradient(160deg,#1a1a2e,#0d0d1a)";
     }
 
+    // ============================================
+    // BUILD STRIP CARD
+    // ============================================
     function buildStripCard(item) {
         const name = String(item.name || "").replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         const bg = getStripBg(item.rarity);
@@ -488,6 +298,9 @@
         return card;
     }
 
+    // ============================================
+    // STRIP ROTATION
+    // ============================================
     let _allStripItems = [];
     let _stripOffset = 0;
     let _stripRotationTimer = null;
@@ -507,6 +320,9 @@
         }
         if (fixedCards[1]) strip.appendChild(fixedCards[1]);
         _stripOffset = (_stripOffset + STRIP_VISIBLE) % total;
+
+        // ✅ Re-evaluar flechas después de llenar el strip
+        setTimeout(() => window._updateStripArrows && window._updateStripArrows(), 50);
     }
 
     function startStripRotation() {
@@ -541,6 +357,38 @@
     }
 
     window.addEventListener('load', () => waitDbStrip());
+
+    // ============================================
+    // FLECHAS DEL STRIP (solo desktop)
+    // ============================================
+    (function() {
+        const strip = document.getElementById('fnShopStrip');
+        const btnL  = document.getElementById('fnArrowLeft');
+        const btnR  = document.getElementById('fnArrowRight');
+        if (!strip || !btnL || !btnR) return;
+
+        const SCROLL_AMT = 520;
+
+        function updateArrows() {
+            btnL.disabled = strip.scrollLeft <= 4;
+            btnR.disabled = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 4;
+        }
+
+        btnL.addEventListener('click', () => {
+            strip.scrollBy({ left: -SCROLL_AMT, behavior: 'smooth' });
+        });
+        btnR.addEventListener('click', () => {
+            strip.scrollBy({ left: SCROLL_AMT, behavior: 'smooth' });
+        });
+
+        strip.addEventListener('scroll', updateArrows, { passive: true });
+
+        // Exponer para que renderStripPage pueda llamarlo tras recargar items
+        window._updateStripArrows = updateArrows;
+
+        // Delay para que el DOM esté completamente pintado
+        setTimeout(updateArrows, 300);
+    })();
     </script>
 </body>
 </html>

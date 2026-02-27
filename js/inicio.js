@@ -177,8 +177,25 @@ function checkAuth() {
 }
 
 /* ============================================ */
-/* INICIALIZACIÓN */
+/* LOGO → VOLVER AL INICIO (FIX DEFINITIVO) */
 /* ============================================ */
 
-// Iniciar cuando la página esté completamente cargada
-window.addEventListener('load', checkAuth);
+document.addEventListener('DOMContentLoaded', () => {
+  const logo = document.getElementById('appLogo');
+  if (!logo) return;
+
+  logo.addEventListener('click', () => {
+    const currentPath = window.location.pathname.toLowerCase();
+
+    // Si estamos en inicio
+    if (currentPath.includes("inicio")) {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    } else {
+      // Si estamos en cualquier otra página
+      window.location.href = withAppFlag("inicio.html");
+    }
+  });
+});

@@ -11,11 +11,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="css/notificaciones.css" />
-  <link rel="stylesheet" href="css/header.css" /> <!-- ✅ Header compartido -->
+  <link rel="stylesheet" href="css/header.css" />
 
   <script defer src="js/app-mode.js"></script>
-
-  <!-- Firebase -->
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -40,68 +38,89 @@
 </head>
 
 <body>
+
+  <!-- HEADER -->
   <header class="header">
     <div class="logo">
       <img src="images/logo-virtual-login.png" alt="VirtualGift Logo" class="logo-image" />
       <span class="logo-text">VIRTUAL<span class="logo-studios">GIFT</span></span>
     </div>
-
     <div class="header-icons">
       <div class="icon-users" onclick="window.location.href=withAppFlag('home.html')" style="cursor:pointer;">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
       </div>
-
       <div class="icon-coin" onclick="window.location.href=withAppFlag('puntos.html')" style="cursor:pointer;">
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 100 100">
           <circle cx="50" cy="50" r="48" fill="#FDB813"/>
-          <defs>
-            <radialGradient id="coinGradient">
-              <stop offset="0%"   style="stop-color:#FFD700;stop-opacity:1"/>
-              <stop offset="100%" style="stop-color:#FFA500;stop-opacity:1"/>
-            </radialGradient>
-          </defs>
-          <circle cx="50" cy="50" r="42" fill="url(#coinGradient)"/>
+          <defs><radialGradient id="cg"><stop offset="0%" style="stop-color:#FFD700"/><stop offset="100%" style="stop-color:#FFA500"/></radialGradient></defs>
+          <circle cx="50" cy="50" r="42" fill="url(#cg)"/>
           <path d="M 30 30 L 42 65 L 50 65 L 58 65 L 70 30 L 62 30 L 54 57 L 50 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
         </svg>
       </div>
-
       <div class="icon-notification" onclick="window.location.href=withAppFlag('notificaciones.html')" style="cursor:pointer;">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
-        </svg>
+        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
         <span class="notification-badge" id="badgeCount" style="display:none;">0</span>
       </div>
     </div>
   </header>
 
+  <!-- Pull to refresh -->
   <div class="pull-refresh" id="pullRefresh">
     <div class="refresh-icon">🔄</div>
   </div>
 
   <main class="notifications-container">
 
-    <button class="back-button" onclick="window.location.href=withAppFlag('inicio.html')">
-      ← Volver al inicio
-    </button>
-
-    <section class="notifications-header">
-      <div class="header-top">
-        <h1 class="header-title">🔔 Notificaciones</h1>
-        <button class="mark-all-read" id="markAllBtn" onclick="markAllAsRead()">
-          Marcar todo como leído
-        </button>
-      </div>
-    </section>
-
-    <div id="loadingContainer" class="loading">
-      <div class="spinner"></div>
-      <p>Cargando notificaciones...</p>
+    <!-- Top bar: botón volver full width -->
+    <div class="notif-top-bar">
+      <button class="back-button" onclick="window.location.href=withAppFlag('inicio.html')">
+        ← Volver al inicio
+      </button>
     </div>
 
-    <div id="notificationsContainer" class="notifications-list" style="display:none;"></div>
+    <!-- Header móvil (oculto en desktop) -->
+    <div class="notif-mobile-header">
+      <h1 class="header-title">🔔 Notificaciones</h1>
+      <button class="mark-all-read" onclick="markAllAsRead()">
+        Marcar todo como leído
+      </button>
+    </div>
+
+    <!-- Layout sidebar -->
+    <div class="notif-layout">
+
+      <!-- SIDEBAR izquierda -->
+      <aside class="notif-sidebar">
+        <div class="sidebar-title">🔔 Notificaciones</div>
+        <div class="sidebar-subtitle">Centro de actividad</div>
+
+        <!-- Chip de no leídas — actualizado por JS -->
+        <div class="unread-chip" id="sidebarUnreadChip" style="display:none;">
+          <span id="sidebarUnreadCount">0</span> sin leer
+        </div>
+
+        <div class="sidebar-divider"></div>
+
+        <button class="mark-all-read" onclick="markAllAsRead()">
+          ✅ Marcar todo como leído
+        </button>
+      </aside>
+
+      <!-- COLUMNA DERECHA: lista -->
+      <div id="notif-right">
+
+        <div id="loadingContainer" class="loading">
+          <div class="spinner"></div>
+          <p>Cargando notificaciones...</p>
+        </div>
+
+        <div id="notificationsContainer" class="notifications-list" style="display:none;"></div>
+
+      </div>
+
+    </div><!-- /notif-layout -->
 
   </main>
+
 </body>
 </html>

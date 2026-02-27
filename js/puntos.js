@@ -6,6 +6,9 @@ const POINTS_CACHE_DURATION = 2 * 60 * 1000; // 2 min
 const POINTS_TO_USD_RATE    = 1000;           // 1000 coins = $1
 const MIN_REDEEM_POINTS     = 20000;
 
+// Recompensas check-in (debe coincidir con el HTML)
+const CHECKIN_REWARDS = [10, 15, 20, 25, 30, 40, 75];
+
 /* ============================================ */
 /* ESTADO GLOBAL */
 /* ============================================ */
@@ -14,11 +17,10 @@ let currentUserId     = null;
 let selectedPlatform  = null;
 
 /* ============================================ */
-/* MODAL PERSONALIZADO (reemplaza alert/confirm) */
+/* MODAL PERSONALIZADO */
 /* ============================================ */
 function showModal(title, message, buttons = [{ label: 'OK', primary: true }]) {
   return new Promise(resolve => {
-    // Crear overlay
     const overlay = document.createElement('div');
     overlay.style.cssText = `
       position:fixed;inset:0;z-index:99999;
@@ -133,7 +135,6 @@ function loadNotificationCount(uid) {
 async function loadUserPoints(userId) {
   currentUserId = userId;
 
-  // Mostrar caché inmediatamente
   const cached = getCachedPoints();
   if (cached !== null) {
     currentUserPoints = cached;
@@ -154,14 +155,126 @@ async function loadUserPoints(userId) {
 }
 
 /* ============================================ */
+/* CHECK-IN                                    */
+/* ============================================ */
+function buildCheckinUI(streak, alreadyDone) {
+  const days  = document.getElementById('checkinDays');
+  const btn   = document.getElementById('checkinBtn');
+  const badge = document.getElementById('streakBadge');
+  if (!days || !btn || !badge) return;
+
+  badge.textContent = `🔥 ${streak} día${streak !== 1 ? 's' : ''}`;
+
+  let html = '';
+  CHECKIN_REWARDS.forEach((coins, i) => {
+    const done    = i < (streak % 7);
+    const isToday = (i === (streak % 7)) && !alreadyDone;
+    let cls = 'checkin-day';
+    if (done)    cls += ' done';
+    if (isToday) cls += ' today';
+    html += `<div class="${cls}">
+      <div class="checkin-day-label">Día ${i + 1}</div>
+      <div class="checkin-day-coins">🪙${coins}</div>
+    </div>`;
+  });
+  days.innerHTML = html;
+
+  if (alreadyDone) {
+    btn.textContent = '✅ Ya reclamaste hoy';
+    btn.disabled = true;
+  } else {
+    const reward = CHECKIN_REWARDS[streak % 7];
+    btn.textContent = `🎁 Reclamar +${reward} coins`;
+    btn.disabled = false;
+  }
+}
+
+async function loadCheckin(user) {
+  try {
+    const snap = await window.db.collection('users').doc(user.uid).get();
+    const data = snap.data() || {};
+    const streak      = data.checkinStreak || 0;
+    const lastCheckin = data.lastCheckin?.toDate?.() || null;
+    const alreadyDone = lastCheckin &&
+      lastCheckin.toDateString() === new Date().toDateString();
+    buildCheckinUI(streak, alreadyDone);
+  } catch(e) {
+    console.error('loadCheckin error:', e);
+    const btn = document.getElementById('checkinBtn');
+    if (btn) btn.textContent = 'Error al cargar';
+  }
+}
+
+// Expuesta globalmente para el onclick del HTML
+window.doCheckin = async function() {
+  const user = window._vcCurrentUser;
+  if (!user) return;
+  const btn = document.getElementById('checkinBtn');
+  btn.disabled = true;
+  btn.textContent = 'Procesando...';
+
+  try {
+    const userRef = window.db.collection('users').doc(user.uid);
+    const snap    = await userRef.get();
+    const data    = snap.data() || {};
+
+    const streak       = data.checkinStreak || 0;
+    const lastCheckin  = data.lastCheckin?.toDate?.() || null;
+    const now          = new Date();
+    const todayStr     = now.toDateString();
+    const yesterdayStr = new Date(now - 86400000).toDateString();
+
+    if (lastCheckin && lastCheckin.toDateString() === todayStr) {
+      showVcToast('✅ Ya reclamaste hoy');
+      buildCheckinUI(streak, true);
+      return;
+    }
+
+    const consecutive = lastCheckin && lastCheckin.toDateString() === yesterdayStr;
+    const newStreak   = consecutive ? streak + 1 : 1;
+    const reward      = CHECKIN_REWARDS[(newStreak - 1) % 7];
+    const currentPts  = data.points || 0;
+    const newPts      = currentPts + reward;
+
+    await userRef.set({
+      checkinStreak: newStreak,
+      lastCheckin: firebase.firestore.Timestamp.now(),
+      points: newPts,
+    }, { merge: true });
+
+    await window.db.collection('pointsHistory').add({
+      userId: user.uid,
+      type: 'daily_checkin',
+      points: reward,
+      streak: newStreak,
+      createdAt: firebase.firestore.Timestamp.now(),
+    });
+
+    // ✅ FIX: sincronizar global + caché después del check-in
+    currentUserPoints = newPts;
+    updateBalanceUI(newPts);
+    setCachedPoints(newPts);
+
+    showVcToast(`🎉 +${reward} coins! Racha: ${newStreak} días 🔥`);
+    buildCheckinUI(newStreak, true);
+
+  } catch(e) {
+    console.error('doCheckin error:', e);
+    showVcToast('❌ Error al reclamar');
+    btn.disabled = false;
+    btn.textContent = 'Intentar de nuevo';
+  }
+};
+
+/* ============================================ */
 /* SELECTOR DE PLATAFORMA + INPUT CANJE */
 /* ============================================ */
 const PLATFORM_LABELS = {
-  paypal:     { name: 'PayPal',           field: 'Correo PayPal',     placeholder: 'ejemplo@paypal.com' },
-  amazon:     { name: 'Amazon Gift Card', field: 'Correo Amazon',     placeholder: 'ejemplo@email.com'  },
-  steam:      { name: 'Steam Wallet',     field: 'Steam Trade URL',   placeholder: 'https://steamcommunity.com/...' },
-  googleplay: { name: 'Google Play',      field: 'Correo Google',     placeholder: 'ejemplo@gmail.com'  },
-  psn:        { name: 'PlayStation',      field: 'PSN ID',            placeholder: 'Tu PSN ID'          },
+  paypal:     { name: 'PayPal',           field: 'Correo PayPal',   placeholder: 'ejemplo@paypal.com' },
+  amazon:     { name: 'Amazon Gift Card', field: 'Correo Amazon',   placeholder: 'ejemplo@email.com'  },
+  steam:      { name: 'Steam Wallet',     field: 'Steam Trade URL', placeholder: 'https://steamcommunity.com/...' },
+  googleplay: { name: 'Google Play',      field: 'Correo Google',   placeholder: 'ejemplo@gmail.com'  },
+  psn:        { name: 'PlayStation',      field: 'PSN ID',          placeholder: 'Tu PSN ID'          },
 };
 
 function setupPlatformCards() {
@@ -177,8 +290,6 @@ function setupPlatformCards() {
       const info = PLATFORM_LABELS[platform] || {};
       const label    = document.getElementById('redeemAccountLabel');
       const input    = document.getElementById('redeemAccount');
-      const proceedBtn = document.getElementById('proceedRedeemBtn');
-
       if (label) label.textContent = info.field || 'Cuenta';
       if (input) input.placeholder = info.placeholder || '';
 
@@ -188,10 +299,8 @@ function setupPlatformCards() {
 }
 
 function setupRedeemInput() {
-  const input = document.getElementById('redeemPoints');
+  const input   = document.getElementById('redeemPoints');
   const preview = document.getElementById('redeemUsdPreview');
-  const errorEl = document.getElementById('redeemError');
-
   if (!input) return;
 
   input.addEventListener('input', () => {
@@ -202,8 +311,8 @@ function setupRedeemInput() {
 }
 
 function validateRedeemForm() {
-  const input    = document.getElementById('redeemPoints');
-  const errorEl  = document.getElementById('redeemError');
+  const input      = document.getElementById('redeemPoints');
+  const errorEl    = document.getElementById('redeemError');
   const proceedBtn = document.getElementById('proceedRedeemBtn');
 
   const val = parseInt(input?.value, 10) || 0;
@@ -213,7 +322,10 @@ function validateRedeemForm() {
   else if (val > 0 && val % 1000 !== 0)  error = 'Debe ser múltiplo de 1.000';
   else if (val > currentUserPoints)       error = 'No tienes suficientes coins';
 
-  if (errorEl) errorEl.textContent = error;
+  if (errorEl) {
+    errorEl.textContent     = error;
+    errorEl.style.display   = error ? 'block' : 'none';
+  }
 
   const valid = !error && val >= MIN_REDEEM_POINTS && selectedPlatform;
   if (proceedBtn) {
@@ -244,8 +356,8 @@ function openRedeemModal() {
 
   const label = document.getElementById('redeemAccountLabel');
   const input = document.getElementById('redeemAccount');
-  if (label) label.textContent  = platform.field || 'Cuenta';
-  if (input) input.placeholder  = platform.placeholder || '';
+  if (label) label.textContent = platform.field || 'Cuenta';
+  if (input) input.placeholder = platform.placeholder || '';
 
   modal.classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -315,6 +427,7 @@ async function processRedeem(e) {
       createdAt: firebase.firestore.Timestamp.now(),
     });
 
+    // ✅ FIX: sincronizar global + caché después del canje
     currentUserPoints = newPoints;
     updateBalanceUI(newPoints);
     setCachedPoints(newPoints);
@@ -326,7 +439,6 @@ async function processRedeem(e) {
       `Recibirás $${usdAmt} USD en tu cuenta de ${platform.name} en 24–48 horas.\n\nCoins restantes: ${newPoints.toLocaleString()}`
     );
 
-    // Limpiar selección
     document.getElementById('redeemPoints').value = '';
     document.getElementById('redeemUsdPreview').textContent = '$0.00 USD';
     document.querySelectorAll('.platform-card').forEach(c => c.classList.remove('selected'));
@@ -341,15 +453,17 @@ async function processRedeem(e) {
 }
 
 /* ============================================ */
-/* AUTH + INIT */
+/* AUTH + INIT                                 */
 /* ============================================ */
 function checkAuth() {
+  // ✅ FIX: UN SOLO onAuthStateChanged que carga todo
   waitForFirebase(() => {
-    firebase.auth().onAuthStateChanged(user => {
+    firebase.auth().onAuthStateChanged(async user => {
       if (!user) { window.location.href = withAppFlag('index.html'); return; }
       window._vcCurrentUser = user;
       loadUserPoints(user.uid);
       loadNotificationCount(user.uid);
+      loadCheckin(user);  // ✅ check-in cargado aquí, no en inline script
     });
   });
 }
@@ -358,11 +472,9 @@ window.addEventListener('load', () => {
   setupPlatformCards();
   setupRedeemInput();
 
-  // Botón proceder
   const proceedBtn = document.getElementById('proceedRedeemBtn');
   if (proceedBtn) proceedBtn.addEventListener('click', openRedeemModal);
 
-  // Cerrar modal
   const closeBtn  = document.getElementById('closeRedeemModal');
   const cancelBtn = document.getElementById('cancelRedeemBtn');
   const backdrop  = document.querySelector('#redeemModal .modal-backdrop');
@@ -370,11 +482,9 @@ window.addEventListener('load', () => {
   if (cancelBtn) cancelBtn.addEventListener('click', closeRedeemModal);
   if (backdrop)  backdrop.addEventListener('click',  closeRedeemModal);
 
-  // Formulario
   const form = document.getElementById('redeemForm');
   if (form) form.addEventListener('submit', processRedeem);
 
-  // ESC cierra modal
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeRedeemModal();
   });

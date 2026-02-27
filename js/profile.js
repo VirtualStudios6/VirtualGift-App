@@ -5,7 +5,6 @@ const AVATAR_PLACEHOLDER = 'images/logo-virtual-login.png';
 const CACHE_KEY = 'vg_user_cache_profile';
 const CACHE_DURATION = 5 * 60 * 1000;
 
-// ✅ Cambia esto por tu correo de soporte
 const SUPPORT_EMAIL = 'soporte@virtualgift.com';
 
 /* ============================================ */
@@ -97,9 +96,9 @@ function showConfirmModal(message, confirmLabel = 'Confirmar', confirmClass = 'v
     const btnOk     = document.getElementById('vg-modal-confirm');
     const btnCancel = document.getElementById('vg-modal-cancel');
 
-    msgEl.textContent    = message;
-    btnOk.textContent    = confirmLabel;
-    btnOk.className      = `vg-modal-btn ${confirmClass}`;
+    msgEl.textContent     = message;
+    btnOk.textContent     = confirmLabel;
+    btnOk.className       = `vg-modal-btn ${confirmClass}`;
     overlay.style.display = 'flex';
 
     const cleanup = (result) => {
@@ -148,19 +147,23 @@ function showInputModal(currentValue) {
 }
 
 /* ============================================ */
-/* GESTIÓN DE ESTADOS DE LA UI */
+/* GESTIÓN DE ESTADOS DE LA UI                 */
 /* ============================================ */
 
 function showContent() {
   document.getElementById('loading').style.display = 'none';
-  document.getElementById('error').style.display = 'none';
-  document.getElementById('content').style.display = 'block';
+  document.getElementById('error').style.display   = 'none';
+
+  // ✅ FIX: no usar display:block inline — deja que el CSS decida
+  // (en desktop el CSS aplica display:flex para el sidebar)
+  const content = document.getElementById('content');
+  content.classList.remove('hidden');
 }
 
 function showError() {
   document.getElementById('loading').style.display = 'none';
-  document.getElementById('content').style.display = 'none';
-  document.getElementById('error').style.display = 'flex';
+  document.getElementById('content').classList.add('hidden');
+  document.getElementById('error').style.display   = 'flex';
 }
 
 /* ============================================ */
@@ -278,8 +281,8 @@ function renderEmail() {
   eyeOpen.style.display   = __emailShown ? 'none'  : 'block';
   eyeClosed.style.display = __emailShown ? 'block' : 'none';
 
-  btn.disabled         = !__emailRaw;
-  btn.style.opacity    = __emailRaw ? '1' : '0.5';
+  btn.disabled            = !__emailRaw;
+  btn.style.opacity       = __emailRaw ? '1' : '0.5';
   btn.style.pointerEvents = __emailRaw ? 'auto' : 'none';
 }
 
@@ -293,13 +296,13 @@ function setProviderChip(user) {
   const providers = (user.providerData || []).map(p => p.providerId);
 
   if (providers.includes('password')) {
-    chip.textContent      = '🔐 Cuenta con contraseña';
+    chip.textContent       = '🔐 Cuenta con contraseña';
     btnReset.style.display = 'flex';
   } else if (providers.includes('google.com')) {
-    chip.textContent      = '🔵 Cuenta Google';
+    chip.textContent       = '🔵 Cuenta Google';
     btnReset.style.display = 'none';
   } else {
-    chip.textContent      = '🔐 Cuenta segura';
+    chip.textContent       = '🔐 Cuenta segura';
     btnReset.style.display = 'none';
   }
 }
@@ -385,12 +388,14 @@ async function fetchAndUpdateFirestore(user, silent = false) {
 }
 
 /* ============================================ */
-/* AUTENTICACIÓN */
+/* AUTENTICACIÓN                               */
 /* ============================================ */
 
 function checkAuth() {
-  window.waitForFirebaseStorage((err) => {
+  // ✅ FIX: usar waitForFirebase, no waitForFirebaseStorage (no existe)
+  window.waitForFirebase((err) => {
     if (err) { showError(); return; }
+
     window.auth.onAuthStateChanged(async (user) => {
       if (!user) {
         window.location.href = withAppFlag('index.html');
@@ -437,9 +442,9 @@ async function editName(user) {
   } catch (e) {
     console.error('Error editando nombre:', e);
     const msg = String(e?.code || e?.message || '');
-    if (msg.includes('permission-denied'))                             toast('❌ Sin permisos (Firestore Rules)');
-    else if (msg.includes('unavailable') || msg.includes('network'))  toast('❌ Sin conexión. Intenta de nuevo');
-    else                                                               toast('❌ No se pudo cambiar el nombre');
+    if (msg.includes('permission-denied'))                            toast('❌ Sin permisos (Firestore Rules)');
+    else if (msg.includes('unavailable') || msg.includes('network')) toast('❌ Sin conexión. Intenta de nuevo');
+    else                                                              toast('❌ No se pudo cambiar el nombre');
   }
 }
 
@@ -475,7 +480,6 @@ async function logout() {
   }
 }
 
-// ✅ NUEVO: Reportar problema via mailto
 function reportProblem(user) {
   const nombre    = document.getElementById('userName')?.textContent || 'Usuario';
   const email     = user?.email || 'No disponible';
@@ -510,9 +514,7 @@ Dispositivo: ${userAgent}
   window.location.href = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
 }
 
-// ✅ NUEVO: Eliminar cuenta con doble confirmación
 async function deleteAccount(user) {
-  // Primera confirmación
   const primera = await showConfirmModal(
     '⚠️ ¿Eliminar tu cuenta?\n\nEsta acción es permanente. Perderás todos tus puntos, historial y datos.',
     'Continuar',
@@ -520,7 +522,6 @@ async function deleteAccount(user) {
   );
   if (!primera) return;
 
-  // Segunda confirmación (doble seguridad)
   const segunda = await showConfirmModal(
     '🗑️ Confirmación final\n\n¿Estás completamente seguro? No hay vuelta atrás.',
     'Sí, eliminar mi cuenta',
@@ -531,22 +532,12 @@ async function deleteAccount(user) {
   toast('Eliminando cuenta...');
 
   try {
-    // 1. Eliminar documento de Firestore
     await window.db.collection('users').doc(user.uid).delete();
-
-    // 2. Limpiar caché local
     try { localStorage.removeItem(CACHE_KEY); } catch {}
-
-    // 3. Eliminar cuenta de Firebase Auth
     await user.delete();
-
-    // 4. Redirigir al login
     window.location.href = withAppFlag('index.html');
-
   } catch (e) {
     console.error('Error eliminando cuenta:', e);
-
-    // Firebase requiere re-autenticación si el login fue hace mucho tiempo
     if (e.code === 'auth/requires-recent-login') {
       toast('Por seguridad, cierra sesión, vuelve a iniciar y repite esta acción.');
     } else {
@@ -600,11 +591,8 @@ document.getElementById('avatarInput').addEventListener('change', async (e) => {
     else                                       toast('❌ No se pudo subir el avatar');
   } finally {
     __isUploadingAvatar = false;
-
     if (localUrl) {
-      setTimeout(() => {
-        try { URL.revokeObjectURL(localUrl); } catch {}
-      }, 1500);
+      setTimeout(() => { try { URL.revokeObjectURL(localUrl); } catch {} }, 1500);
     }
   }
 });
@@ -630,7 +618,6 @@ function setupEventListeners() {
 
   document.getElementById('btnLogout').addEventListener('click', logout);
 
-  // ✅ NUEVOS
   document.getElementById('btnReport').addEventListener('click', () => {
     const user = window.auth?.currentUser;
     if (user) reportProblem(user);
