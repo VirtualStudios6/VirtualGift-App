@@ -162,7 +162,7 @@ async function syncShopNow() {
     { merge: true }
   );
 
-  console.log(`✅ Saved ${saved} items to shopDailyItems`);
+  console.log(`Saved ${saved} items to shopDailyItems`);
 }
 
 exports.forceFortniteShopSync = onRequest(
@@ -181,4 +181,65 @@ exports.forceFortniteShopSync = onRequest(
 exports.syncFortniteShop = onSchedule(
   { schedule: "5 20 * * *", timeZone: "America/Santo_Domingo", region: "us-central1" },
   async () => { await syncShopNow(); }
+);
+
+// =====================
+// ADGEM POSTBACK (v2)
+// ✅ AdGem envía {player_id} con guion bajo
+// ✅ Sin verificación de "key" — AdGem no la envía
+// ✅ Seguridad por anti-duplicado de txid
+// =====================
+
+exports.adgemPostback = onRequest(
+  { region: "us-central1" },
+  async (req, res) => {
+    try {
+      res.set("Access-Control-Allow-Origin", "*");
+
+      const data = req.method === "POST" ? (req.body || {}) : (req.query || {});
+
+      // ✅ AdGem envía "player_id" (con guion bajo) según sus macros
+      const userId = String(data.player_id || data.playerid || "").trim();
+      const reward = Math.round(Number(data.amount || 0));
+      const txid   = String(data.transaction_id || "").trim();
+
+      if (!userId) return res.status(400).send("missing player_id");
+      if (!txid)   return res.status(400).send("missing transaction_id");
+      if (!reward || reward <= 0) return res.status(400).send("invalid amount");
+
+      const txRef  = db.collection("adgemTransactions").doc(txid);
+      const txSnap = await txRef.get();
+      if (txSnap.exists) return res.status(200).send("ok (duplicate)");
+
+      const userRef = db.collection("users").doc(userId);
+
+      await db.runTransaction(async (transaction) => {
+        const userSnap      = await transaction.get(userRef);
+        const currentPoints = userSnap.exists ? (userSnap.data().points || 0) : 0;
+        const newPoints     = currentPoints + reward;
+
+        transaction.set(userRef, { points: newPoints }, { merge: true });
+
+        transaction.set(txRef, {
+          userId,
+          reward,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        transaction.set(db.collection("pointsHistory").doc(), {
+          userId,
+          type: "adgem_offer",
+          points: reward,
+          txid,
+          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+      });
+
+      return res.status(200).send("ok");
+
+    } catch (error) {
+      console.error(error);
+      return res.status(500).send("error");
+    }
+  }
 );
