@@ -37,7 +37,8 @@
 <body>
     <!-- HEADER -->
     <header class="header">
-<div class="logo" id="appLogo" style="cursor:pointer;">            <img src="images/logo-virtual-login.png" alt="VirtualGift" class="logo-image">
+        <div class="logo" id="appLogo" style="cursor:pointer;">
+            <img src="images/logo-virtual-login.png" alt="VirtualGift" class="logo-image">
             <span class="logo-text">VIRTUAL<span class="logo-studios">GIFT</span></span>
         </div>
         <div class="header-icons">
@@ -77,19 +78,19 @@
     <section class="section" id="sorteos">
         <div class="section-header">
             <h2 class="section-title">Top Sorteos 🏆</h2>
-            <a href="react/sorteos/dist/index.html"
-               onclick="this.href=withAppFlag('react/sorteos/dist/index.html')"
+            <a href="sorteos.html"
+               onclick="this.href=withAppFlag('sorteos.html')"
                class="section-link">Ver todo</a>
         </div>
         <div class="carousel-container">
             <div class="carousel-wrapper">
-                <div class="carousel-slide" onclick="window.location.href=withAppFlag('react/sorteos/dist/index.html')" style="cursor:pointer;">
+                <div class="carousel-slide" onclick="window.location.href=withAppFlag('sorteos.html')" style="cursor:pointer;">
                     <img src="images/banner-sorteos/1.png" alt="Sorteo 1">
                 </div>
-                <div class="carousel-slide" onclick="window.location.href=withAppFlag('react/sorteos/dist/index.html')" style="cursor:pointer;">
+                <div class="carousel-slide" onclick="window.location.href=withAppFlag('sorteos.html')" style="cursor:pointer;">
                     <img src="images/banner-sorteos/2.png" alt="Sorteo 2">
                 </div>
-                <div class="carousel-slide" onclick="window.location.href=withAppFlag('react/sorteos/dist/index.html')" style="cursor:pointer;">
+                <div class="carousel-slide" onclick="window.location.href=withAppFlag('sorteos.html')" style="cursor:pointer;">
                     <img src="images/banner-sorteos/3.png" alt="Sorteo 3">
                 </div>
             </div>
@@ -328,8 +329,6 @@
         }
         if (fixedCards[1]) strip.appendChild(fixedCards[1]);
         _stripOffset = (_stripOffset + STRIP_VISIBLE) % total;
-
-        // ✅ Re-evaluar flechas después de llenar el strip
         setTimeout(() => window._updateStripArrows && window._updateStripArrows(), 50);
     }
 
@@ -367,7 +366,7 @@
     window.addEventListener('load', () => waitDbStrip());
 
     // ============================================
-    // FLECHAS DEL STRIP (solo desktop)
+    // FLECHAS DEL STRIP
     // ============================================
     (function() {
         const strip = document.getElementById('fnShopStrip');
@@ -390,11 +389,7 @@
         });
 
         strip.addEventListener('scroll', updateArrows, { passive: true });
-
-        // Exponer para que renderStripPage pueda llamarlo tras recargar items
         window._updateStripArrows = updateArrows;
-
-        // Delay para que el DOM esté completamente pintado
         setTimeout(updateArrows, 300);
     })();
     </script>
