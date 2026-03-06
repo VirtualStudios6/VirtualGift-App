@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#07030f">
+  <title>Sorteos — VirtualGift</title>
+  <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/sorteos.css">
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script src="js/firebase-config.js"></script>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="sg-header">
+    <button class="sg-back-btn" onclick="history.back()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="sg-header-title">
+      <span class="sg-header-label">VirtualGift</span>
+      <h1 class="sg-header-name">Sorteos</h1>
+    </div>
+    <div class="sg-header-bal" id="headerBal">
+      <span class="sg-bal-icon">⬡</span>
+      <span class="sg-bal-amount" id="balAmount">—</span>
+    </div>
+  </header>
+
+  <!-- BANNER -->
+  <div class="sg-banner">
+    <div class="sg-banner-glow"></div>
+    <div class="sg-banner-content">
+      <span class="sg-banner-icon">🎁</span>
+      <div>
+        <p class="sg-banner-title">Gana gift cards reales</p>
+        <p class="sg-banner-sub">Usa tus coins para entrar a sorteos exclusivos</p>
+      </div>
+    </div>
+    <div class="sg-banner-chips">
+      <span id="activeCount">— activos</span>
+      <span>📅 Diarios</span>
+    </div>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="sg-filters" id="sgFilters">
+    <button class="sg-filter active" data-filter="todos">Todos</button>
+    <button class="sg-filter" data-filter="popular">Popular</button>
+    <button class="sg-filter" data-filter="bajo">Precio bajo</button>
+    <button class="sg-filter" data-filter="pronto">Termina pronto</button>
+  </div>
+
+  <!-- CONTADOR -->
+  <p class="sg-count" id="sgCount"></p>
+
+  <!-- LISTA DE SORTEOS -->
+  <div class="sg-list" id="sgList">
+    <!-- Skeletons mientras carga -->
+    <div class="sg-skeleton"></div>
+    <div class="sg-skeleton"></div>
+    <div class="sg-skeleton"></div>
+  </div>
+
+  <div style="height:40px"></div>
+
+  <!-- MODAL DE CONFIRMACIÓN -->
+  <div class="sg-overlay" id="sgOverlay" onclick="closeModal()"></div>
+  <div class="sg-modal" id="sgModal">
+    <div class="sg-modal-hero" id="modalHero">
+      <div class="sg-modal-glow" id="modalGlow"></div>
+      <span class="sg-modal-emoji" id="modalEmoji"></span>
+      <div>
+        <p class="sg-modal-brand" id="modalBrand"></p>
+        <p class="sg-modal-value" id="modalValue"></p>
+      </div>
+      <span class="sg-modal-tag" id="modalTag"></span>
+    </div>
+
+    <h2 class="sg-modal-title">Confirmar participación</h2>
+    <p class="sg-modal-sub">Revisa los detalles antes de gastar tus coins</p>
+
+    <div class="sg-modal-panel">
+      <div class="sg-modal-row"><span>Sorteo</span><span id="mRowSorteo"></span></div>
+      <div class="sg-modal-divider"></div>
+      <div class="sg-modal-row"><span>Costo de entrada</span><span class="sg-coins" id="mRowCosto"></span></div>
+      <div class="sg-modal-divider"></div>
+      <div class="sg-modal-row"><span>Tu balance</span><span class="sg-coins" id="mRowBalance"></span></div>
+      <div class="sg-modal-divider"></div>
+      <div class="sg-modal-row"><span>Balance restante</span><span class="sg-coins" id="mRowRestante"></span></div>
+      <div class="sg-modal-divider"></div>
+      <div class="sg-modal-row"><span>Participantes</span><span id="mRowPart"></span></div>
+      <div class="sg-modal-divider"></div>
+      <div class="sg-modal-row"><span>Tu probabilidad</span><span id="mRowChance" style="color:#a78bfa;font-weight:700"></span></div>
+      <div class="sg-modal-divider"></div>
+      <div class="sg-modal-row"><span>Termina en</span><span id="mRowTime"></span></div>
+    </div>
+
+    <div class="sg-modal-notice sg-notice-info" id="mNoticeInfo">
+      <span>ℹ️</span><p>Solo puedes tener <strong>1 entrada por sorteo</strong>. Los coins se descuentan al confirmar.</p>
+    </div>
+    <div class="sg-modal-notice sg-notice-warn" id="mNoticeWarn" style="display:none">
+      <span>⚠️</span><p id="mWarnText"></p>
+    </div>
+
+    <button class="sg-modal-btn" id="mConfirmBtn" onclick="confirmParticipation()">
+      <span id="mBtnText">Participar en el sorteo</span>
+      <svg id="mBtnArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <span class="sg-spinner" id="mSpinner" style="display:none"></span>
+    </button>
+    <p class="sg-modal-note">Se descontarán <span class="sg-coins" id="mNoteCost"></span> de tu cuenta</p>
+
+    <button class="sg-modal-close" onclick="closeModal()">Cancelar</button>
+  </div>
+
+  <!-- PANTALLA DE REQUISITOS -->
+  <div class="sg-req-screen" id="sgReqScreen" style="display:none">
+    <div class="sg-req-inner">
+      <div class="sg-req-pill" id="reqPill"></div>
+      <h2 class="sg-req-title">Completa los requisitos</h2>
+      <p class="sg-req-sub">Valida tu entrada y gana coins bonus</p>
+
+      <div class="sg-req-progress-row">
+        <span id="reqProgressLabel">0 de 3 completados</span>
+        <span id="reqProgressPct">0%</span>
+      </div>
+      <div class="sg-req-track"><div class="sg-req-fill" id="reqFill"></div></div>
+
+      <div class="sg-req-list" id="reqList"></div>
+
+      <p class="sg-req-note">* Los requisitos son opcionales, pero te dan coins bonus 🎁</p>
+
+      <button class="sg-req-btn" id="reqFinishBtn" onclick="finishRequirements()">
+        Continuar sin completar todo (0/3)
+      </button>
+    </div>
+  </div>
+
+  <!-- PANTALLA DE ÉXITO -->
+  <div class="sg-success-screen" id="sgSuccessScreen" style="display:none">
+    <div class="sg-success-inner">
+      <div class="sg-success-rings">
+        <div class="sg-ring r1"></div>
+        <div class="sg-ring r2"></div>
+        <div class="sg-ring r3"></div>
+      </div>
+      <div class="sg-success-trophy">🏆</div>
+      <h2 class="sg-success-title">¡Estás dentro!</h2>
+      <p class="sg-success-sub">Tu participación en el sorteo</p>
+      <div class="sg-success-chip" id="successChip"></div>
+      <p class="sg-success-desc">Se te notificará si resultas ganador. ¡Buena suerte! 🎊</p>
+      <div class="sg-success-stats">
+        <div class="sg-success-stat">
+          <span class="sg-success-stat-val">#1</span>
+          <span class="sg-success-stat-label">Tu entrada</span>
+        </div>
+        <div class="sg-success-stat-div"></div>
+        <div class="sg-success-stat">
+          <span class="sg-success-stat-val" id="successTime"></span>
+          <span class="sg-success-stat-label">Para el sorteo</span>
+        </div>
+      </div>
+      <button class="sg-success-btn" onclick="window.location.reload()">Ver más sorteos</button>
+    </div>
+  </div>
+
+  <script src="js/sorteos.js"></script>
+</body>
+</html>
