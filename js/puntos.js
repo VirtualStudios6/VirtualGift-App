@@ -94,7 +94,7 @@ function pointsToUSD(points) {
 function updateBalanceUI(points) {
   const totalEl  = document.getElementById('totalPoints');
   const dollarEl = document.getElementById('dollarValue');
-  if (totalEl)  totalEl.textContent  = points.toLocaleString();
+  if (totalEl)  totalEl.textContent  = points.toLocaleString('en-US');
   if (dollarEl) dollarEl.textContent = pointsToUSD(points);
 }
 

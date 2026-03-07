@@ -1,88 +1,60 @@
 // ═══════════════════════════════════════════════════════
-//  VIRTUALGIFT — SORTEOS.JS  (refactored)
-//  Usa window.db y window.auth de firebase-config.js
+//  VIRTUALGIFT — SORTEOS.JS
+//  Usa window.db / window.auth / window.waitForFirebase
+//  Campo de coins: data.points (igual que puntos.js)
 // ═══════════════════════════════════════════════════════
 
+// ── MOCK (fallback si Firestore no tiene sorteos aún) ──
 const MOCK_RAFFLES = [
   {
     id: "raffle_amazon_50",
-    title: "Amazon", value: "$50",
-    image: "amazon.png",
+    title: "Amazon", value: "$50", image: "amazon.png",
     cost: 800, participants: 1247, maxParticipants: 2000,
     endDate: new Date(Date.now() + 2 * 86400000),
     color: "#FF9900", colorDark: "#7a4800",
-    tag: "🔥 Popular", tagColor: "#f43f8c",
-    active: true,
+    tag: "🔥 Popular", tagColor: "#f43f8c", active: true,
   },
   {
     id: "raffle_ps_25",
-    title: "PlayStation", value: "$25",
-    image: "psn.png",
+    title: "PlayStation", value: "$25", image: "psn.png",
     cost: 400, participants: 683, maxParticipants: 1000,
     endDate: new Date(Date.now() + 5 * 86400000),
     color: "#0070d1", colorDark: "#003566",
-    tag: "⚡ Fácil de ganar", tagColor: "#8b5cf6",
-    active: true,
+    tag: "⚡ Fácil de ganar", tagColor: "#8b5cf6", active: true,
   },
   {
     id: "raffle_gplay_10",
-    title: "Google Play", value: "$10",
-    image: "google.png",
+    title: "Google Play", value: "$10", image: "google.png",
     cost: 150, participants: 312, maxParticipants: 500,
     endDate: new Date(Date.now() + 1 * 86400000 + 3 * 3600000),
     color: "#34A853", colorDark: "#0d5c26",
-    tag: "⏳ Termina pronto", tagColor: "#f5c842",
-    active: true,
+    tag: "⏳ Termina pronto", tagColor: "#f5c842", active: true,
   },
-  {
-    id: "raffle_netflix_15",
-    title: "Netflix", value: "$15",
-    image: "netflix.png",
-    cost: 250, participants: 521, maxParticipants: 800,
-    endDate: new Date(Date.now() + 3 * 86400000),
-    color: "#E50914", colorDark: "#5c0000",
-    tag: "🆕 Nuevo", tagColor: "#22d3ee",
-    active: true,
-  },
+
   {
     id: "raffle_steam_20",
-    title: "Steam", value: "$20",
-    image: "steam.png",
+    title: "Steam", value: "$20", image: "steam.png",
     cost: 320, participants: 198, maxParticipants: 600,
     endDate: new Date(Date.now() + 7 * 86400000),
     color: "#4a8fc1", colorDark: "#0e2a42",
-    tag: null, tagColor: null,
-    active: true,
+    tag: null, tagColor: null, active: true,
   },
-  {
-    id: "raffle_spotify_10",
-    title: "Spotify", value: "$10",
-    image: "spotify.png",
-    cost: 180, participants: 445, maxParticipants: 700,
-    endDate: new Date(Date.now() + 4 * 86400000),
-    color: "#1DB954", colorDark: "#0a4d23",
-    tag: "🎵 Nuevo", tagColor: "#22d3ee",
-    active: true,
-  },
+
   {
     id: "raffle_xbox_25",
-    title: "Xbox", value: "$25",
-    image: "xbox.png",
+    title: "Xbox", value: "$25", image: "xbox.png",
     cost: 380, participants: 290, maxParticipants: 600,
     endDate: new Date(Date.now() + 6 * 86400000),
     color: "#107C10", colorDark: "#053305",
-    tag: null, tagColor: null,
-    active: true,
+    tag: null, tagColor: null, active: true,
   },
   {
     id: "raffle_paypal_20",
-    title: "PayPal", value: "$20",
-    image: "paypal.png",
+    title: "PayPal", value: "$20", image: "paypal.png",
     cost: 300, participants: 600, maxParticipants: 900,
-    endDate: new Date(Date.now() + 3 * 86400000 + 5 * 3600000),
+    endDate: new Date(Date.now() + 3 * 86400000),
     color: "#003087", colorDark: "#001240",
-    tag: "💳 Efectivo", tagColor: "#34d399",
-    active: true,
+    tag: "💳 Efectivo", tagColor: "#34d399", active: true,
   },
 ];
 
@@ -92,7 +64,7 @@ const REQUIREMENTS = [
   { id: "req_share",  icon: "🔗", title: "Compartir sorteo",    desc: "Comparte en tus redes sociales",             cta: "Compartir",   link: null, points: 20 },
 ];
 
-// ── ESTADO GLOBAL ──
+// ── ESTADO ──
 let currentUser    = null;
 let userCoins      = 0;
 let allRaffles     = [];
@@ -121,77 +93,95 @@ function imgPath(filename) {
   return `images/giftcards/${filename}`;
 }
 
-// ── INIT ──
-window.waitForFirebase(async (err) => {
-  if (err) { showError("Firebase no cargó. Recarga la página."); return; }
+function guessImage(title = "") {
+  const t = title.toLowerCase();
+  if (t.includes("amazon"))                       return "amazon.png";
+  if (t.includes("playstation") || t.includes("psn")) return "psn.png";
+  if (t.includes("google") || t.includes("play")) return "google.png";
+  if (t.includes("steam"))                        return "steam.png";
+  if (t.includes("xbox"))                         return "xbox.png";
+  if (t.includes("paypal"))                       return "paypal.png";
+  return null;
+}
 
-  window.auth.onAuthStateChanged(async (fbUser) => {
-    if (!fbUser) { window.location.href = "inicio.html"; return; }
+// ── UPDATE UI ──
+function updateBalanceUI() {
+  const el = document.getElementById("balAmount");
+  if (el) el.textContent = userCoins.toLocaleString('en-US');
+}
 
-    try {
-      const snap = await window.db.collection("users").doc(fbUser.uid).get();
-      const data = snap.data() || {};
-      currentUser = {
-        uid:    fbUser.uid,
-        name:   data.user || data.displayName || fbUser.displayName || "Usuario",
-        coins:  typeof data.coins === "number" ? data.coins : 0,
-        avatar: (data.user || fbUser.displayName || "U")[0].toUpperCase(),
-      };
-      userCoins = currentUser.coins;
-    } catch (e) {
-      currentUser = { uid: fbUser.uid, name: "Usuario", coins: 0, avatar: "U" };
-      userCoins = 0;
-    }
+function loadNotificationCount(uid) {
+  window.db.collection("notifications")
+    .where("userId", "==", uid)
+    .where("read", "==", false)
+    .get()
+    .then(snap => {
+      const badge = document.getElementById("notificationBadge");
+      if (!badge) return;
+      badge.textContent = snap.size;
+      badge.style.display = snap.size > 0 ? "flex" : "none";
+    }).catch(() => {});
+}
 
-    updateBalanceUI();
-    loadRaffles();
+// ── INIT (usando window.waitForFirebase igual que puntos.js) ──
+window.addEventListener("load", () => {
+  window.waitForFirebase(() => {
+    window.auth.onAuthStateChanged(async (fbUser) => {
+      if (!fbUser) {
+        window.location.href = typeof withAppFlag === "function"
+          ? withAppFlag("index.html") : "index.html";
+        return;
+      }
+
+      try {
+        const snap = await window.db.collection("users").doc(fbUser.uid).get();
+        const data = snap.data() || {};
+
+        currentUser = {
+          uid:   fbUser.uid,
+          name:  data.user || data.displayName || fbUser.displayName || "Usuario",
+          // ✅ campo correcto igual que puntos.js
+          coins: typeof data.points === "number" ? data.points : 0,
+        };
+        userCoins = currentUser.coins;
+      } catch (e) {
+        currentUser = { uid: fbUser.uid, name: "Usuario", coins: 0 };
+        userCoins = 0;
+      }
+
+      updateBalanceUI();
+      loadNotificationCount(fbUser.uid);
+      loadRaffles();
+    });
   });
 });
-
-function updateBalanceUI() {
-  document.getElementById("balAmount").textContent = userCoins.toLocaleString();
-}
-
-function showError(msg) {
-  document.getElementById("sgList").innerHTML =
-    `<div class="sg-loading"><p style="color:#f87171">${msg}</p></div>`;
-}
 
 // ── CARGAR SORTEOS ──
 async function loadRaffles() {
   try {
-    const snap = await window.db.collection("raffles").where("active", "==", true).get();
+    const snap = await window.db.collection("raffles")
+      .where("active", "==", true)
+      .get();
+
     if (!snap.empty) {
       allRaffles = snap.docs.map(d => {
         const data = d.data();
         return {
           id: d.id, ...data,
           endDate: data.endDate?.toDate ? data.endDate.toDate() : new Date(data.endDate),
-          // si el doc no trae image, intentar mapear por título
           image: data.image || guessImage(data.title),
         };
       });
     } else {
+      // No hay sorteos en Firestore aún → usar mock
       allRaffles = MOCK_RAFFLES;
     }
   } catch (e) {
+    console.warn("Firestore error, usando mock:", e);
     allRaffles = MOCK_RAFFLES;
   }
 
   renderRaffles();
-}
-
-function guessImage(title = "") {
-  const t = title.toLowerCase();
-  if (t.includes("amazon"))     return "amazon.png";
-  if (t.includes("playstation") || t.includes("psn")) return "psn.png";
-  if (t.includes("google") || t.includes("play"))     return "google.png";
-  if (t.includes("netflix"))    return "netflix.png";
-  if (t.includes("steam"))      return "steam.png";
-  if (t.includes("spotify"))    return "spotify.png";
-  if (t.includes("xbox"))       return "xbox.png";
-  if (t.includes("paypal"))     return "paypal.png";
-  return null;
 }
 
 // ── RENDER CARDS ──
@@ -214,7 +204,7 @@ function renderRaffles() {
       const raffle = allRaffles.find(r => r.id === card.dataset.id);
       if (raffle) openModal(raffle);
     });
-    card.querySelector(".sg-card-btn").addEventListener("click", e => {
+    card.querySelector(".sg-card-btn")?.addEventListener("click", e => {
       e.stopPropagation();
       const raffle = allRaffles.find(r => r.id === card.dataset.id);
       if (raffle) openModal(raffle);
@@ -286,41 +276,37 @@ function buildCard(r, i) {
 function openModal(raffle) {
   selectedRaffle = raffle;
   const canAfford = userCoins >= raffle.cost;
-  const remaining = userCoins - raffle.cost;
+
   const winChance = getWinChance(raffle.participants + 1);
 
-  // Hero del modal
   const hero = document.getElementById("modalHero");
   hero.style.background  = `linear-gradient(145deg, ${raffle.colorDark}cc, ${raffle.color}22)`;
   hero.style.borderColor = `${raffle.color}33`;
   document.getElementById("modalGlow").style.background = raffle.color;
 
   const imgEl = document.getElementById("modalImg");
-  if (raffle.image) {
-    imgEl.src = imgPath(raffle.image);
-    imgEl.alt = raffle.title;
-  }
+  if (raffle.image) { imgEl.src = imgPath(raffle.image); imgEl.alt = raffle.title; }
 
   document.getElementById("modalBrand").textContent = `${raffle.title} Gift Card`;
-  document.getElementById("modalValue").textContent = raffle.value;
-  document.getElementById("modalValue").style.color = raffle.color;
+  document.getElementById("modalValue").textContent  = raffle.value;
+  document.getElementById("modalValue").style.color  = raffle.color;
 
   const tagEl = document.getElementById("modalTag");
   if (raffle.tag) {
-    tagEl.textContent       = raffle.tag;
-    tagEl.style.color       = raffle.tagColor;
+    tagEl.textContent = raffle.tag;
+    tagEl.style.color = raffle.tagColor;
     tagEl.style.borderColor = `${raffle.tagColor}44`;
     tagEl.style.background  = `${raffle.tagColor}18`;
-    tagEl.style.display     = "inline-block";
+    tagEl.style.display = "inline-block";
   } else {
     tagEl.style.display = "none";
   }
 
-  document.getElementById("mRowSorteo").textContent  = `${raffle.title} ${raffle.value}`;
+  document.getElementById("mRowSorteo").textContent   = `${raffle.title} ${raffle.value}`;
   document.getElementById("mRowCosto").textContent    = raffle.cost.toLocaleString();
-  document.getElementById("mRowBalance").textContent  = userCoins.toLocaleString();
-  document.getElementById("mRowRestante").textContent = remaining.toLocaleString();
-  document.getElementById("mRowRestante").style.color = canAfford ? "var(--gold)" : "#f87171";
+document.getElementById("mRowBalance").textContent  = userCoins.toLocaleString('en-US');
+
+
   document.getElementById("mRowPart").textContent     = raffle.participants.toLocaleString();
   document.getElementById("mRowChance").textContent   = `${winChance}%`;
   document.getElementById("mRowTime").textContent     = formatTimeLeft(raffle.endDate);
@@ -381,35 +367,38 @@ async function confirmParticipation() {
       .get();
     if (!existing.empty) throw new Error("Ya estás participando en este sorteo.");
 
-    // Verificar coins en tiempo real
-    const userSnap       = await db.collection("users").doc(uid).get();
-    const currentCoinsFB = (userSnap.data() || {}).coins || 0;
-    if (currentCoinsFB < raffle.cost) throw new Error("No tienes suficientes coins.");
+    // Verificar coins en tiempo real — usa data.points igual que puntos.js
+    const userSnap  = await db.collection("users").doc(uid).get();
+    const freshCoins = (userSnap.data() || {}).points || 0;
+    if (freshCoins < raffle.cost) throw new Error("No tienes suficientes coins.");
 
-    const newCoins = currentCoinsFB - raffle.cost;
+    const newCoins = freshCoins - raffle.cost;
 
-    // Transacciones
-    await db.collection("users").doc(uid).update({ coins: newCoins });
-    await db.collection("users").doc(uid).update({
-      pointsHistory: FieldValue.arrayUnion({
-        amount: -raffle.cost, type: "raffle_entry",
-        raffleId: raffle.id, raffleTitle: `${raffle.title} ${raffle.value}`,
-        date: new Date().toISOString(),
-      }),
-    });
+    await db.collection("users").doc(uid).update({ points: newCoins });
     await db.collection("raffles").doc(raffle.id).update({
       participants: FieldValue.increment(1),
     });
     await db.collection("raffleParticipants").add({
-      raffleId: raffle.id, userId: uid,
+      raffleId:  raffle.id,
+      userId:    uid,
       enteredAt: FieldValue.serverTimestamp(),
       requirementsCompleted: false,
+    });
+
+    // Historial de puntos
+    await db.collection("pointsHistory").add({
+      userId:      uid,
+      type:        "raffle_entry",
+      points:      -raffle.cost,
+      raffleId:    raffle.id,
+      raffleTitle: `${raffle.title} ${raffle.value}`,
+      createdAt:   FieldValue.serverTimestamp(),
     });
 
     userCoins = newCoins;
     updateBalanceUI();
     closeModal();
-    openRequirements(raffle);
+    openSuccess(raffle);
 
   } catch (err) {
     document.getElementById("mNoticeWarn").style.display = "flex";
@@ -456,8 +445,7 @@ function renderReqList() {
       <div class="sg-req-card-action" id="reqAction_${req.id}">
         ${reqCompleted[req.id]
           ? `<span class="sg-req-done-badge">✓ Listo</span>`
-          : `<button class="sg-req-action-btn" onclick="handleReq('${req.id}')">${req.cta}</button>`
-        }
+          : `<button class="sg-req-action-btn" onclick="handleReq('${req.id}')">${req.cta}</button>`}
       </div>
     </div>`
   ).join("");
@@ -501,9 +489,7 @@ function updateReqProgress() {
   document.getElementById("reqFill").style.width          = `${pct}%`;
 
   const btn = document.getElementById("reqFinishBtn");
-  btn.textContent = allDone
-    ? "🎉 Confirmar participación"
-    : `Continuar sin completar todo (${done}/${total})`;
+  btn.textContent = allDone ? "🎉 Confirmar participación" : `Continuar sin completar todo (${done}/${total})`;
   btn.classList.toggle("ready", allDone);
 }
 

@@ -1,9 +1,3 @@
-// ==================== FIREBASE CONFIGURATION (ROBUSTA 10/10) ====================
-// - Espera a que las librerías firebase carguen
-// - Inicializa 1 sola vez
-// - Expone window.auth / window.db / window.storage
-// - Expone waitForFirebase(callback) y waitForFirebaseStorage(callback)
-// ===============================================================================
 
 const firebaseConfig = {
   apiKey: "AIzaSyDFn7fJPpOzuyiBKBXh7Lm8pHN6TwY8K-g",
