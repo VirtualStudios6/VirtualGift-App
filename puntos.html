@@ -148,6 +148,18 @@
             <!-- COLUMNA DERECHA: check-in + canje -->
             <div id="points-right">
 
+                <!-- VER ANUNCIOS -->
+                <div class="checkin-card ads-promo-card" onclick="window.location.href=withAppFlag('anuncios.html')">
+                    <div class="checkin-top">
+                        <div class="checkin-title">🎬 Ver Anuncios</div>
+                        <div class="checkin-streak ads-promo-streak">+50 por anuncio</div>
+                    </div>
+                    <p class="ads-promo-desc">Gana hasta 500 coins diarios viendo anuncios cortos</p>
+                    <button class="checkin-btn ads-promo-btn" onclick="event.stopPropagation(); window.location.href=withAppFlag('anuncios.html')">
+                        Ir a ver anuncios →
+                    </button>
+                </div>
+
                 <!-- CHECK-IN RACHA -->
                 <div class="checkin-card">
                     <div class="checkin-top">
@@ -191,23 +203,23 @@
 
                     <div class="platforms-grid">
                         <div class="platform-card platform-disabled" data-platform="paypal">
-                            <span class="platform-emoji">💰</span>
+                            <img class="platform-img" src="images/giftcards/paypal.png" alt="PayPal">
                             <span class="platform-name">PayPal</span>
                         </div>
                         <div class="platform-card platform-disabled" data-platform="amazon">
-                            <span class="platform-emoji">📦</span>
+                            <img class="platform-img" src="images/giftcards/amazon.png" alt="Amazon">
                             <span class="platform-name">Amazon Gift Card</span>
                         </div>
                         <div class="platform-card platform-disabled" data-platform="steam">
-                            <span class="platform-emoji">🎮</span>
+                            <img class="platform-img" src="images/giftcards/steam.png" alt="Steam">
                             <span class="platform-name">Steam Wallet</span>
                         </div>
                         <div class="platform-card platform-disabled" data-platform="googleplay">
-                            <span class="platform-emoji">▶️</span>
+                            <img class="platform-img" src="images/giftcards/google.png" alt="Google Play">
                             <span class="platform-name">Google Play</span>
                         </div>
                         <div class="platform-card platform-disabled" data-platform="psn">
-                            <span class="platform-emoji">🕹️</span>
+                            <img class="platform-img" src="images/giftcards/psn.png" alt="PSN">
                             <span class="platform-name">PSN</span>
                         </div>
                     </div>

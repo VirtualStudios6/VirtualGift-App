@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
     while (el.firstChild) el.removeChild(el.firstChild);
   }
 
-  function setHeaderImage(url) {
+  function setHeaderImage(url, title) {
     const clean = (url && String(url).trim()) ? String(url).trim() : "";
 
     if (!clean) {
@@ -72,6 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (headerImageEl) {
       headerImageEl.style.display = "block";
       headerImageEl.src = clean;
+      headerImageEl.alt = title || "Imagen principal de la noticia";
       headerImageEl.onerror = () => {
         headerImageEl.style.display = "none";
         if (headerFallbackEl) headerFallbackEl.style.display = "flex";
@@ -201,7 +202,7 @@ document.addEventListener("DOMContentLoaded", () => {
         statusBadge.style.display = "none";
       }
 
-      setHeaderImage(data.headerImageUrl || data.coverImageUrl || "");
+      setHeaderImage(data.headerImageUrl || data.coverImageUrl || "", title);
       renderBlocks(data.blocks);
       renderGallery(data.gallery);
 

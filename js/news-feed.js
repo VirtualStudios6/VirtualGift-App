@@ -107,7 +107,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const a      = document.createElement("a");
       a.className  = "news-card";
-      a.href       = `news.html?id=${encodeURIComponent(id)}`;
+      a.href       = typeof withAppFlag === "function"
+        ? withAppFlag(`news.html?id=${encodeURIComponent(id)}`)
+        : `news.html?id=${encodeURIComponent(id)}`;
 
       const imgWrap  = document.createElement("div");
       imgWrap.className = "news-image";

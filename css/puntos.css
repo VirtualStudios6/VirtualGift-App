@@ -2,6 +2,27 @@
 /* PUNTOS.CSS                                  */
 /* ============================================ */
 
+/* ---- Ver Anuncios card ---- */
+.ads-promo-card {
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+.ads-promo-streak {
+  background: rgba(141,23,251,0.15);
+  border-color: rgba(141,23,251,0.3);
+  color: #a855f7;
+}
+.ads-promo-desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.6);
+  font-family: var(--font);
+  margin-bottom: 14px;
+  font-weight: 500;
+}
+.ads-promo-btn {
+  background: linear-gradient(135deg, #6d28d9, #8d17fb);
+}
+
 :root {
   --primary: #8d17fb;
   --secondary: #70189b;
@@ -206,6 +227,7 @@ body {
   box-shadow: 0 0 14px rgba(141,23,251,0.12);
 }
 .platform-emoji { font-size: 28px; line-height: 1; }
+.platform-img   { width: 40px; height: 40px; object-fit: contain; }
 .platform-name  { font-family: var(--font); font-size: 0.78em; font-weight: 700; color: var(--text-primary); text-align: center; line-height: 1.2; }
 .platform-card.platform-selected::after,
 .platform-card.selected::after { content: "✓"; position: absolute; top: 6px; right: 8px; font-size: 11px; font-weight: 900; color: var(--primary); }
@@ -260,7 +282,7 @@ body {
 .summary-value { font-family: var(--font); font-size: 0.9em; font-weight: 700; color: var(--text-primary); }
 .redeem-form { display: flex; flex-direction: column; gap: 14px; }
 .form-group { display: flex; flex-direction: column; gap: 5px; }
-.form-label { font-family: var(--font); font-size: 0.85em; font-weight: 600; color: var(--text-primary); text-transform: uppercase; letter-spacing: 0.4px; }
+.form-label { font-family: var(--font); font-size: 0.85em; font-weight: 600; color: var(--text-primary); }
 .form-input {
   padding: 12px 14px; border-radius: 12px; border: 1px solid var(--border);
   background: rgba(2,5,21,0.45); color: var(--text-primary);

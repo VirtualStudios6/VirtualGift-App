@@ -65,12 +65,13 @@ const REQUIREMENTS = [
 ];
 
 // ── ESTADO ──
-let currentUser    = null;
-let userCoins      = 0;
-let allRaffles     = [];
-let selectedRaffle = null;
-let reqCompleted   = {};
-let adTimers       = {};
+let currentUser      = null;
+let userCoins        = 0;
+let allRaffles       = [];
+let selectedRaffle   = null;
+let reqCompleted     = {};
+let adTimers         = {};
+let currentEntryNumber = 1;
 
 // ── UTILIDADES ──
 function formatTimeLeft(endDate) {
@@ -112,15 +113,21 @@ function updateBalanceUI() {
 
 function loadNotificationCount(uid) {
   window.db.collection("notifications")
-    .where("userId", "==", uid)
-    .where("read", "==", false)
-    .get()
-    .then(snap => {
-      const badge = document.getElementById("notificationBadge");
-      if (!badge) return;
-      badge.textContent = snap.size;
-      badge.style.display = snap.size > 0 ? "flex" : "none";
-    }).catch(() => {});
+    .where("userId", "in", [uid, "ALL"])
+    .orderBy("timestamp", "desc")
+    .limit(50)
+    .onSnapshot(
+      (snap) => {
+        let hidden = new Set();
+        try { hidden = new Set(JSON.parse(localStorage.getItem(`vg_notifs_hidden_${uid}`) || '[]')); } catch {}
+        const unread = snap.docs.filter(doc => !doc.data().read && !hidden.has(doc.id)).length;
+        const badge = document.getElementById("notificationBadge");
+        if (!badge) return;
+        badge.textContent = unread;
+        badge.style.display = unread > 0 ? "flex" : "none";
+      },
+      () => {}
+    );
 }
 
 // ── INIT (usando window.waitForFirebase igual que puntos.js) ──
@@ -212,6 +219,15 @@ function renderRaffles() {
   });
 }
 
+function escapeHTML(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 function buildCard(r, i) {
   const timeLeft  = formatTimeLeft(r.endDate);
   const fillPct   = Math.round((r.participants / r.maxParticipants) * 100);
@@ -219,11 +235,11 @@ function buildCard(r, i) {
   const isUrgent  = r.endDate - Date.now() < 86400000;
 
   const tagHTML = r.tag
-    ? `<span class="sg-card-tag" style="color:${r.tagColor};border-color:${r.tagColor}44;background:${r.tagColor}14">${r.tag}</span>`
+    ? `<span class="sg-card-tag" style="color:${r.tagColor};border-color:${r.tagColor}44;background:${r.tagColor}14">${escapeHTML(r.tag)}</span>`
     : "";
 
   const imgHTML = r.image
-    ? `<div class="sg-card-img-wrap"><img src="${imgPath(r.image)}" alt="${r.title}"></div>`
+    ? `<div class="sg-card-img-wrap"><img src="${imgPath(r.image)}" alt="${escapeHTML(r.title)}"></div>`
     : `<div class="sg-card-img-wrap" style="font-size:1.8rem;text-align:center">🎁</div>`;
 
   return `
@@ -232,8 +248,8 @@ function buildCard(r, i) {
     <div class="sg-card-header">
       ${imgHTML}
       <div class="sg-card-titles">
-        <p class="sg-card-brand">${r.title}</p>
-        <p class="sg-card-value" style="color:${r.color}">Gift Card ${r.value}</p>
+        <p class="sg-card-brand">${escapeHTML(r.title)}</p>
+        <p class="sg-card-value" style="color:${r.color}">Gift Card ${escapeHTML(r.value)}</p>
       </div>
       ${tagHTML}
     </div>
@@ -331,6 +347,35 @@ document.getElementById("mRowBalance").textContent  = userCoins.toLocaleString('
   document.getElementById("sgOverlay").classList.add("open");
   document.getElementById("sgModal").classList.add("open");
   document.body.style.overflow = "hidden";
+
+  _updateModalEntryCount(raffle);
+}
+
+async function _updateModalEntryCount(raffle) {
+  if (!currentUser) return;
+  try {
+    const snap = await window.db.collection("raffleParticipants")
+      .where("raffleId", "==", raffle.id)
+      .where("userId",   "==", currentUser.uid)
+      .get();
+    const count = snap.size;
+    if (count === 0) return;
+
+    const infoP = document.querySelector("#mNoticeInfo p");
+    if (infoP) {
+      infoP.innerHTML = count >= 5
+        ? `Ya tienes <strong>5/5 entradas</strong> — máximo alcanzado.`
+        : `Tienes <strong>${count}/5 entradas</strong> en este sorteo. Los coins se descuentan al confirmar.`;
+    }
+
+    if (count >= 5) {
+      document.getElementById("mConfirmBtn").disabled = true;
+      document.getElementById("mConfirmBtn").style.background = "";
+      document.getElementById("mNoticeInfo").style.display = "none";
+      document.getElementById("mNoticeWarn").style.display = "flex";
+      document.getElementById("mWarnText").textContent = "Alcanzaste el máximo de 5 entradas para este sorteo.";
+    }
+  } catch {}
 }
 
 function closeModal() {
@@ -360,12 +405,13 @@ async function confirmParticipation() {
     const uid        = currentUser.uid;
     const raffle     = selectedRaffle;
 
-    // Verificar si ya participa
+    // Verificar entradas existentes (máximo 5)
     const existing = await db.collection("raffleParticipants")
       .where("raffleId", "==", raffle.id)
       .where("userId",   "==", uid)
       .get();
-    if (!existing.empty) throw new Error("Ya estás participando en este sorteo.");
+    const entryCount = existing.size;
+    if (entryCount >= 5) throw new Error("Alcanzaste el máximo de 5 entradas para este sorteo.");
 
     // Verificar coins en tiempo real — usa data.points igual que puntos.js
     const userSnap  = await db.collection("users").doc(uid).get();
@@ -379,9 +425,10 @@ async function confirmParticipation() {
       participants: FieldValue.increment(1),
     });
     await db.collection("raffleParticipants").add({
-      raffleId:  raffle.id,
-      userId:    uid,
-      enteredAt: FieldValue.serverTimestamp(),
+      raffleId:    raffle.id,
+      userId:      uid,
+      entryNumber: entryCount + 1,
+      enteredAt:   FieldValue.serverTimestamp(),
       requirementsCompleted: false,
     });
 
@@ -398,7 +445,7 @@ async function confirmParticipation() {
     userCoins = newCoins;
     updateBalanceUI();
     closeModal();
-    openSuccess(raffle);
+    openRequirements(raffle, entryCount + 1);
 
   } catch (err) {
     document.getElementById("mNoticeWarn").style.display = "flex";
@@ -411,9 +458,10 @@ async function confirmParticipation() {
 }
 
 // ── REQUISITOS ──
-function openRequirements(raffle) {
-  reqCompleted   = {};
-  selectedRaffle = raffle;
+function openRequirements(raffle, entryNumber = 1) {
+  reqCompleted       = {};
+  selectedRaffle     = raffle;
+  currentEntryNumber = entryNumber;
 
   const pill = document.getElementById("reqPill");
   if (raffle.image) {
@@ -505,11 +553,11 @@ function finishRequirements() {
       });
   }
   document.getElementById("sgReqScreen").style.display = "none";
-  openSuccess(selectedRaffle);
+  openSuccess(selectedRaffle, currentEntryNumber);
 }
 
 // ── ÉXITO ──
-function openSuccess(raffle) {
+function openSuccess(raffle, entryNumber = 1) {
   const chip = document.getElementById("successChip");
   if (raffle.image) {
     chip.innerHTML = `<img src="${imgPath(raffle.image)}" style="width:22px;height:22px;object-fit:contain"><span style="color:${raffle.color};font-weight:700">${raffle.title} ${raffle.value}</span>`;
@@ -519,6 +567,7 @@ function openSuccess(raffle) {
   chip.style.borderColor = `${raffle.color}55`;
   chip.style.background  = `${raffle.color}14`;
 
+  document.getElementById("successEntry").textContent = `#${entryNumber}`;
   document.getElementById("successTime").textContent = formatTimeLeft(raffle.endDate);
   document.getElementById("sgSuccessScreen").style.display = "flex";
   window.scrollTo(0, 0);

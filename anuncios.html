@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#06011c">
+  <title>Ver Anuncios - VirtualGift</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/anuncios.css">
+
+  <script defer src="js/app-mode.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script defer src="js/firebase-config.js"></script>
+
+  <script>
+    function withAppFlag(url) {
+      const isAndroidApp =
+        document.documentElement.classList.contains("android-app") ||
+        document.body.classList.contains("android-app");
+      if (!isAndroidApp) return url;
+      if (url.includes("app=android")) return url;
+      const parts = url.split('#');
+      const base  = parts[0];
+      const hash  = parts[1] ? ('#' + parts[1]) : '';
+      const fixed = base.includes("?") ? (base + "&app=android") : (base + "?app=android");
+      return fixed + hash;
+    }
+  </script>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <img src="images/logo-virtual-login.png" alt="VirtualGift Logo" class="logo-image">
+      <span class="logo-text">VIRTUAL<span class="logo-studios">GIFT</span></span>
+    </div>
+    <div class="header-icons">
+      <div class="icon-users" onclick="window.location.href=withAppFlag('home.html')" style="cursor:pointer;">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+      </div>
+      <div class="icon-coin" onclick="window.location.href=withAppFlag('puntos.html')" style="cursor:pointer;">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="48" fill="#FDB813"/>
+          <defs><radialGradient id="cg"><stop offset="0%" style="stop-color:#FFD700"/><stop offset="100%" style="stop-color:#FFA500"/></radialGradient></defs>
+          <circle cx="50" cy="50" r="42" fill="url(#cg)"/>
+          <path d="M 30 30 L 42 65 L 50 65 L 58 65 L 70 30 L 62 30 L 54 57 L 50 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
+        </svg>
+      </div>
+      <div class="icon-notification" onclick="window.location.href=withAppFlag('notificaciones.html')" style="cursor:pointer;">
+        <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+        <span class="notification-badge" id="badgeCount">0</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="ad-page">
+
+    <!-- Back + balance -->
+    <div class="ad-topbar">
+      <button class="back-btn" onclick="window.location.href=withAppFlag('puntos.html')">← Volver</button>
+      <div class="ad-balance-chip">
+        <svg viewBox="0 0 100 100" class="chip-coin">
+          <circle cx="50" cy="50" r="48" fill="#FDB813"/>
+          <defs><radialGradient id="cg3"><stop offset="0%" style="stop-color:#FFD700"/><stop offset="100%" style="stop-color:#FFA500"/></radialGradient></defs>
+          <circle cx="50" cy="50" r="42" fill="url(#cg3)"/>
+          <path d="M 30 30 L 42 65 L 50 65 L 58 65 L 70 30 L 62 30 L 54 57 L 50 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
+        </svg>
+        <span id="adBalance">—</span>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="ad-hero">
+      <div class="ad-hero-icon">🎬</div>
+      <h1 class="ad-hero-title">Gana VirtualCoins</h1>
+      <p class="ad-hero-sub">Mira anuncios cortos y gana coins al instante</p>
+    </div>
+
+    <!-- Daily progress -->
+    <div class="ad-progress-card">
+      <div class="ad-progress-top">
+        <span class="ad-progress-label">Anuncios de hoy</span>
+        <span class="ad-progress-count" id="adsCount">0/10</span>
+      </div>
+      <div class="ad-progress-track">
+        <div class="ad-progress-bar" id="adsProgressBar"></div>
+      </div>
+      <p class="ad-status" id="adsStatus">Cargando...</p>
+    </div>
+
+    <!-- Ad cards grid -->
+    <div class="ad-cards-grid" id="adCardsGrid">
+      <div class="ad-card" data-reward="50" data-duration="30" data-label="Gaming">
+        <div class="ad-card-banner ad-banner-gaming">
+          <span class="ad-card-tag">🎮 Gaming</span>
+        </div>
+        <div class="ad-card-body">
+          <div class="ad-card-reward">+50 <span>coins</span></div>
+          <div class="ad-card-duration">30 segundos</div>
+          <button class="ad-watch-btn" data-index="0">Ver anuncio</button>
+        </div>
+      </div>
+
+      <div class="ad-card" data-reward="50" data-duration="30" data-label="Tecnología">
+        <div class="ad-card-banner ad-banner-tech">
+          <span class="ad-card-tag">💻 Tecnología</span>
+        </div>
+        <div class="ad-card-body">
+          <div class="ad-card-reward">+50 <span>coins</span></div>
+          <div class="ad-card-duration">30 segundos</div>
+          <button class="ad-watch-btn" data-index="1">Ver anuncio</button>
+        </div>
+      </div>
+
+      <div class="ad-card" data-reward="50" data-duration="30" data-label="Entretenimiento">
+        <div class="ad-card-banner ad-banner-ent">
+          <span class="ad-card-tag">🎵 Entretenimiento</span>
+        </div>
+        <div class="ad-card-body">
+          <div class="ad-card-reward">+50 <span>coins</span></div>
+          <div class="ad-card-duration">30 segundos</div>
+          <button class="ad-watch-btn" data-index="2">Ver anuncio</button>
+        </div>
+      </div>
+
+      <div class="ad-card" data-reward="50" data-duration="30" data-label="Deportes">
+        <div class="ad-card-banner ad-banner-sports">
+          <span class="ad-card-tag">⚽ Deportes</span>
+        </div>
+        <div class="ad-card-body">
+          <div class="ad-card-reward">+50 <span>coins</span></div>
+          <div class="ad-card-duration">30 segundos</div>
+          <button class="ad-watch-btn" data-index="3">Ver anuncio</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earned today -->
+    <div class="ad-earned-section" id="adEarnedSection" style="display:none;">
+      <h3 class="ad-earned-title">Ganado hoy</h3>
+      <div class="ad-earned-list" id="adEarnedList"></div>
+    </div>
+
+  </div><!-- /ad-page -->
+
+  <!-- AD MODAL -->
+  <div id="adModal" class="ad-modal" style="display:none;">
+    <div class="ad-modal-backdrop" id="adModalBackdrop"></div>
+    <div class="ad-modal-content">
+
+      <!-- Player area -->
+      <div class="ad-player" id="adPlayer">
+        <div class="ad-player-anim">
+          <div class="anim-circle c1"></div>
+          <div class="anim-circle c2"></div>
+          <div class="anim-circle c3"></div>
+          <div class="anim-label">ANUNCIO</div>
+        </div>
+        <div class="ad-timer-wrap">
+          <div class="ad-timer-track">
+            <div class="ad-timer-bar" id="adTimerBar"></div>
+          </div>
+          <span class="ad-timer-countdown" id="adCountdown">30</span>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="ad-modal-footer">
+        <div class="ad-modal-reward">
+          <svg viewBox="0 0 100 100" class="modal-coin">
+            <circle cx="50" cy="50" r="48" fill="#FDB813"/>
+            <defs><radialGradient id="cg4"><stop offset="0%" style="stop-color:#FFD700"/><stop offset="100%" style="stop-color:#FFA500"/></radialGradient></defs>
+            <circle cx="50" cy="50" r="42" fill="url(#cg4)"/>
+            <path d="M 30 30 L 42 65 L 50 65 L 58 65 L 70 30 L 62 30 L 54 57 L 50 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
+          </svg>
+          <span>+<strong id="adModalReward">50</strong> coins</span>
+        </div>
+        <button class="ad-claim-btn" id="adClaimBtn" disabled>
+          Mira el anuncio completo
+        </button>
+        <button class="ad-close-btn" id="adModalClose">✕ Cerrar</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="ad-toast" id="adToast"></div>
+
+  <script defer src="js/notification-badge.js"></script>
+  <script defer src="js/anuncios.js"></script>
+</body>
+</html>

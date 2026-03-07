@@ -118,15 +118,21 @@ function waitForFirebase(cb, max = 80) {
 /* ============================================ */
 function loadNotificationCount(uid) {
   window.db.collection('notifications')
-    .where('userId', '==', uid)
-    .where('read', '==', false)
-    .get()
-    .then(snap => {
-      const badge = document.getElementById('notificationBadge');
-      if (!badge) return;
-      badge.textContent = snap.size;
-      badge.style.display = snap.size > 0 ? 'flex' : 'none';
-    }).catch(() => {});
+    .where('userId', 'in', [uid, 'ALL'])
+    .orderBy('timestamp', 'desc')
+    .limit(50)
+    .onSnapshot(
+      (snap) => {
+        let hidden = new Set();
+        try { hidden = new Set(JSON.parse(localStorage.getItem(`vg_notifs_hidden_${uid}`) || '[]')); } catch {}
+        const unread = snap.docs.filter(doc => !doc.data().read && !hidden.has(doc.id)).length;
+        const badge = document.getElementById('notificationBadge');
+        if (!badge) return;
+        badge.textContent = unread;
+        badge.style.display = unread > 0 ? 'flex' : 'none';
+      },
+      () => {}
+    );
 }
 
 /* ============================================ */

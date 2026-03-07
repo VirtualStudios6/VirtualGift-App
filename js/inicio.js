@@ -1,52 +1,6 @@
 /* ============================================ */
-/* CONSTANTES Y CONFIGURACIÓN */
+/* GESTIÓN DE NOTIFICACIONES */
 /* ============================================ */
-const NOTIF_CACHE_KEY = 'vg_notif_count';
-const NOTIF_CACHE_DURATION = 2 * 60 * 1000; // 2 minutos
-
-/* ============================================ */
-/* GESTIÓN DE CACHÉ DE NOTIFICACIONES */
-/* ============================================ */
-
-/**
- * Obtiene el contador de notificaciones desde el caché local
- * @returns {number|null} El número de notificaciones o null si no hay caché válido
- */
-function getCachedNotifCount() {
-  try {
-    const cached = localStorage.getItem(NOTIF_CACHE_KEY);
-    if (!cached) return null;
-
-    const data = JSON.parse(cached);
-    const age = Date.now() - data.timestamp;
-
-    if (age < NOTIF_CACHE_DURATION) {
-      console.log('✅ Usando contador de notificaciones en caché');
-      return data.count;
-    }
-
-    localStorage.removeItem(NOTIF_CACHE_KEY);
-    return null;
-  } catch (e) {
-    console.warn('Error leyendo caché de notificaciones:', e);
-    return null;
-  }
-}
-
-/**
- * Guarda el contador de notificaciones en el caché local
- * @param {number} count - Número de notificaciones
- */
-function setCachedNotifCount(count) {
-  try {
-    localStorage.setItem(NOTIF_CACHE_KEY, JSON.stringify({
-      count: count,
-      timestamp: Date.now()
-    }));
-  } catch (e) {
-    console.warn('Error al cachear notificaciones:', e);
-  }
-}
 
 /* ============================================ */
 /* VERIFICACIÓN DE FIREBASE */
@@ -99,59 +53,26 @@ function updateBadge(count) {
 }
 
 /**
- * Obtiene el contador de notificaciones desde Firestore
+ * Inicia el listener en tiempo real del badge de notificaciones
  * @param {Object} user - Usuario autenticado de Firebase
  */
-async function fetchNotificationCount(user) {
-  try {
-    const snapshot = await firebase.firestore()
-      .collection('notifications')
-      .where('userId', '==', user.uid)
-      .where('read', '==', false)
-      .get(); // Llamada única, NO listener
-
-    const count = snapshot.size;
-    updateBadge(count);
-    setCachedNotifCount(count);
-
-    console.log('✅ Notificaciones actualizadas:', count);
-  } catch (err) {
-    console.error("Error cargando notificaciones:", err);
-  }
-}
-
-/**
- * Carga el contador de notificaciones (primero desde caché, luego desde Firestore)
- * @param {Object} user - Usuario autenticado de Firebase
- */
-async function loadNotificationCount(user) {
+function loadNotificationCount(user) {
   if (!isFirebaseReady()) return;
 
-  // Primero intentar usar caché
-  const cachedCount = getCachedNotifCount();
-  if (cachedCount !== null) {
-    updateBadge(cachedCount);
-    // Actualizar en segundo plano
-    fetchNotificationCount(user);
-    return;
-  }
-
-  // Si no hay caché, cargar de Firestore
-  await fetchNotificationCount(user);
-}
-
-/**
- * Configura el refresco de notificaciones al hacer click en el icono
- * @param {Object} user - Usuario autenticado de Firebase
- */
-function setupNotificationRefresh(user) {
-  const notifIcon = document.querySelector('.icon-notification');
-  if (notifIcon) {
-    notifIcon.addEventListener('click', () => {
-      // Limpiar caché para forzar actualización en la próxima carga
-      localStorage.removeItem(NOTIF_CACHE_KEY);
-    });
-  }
+  firebase.firestore()
+    .collection('notifications')
+    .where('userId', 'in', [user.uid, 'ALL'])
+    .orderBy('timestamp', 'desc')
+    .limit(50)
+    .onSnapshot(
+      (snapshot) => {
+        let hidden = new Set();
+        try { hidden = new Set(JSON.parse(localStorage.getItem(`vg_notifs_hidden_${user.uid}`) || '[]')); } catch {}
+        const unread = snapshot.docs.filter(doc => !doc.data().read && !hidden.has(doc.id)).length;
+        updateBadge(unread);
+      },
+      (err) => { console.warn('Error en listener de notificaciones:', err); }
+    );
 }
 
 /* ============================================ */
@@ -170,7 +91,6 @@ function checkAuth() {
       } else {
         // Usuario autenticado, cargar notificaciones
         loadNotificationCount(user);
-        setupNotificationRefresh(user);
       }
     });
   });
@@ -179,6 +99,8 @@ function checkAuth() {
 /* ============================================ */
 /* LOGO → VOLVER AL INICIO (FIX DEFINITIVO) */
 /* ============================================ */
+
+checkAuth();
 
 document.addEventListener('DOMContentLoaded', () => {
   const logo = document.getElementById('appLogo');
