@@ -184,7 +184,50 @@ document.addEventListener("DOMContentLoaded", () => {
           return pid === "password" ? "email" : pid;
         })();
 
+        // Código de referido propio (determinístico a partir del uid)
+        const myReferralCode = 'VG' + user.uid.slice(0, 6).toUpperCase();
+
         if (isFirstTime) {
+          const REFERRAL_BONUS = 500;
+          let initialPoints = prevData.points ?? 175;
+          let referredBy    = null;
+
+          // Procesar referido pendiente si existe y no ha sido procesado
+          if (prevData.pendingReferral && !prevData.referralProcessed) {
+            try {
+              const refSnap = await db.collection('users')
+                .where('referralCode', '==', prevData.pendingReferral)
+                .limit(1).get();
+
+              if (!refSnap.empty) {
+                referredBy      = refSnap.docs[0].id;
+                initialPoints  += REFERRAL_BONUS;
+
+                // Intentar recompensar al referidor (requiere reglas permisivas o Cloud Function)
+                try {
+                  await refSnap.docs[0].ref.update({
+                    points: firebase.firestore.FieldValue.increment(REFERRAL_BONUS)
+                  });
+                  await db.collection('pointsHistory').add({
+                    userId: referredBy, type: 'referral_bonus',
+                    points: REFERRAL_BONUS, fromUser: user.uid,
+                    createdAt: firebase.firestore.Timestamp.now(),
+                  });
+                } catch(rErr) {
+                  console.warn('[referral] No se pudo recompensar al referidor:', rErr.code);
+                }
+
+                await db.collection('pointsHistory').add({
+                  userId: user.uid, type: 'referral_bonus',
+                  points: REFERRAL_BONUS, fromCode: prevData.pendingReferral,
+                  createdAt: firebase.firestore.Timestamp.now(),
+                });
+              }
+            } catch(refErr) {
+              console.warn('[referral] Error procesando referido:', refErr.code);
+            }
+          }
+
           await userRef.set({
             uid:                 user.uid,
             displayName:         user.displayName || "Usuario",
@@ -192,7 +235,11 @@ document.addEventListener("DOMContentLoaded", () => {
             email:               user.email || "",
             provider,
             photoURL:            user.photoURL || "",
-            points:              prevData.points ?? 175,
+            referralCode:        myReferralCode,
+            referralProcessed:   true,
+            ...(referredBy && { referredBy }),
+            pendingReferral:     firebase.firestore.FieldValue.delete(),
+            points:              initialPoints,
             level:               prevData.level  ?? 1,
             experience:          prevData.experience ?? 0,
             nextLevel:           prevData.nextLevel  ?? 200,
@@ -210,8 +257,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } else {
           await userRef.set({
-            lastLogin:  firebase.firestore.FieldValue.serverTimestamp(),
-            loginCount: loginCount + 1,
+            referralCode: myReferralCode,
+            lastLogin:    firebase.firestore.FieldValue.serverTimestamp(),
+            loginCount:   loginCount + 1,
           }, { merge: true });
 
           const name = prevData.displayName || prevData.username || user.displayName || "Usuario";

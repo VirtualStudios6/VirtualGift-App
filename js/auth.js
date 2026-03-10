@@ -298,6 +298,22 @@ const FormManager = {
 
       console.log('✅ Firestore: usuario creado | username:', username, '| points:', CONFIG.INITIAL_USER_POINTS);
 
+      // Guardar código de referido pendiente (si existe)
+      try {
+        const refCode = (sessionStorage.getItem('vg_ref') || localStorage.getItem('vg_ref') ||
+                         document.getElementById('ref-code')?.value.trim() || '').toUpperCase();
+        if (/^VG[A-Z0-9]{6}$/.test(refCode)) {
+          await firebase.firestore().collection('users').doc(user.uid).set(
+            { pendingReferral: refCode },
+            { merge: true }
+          );
+          sessionStorage.removeItem('vg_ref');
+          localStorage.removeItem('vg_ref');
+        }
+      } catch(refErr) {
+        console.warn('pendingReferral save failed:', refErr.code);
+      }
+
       NotificationManager.show('¡Cuenta creada! Revisa tu email para verificarla 📧', 'success');
 
       await firebase.auth().signOut();
@@ -428,6 +444,9 @@ const FacebookAuth = {
     NotificationManager.show('Conectando con Facebook...', 'info');
 
     const provider = new firebase.auth.FacebookAuthProvider();
+    provider.addScope('email');
+    provider.addScope('public_profile');
+    provider.setCustomParameters({ auth_type: 'rerequest' });
 
     try {
       if (isAndroidWebView()) {
@@ -452,6 +471,9 @@ const FacebookAuth = {
           ErrorHandler.handle(e, 'FacebookRedirect');
           State.setLoading(false);
         }
+      } else if (error.code === 'auth/account-exists-with-different-credential') {
+        NotificationManager.show('Ya existe una cuenta con ese correo. Inicia sesión con email o Google', 'error');
+        State.setLoading(false);
       } else if (error.code !== 'auth/popup-closed-by-user') {
         ErrorHandler.handle(error, 'FacebookLogin');
         State.setLoading(false);

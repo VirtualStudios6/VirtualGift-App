@@ -459,17 +459,102 @@ async function processRedeem(e) {
 }
 
 /* ============================================ */
+/* HISTORIAL DE ACTIVIDAD                      */
+/* ============================================ */
+const HIST_PAGE = 20;
+let _histLastDoc = null;
+
+const HIST_META = {
+  daily_checkin:  { icon: '🔥', label: 'Check-in diario' },
+  raffle_entry:   { icon: '🎁', label: 'Entrada a sorteo' },
+  redeem:         { icon: '💳', label: 'Canje' },
+  ad_reward:      { icon: '🎬', label: 'Recompensa por anuncio' },
+  ayet_offer:     { icon: '📱', label: 'Oferta completada' },
+  adgem_offer:    { icon: '📱', label: 'Oferta completada' },
+  referral_bonus: { icon: '👥', label: 'Bono de referido' },
+};
+
+function _histEsc(s) {
+  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function buildHistItem(d) {
+  const meta  = HIST_META[d.type] || { icon: '🪙', label: d.type || 'Movimiento' };
+  const pts   = typeof d.points === 'number' ? d.points : 0;
+  const sign  = pts >= 0 ? '+' : '';
+  const color = pts >= 0 ? '#22c55e' : '#f43f5e';
+
+  let label = meta.label;
+  if (d.type === 'raffle_entry'  && d.raffleTitle) label = _histEsc(d.raffleTitle);
+  if (d.type === 'redeem'        && d.platform)    label = `Canje \u2014 ${_histEsc(PLATFORM_LABELS[d.platform]?.name || d.platform)}`;
+
+  const date = d.createdAt?.toDate
+    ? d.createdAt.toDate().toLocaleDateString('es-DO', { day: '2-digit', month: 'short', year: 'numeric' })
+    : '';
+
+  return `<div class="hist-item">
+    <div class="hist-icon">${meta.icon}</div>
+    <div class="hist-body">
+      <span class="hist-label">${label}</span>
+      ${date ? `<span class="hist-date">${date}</span>` : ''}
+    </div>
+    <span class="hist-pts" style="color:${color}">${sign}${pts.toLocaleString()}</span>
+  </div>`;
+}
+
+async function loadHistory(userId, append = false) {
+  const container  = document.getElementById('historyList');
+  const loadMoreEl = document.getElementById('historyLoadMore');
+  if (!container || !userId) return;
+
+  if (!append) {
+    _histLastDoc = null;
+    container.innerHTML = '<div class="hist-skeleton"></div><div class="hist-skeleton"></div><div class="hist-skeleton"></div>';
+  }
+
+  try {
+    let q = window.db.collection('pointsHistory')
+      .where('userId', '==', userId)
+      .orderBy('createdAt', 'desc')
+      .limit(HIST_PAGE);
+    if (append && _histLastDoc) q = q.startAfter(_histLastDoc);
+
+    const snap = await q.get();
+    if (!append) container.innerHTML = '';
+
+    if (snap.empty && !append) {
+      container.innerHTML = '<p class="hist-empty">Sin movimientos aún</p>';
+      if (loadMoreEl) loadMoreEl.style.display = 'none';
+      return;
+    }
+
+    if (!snap.empty) {
+      _histLastDoc = snap.docs[snap.docs.length - 1];
+      container.insertAdjacentHTML('beforeend', snap.docs.map(d => buildHistItem(d.data())).join(''));
+    }
+
+    if (loadMoreEl) loadMoreEl.style.display = snap.size < HIST_PAGE ? 'none' : 'block';
+
+  } catch(e) {
+    // Si falta índice compuesto Firebase mostrará en consola el link para crearlo
+    console.warn('[historial]', e.code, e.message);
+    if (!append) container.innerHTML = '<p class="hist-empty">No se pudo cargar el historial</p>';
+  }
+}
+
+/* ============================================ */
 /* AUTH + INIT                                 */
 /* ============================================ */
 function checkAuth() {
-  // ✅ FIX: UN SOLO onAuthStateChanged que carga todo
   waitForFirebase(() => {
     firebase.auth().onAuthStateChanged(async user => {
       if (!user) { window.location.href = withAppFlag('index.html'); return; }
       window._vcCurrentUser = user;
+      window._historyUserId = user.uid;
       loadUserPoints(user.uid);
       loadNotificationCount(user.uid);
-      loadCheckin(user);  // ✅ check-in cargado aquí, no en inline script
+      loadCheckin(user);
+      loadHistory(user.uid);
     });
   });
 }

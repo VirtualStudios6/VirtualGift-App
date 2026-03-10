@@ -189,6 +189,68 @@ async function loadRaffles() {
   }
 
   renderRaffles();
+  loadMyRaffles();
+}
+
+// ── MIS PARTICIPACIONES ──
+async function loadMyRaffles() {
+  if (!currentUser) return;
+  const section = document.getElementById("myRafflesSection");
+  const list    = document.getElementById("myRafflesList");
+  if (!section || !list) return;
+
+  try {
+    const snap = await window.db.collection("raffleParticipants")
+      .where("userId", "==", currentUser.uid)
+      .limit(50)
+      .get();
+
+    if (snap.empty) return;
+
+    // Agrupar por raffleId y contar entradas
+    const grouped = {};
+    snap.docs.forEach(doc => {
+      const d = doc.data();
+      if (!grouped[d.raffleId]) grouped[d.raffleId] = { raffleId: d.raffleId, count: 0 };
+      grouped[d.raffleId].count++;
+    });
+
+    const items = Object.values(grouped)
+      .map(g => buildMyRaffleItem(g))
+      .filter(Boolean);
+
+    if (!items.length) return;
+    list.innerHTML = items.join('');
+    section.style.display = 'block';
+
+  } catch(e) {
+    console.warn("[myRaffles]", e.code, e.message);
+  }
+}
+
+function buildMyRaffleItem(g) {
+  const raffle = allRaffles.find(r => r.id === g.raffleId);
+  if (!raffle) return '';
+
+  const title     = escapeHTML(`${raffle.title} ${raffle.value}`);
+  const timeLeft  = formatTimeLeft(raffle.endDate);
+  const expired   = raffle.endDate < Date.now();
+  const color     = raffle.color || '#8b5cf6';
+  const imgHTML   = raffle.image
+    ? `<img class="my-rf-img" src="${imgPath(raffle.image)}" alt="${escapeHTML(raffle.title)}">`
+    : `<span class="my-rf-emoji">🎁</span>`;
+
+  return `<div class="my-rf-item" style="--rfc:${color}">
+    ${imgHTML}
+    <div class="my-rf-info">
+      <span class="my-rf-title">${title}</span>
+      <span class="my-rf-sub">${expired ? '⏰ Sorteo finalizado' : `⏰ Sortea en ${timeLeft}`}</span>
+    </div>
+    <div class="my-rf-badge">
+      <span class="my-rf-badge-n">${g.count}</span>
+      <span class="my-rf-badge-l">ENTR.</span>
+    </div>
+  </div>`;
 }
 
 // ── RENDER CARDS ──

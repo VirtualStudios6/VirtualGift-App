@@ -385,6 +385,23 @@ async function fetchAndUpdateFirestore(user, silent = false) {
 
   if (data.displayName) document.getElementById('userName').textContent = data.displayName;
   if (data.photoURL && !__isUploadingAvatar) safeSetAvatar(cacheBust(data.photoURL));
+
+  // Referral code
+  let code = data.referralCode;
+  if (!code) {
+    code = 'VG' + user.uid.slice(0, 6).toUpperCase();
+    ref.set({ referralCode: code }, { merge: true }).catch(() => {});
+  }
+  const codeEl  = document.getElementById('referralCode');
+  const section = document.getElementById('referralSection');
+  if (codeEl)  codeEl.textContent   = code;
+  if (section) section.style.display = '';
+
+  // Estadísticas de referidos (opcional)
+  const statsEl = document.getElementById('referralStats');
+  if (statsEl && data.referredBy) {
+    statsEl.textContent = '✅ Registrado con código de invitación';
+  }
 }
 
 /* ============================================ */
@@ -403,6 +420,7 @@ function checkAuth() {
       }
       loadBasicUserData(user);
       await loadFirestoreData(user);
+      if (typeof initPush === 'function') initPush(user.uid);
     });
   });
 }
@@ -515,29 +533,39 @@ Dispositivo: ${userAgent}
 }
 
 async function deleteAccount(user) {
-  const primera = await showConfirmModal(
-    '⚠️ ¿Eliminar tu cuenta?\n\nEsta acción es permanente. Perderás todos tus puntos, historial y datos.',
-    'Continuar',
-    'vg-modal-btn-danger'
-  );
-  if (!primera) return;
-
-  const segunda = await showConfirmModal(
-    '🗑️ Confirmación final\n\n¿Estás completamente seguro? No hay vuelta atrás.',
+  const confirmada = await showConfirmModal(
+    'Esta acción es irreversible. Se eliminarán todos tus datos, coins, participaciones en sorteos e historial.',
     'Sí, eliminar mi cuenta',
     'vg-modal-btn-danger'
   );
-  if (!segunda) return;
+  if (!confirmada) return;
 
-  toast('Eliminando cuenta...');
+  // Mostrar loading
+  const btn = document.getElementById('btnDeleteAccount');
+  const originalHtml = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span style="opacity:.75;font-size:13px;">Eliminando...</span>';
+  }
+  toast('Eliminando todos tus datos...');
 
   try {
-    await window.db.collection('users').doc(user.uid).delete();
+    // 1. Borrar todos los datos del usuario (Firestore + Storage)
+    await deleteUserData(user.uid);
+
+    // 2. Limpiar caché local
     try { localStorage.removeItem(CACHE_KEY); } catch {}
+
+    // 3. Eliminar cuenta de Authentication
     await user.delete();
+
+    // 4. Redirigir
     window.location.href = withAppFlag('index.html');
+
   } catch (e) {
     console.error('Error eliminando cuenta:', e);
+    if (btn) { btn.disabled = false; btn.innerHTML = originalHtml; }
+
     if (e.code === 'auth/requires-recent-login') {
       toast('Por seguridad, cierra sesión, vuelve a iniciar y repite esta acción.');
     } else {
@@ -626,6 +654,33 @@ function setupEventListeners() {
   document.getElementById('btnDeleteAccount').addEventListener('click', () => {
     const user = window.auth?.currentUser;
     if (user) deleteAccount(user);
+  });
+
+  // Copiar enlace de referido
+  document.getElementById('btnCopyReferral')?.addEventListener('click', async () => {
+    const code   = document.getElementById('referralCode')?.textContent || '';
+    const copied = document.getElementById('referralCopied');
+    if (!code || code === '—') return;
+
+    const shareUrl = `${window.location.origin}${window.location.pathname.replace('home.html', '')}index.html?ref=${code}`;
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+    } catch {
+      const el = document.createElement('textarea');
+      el.value = shareUrl;
+      el.style.position = 'fixed';
+      el.style.opacity  = '0';
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+    }
+
+    if (copied) {
+      copied.style.display = 'block';
+      setTimeout(() => { copied.style.display = 'none'; }, 2200);
+    }
   });
 }
 

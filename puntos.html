@@ -78,6 +78,24 @@
         .checkin-btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .checkin-btn:active:not(:disabled) { transform: scale(0.98); }
 
+        /* ===== HISTORIAL ===== */
+        .hist-section  { margin-top: 20px; }
+        .hist-title    { font-size: 15px; font-weight: 800; color: white; margin-bottom: 14px; font-family: var(--font); }
+        .hist-list     { display: flex; flex-direction: column; }
+        .hist-item     { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .hist-item:last-child { border-bottom: none; }
+        .hist-icon     { font-size: 1.3rem; width: 32px; text-align: center; flex-shrink: 0; }
+        .hist-body     { flex: 1; min-width: 0; }
+        .hist-label    { display: block; font-size: 13px; font-weight: 700; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: var(--font); }
+        .hist-date     { display: block; font-size: 11px; color: rgba(255,255,255,.4); margin-top: 2px; font-family: var(--font); }
+        .hist-pts      { font-size: 14px; font-weight: 800; flex-shrink: 0; font-family: var(--font); }
+        .hist-empty    { font-size: 13px; color: rgba(255,255,255,.4); text-align: center; padding: 20px 0; font-family: var(--font); }
+        .hist-skeleton { height: 42px; border-radius: 8px; background: linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%); background-size: 200% 100%; animation: shimmer 1.3s infinite; margin-bottom: 8px; }
+        @keyframes shimmer { to { background-position: -200% 0; } }
+        .hist-more     { width: 100%; padding: 10px; border-radius: 10px; background: rgba(139,92,246,.1); border: 1px solid rgba(139,92,246,.3); color: #a78bfa; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 8px; font-family: var(--font); display: none; }
+        .hist-more:active { background: rgba(139,92,246,.2); }
+        .hist-card-wrap { padding: 14px 16px 10px; }
+
         /* ===== TOAST ===== */
         .vc-toast {
             position: fixed; bottom: 90px; left: 50%;
@@ -227,6 +245,22 @@
                     <button class="proceed-btn" id="proceedRedeemBtn" disabled>
                         Selecciona una plataforma
                     </button>
+                </div>
+
+                <!-- HISTORIAL -->
+                <div class="hist-section">
+                    <div class="hist-title">📋 Historial de actividad</div>
+                    <div class="checkin-card hist-card-wrap">
+                        <div id="historyList" class="hist-list">
+                            <div class="hist-skeleton"></div>
+                            <div class="hist-skeleton"></div>
+                            <div class="hist-skeleton"></div>
+                        </div>
+                        <button type="button" class="hist-more" id="historyLoadMore"
+                            onclick="loadHistory(window._historyUserId, true)">
+                            Ver más
+                        </button>
+                    </div>
                 </div>
 
             </div><!-- /points-right -->

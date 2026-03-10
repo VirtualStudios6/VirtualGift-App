@@ -33,7 +33,7 @@ window.ErrorHandler = {
       return this.getAuthErrorMessage(error.code);
     }
 
-    // Errores de Firestore
+    // Errores de Firestorezsss
     if (error.code === 'permission-denied') {
       return 'No tienes permiso para realizar esta acción';
     }

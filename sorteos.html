@@ -21,6 +21,23 @@
   <script defer src="js/firebase-config.js"></script>
   <script defer src="js/sorteos.js"></script>
 
+  <style>
+    /* ===== MIS PARTICIPACIONES ===== */
+    .my-rf-section { margin: 0 0 4px; }
+    .my-rf-heading { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; padding: 0 2px; }
+    .my-rf-list    { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+    .my-rf-item    { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-left: 3px solid var(--rfc, #8b5cf6); border-radius: 12px; padding: 11px 14px; }
+    .my-rf-img     { width: 30px; height: 30px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
+    .my-rf-emoji   { font-size: 1.5rem; flex-shrink: 0; }
+    .my-rf-info    { flex: 1; min-width: 0; }
+    .my-rf-title   { display: block; font-size: 13px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .my-rf-sub     { display: block; font-size: 11px; color: rgba(255,255,255,.45); margin-top: 2px; }
+    .my-rf-badge   { display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,.08); border-radius: 8px; padding: 5px 9px; min-width: 38px; flex-shrink: 0; }
+    .my-rf-badge-n { font-size: 15px; font-weight: 800; color: white; line-height: 1; }
+    .my-rf-badge-l { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.5); margin-top: 1px; }
+    #myRafflesSection { display: none; }
+  </style>
+
   <script>
     function withAppFlag(url) {
       const isAndroidApp =
@@ -80,6 +97,12 @@
           <p class="sg-hero-sub">Usa tus coins para ganar gift cards reales</p>
         </div>
       </div>
+    </div>
+
+    <!-- MIS PARTICIPACIONES -->
+    <div class="my-rf-section" id="myRafflesSection">
+      <p class="my-rf-heading">✅ Mis participaciones activas</p>
+      <div class="my-rf-list" id="myRafflesList"></div>
     </div>
 
     <!-- CONTADOR -->
