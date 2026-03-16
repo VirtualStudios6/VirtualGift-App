@@ -228,7 +228,9 @@ window.doCheckin = async function() {
     const lastCheckin  = data.lastCheckin?.toDate?.() || null;
     const now          = new Date();
     const todayStr     = now.toDateString();
-    const yesterdayStr = new Date(now - 86400000).toDateString();
+    // Calcular "ayer" por componentes de fecha local para evitar errores de timezone cerca de medianoche
+    const yesterday    = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    const yesterdayStr = yesterday.toDateString();
 
     if (lastCheckin && lastCheckin.toDateString() === todayStr) {
       showVcToast('✅ Ya reclamaste hoy');

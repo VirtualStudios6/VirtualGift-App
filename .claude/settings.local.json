@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"C:\\\\Users\\\\VirtualStudios\\\\.claude\\\\projects\\\\c--Users-VirtualStudios-Desktop-VirtualDisk-Paginas-Webs-VirtualGift-APP\\\\memory\"\" 2>/dev/null || echo \"Directory does not exist \")"
+    ]
+  }
+}

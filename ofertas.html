@@ -15,17 +15,7 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script defer src="js/firebase-config.js"></script>
-  <script>
-    function withAppFlag(url) {
-      const isAndroidApp = document.documentElement.classList.contains("android-app") || document.body.classList.contains("android-app");
-      if (!isAndroidApp) return url;
-      if (url.includes("app=android")) return url;
-      const parts = url.split('#');
-      const base = parts[0]; const hash = parts[1] ? ('#' + parts[1]) : '';
-      return (base.includes("?") ? base + "&app=android" : base + "?app=android") + hash;
-    }
-  </script>
+  <script defer src="js/firebase-config.js"></script>
   <style>
     :root {
       --coin: #ffc837; --coin-dim: rgba(255,200,55,0.12);
@@ -257,10 +247,10 @@
         <div class="quick-card-sub">Completa tareas</div>
         <div class="quick-card-reward">🪙 Hasta 5000</div>
       </div>
-      <div class="quick-card" onclick="window.location.href=withAppFlag('minijuegos.html')">
+      <div class="quick-card" onclick="alert('🕹️ Minijuegos próximamente')" style="opacity:.55;cursor:default;">
         <div class="quick-card-icon">🕹️</div>
         <div class="quick-card-title">Minijuegos</div>
-        <div class="quick-card-sub">Juega y gana</div>
+        <div class="quick-card-sub">Próximamente</div>
         <div class="quick-card-reward">🪙 Hasta 100</div>
       </div>
       <div class="quick-card" onclick="switchMain('ofertas', document.querySelectorAll('.main-tab')[0]); setTimeout(()=>switchWall('adgem', document.querySelectorAll('.wall-tab')[1]),100)">

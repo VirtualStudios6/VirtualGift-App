@@ -390,7 +390,7 @@ async function fetchAndUpdateFirestore(user, silent = false) {
   let code = data.referralCode;
   if (!code) {
     code = 'VG' + user.uid.slice(0, 6).toUpperCase();
-    ref.set({ referralCode: code }, { merge: true }).catch(() => {});
+    ref.set({ referralCode: code }, { merge: true }).catch((e) => { console.warn('[profile] Error guardando referralCode:', e?.code || e?.message); });
   }
   const codeEl  = document.getElementById('referralCode');
   const section = document.getElementById('referralSection');
@@ -437,7 +437,9 @@ async function editName(user) {
     if (next === null) return;
 
     const name = String(next).trim();
-    if (name.length < 2) { toast('Pon un nombre más largo 🙂'); return; }
+    const nv = typeof Validators !== 'undefined' ? Validators.displayName(name) : null;
+    if (nv && !nv.valid) { toast('❌ ' + nv.message); return; }
+    else if (!nv && name.length < 2) { toast('Pon un nombre más largo 🙂'); return; }
 
     toast('Guardando nombre...');
     document.getElementById('userName').textContent = name;
