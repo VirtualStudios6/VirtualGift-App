@@ -29,6 +29,20 @@
 
 <body>
 
+  <!--
+    OVERLAY NATIVO: oculta la UI de login mientras Firebase verifica si
+    hay sesión activa. Se quita desde SessionManager en auth.js cuando
+    no hay usuario loggeado, o simplemente se ignora si hay redirect.
+  -->
+  <div id="cap-loading"></div>
+  <script>
+    // El bridge de Capacitor se inyecta por el WebView ANTES de que cargue
+    // la página, por eso window.Capacitor ya está disponible aquí.
+    if (window.Capacitor?.isNativePlatform?.()) {
+      document.getElementById('cap-loading').style.display = 'block';
+    }
+  </script>
+
   <!-- Fondo animado -->
   <div class="bg-orbs" aria-hidden="true">
     <div class="orb orb-1"></div>

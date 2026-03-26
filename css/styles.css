@@ -532,12 +532,25 @@ footer p {
 }
 
 /* ============================================ */
+/* CAPACITOR NATIVE LOADING OVERLAY            */
+/* Se muestra mientras Firebase verifica sesión */
+/* en el arranque nativo. Se oculta desde JS.  */
+/* ============================================ */
+#cap-loading {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  z-index: 9999;
+}
+
+/* ============================================ */
 /* TERMS BOTTOM SHEET                          */
 /* ============================================ */
 .terms-overlay {
   display: none; position: fixed; inset: 0;
-  background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px); z-index: 70;
+  background: rgba(0,0,0,0.6); -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px); z-index: 70;
 }
 .terms-overlay.active { display: block; }
 

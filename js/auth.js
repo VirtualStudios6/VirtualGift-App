@@ -46,6 +46,15 @@ function isAndroidWebView() {
   return /Android/.test(navigator.userAgent) && /wv/.test(navigator.userAgent);
 }
 
+// ==================== CAPACITOR ====================
+function isNativePlatform() {
+  return window.Capacitor?.isNativePlatform?.() === true;
+}
+
+function getCapFirebaseAuth() {
+  return window.Capacitor?.Plugins?.FirebaseAuthentication || null;
+}
+
 // ✅ Flag para bloquear redirect de onAuthStateChanged durante el registro
 let _isRegistering = false;
 
@@ -397,6 +406,37 @@ const GoogleAuth = {
     State.setLoading(true);
     NotificationManager.show('Conectando con Google...', 'info');
 
+    // ── MODO NATIVO (Capacitor) ─────────────────────────────
+    if (isNativePlatform()) {
+      const capAuth = getCapFirebaseAuth();
+      if (!capAuth) {
+        NotificationManager.show('Plugin de autenticación no disponible', 'error');
+        State.setLoading(false);
+        return;
+      }
+      try {
+        const result    = await capAuth.signInWithGoogle();
+        const idToken   = result.credential?.idToken;
+        if (!idToken) throw new Error('No se recibió token de Google');
+
+        const credential    = firebase.auth.GoogleAuthProvider.credential(idToken);
+        const firebaseResult = await firebase.auth().signInWithCredential(credential);
+        if (firebaseResult.user) {
+          await FormManager.upsertUserProfile(firebaseResult.user);
+          NotificationManager.show(`¡Bienvenido, ${firebaseResult.user.displayName || 'Gamer'}! 🎮`, 'success');
+          setTimeout(() => window.location.href = CONFIG.LOGIN_REDIRECT_URL, 800);
+        }
+      } catch (error) {
+        console.error('❌ Google login nativo:', error.code || error.message);
+        if (error.code !== 'auth/cancelled-popup-request') {
+          ErrorHandler.handle(error, 'GoogleNative');
+        }
+        State.setLoading(false);
+      }
+      return;
+    }
+
+    // ── MODO WEB ────────────────────────────────────────────
     const provider = new firebase.auth.GoogleAuthProvider();
     provider.addScope('profile');
     provider.addScope('email');
@@ -443,6 +483,39 @@ const FacebookAuth = {
     State.setLoading(true);
     NotificationManager.show('Conectando con Facebook...', 'info');
 
+    // ── MODO NATIVO (Capacitor) ─────────────────────────────
+    if (isNativePlatform()) {
+      const capAuth = getCapFirebaseAuth();
+      if (!capAuth) {
+        NotificationManager.show('Plugin de autenticación no disponible', 'error');
+        State.setLoading(false);
+        return;
+      }
+      try {
+        const result       = await capAuth.signInWithFacebook();
+        const accessToken  = result.credential?.accessToken;
+        if (!accessToken) throw new Error('No se recibió token de Facebook');
+
+        const credential     = firebase.auth.FacebookAuthProvider.credential(accessToken);
+        const firebaseResult = await firebase.auth().signInWithCredential(credential);
+        if (firebaseResult.user) {
+          await FormManager.upsertUserProfile(firebaseResult.user);
+          NotificationManager.show(`¡Bienvenido, ${firebaseResult.user.displayName || 'Gamer'}! 🎮`, 'success');
+          setTimeout(() => window.location.href = CONFIG.LOGIN_REDIRECT_URL, 800);
+        }
+      } catch (error) {
+        console.error('❌ Facebook login nativo:', error.code || error.message);
+        if (error.code === 'auth/account-exists-with-different-credential') {
+          NotificationManager.show('Ya existe una cuenta con ese correo. Inicia sesión con email o Google', 'error');
+        } else if (error.code !== 'auth/cancelled-popup-request') {
+          ErrorHandler.handle(error, 'FacebookNative');
+        }
+        State.setLoading(false);
+      }
+      return;
+    }
+
+    // ── MODO WEB ────────────────────────────────────────────
     const provider = new firebase.auth.FacebookAuthProvider();
     provider.addScope('email');
     provider.addScope('public_profile');
@@ -496,10 +569,20 @@ const SessionManager = {
         window.location.pathname.includes('index.html') ||
         window.location.pathname.includes('VirtualGift-App/index');
 
-      if (user && isInLogin) window.location.href = CONFIG.LOGIN_REDIRECT_URL;
+      if (user && isInLogin) {
+        window.location.href = CONFIG.LOGIN_REDIRECT_URL;
+        return;
+      }
+
+      // En nativo: si no hay sesión activa, mostrar la UI de login
+      if (isNativePlatform() && isInLogin) {
+        const loader = document.getElementById('cap-loading');
+        if (loader) loader.style.display = 'none';
+      }
     });
 
-    handleSocialRedirectResult();
+    // En web solamente, manejar redirect de proveedores sociales
+    if (!isNativePlatform()) handleSocialRedirectResult();
   }
 };
 
@@ -544,8 +627,20 @@ if (document.readyState === 'loading') {
 
 // ==================== LOGOUT GLOBAL ====================
 function vgSignOut() {
-  if (!isFirebaseReady()) { window.location.href = CONFIG.LOGOUT_REDIRECT_URL; return; }
-  firebase.auth().signOut()
-    .then(()  => window.location.href = CONFIG.LOGOUT_REDIRECT_URL)
-    .catch(()  => window.location.href = CONFIG.LOGOUT_REDIRECT_URL);
+  const doRedirect = () => { window.location.href = CONFIG.LOGOUT_REDIRECT_URL; };
+
+  // ── Modo nativo: cerrar sesión también en el plugin Capacitor ──
+  if (isNativePlatform()) {
+    const capAuth = getCapFirebaseAuth();
+    if (capAuth) {
+      capAuth.signOut().then(doRedirect).catch(doRedirect);
+    } else {
+      doRedirect();
+    }
+    return;
+  }
+
+  // ── Modo web ──────────────────────────────────────────────────
+  if (!isFirebaseReady()) { doRedirect(); return; }
+  firebase.auth().signOut().then(doRedirect).catch(doRedirect);
 }

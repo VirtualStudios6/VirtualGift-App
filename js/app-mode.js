@@ -24,3 +24,19 @@ window.withAppFlag = function withAppFlag(url) {
   const fixed = base.includes("?") ? (base + "&app=android") : (base + "?app=android");
   return fixed + hash;
 };
+
+// ==================== CAPACITOR PLATFORM ====================
+// Devuelve true si corre dentro de la app nativa (Android o iOS con Capacitor)
+window.isCapacitorNative = function isCapacitorNative() {
+  return window.Capacitor?.isNativePlatform?.() === true;
+};
+
+// Al cargar en Capacitor nativo, añadir clase "cap-native" al <html>
+// para poder aplicar estilos específicos desde CSS si hace falta.
+(function () {
+  if (!window.Capacitor?.isNativePlatform?.()) return;
+  document.documentElement.classList.add('cap-native');
+  window.addEventListener('DOMContentLoaded', () => {
+    document.body?.classList.add('cap-native');
+  });
+})();
