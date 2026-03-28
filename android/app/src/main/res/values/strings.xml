@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">VirtualGift</string>
+    <string name="title_activity_main">VirtualGift</string>
+    <string name="package_name">com.virtualstudios.virtualgift</string>
+    <string name="custom_url_scheme">com.virtualstudios.virtualgift</string>
+</resources>

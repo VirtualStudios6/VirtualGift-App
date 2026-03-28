@@ -4,8 +4,9 @@
   "description": "VirtualGift - Sorteos y rifas con monedas virtuales",
   "private": true,
   "scripts": {
-    "cap:sync:android": "npx cap sync android",
-    "cap:sync:ios":     "npx cap sync ios",
+    "build":            "cp -r css js images legal firebase-messaging-sw.js *.html www/ 2>/dev/null || true",
+    "cap:sync:android": "npm run build && npx cap sync android",
+    "cap:sync:ios":     "npm run build && npx cap sync ios",
     "cap:open:android": "npx cap open android",
     "cap:open:ios":     "npx cap open ios",
     "cap:assets":       "npx capacitor-assets generate"
@@ -16,7 +17,7 @@
     "@capacitor/ios":      "^6.2.0",
     "@capacitor/splash-screen": "^6.0.2",
     "@capacitor/status-bar":    "^6.0.1",
-    "@capacitor-firebase/authentication": "^6.6.0"
+    "@capacitor-firebase/authentication": "^6.3.1"
   },
   "devDependencies": {
     "@capacitor/cli":    "^6.2.0",

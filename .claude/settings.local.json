@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ls \"C:\\\\Users\\\\VirtualStudios\\\\.claude\\\\projects\\\\c--Users-VirtualStudios-Desktop-VirtualDisk-Paginas-Webs-VirtualGift-APP\\\\memory\"\" 2>/dev/null || echo \"Directory does not exist \")"
+      "Bash(ls \"C:\\\\Users\\\\VirtualStudios\\\\.claude\\\\projects\\\\c--Users-VirtualStudios-Desktop-VirtualDisk-Paginas-Webs-VirtualGift-APP\\\\memory\"\" 2>/dev/null || echo \"Directory does not exist \")",
+      "Bash(npm view:*)",
+      "Bash(npx cap:*)",
+      "Bash(npm run:*)",
+      "Bash(cp -r css js images legal firebase-messaging-sw.js www/)",
+      "Bash(for f:*)",
+      "Bash(do cp:*)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''''package_name:'''', d[''''client''''][0][''''client_info''''][''''android_client_info''''][''''package_name'''']\\)\")"
     ]
   }
 }

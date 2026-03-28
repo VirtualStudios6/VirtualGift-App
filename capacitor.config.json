@@ -1,7 +1,7 @@
 {
-  "appId":   "com.virtualstudios.virtualgift",
+  "appId":   "com.virtualgift",
   "appName": "VirtualGift",
-  "webDir":  ".",
+  "webDir":  "www",
   "server": {
     "androidScheme": "https"
   },

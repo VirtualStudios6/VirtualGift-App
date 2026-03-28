@@ -67,3 +67,10 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
+
+# Capacitor build output
+www/
+android/app/build/
+android/.gradle/
+ios/App/Pods/
+ios/App/App.xcworkspace/xcuserdata/

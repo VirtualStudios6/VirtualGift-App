@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "807245369735",
+    "project_id": "virtualgift-login",
+    "storage_bucket": "virtualgift-login.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807245369735:android:201f1e5e7c93eec9d28322",
+        "android_client_info": {
+          "package_name": "com.virtualgift"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "807245369735-hcn80sbrt8r8usuo15r5e37ihndq12lh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC71RrehUvQ30d3mz9thF27sJGAh1jHkN4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "807245369735-hcn80sbrt8r8usuo15r5e37ihndq12lh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
