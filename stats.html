@@ -16,6 +16,8 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>.lucide{width:1em;height:1em;vertical-align:-0.125em;display:inline-block}.icon-lg{width:2rem !important;height:2rem !important}.icon-xl{width:3rem !important;height:3rem !important}</style>
   <style>
     /* ✅ Reset padding del body que viene de inicio.css/header.css */
     body {
@@ -248,15 +250,15 @@
   </div>
 
   <div class="platform-wrap">
-    <div class="pchip active" onclick="setPlatform('all',this)">🌐 Todas</div>
-    <div class="pchip" onclick="setPlatform('epic',this)">🎮 Epic</div>
-    <div class="pchip" onclick="setPlatform('psn',this)">🎮 PlayStation</div>
-    <div class="pchip" onclick="setPlatform('xbl',this)">🎮 Xbox</div>
+    <div class="pchip active" onclick="setPlatform('all',this)"><i data-lucide="globe" style="width:1em;height:1em"></i> Todas</div>
+    <div class="pchip" onclick="setPlatform('epic',this)"><i data-lucide="gamepad-2" style="width:1em;height:1em"></i> Epic</div>
+    <div class="pchip" onclick="setPlatform('psn',this)"><i data-lucide="gamepad-2" style="width:1em;height:1em"></i> PlayStation</div>
+    <div class="pchip" onclick="setPlatform('xbl',this)"><i data-lucide="gamepad-2" style="width:1em;height:1em"></i> Xbox</div>
   </div>
 
   <div id="statsContent">
     <div class="state-box">
-      <div class="state-icon">🎯</div>
+      <div class="state-icon"><i data-lucide="target" class="icon-lg"></i></div>
       <div class="state-title">BUSCA UN JUGADOR</div>
       <div class="state-sub">Ingresa el nombre de usuario para ver estadísticas detalladas</div>
     </div>
@@ -324,10 +326,11 @@
   function showError(title, sub) {
     document.getElementById('statsContent').innerHTML = `
       <div class="state-box">
-        <div class="state-icon">😕</div>
+        <div class="state-icon"><i data-lucide="frown" class="icon-lg"></i></div>
         <div class="state-title">${escHtml(title)}</div>
         <div class="state-sub">${escHtml(sub)}</div>
       </div>`;
+    if(window.lucide) lucide.createIcons();
   }
 
   function renderStats(data, mode) {
@@ -346,12 +349,12 @@
     let html = `
       <div class="profile-banner fade-up">
         <div class="profile-inner">
-          <div class="profile-avatar">🎮</div>
+          <div class="profile-avatar"><i data-lucide="gamepad-2" class="icon-lg"></i></div>
           <div>
             <div class="profile-name">${escHtml(account.name || 'Jugador')}</div>
             <div class="profile-meta">
               <span class="profile-platform-badge">${escHtml(platformLabel)}</span>
-              ${level ? `<span class="profile-level-badge">⭐ LVL ${level}</span>` : ''}
+              ${level ? `<span class="profile-level-badge"><i data-lucide="star" style="width:.9em;height:.9em"></i> LVL ${level}</span>` : ''}
             </div>
           </div>
         </div>
@@ -359,17 +362,17 @@
 
       <div class="hero-stats">
         <div class="hero-stat wins fade-up stagger-1">
-          <div class="hero-icon">🏆</div>
+          <div class="hero-icon"><i data-lucide="trophy" class="icon-lg"></i></div>
           <div class="hero-val gold">${fmt(overall.wins)}</div>
           <div class="hero-lbl">Victorias</div>
         </div>
         <div class="hero-stat kd fade-up stagger-2">
-          <div class="hero-icon">⚔️</div>
+          <div class="hero-icon"><i data-lucide="swords" class="icon-lg"></i></div>
           <div class="hero-val purple">${fmtRatio(overall.kd)}</div>
           <div class="hero-lbl">K/D Ratio</div>
         </div>
         <div class="hero-stat wr fade-up stagger-3">
-          <div class="hero-icon">📈</div>
+          <div class="hero-icon"><i data-lucide="trending-up" class="icon-lg"></i></div>
           <div class="hero-val green">${fmtPct(overall.winRate)}</div>
           <div class="hero-lbl">Win Rate</div>
         </div>
@@ -379,7 +382,7 @@
       <div class="mode-selector">
         ${['overall','solo','duo','squad'].map(m => `
           <div class="mode-btn ${mode===m?'active':''}" onclick="renderStats(globalData,'${m}')">
-            <span class="mode-icon">${{overall:'🌐',solo:'🧍',duo:'👥',squad:'👊'}[m]}</span>
+            <span class="mode-icon"><i data-lucide="${{overall:'globe',solo:'user',duo:'users',squad:'users-2'}[m]}" style="width:1em;height:1em"></i></span>
             ${{overall:'Global',solo:'Solo',duo:'Dúo',squad:'Squad'}[m]}
           </div>`).join('')}
       </div>
@@ -393,6 +396,7 @@
       </div>`;
 
     document.getElementById('statsContent').innerHTML = html;
+    if(window.lucide) lucide.createIcons();
   }
 
   function renderTable(s, winBarWidth) {
@@ -400,20 +404,20 @@
       return `<div class="stats-table"><div class="no-mode-data" style="padding:24px">Sin datos para este modo</div></div>`;
     }
     const rows = [
-      { icon:'🏆', label:'Victorias',        val: fmt(s.wins),               cls:'gold'   },
-      { icon:'💀', label:'Kills',             val: fmt(s.kills),              cls:'white'  },
-      { icon:'🎮', label:'Partidas',          val: fmt(s.matches),            cls:'white'  },
-      { icon:'⚔️', label:'K/D Ratio',         val: fmtRatio(s.kd),            cls:'purple' },
-      { icon:'💥', label:'Kills / Partida',   val: fmtRatio(s.killsPerMatch), cls:'white'  },
-      { icon:'⏱️', label:'Minutos Jugados',   val: fmt(s.minutesPlayed),      cls:'white'  },
-      { icon:'🥇', label:'Top 3',             val: fmt(s.top3),               cls:'gold'   },
-      { icon:'🎯', label:'Score',             val: fmt(s.score),              cls:'white'  },
+      { icon:'<i data-lucide="trophy"></i>',       label:'Victorias',        val: fmt(s.wins),               cls:'gold'   },
+      { icon:'<i data-lucide="skull"></i>',         label:'Kills',            val: fmt(s.kills),              cls:'white'  },
+      { icon:'<i data-lucide="gamepad-2"></i>',     label:'Partidas',         val: fmt(s.matches),            cls:'white'  },
+      { icon:'<i data-lucide="swords"></i>',        label:'K/D Ratio',        val: fmtRatio(s.kd),            cls:'purple' },
+      { icon:'<i data-lucide="zap"></i>',           label:'Kills / Partida',  val: fmtRatio(s.killsPerMatch), cls:'white'  },
+      { icon:'<i data-lucide="timer"></i>',         label:'Minutos Jugados',  val: fmt(s.minutesPlayed),      cls:'white'  },
+      { icon:'<i data-lucide="medal"></i>',         label:'Top 3',            val: fmt(s.top3),               cls:'gold'   },
+      { icon:'<i data-lucide="target"></i>',        label:'Score',            val: fmt(s.score),              cls:'white'  },
     ];
 
     const wrRow = `
       <div class="stat-row fade-up stagger-4">
         <div class="stat-row-left">
-          <div class="stat-row-icon">📈</div>
+          <div class="stat-row-icon"><i data-lucide="trending-up"></i></div>
           <span class="stat-row-name">Win Rate</span>
         </div>
         <div class="wr-wrap">
@@ -480,5 +484,6 @@
     });
   });
 </script>
+<script>if(window.lucide)lucide.createIcons();</script>
 </body>
 </html>

@@ -16,6 +16,8 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>.lucide{width:1em;height:1em;vertical-align:-0.125em;display:inline-block}.icon-lg{width:2rem !important;height:2rem !important}.icon-xl{width:3rem !important;height:3rem !important}</style>
   <style>
     /* ✅ Reset padding del body que viene de inicio.css/header.css */
     body {
@@ -198,7 +200,7 @@
       <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
     </button>
     <div class="cosm-header-info">
-      <div class="cosm-title">🎨 Cosméticos Fortnite</div>
+      <div class="cosm-title"><i data-lucide="palette" style="width:1.1em;height:1.1em"></i> Cosméticos Fortnite</div>
       <div class="cosm-subtitle" id="cosmSubtitle">Cargando...</div>
     </div>
   </div>
@@ -217,30 +219,30 @@
     <div class="filter-label">Categoría</div>
     <div class="cat-chips">
       <div class="cat-chip active" data-type="" onclick="setCat(this)">🏪 Todo</div>
-      <div class="cat-chip" data-type="outfit" onclick="setCat(this)">👕 Skins</div>
-      <div class="cat-chip" data-type="emote" onclick="setCat(this)">💃 Emotes</div>
-      <div class="cat-chip" data-type="backpack" onclick="setCat(this)">🎒 Mochilas</div>
-      <div class="cat-chip" data-type="pickaxe" onclick="setCat(this)">⛏️ Picos</div>
-      <div class="cat-chip" data-type="glider" onclick="setCat(this)">🪂 Planeadores</div>
-      <div class="cat-chip" data-type="wrap" onclick="setCat(this)">🎨 Wraps</div>
-      <div class="cat-chip" data-type="contrail" onclick="setCat(this)">✨ Estelas</div>
-      <div class="cat-chip" data-type="spray" onclick="setCat(this)">🖌️ Sprays</div>
-      <div class="cat-chip" data-type="toy" onclick="setCat(this)">🪀 Juguetes</div>
-      <div class="cat-chip" data-type="music" onclick="setCat(this)">🎵 Música</div>
-      <div class="cat-chip" data-type="loadingscreen" onclick="setCat(this)">🖼️ Pantallas</div>
-      <div class="cat-chip" data-type="banner" onclick="setCat(this)">🏳️ Banners</div>
+      <div class="cat-chip" data-type="outfit" onclick="setCat(this)"><i data-lucide="shirt"></i> Skins</div>
+      <div class="cat-chip" data-type="emote" onclick="setCat(this)"><i data-lucide="music-2"></i> Emotes</div>
+      <div class="cat-chip" data-type="backpack" onclick="setCat(this)"><i data-lucide="backpack"></i> Mochilas</div>
+      <div class="cat-chip" data-type="pickaxe" onclick="setCat(this)"><i data-lucide="pickaxe"></i> Picos</div>
+      <div class="cat-chip" data-type="glider" onclick="setCat(this)"><i data-lucide="wind"></i> Planeadores</div>
+      <div class="cat-chip" data-type="wrap" onclick="setCat(this)"><i data-lucide="palette"></i> Wraps</div>
+      <div class="cat-chip" data-type="contrail" onclick="setCat(this)"><i data-lucide="sparkles"></i> Estelas</div>
+      <div class="cat-chip" data-type="spray" onclick="setCat(this)"><i data-lucide="paintbrush"></i> Sprays</div>
+      <div class="cat-chip" data-type="toy" onclick="setCat(this)"><i data-lucide="toy-brick"></i> Juguetes</div>
+      <div class="cat-chip" data-type="music" onclick="setCat(this)"><i data-lucide="music"></i> Música</div>
+      <div class="cat-chip" data-type="loadingscreen" onclick="setCat(this)"><i data-lucide="image"></i> Pantallas</div>
+      <div class="cat-chip" data-type="banner" onclick="setCat(this)"><i data-lucide="flag"></i> Banners</div>
     </div>
     <div class="filter-label" style="margin-top:4px">Rareza</div>
     <div class="rarity-chips">
-      <div class="rarity-chip active" data-rarity="" onclick="setRarity(this)">💎 Todas</div>
-      <div class="rarity-chip" data-rarity="mythic" onclick="setRarity(this)">⭐ Mítico</div>
-      <div class="rarity-chip" data-rarity="legendary" onclick="setRarity(this)">🟡 Legendario</div>
-      <div class="rarity-chip" data-rarity="epic" onclick="setRarity(this)">🟣 Épico</div>
-      <div class="rarity-chip" data-rarity="rare" onclick="setRarity(this)">🔵 Raro</div>
-      <div class="rarity-chip" data-rarity="uncommon" onclick="setRarity(this)">🟢 Infrecuente</div>
-      <div class="rarity-chip" data-rarity="common" onclick="setRarity(this)">⬜ Común</div>
-      <div class="rarity-chip" data-rarity="icon" onclick="setRarity(this)">🩵 Icon</div>
-      <div class="rarity-chip" data-rarity="marvel" onclick="setRarity(this)">🔴 Marvel</div>
+      <div class="rarity-chip active" data-rarity="" onclick="setRarity(this)"><i data-lucide="gem"></i> Todas</div>
+      <div class="rarity-chip" data-rarity="mythic" onclick="setRarity(this)"><i data-lucide="star"></i> Mítico</div>
+      <div class="rarity-chip" data-rarity="legendary" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#f59e0b;margin-right:3px;vertical-align:middle"></span>Legendario</div>
+      <div class="rarity-chip" data-rarity="epic" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#8b5cf6;margin-right:3px;vertical-align:middle"></span>Épico</div>
+      <div class="rarity-chip" data-rarity="rare" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#3b82f6;margin-right:3px;vertical-align:middle"></span>Raro</div>
+      <div class="rarity-chip" data-rarity="uncommon" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#22c55e;margin-right:3px;vertical-align:middle"></span>Infrecuente</div>
+      <div class="rarity-chip" data-rarity="common" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#9ca3af;margin-right:3px;vertical-align:middle"></span>Común</div>
+      <div class="rarity-chip" data-rarity="icon" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#67e8f9;margin-right:3px;vertical-align:middle"></span>Icon</div>
+      <div class="rarity-chip" data-rarity="marvel" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#ef4444;margin-right:3px;vertical-align:middle"></span>Marvel</div>
     </div>
   </div>
 
@@ -402,11 +404,12 @@
       card.onclick = () => openModal(filteredItems.indexOf(it));
       card.innerHTML = `
         <img class="cosm-card-img" src="${escHtml(img)}" alt="${name}" loading="lazy" onerror="this.style.display='none'">
-        ${isMusic(it)?`<div class="cosm-card-music">🎵</div>`:''}
+        ${isMusic(it)?`<div class="cosm-card-music"><i data-lucide="music" style="width:1rem;height:1rem"></i></div>`:''}
         <div class="cosm-card-info">
           <div class="cosm-card-name">${name}</div>
           <div class="cosm-card-rarity ${getRarityClass(rarity)}">${getRarityLabel(rarity)}</div>
         </div>`;
+      if(isMusic(it) && window.lucide) lucide.createIcons({parentNode:card});
       return card;
     }
 
@@ -425,8 +428,8 @@
       document.getElementById('modalImg').alt = it?.name||"";
 
       const tags = [
-        it?.set?.value ? `<span class="modal-tag">📦 ${escHtml(it.set.value)}</span>` : '',
-        intro ? `<span class="modal-tag">🎮 Cap ${intro.chapter} T${intro.season}</span>` : '',
+        it?.set?.value ? `<span class="modal-tag"><i data-lucide="package" style="width:.85em;height:.85em"></i> ${escHtml(it.set.value)}</span>` : '',
+        intro ? `<span class="modal-tag"><i data-lucide="gamepad-2" style="width:.85em;height:.85em"></i> Cap ${intro.chapter} T${intro.season}</span>` : '',
         ...(it?.gameplayTags||[]).slice(0,2).map(t=>`<span class="modal-tag">${escHtml(t)}</span>`),
       ].join('');
 
@@ -436,7 +439,8 @@
         <div class="modal-type">${escHtml(getRarityLabel(rarity))} · ${escHtml(typeLabel)}</div>
         ${it?.description?`<div class="modal-desc">${escHtml(it.description)}</div>`:''}
         ${tags?`<div class="modal-tags">${tags}</div>`:''}
-        ${isMusic(it)?`<div id="audioSection"><div class="modal-audio-player"><span class="audio-loading">🎵 Cargando audio...</span></div></div>`:''}`;
+        ${isMusic(it)?`<div id="audioSection"><div class="modal-audio-player"><span class="audio-loading"><i data-lucide="music" style="width:1em;height:1em"></i> Cargando audio...</span></div></div>`:''}`;
+      if(window.lucide) lucide.createIcons();
 
       document.getElementById('cosmOverlay').classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -457,7 +461,7 @@
                     <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                   </button>
                   <div class="audio-info">
-                    <div class="audio-label">🎵 Vista previa</div>
+                    <div class="audio-label"><i data-lucide="music" style="width:1em;height:1em"></i> Vista previa</div>
                     <div class="audio-sublabel">${escHtml(it?.name||"")}</div>
                   </div>
                 </div>`;
@@ -525,5 +529,6 @@
       });
     });
   </script>
+<script>if(window.lucide)lucide.createIcons();</script>
 </body>
 </html>

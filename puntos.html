@@ -18,7 +18,9 @@
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script defer src="js/firebase-config.js"></script>
-
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>.lucide{width:1em;height:1em;vertical-align:-0.125em;display:inline-block}.icon-lg{width:2rem !important;height:2rem !important}.icon-xl{width:3rem !important;height:3rem !important}</style>
+
 
     <style>
         /* ===== CHECK-IN RACHA ===== */
@@ -167,8 +169,8 @@
                 <!-- CHECK-IN RACHA -->
                 <div class="checkin-card">
                     <div class="checkin-top">
-                        <div class="checkin-title">🔥 Recompensa Diaria</div>
-                        <div class="checkin-streak" id="streakBadge">🔥 0 días</div>
+                        <div class="checkin-title"><i data-lucide="flame"></i> Recompensa Diaria</div>
+                        <div class="checkin-streak" id="streakBadge"><i data-lucide="flame"></i> 0 días</div>
                     </div>
                     <div class="checkin-days" id="checkinDays"></div>
                     <button class="checkin-btn" id="checkinBtn" onclick="doCheckin()" disabled>
@@ -179,13 +181,13 @@
                 <!-- CANJE -->
                 <div class="redeem-section">
                     <div class="section-header">
-                        <h2 class="section-title">🎯 Canjear VirtualCoins</h2>
+                        <h2 class="section-title"><i data-lucide="target"></i> Canjear VirtualCoins</h2>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 16px;">
                         <label class="form-label">¿Cuántos VirtualCoins quieres canjear?</label>
                         <div class="redeem-input-wrap">
-                            <span class="coin-prefix">🪙</span>
+                            <span class="coin-prefix"><i data-lucide="coins" style="width:1.1em;height:1.1em"></i></span>
                             <input
                                 type="number"
                                 id="redeemPoints"
@@ -235,7 +237,7 @@
 
                 <!-- HISTORIAL -->
                 <div class="hist-section">
-                    <div class="hist-title">📋 Historial de actividad</div>
+                    <div class="hist-title"><i data-lucide="clipboard-list" style="width:1em;height:1em"></i> Historial de actividad</div>
                     <div class="checkin-card hist-card-wrap">
                         <div id="historyList" class="hist-list">
                             <div class="hist-skeleton"></div>
@@ -309,5 +311,6 @@
     </script>
 
     <script defer src="js/puntos.js"></script>
+<script>if(window.lucide)lucide.createIcons();</script>
 </body>
 </html>

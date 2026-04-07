@@ -17,7 +17,9 @@
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script defer src="js/firebase-config.js"></script>
-
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>.lucide{width:1em;height:1em;vertical-align:-0.125em;display:inline-block}.icon-lg{width:2rem !important;height:2rem !important}.icon-xl{width:3rem !important;height:3rem !important}</style>
+
 </head>
 
 <body>
@@ -63,7 +65,7 @@
     <!-- TOP SORTEOS -->
     <section class="section" id="sorteos">
         <div class="section-header">
-            <h2 class="section-title">Top Sorteos 🏆</h2>
+            <h2 class="section-title">Top Sorteos <i data-lucide="trophy"></i></h2>
             <a href="sorteos.html"
                onclick="this.href=withAppFlag('sorteos.html')"
                class="section-link">Ver todo</a>
@@ -118,7 +120,7 @@
         <div class="fn-shop-strip" id="fnShopStrip">
             <a href="tienda.html" onclick="this.href=withAppFlag('tienda.html')" class="fn-view-shop-card">
                 <div class="fn-view-shop-inner">
-                    <div class="fn-view-shop-icon">🛒</div>
+                    <div class="fn-view-shop-icon"><i data-lucide="shopping-cart" class="icon-lg"></i></div>
                     <div class="fn-view-shop-text">Ver<br>Tienda</div>
                     <div class="fn-view-shop-sub">Ver todo</div>
                 </div>
@@ -144,28 +146,28 @@
     <!-- OFERTAS -->
     <section class="section" id="ofertas">
         <div class="section-header">
-            <h2 class="section-title">Ofertas 🎯</h2>
+            <h2 class="section-title">Ofertas <i data-lucide="target"></i></h2>
             <a href="ofertas.html" class="section-link" onclick="this.href=withAppFlag('ofertas.html')">Ver todo</a>
         </div>
         <p class="section-subtitle">Gana VirtualCoins completando ofertas</p>
         <div class="skins-grid">
             <div class="skin-card" onclick="window.location.href=withAppFlag('ofertas.html')" style="cursor:pointer;">
-                <div class="skin-badge">🧩 OFERTAS</div>
+                <div class="skin-badge"><i data-lucide="puzzle"></i> OFERTAS</div>
                 <div class="skin-image"><img src="images/ofertas/1.png" alt="Ofertas" onerror="this.style.display='none'"></div>
                 <p class="skin-name">Ofertas de Juegos</p>
             </div>
             <div class="skin-card" onclick="window.location.href=withAppFlag('ofertas.html')" style="cursor:pointer;">
-                <div class="skin-badge">📝 ENCUESTAS</div>
+                <div class="skin-badge"><i data-lucide="file-text"></i> ENCUESTAS</div>
                 <div class="skin-image"><img src="images/ofertas/2.png" alt="Encuestas" onerror="this.style.display='none'"></div>
                 <p class="skin-name">Encuestas</p>
             </div>
             <div class="skin-card" onclick="window.location.href=withAppFlag('ofertas.html')" style="cursor:pointer;">
-                <div class="skin-badge">💸 BONUS</div>
+                <div class="skin-badge"><i data-lucide="banknote"></i> BONUS</div>
                 <div class="skin-image"><img src="images/ofertas/3.png" alt="Bonus" onerror="this.style.display='none'"></div>
                 <p class="skin-name">Mejores Pagos</p>
             </div>
             <div class="skin-card" onclick="window.location.href=withAppFlag('ofertas.html')" style="cursor:pointer;">
-                <div class="skin-badge">🔥 TOP</div>
+                <div class="skin-badge"><i data-lucide="flame"></i> TOP</div>
                 <div class="skin-image"><img src="images/ofertas/4.png" alt="Top" onerror="this.style.display='none'"></div>
                 <p class="skin-name">Top Ofertas</p>
             </div>
@@ -187,22 +189,22 @@
         </div>
         <div class="games-grid">
             <div class="game-card">
-                <div class="playing-badge">🔴 PLAYING</div>
+                <div class="playing-badge"><span style="display:inline-block;width:.55em;height:.55em;border-radius:50%;background:#ef4444;margin-right:4px;vertical-align:middle"></span>PLAYING</div>
                 <div class="game-image"></div>
                 <p class="game-name">Color Challenge</p>
-                <div class="rating">⭐⭐⭐⭐⭐</div>
+                <div class="rating"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
             </div>
             <div class="game-card">
-                <div class="playing-badge">🔴 PLAYING</div>
+                <div class="playing-badge"><span style="display:inline-block;width:.55em;height:.55em;border-radius:50%;background:#ef4444;margin-right:4px;vertical-align:middle"></span>PLAYING</div>
                 <div class="game-image"></div>
                 <p class="game-name">Fill The Gap</p>
-                <div class="rating">⭐⭐⭐⭐⭐</div>
+                <div class="rating"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
             </div>
             <div class="game-card">
-                <div class="playing-badge">🔵 PLAYING</div>
+                <div class="playing-badge"><span style="display:inline-block;width:.55em;height:.55em;border-radius:50%;background:#3b82f6;margin-right:4px;vertical-align:middle"></span>PLAYING</div>
                 <div class="game-image"></div>
                 <p class="game-name">BOTTLE FLIP</p>
-                <div class="rating">⭐⭐⭐⭐⭐</div>
+                <div class="rating"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
             </div>
         </div>
     </section>
@@ -377,5 +379,6 @@
         setTimeout(updateArrows, 300);
     })();
     </script>
+<script>if(window.lucide)lucide.createIcons();</script>
 </body>
 </html>

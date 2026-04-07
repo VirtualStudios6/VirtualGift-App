@@ -15,7 +15,9 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script defer src="js/firebase-config.js"></script>
+  <script defer src="js/firebase-config.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>.lucide{width:1em;height:1em;vertical-align:-0.125em;display:inline-block}.icon-lg{width:2rem !important;height:2rem !important}.icon-xl{width:3rem !important;height:3rem !important}</style>
 
   <style>
     /* ✅ Reset padding del body que viene de inicio.css/header.css */
@@ -228,7 +230,7 @@
       <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
     </button>
     <div class="tienda-header-info">
-      <div class="tienda-title">🛒 Fortnite Shop</div>
+      <div class="tienda-title"><i data-lucide="shopping-cart" style="width:1.1em;height:1.1em"></i> Fortnite Shop</div>
       <div class="tienda-subtitle" id="itemCount">Cargando tienda...</div>
     </div>
     <div class="reset-badge">LIVE</div>
@@ -236,13 +238,13 @@
 
   <!-- COUNTDOWN -->
   <div class="countdown-bar">
-    <div class="countdown-label">🕐 Tienda actual, Resetea en:</div>
+    <div class="countdown-label"><i data-lucide="clock" style="width:1em;height:1em"></i> Tienda actual, Resetea en:</div>
     <div class="countdown-timer" id="countdown">--:--:--</div>
   </div>
 
   <!-- CATEGORY TABS -->
   <div class="cat-tabs" id="catTabs">
-    <div class="cat-tab active" onclick="filterCategory('all', this)">🏪 Todo</div>
+    <div class="cat-tab active" onclick="filterCategory('all', this)"><i data-lucide="layout-grid" style="width:1em;height:1em"></i> Todo</div>
   </div>
 
   <!-- SHOP CONTENT -->
@@ -317,19 +319,19 @@
     }
 
     const CAT_LABELS = {
-      "outfit":        { label: "👕 Skins", emoji: "👕" },
-      "emote":         { label: "💃 Emotes", emoji: "💃" },
-      "backpack":      { label: "🎒 Mochilas", emoji: "🎒" },
-      "pickaxe":       { label: "⛏️ Picos", emoji: "⛏️" },
-      "glider":        { label: "🪂 Planeadores", emoji: "🪂" },
-      "wrap":          { label: "🎨 Wraps", emoji: "🎨" },
-      "contrail":      { label: "✨ Estelas", emoji: "✨" },
-      "loading screen":{ label: "🖼️ Pantallas", emoji: "🖼️" },
-      "spray":         { label: "🖌️ Sprays", emoji: "🖌️" },
-      "toy":           { label: "🪀 Juguetes", emoji: "🪀" },
-      "music":         { label: "🎵 Música", emoji: "🎵" },
-      "banner":        { label: "🏳️ Banners", emoji: "🏳️" },
-      "other":         { label: "📦 Otros", emoji: "📦" },
+      "outfit":        { label: '<i data-lucide="shirt" style="width:1em;height:1em"></i> Skins',        icon: "shirt" },
+      "emote":         { label: '<i data-lucide="music-2" style="width:1em;height:1em"></i> Emotes',      icon: "music-2" },
+      "backpack":      { label: '<i data-lucide="backpack" style="width:1em;height:1em"></i> Mochilas',   icon: "backpack" },
+      "pickaxe":       { label: '<i data-lucide="pickaxe" style="width:1em;height:1em"></i> Picos',       icon: "pickaxe" },
+      "glider":        { label: '<i data-lucide="wind" style="width:1em;height:1em"></i> Planeadores',    icon: "wind" },
+      "wrap":          { label: '<i data-lucide="palette" style="width:1em;height:1em"></i> Wraps',       icon: "palette" },
+      "contrail":      { label: '<i data-lucide="sparkles" style="width:1em;height:1em"></i> Estelas',    icon: "sparkles" },
+      "loading screen":{ label: '<i data-lucide="image" style="width:1em;height:1em"></i> Pantallas',     icon: "image" },
+      "spray":         { label: '<i data-lucide="paintbrush" style="width:1em;height:1em"></i> Sprays',   icon: "paintbrush" },
+      "toy":           { label: '<i data-lucide="toy-brick" style="width:1em;height:1em"></i> Juguetes',  icon: "toy-brick" },
+      "music":         { label: '<i data-lucide="music" style="width:1em;height:1em"></i> Música',        icon: "music" },
+      "banner":        { label: '<i data-lucide="flag" style="width:1em;height:1em"></i> Banners',        icon: "flag" },
+      "other":         { label: '<i data-lucide="package" style="width:1em;height:1em"></i> Otros',       icon: "package" },
     };
     function getCatKey(type) {
       const t = String(type||"").toLowerCase().trim();
@@ -358,14 +360,14 @@
 
     function buildCategoryTabs() {
       const tabs = document.getElementById('catTabs');
-      tabs.innerHTML = `<div class="cat-tab active" onclick="filterCategory('all', this)">🏪 Todo</div>`;
+      tabs.innerHTML = `<div class="cat-tab active" onclick="filterCategory('all', this)"><i data-lucide="layout-grid" style="width:1em;height:1em"></i> Todo</div>`;
       const order = ["outfit","emote","backpack","pickaxe","glider","wrap","contrail","spray","toy","music","loading screen","banner","other"];
       for (const key of order) {
         if (categorized[key]?.length > 0) {
-          const info = CAT_LABELS[key] || { label: key, emoji: "📦" };
+          const info = CAT_LABELS[key] || { label: '<i data-lucide="package" style="width:1em;height:1em"></i>', icon: "package" };
           const btn = document.createElement('div');
           btn.className = 'cat-tab';
-          btn.textContent = `${info.emoji} ${info.label.split(' ')[1]||info.label} (${categorized[key].length})`;
+          btn.innerHTML = `${info.label} (${categorized[key].length})`;
           btn.onclick = function() { filterCategory(key, this); };
           tabs.appendChild(btn);
         }
@@ -386,7 +388,7 @@
         let html = '';
         for (const key of order) {
           if (!categorized[key]?.length) continue;
-          const info = CAT_LABELS[key] || { label: key, emoji: "📦" };
+          const info = CAT_LABELS[key] || { label: key, icon: 'package' };
           html += `<div class="tienda-section">
             <div class="tienda-section-title">${info.label}<span class="tienda-count">${categorized[key].length}</span></div>
             <div class="shop-grid">${categorized[key].map(item => renderItem(item)).join('')}</div>
@@ -395,12 +397,13 @@
         content.innerHTML = html || `<div class="shop-loading"><p>Tienda vacía hoy</p></div>`;
       } else {
         const items = categorized[activeFilter] || [];
-        const info = CAT_LABELS[activeFilter] || { label: activeFilter, emoji: "📦" };
+        const info = CAT_LABELS[activeFilter] || { label: activeFilter, icon: "package" };
         content.innerHTML = `<div class="tienda-section">
           <div class="tienda-section-title">${info.label}<span class="tienda-count">${items.length}</span></div>
           <div class="shop-grid">${items.map(item => renderItem(item)).join('')}</div>
         </div>`;
       }
+      if(window.lucide) lucide.createIcons();
       const totalBar = document.getElementById('totalBar');
       totalBar.style.display = 'block';
       totalBar.innerHTML = `<strong>${allItems.length}</strong> items en la tienda hoy`;
@@ -532,5 +535,6 @@
       });
     });
   </script>
+<script>if(window.lucide)lucide.createIcons();</script>
 </body>
 </html>

@@ -15,7 +15,9 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-  <script defer src="js/firebase-config.js"></script>
+  <script defer src="js/firebase-config.js"></script>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>.lucide{width:1em;height:1em;vertical-align:-0.125em;display:inline-block}.icon-lg{width:2rem !important;height:2rem !important}.icon-xl{width:3rem !important;height:3rem !important}</style>
   <style>
     :root {
       --coin: #ffc837; --coin-dim: rgba(255,200,55,0.12);
@@ -178,7 +180,7 @@
     </button>
     <div class="earn-header-title">Ganar Coins</div>
     <div class="header-coins">
-      <span class="header-coins-icon">🪙</span>
+      <span class="header-coins-icon"><i data-lucide="coins" style="width:1.1em;height:1.1em"></i></span>
       <span class="header-coins-val" id="headerCoins">---</span>
     </div>
   </div>
@@ -194,12 +196,12 @@
     <div class="sec-label">Selecciona una plataforma</div>
     <div class="wall-tabs" id="wallTabs">
       <div class="wall-tab active" onclick="switchWall('ayet', this)">
-        <span class="wall-tab-logo-emoji">🎮</span>
+        <span class="wall-tab-logo-emoji"><i data-lucide="gamepad-2" class="icon-lg"></i></span>
         <span class="wall-tab-name">AyetStudios</span>
         <span class="wall-tab-badge">ACTIVO</span>
       </div>
       <div class="wall-tab" onclick="switchWall('adgem', this)">
-        <span class="wall-tab-logo-emoji">💰</span>
+        <span class="wall-tab-logo-emoji"><i data-lucide="coins" class="icon-lg"></i></span>
         <span class="wall-tab-name">AdGem</span>
         <span class="wall-tab-badge nuevo">NUEVO</span>
       </div>
@@ -228,7 +230,7 @@
   <div class="main-section" id="sec-checkin">
     <div style="padding: 24px 16px;">
       <div style="border-radius:18px; background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); border:1px solid rgba(139,92,246,0.3); padding:24px; text-align:center;">
-        <div style="font-size:48px; margin-bottom:12px;">🔥</div>
+        <div style="font-size:48px; margin-bottom:12px;"><i data-lucide="flame" style="width:3rem;height:3rem"></i></div>
         <div style="font-size:18px; font-weight:800; color:white; margin-bottom:8px;">Recompensa Diaria</div>
         <div style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:20px; line-height:1.6;">
           Tu racha diaria esta en <strong>Mis Puntos</strong>. Reclama tus coins y manten la racha!
@@ -242,28 +244,28 @@
     <div class="sec-label">Mas formas de ganar</div>
     <div class="quick-grid">
       <div class="quick-card" onclick="switchMain('ofertas', document.querySelector('.main-tab'))">
-        <div class="quick-card-icon">🎯</div>
+        <div class="quick-card-icon"><i data-lucide="target" class="icon-lg"></i></div>
         <div class="quick-card-title">Ofertas</div>
         <div class="quick-card-sub">Completa tareas</div>
-        <div class="quick-card-reward">🪙 Hasta 5000</div>
+        <div class="quick-card-reward"><i data-lucide="coins" style="width:.9em;height:.9em"></i> Hasta 5000</div>
       </div>
-      <div class="quick-card" onclick="alert('🕹️ Minijuegos próximamente')" style="opacity:.55;cursor:default;">
-        <div class="quick-card-icon">🕹️</div>
+      <div class="quick-card" onclick="alert('Minijuegos próximamente')" style="opacity:.55;cursor:default;">
+        <div class="quick-card-icon"><i data-lucide="joystick" class="icon-lg"></i></div>
         <div class="quick-card-title">Minijuegos</div>
         <div class="quick-card-sub">Próximamente</div>
-        <div class="quick-card-reward">🪙 Hasta 100</div>
+        <div class="quick-card-reward"><i data-lucide="coins" style="width:.9em;height:.9em"></i> Hasta 100</div>
       </div>
       <div class="quick-card" onclick="switchMain('ofertas', document.querySelectorAll('.main-tab')[0]); setTimeout(()=>switchWall('adgem', document.querySelectorAll('.wall-tab')[1]),100)">
-        <div class="quick-card-icon">💎</div>
+        <div class="quick-card-icon"><i data-lucide="gem" class="icon-lg"></i></div>
         <div class="quick-card-title">Encuestas</div>
         <div class="quick-card-sub">Comparte tu opinion</div>
-        <div class="quick-card-reward">🪙 Hasta 500</div>
+        <div class="quick-card-reward"><i data-lucide="coins" style="width:.9em;height:.9em"></i> Hasta 500</div>
       </div>
       <div class="quick-card" onclick="switchMain('ofertas', document.querySelectorAll('.main-tab')[0]); setTimeout(()=>switchWall('ayet', document.querySelectorAll('.wall-tab')[0]),100)">
-        <div class="quick-card-icon">📺</div>
+        <div class="quick-card-icon"><i data-lucide="tv" class="icon-lg"></i></div>
         <div class="quick-card-title">Videos</div>
         <div class="quick-card-sub">Ve anuncios</div>
-        <div class="quick-card-reward">🪙 Hasta 50</div>
+        <div class="quick-card-reward"><i data-lucide="coins" style="width:.9em;height:.9em"></i> Hasta 50</div>
       </div>
     </div>
   </div>
@@ -339,13 +341,13 @@
       var btn   = document.getElementById('checkinBtn');
       var badge = document.getElementById('streakBadge');
       if (!days || !btn || !badge) return;
-      badge.textContent = '🔥 ' + streak + ' dia' + (streak !== 1 ? 's' : '');
+      badge.innerHTML = '<i data-lucide="flame"></i> ' + streak + ' dia' + (streak !== 1 ? 's' : ''); if(window.lucide)lucide.createIcons({parentNode:badge});
       var html = '';
       CHECKIN_REWARDS.forEach(function(coins, i) {
         var done    = i < (streak % 7);
         var isToday = i === (streak % 7) && !alreadyDone;
         var cls = 'checkin-day' + (done ? ' done' : '') + (isToday ? ' today' : '');
-        html += '<div class="' + cls + '"><div class="checkin-day-label">Dia ' + (i+1) + '</div><div class="checkin-day-coins">🪙' + coins + '</div></div>';
+        html += '<div class="' + cls + '"><div class="checkin-day-label">Dia ' + (i+1) + '</div><div class="checkin-day-coins"><i data-lucide="coins" style="width:.85em;height:.85em"></i>' + coins + '</div></div>';
       });
       days.innerHTML = html;
       if (alreadyDone) {
@@ -404,11 +406,11 @@
     }
 
     var TYPE_LABELS = {
-      ayet_offer:    { icon: '🎯', label: 'Oferta completada (Ayet)'  },
-      adgem_offer:   { icon: '💰', label: 'Oferta completada (AdGem)' },
-      daily_checkin: { icon: '📅', label: 'Check-in diario'           },
-      minigame:      { icon: '🕹️', label: 'Minijuego'                 },
-      redeem:        { icon: '🎁', label: 'Canje'                     }
+      ayet_offer:    { icon: '<i data-lucide="target"></i>',    label: 'Oferta completada (Ayet)'  },
+      adgem_offer:   { icon: '<i data-lucide="coins"></i>',     label: 'Oferta completada (AdGem)' },
+      daily_checkin: { icon: '<i data-lucide="calendar"></i>',  label: 'Check-in diario'           },
+      minigame:      { icon: '<i data-lucide="joystick"></i>',  label: 'Minijuego'                 },
+      redeem:        { icon: '<i data-lucide="gift"></i>',      label: 'Canje'                     }
     };
 
     function formatDate(ts) {
@@ -427,11 +429,12 @@
         var html = '';
         snap.forEach(function(doc) {
           var d = doc.data();
-          var info = TYPE_LABELS[d.type] || { icon: '🪙', label: d.type || 'Transaccion' };
+          var info = TYPE_LABELS[d.type] || { icon: '<i data-lucide="coins"></i>', label: d.type || 'Transaccion' };
           var isEarn = d.points > 0;
-          html += '<div class="history-item"><div class="history-icon ' + (isEarn?'earn':'spend') + '">' + info.icon + '</div><div class="history-info"><div class="history-title">' + info.label + '</div><div class="history-date">' + formatDate(d.createdAt) + '</div></div><div class="history-pts ' + (isEarn?'earn':'spend') + '">' + (isEarn?'+':'') + d.points + ' 🪙</div></div>';
+          html += '<div class="history-item"><div class="history-icon ' + (isEarn?'earn':'spend') + '">' + info.icon + '</div><div class="history-info"><div class="history-title">' + info.label + '</div><div class="history-date">' + formatDate(d.createdAt) + '</div></div><div class="history-pts ' + (isEarn?'earn':'spend') + '">' + (isEarn?'+':'') + d.points + ' <i data-lucide="coins" style="width:.9em;height:.9em"></i></div></div>';
         });
         list.innerHTML = html;
+        if(window.lucide) lucide.createIcons();
       } catch(e) {
         console.error(e);
         list.innerHTML = '<div class="history-empty">Error cargando historial</div>';
@@ -462,5 +465,6 @@
       });
     });
   </script>
+<script>if(window.lucide)lucide.createIcons();</script>
 </body>
 </html>

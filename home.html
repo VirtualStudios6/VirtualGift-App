@@ -20,7 +20,9 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
   <script defer src="js/firebase-config.js"></script>
-
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>.lucide{width:1em;height:1em;vertical-align:-0.125em;display:inline-block}.icon-lg{width:2rem !important;height:2rem !important}.icon-xl{width:3rem !important;height:3rem !important}</style>
+
 </head>
 
 <body>
@@ -63,12 +65,12 @@
 
   <!-- ERROR -->
   <div id="error" class="error-state">
-    <div class="error-icon">⚠️</div>
+    <div class="error-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
     <div class="error-message">
       <p>No se pudo cargar tu perfil</p>
       <p style="font-size:0.9em;margin-top:6px;">Verifica tu conexión e intenta de nuevo</p>
     </div>
-    <button class="btn btn-primary" onclick="location.reload()">🔄 Reintentar</button>
+    <button class="btn btn-primary" onclick="location.reload()"><i data-lucide="refresh-cw"></i> Reintentar</button>
     <button class="btn" onclick="window.location.href=withAppFlag('inicio.html')" style="margin-top:10px;">← Volver al inicio</button>
   </div>
 
@@ -117,8 +119,8 @@
       </div>
 
       <div class="hint">
-        <span class="chip" id="chipProvider">🔐 Cuenta segura</span>
-        <span class="chip">⚡ Perfil sincronizado</span>
+        <span class="chip" id="chipProvider"><i data-lucide="shield-check"></i> Cuenta segura</span>
+        <span class="chip"><i data-lucide="zap"></i> Perfil sincronizado</span>
       </div>
     </div>
 
@@ -127,42 +129,79 @@
 
       <!-- Acciones -->
       <div class="section">
-        <h2 class="section-title">⚡ Acciones</h2>
+        <h2 class="section-title"><i data-lucide="zap"></i> Acciones</h2>
         <div class="action-buttons">
-          <button class="btn" id="btnEditName">✏️ Cambiar nombre</button>
-          <button class="btn btn-warning" id="btnResetPassword">🔑 Cambiar contraseña</button>
-          <button class="btn btn-danger" id="btnLogout">🚪 Cerrar Sesión</button>
+          <button class="btn" id="btnEditName"><i data-lucide="pencil"></i> Cambiar nombre</button>
+          <button class="btn btn-warning" id="btnResetPassword"><i data-lucide="key-round"></i> Cambiar contraseña</button>
+          <button class="btn btn-danger" id="btnLogout"><i data-lucide="log-out"></i> Cerrar Sesión</button>
         </div>
       </div>
 
       <!-- Referidos -->
-      <div class="section" id="referralSection">
-        <h2 class="section-title">🎁 Invita amigos</h2>
-        <p class="referral-desc">Comparte tu código. Ambos ganan <strong>+500 coins</strong> al registrarse.</p>
-        <div class="referral-row">
-          <span class="referral-code" id="referralCode">—</span>
-          <button type="button" class="btn referral-copy-btn" id="btnCopyReferral">📋 Copiar enlace</button>
+      <div class="section ref-section ref-section--hidden" id="referralSection">
+        <h2 class="section-title"><i data-lucide="users"></i> Invita amigos</h2>
+
+        <!-- Tarjeta del código -->
+        <div class="ref-code-card">
+          <div class="ref-code-label">Tu código de invitación</div>
+          <div class="ref-code-inner">
+            <span class="ref-code-value" id="referralCode">—</span>
+            <button class="ref-copy-icon-btn" id="btnCopyCode" aria-label="Copiar código">
+              <i data-lucide="copy"></i>
+            </button>
+          </div>
+          <div class="ref-reward-badge">
+            <i data-lucide="coins" class="ref-coin-icon"></i>
+            Ambos ganan +500 coins
+          </div>
         </div>
-        <p class="referral-copied" id="referralCopied">¡Enlace copiado!</p>
+
+        <!-- Botones de acción -->
+        <div class="ref-btn-row">
+          <button class="btn btn-primary ref-btn" id="btnShareReferral">
+            <i data-lucide="share-2"></i> Compartir
+          </button>
+          <button class="btn ref-btn" id="btnCopyReferral">
+            <i data-lucide="link-2"></i> Copiar enlace
+          </button>
+        </div>
+
+        <!-- Feedback -->
+        <p class="referral-copied" id="referralCopied">
+          <i data-lucide="check-circle" class="ref-check-icon"></i> ¡Enlace copiado!
+        </p>
         <p class="referral-stats" id="referralStats"></p>
+
+        <!-- Ingresar código de otro usuario (si no ha sido referido aún) -->
+        <div class="ref-enter-wrap ref-enter-wrap--hidden" id="refEnterWrap">
+          <div class="ref-enter-divider"><span>¿Te invitó alguien?</span></div>
+          <div class="ref-enter-row">
+            <input type="text" id="refCodeInput" class="ref-enter-input"
+                   placeholder="VG······" maxlength="8" autocomplete="off">
+            <button type="button" class="btn btn-primary ref-enter-btn" id="btnApplyRef" aria-label="Aplicar código">
+              <i data-lucide="check"></i>
+            </button>
+          </div>
+          <p class="ref-enter-msg" id="refEnterMsg"></p>
+        </div>
       </div>
 
       <!-- Notificaciones push -->
       <div class="section">
-        <h2 class="section-title">🔔 Notificaciones push</h2>
+        <h2 class="section-title"><i data-lucide="bell"></i> Notificaciones push</h2>
         <div class="action-buttons">
           <button type="button" class="btn" id="btnPush"
             onclick="togglePushNotifications(window.auth?.currentUser?.uid)">
-            🔔 Activar notificaciones push
+            <i data-lucide="bell"></i> Activar notificaciones push
           </button>
         </div>
       </div>
 
       <!-- Soporte -->
       <div class="section">
-        <h2 class="section-title">🛟 Soporte</h2>
+        <h2 class="section-title"><i data-lucide="life-buoy"></i> Soporte</h2>
         <div class="action-buttons">
-          <button class="btn" id="btnReport">🐛 Reportar un problema</button>
+          <button type="button" class="btn" id="btnReport"><i data-lucide="bug"></i> Reportar un problema</button>
           <button class="btn btn-ghost-danger" id="btnDeleteAccount">Eliminar mi cuenta</button>
         </div>
       </div>
@@ -174,20 +213,12 @@
   <div id="toast" class="toast"></div>
   <input id="avatarInput" type="file" accept="image/*" style="display:none;" />
 
-  <style>
-    .referral-desc       { font-size: 13px; color: rgba(255,255,255,.6); margin: 0 0 12px; line-height: 1.5; }
-    .referral-desc strong{ color: #ffc837; }
-    .referral-row        { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .referral-code       { font-size: 20px; font-weight: 900; letter-spacing: .12em; color: #a78bfa; background: rgba(139,92,246,.12); border: 1px solid rgba(139,92,246,.3); border-radius: 10px; padding: 8px 16px; flex-shrink: 0; }
-    .referral-copy-btn   { font-size: 13px; padding: 8px 14px; }
-    .referral-copied     { font-size: 12px; color: #22c55e; margin: 6px 0 0; display: none; }
-    .referral-stats      { font-size: 12px; color: rgba(255,255,255,.4); margin: 6px 0 0; }
-  </style>
 
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js" defer></script>
   <script defer src="js/notification-badge.js"></script>
   <script defer src="js/deleteUserData.js"></script>
   <script defer src="js/push-notifications.js"></script>
   <script defer src="js/profile.js"></script>
+<script>if(window.lucide)lucide.createIcons();</script>
 </body>
 </html>

@@ -386,21 +386,38 @@ async function fetchAndUpdateFirestore(user, silent = false) {
   if (data.displayName) document.getElementById('userName').textContent = data.displayName;
   if (data.photoURL && !__isUploadingAvatar) safeSetAvatar(cacheBust(data.photoURL));
 
-  // Referral code
+  // ── Referral code ──────────────────────────────────────
   let code = data.referralCode;
   if (!code) {
     code = 'VG' + user.uid.slice(0, 6).toUpperCase();
-    ref.set({ referralCode: code }, { merge: true }).catch((e) => { console.warn('[profile] Error guardando referralCode:', e?.code || e?.message); });
+    ref.set({ referralCode: code }, { merge: true })
+       .catch((e) => console.warn('[profile] referralCode:', e?.code || e?.message));
   }
+
   const codeEl  = document.getElementById('referralCode');
   const section = document.getElementById('referralSection');
-  if (codeEl)  codeEl.textContent   = code;
-  if (section) section.style.display = '';
+  if (codeEl) codeEl.textContent = code;
 
-  // Estadísticas de referidos (opcional)
+  // Mostrar sección con animación (quitar clase hidden)
+  if (section) {
+    section.classList.remove('ref-section--hidden');
+    if (window.lucide) lucide.createIcons({ parentNode: section });
+  }
+
+  // Estadísticas
   const statsEl = document.getElementById('referralStats');
-  if (statsEl && data.referredBy) {
-    statsEl.textContent = '✅ Registrado con código de invitación';
+  if (statsEl) {
+    if (data.referredBy) {
+      statsEl.textContent = '✓ Ya usaste un código de invitación';
+    } else if (data.referralCount > 0) {
+      statsEl.textContent = `${data.referralCount} amigo${data.referralCount !== 1 ? 's' : ''} invitado${data.referralCount !== 1 ? 's' : ''}`;
+    }
+  }
+
+  // Mostrar campo "¿te invitó alguien?" solo si no tiene referido
+  if (!data.referredBy) {
+    const enterWrap = document.getElementById('refEnterWrap');
+    if (enterWrap) enterWrap.classList.remove('ref-enter-wrap--hidden');
   }
 }
 
@@ -658,32 +675,177 @@ function setupEventListeners() {
     if (user) deleteAccount(user);
   });
 
-  // Copiar enlace de referido
-  document.getElementById('btnCopyReferral')?.addEventListener('click', async () => {
-    const code   = document.getElementById('referralCode')?.textContent || '';
-    const copied = document.getElementById('referralCopied');
-    if (!code || code === '—') return;
+  // ── Helpers de referidos ────────────────────────────────
+  function getReferralUrl() {
+    const code = document.getElementById('referralCode')?.textContent || '';
+    if (!code || code === '—') return null;
+    const base = window.location.href.replace(/home\.html.*$/, '');
+    return `${base}index.html?ref=${code}`;
+  }
 
-    const shareUrl = `${window.location.origin}${window.location.pathname.replace('home.html', '')}index.html?ref=${code}`;
-
+  async function copyToClipboard(text) {
     try {
-      await navigator.clipboard.writeText(shareUrl);
+      await navigator.clipboard.writeText(text);
+      return true;
     } catch {
+      // Fallback para Capacitor / Android WebView
       const el = document.createElement('textarea');
-      el.value = shareUrl;
-      el.style.position = 'fixed';
-      el.style.opacity  = '0';
+      el.value = text;
+      el.style.cssText = 'position:fixed;top:0;left:0;opacity:0;pointer-events:none';
       document.body.appendChild(el);
       el.select();
       document.execCommand('copy');
       document.body.removeChild(el);
+      return true;
     }
+  }
 
-    if (copied) {
-      copied.style.display = 'block';
-      setTimeout(() => { copied.style.display = 'none'; }, 2200);
+  function showCopiedFeedback() {
+    const el = document.getElementById('referralCopied');
+    if (!el) return;
+    el.classList.add('show');
+    clearTimeout(el._hideTimer);
+    el._hideTimer = setTimeout(() => el.classList.remove('show'), 2400);
+  }
+
+  // ── Copiar solo el código ────────────────────────────────
+  document.getElementById('btnCopyCode')?.addEventListener('click', async () => {
+    const code = document.getElementById('referralCode')?.textContent || '';
+    if (!code || code === '—') return;
+    const btn = document.getElementById('btnCopyCode');
+    await copyToClipboard(code);
+    btn?.classList.add('copied');
+    setTimeout(() => btn?.classList.remove('copied'), 1600);
+    toast('Código copiado');
+  });
+
+  // ── Compartir enlace (Share API nativa en Capacitor/móvil) ──
+  document.getElementById('btnShareReferral')?.addEventListener('click', async () => {
+    const url = getReferralUrl();
+    if (!url) return;
+    const shareData = {
+      title: 'VirtualGift',
+      text:  '¡Únete a VirtualGift y gana coins gratis! Usa mi código al registrarte.',
+      url,
+    };
+    try {
+      // navigator.share funciona de forma nativa en Capacitor (Android / iOS)
+      if (navigator.share && navigator.canShare?.(shareData)) {
+        await navigator.share(shareData);
+      } else {
+        await copyToClipboard(url);
+        showCopiedFeedback();
+      }
+    } catch (e) {
+      if (e?.name !== 'AbortError') {
+        await copyToClipboard(url);
+        showCopiedFeedback();
+      }
     }
   });
+
+  // ── Copiar enlace completo ───────────────────────────────
+  document.getElementById('btnCopyReferral')?.addEventListener('click', async () => {
+    const url = getReferralUrl();
+    if (!url) return;
+    await copyToClipboard(url);
+    showCopiedFeedback();
+  });
+
+  // ── Aplicar código de invitación (para usuarios sin referido) ──
+  document.getElementById('btnApplyRef')?.addEventListener('click', () => applyReferralCode());
+  document.getElementById('refCodeInput')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') applyReferralCode();
+  });
+  document.getElementById('refCodeInput')?.addEventListener('input', (e) => {
+    e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+  });
+}
+
+/* ============================================ */
+/* APLICAR CÓDIGO DE REFERIDO                  */
+/* ============================================ */
+async function applyReferralCode() {
+  const input   = document.getElementById('refCodeInput');
+  const msgEl   = document.getElementById('refEnterMsg');
+  const btn     = document.getElementById('btnApplyRef');
+  const rawCode = (input?.value || '').trim().toUpperCase();
+
+  function setMsg(text, type) {
+    if (!msgEl) return;
+    msgEl.textContent = text;
+    msgEl.className = `ref-enter-msg${type ? ' ' + type : ''}`;
+  }
+
+  if (!rawCode) { setMsg('Ingresa un código', 'error'); return; }
+  if (!/^VG[A-Z0-9]{6}$/.test(rawCode)) { setMsg('Formato inválido (ej: VGABC123)', 'error'); return; }
+
+  const user = window.auth?.currentUser;
+  if (!user) { setMsg('Sesión expirada, recarga la página', 'error'); return; }
+
+  const myCode = document.getElementById('referralCode')?.textContent || '';
+  if (rawCode === myCode) { setMsg('No puedes usar tu propio código', 'error'); return; }
+
+  // Deshabilitar mientras procesa
+  if (btn) { btn.disabled = true; }
+  setMsg('Verificando...', '');
+
+  try {
+    const db = window.db;
+    // Buscar al referidor
+    const snap = await db.collection('users')
+      .where('referralCode', '==', rawCode)
+      .limit(1).get();
+
+    if (snap.empty) { setMsg('Código no encontrado', 'error'); return; }
+
+    const referrerId  = snap.docs[0].id;
+    const referrerRef = snap.docs[0].ref;
+    const BONUS       = 500;
+    const userRef     = db.collection('users').doc(user.uid);
+    const now         = firebase.firestore.Timestamp.now();
+
+    // Verificar que el usuario actual no tenga ya un referido
+    const mySnap = await userRef.get();
+    if (mySnap.data()?.referredBy) {
+      setMsg('Ya tienes un código aplicado', 'error'); return;
+    }
+
+    // Recompensar al referidor
+    await referrerRef.update({
+      points:        firebase.firestore.FieldValue.increment(BONUS),
+      referralCount: firebase.firestore.FieldValue.increment(1),
+    });
+    await db.collection('pointsHistory').add({
+      userId: referrerId, type: 'referral_bonus',
+      points: BONUS, fromUser: user.uid, createdAt: now,
+    });
+
+    // Recompensar al usuario actual
+    await userRef.update({
+      points:    firebase.firestore.FieldValue.increment(BONUS),
+      referredBy: referrerId,
+    });
+    await db.collection('pointsHistory').add({
+      userId: user.uid, type: 'referral_bonus',
+      points: BONUS, fromCode: rawCode, createdAt: now,
+    });
+
+    // Actualizar UI
+    setMsg(`¡+${BONUS} coins aplicados!`, 'success');
+    toast(`+${BONUS} coins de bienvenida`);
+    const statsEl = document.getElementById('referralStats');
+    if (statsEl) statsEl.textContent = '✓ Ya usaste un código de invitación';
+    // Ocultar el bloque de ingreso
+    const wrap = document.getElementById('refEnterWrap');
+    if (wrap) wrap.classList.add('ref-enter-wrap--hidden');
+
+  } catch (e) {
+    console.error('[referral] apply error:', e);
+    setMsg('Error al aplicar, intenta de nuevo', 'error');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
 
 /* ============================================ */
