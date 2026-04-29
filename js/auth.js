@@ -65,7 +65,7 @@ const State = {
   setLoading(loading) {
     this.isLoading = loading;
 
-    const buttons = ['login-btn', 'register-btn', 'send-recovery-email', 'google-login', 'facebook-login'];
+    const buttons = ['login-btn', 'register-btn', 'send-recovery-email', 'google-login'];
 
     buttons.forEach(btnId => {
       const btn = document.getElementById(btnId);
@@ -236,8 +236,7 @@ const FormManager = {
     const username        = document.getElementById('username')?.value.trim();
     const email           = document.getElementById('email')?.value.trim();
     const password        = document.getElementById('password')?.value;
-    const confirmPassword = document.getElementById('confirm-password')?.value;
-    const termsAccepted   = document.getElementById('terms')?.checked;
+    const termsAccepted = document.getElementById('terms')?.checked;
 
     const uv = Validators.username(username);
     if (!uv.valid) { NotificationManager.show(uv.message, 'error'); return; }
@@ -247,9 +246,6 @@ const FormManager = {
 
     const pv = Validators.password(password);
     if (!pv.valid) { NotificationManager.show(pv.message, 'error'); return; }
-
-    const mv = Validators.passwordsMatch(password, confirmPassword);
-    if (!mv.valid) { NotificationManager.show(mv.message, 'error'); return; }
 
     if (!termsAccepted) { NotificationManager.show('Acepta los términos y condiciones', 'error'); return; }
 
@@ -474,60 +470,6 @@ const GoogleAuth = {
   }
 };
 
-// ==================== FACEBOOK SIGN-IN ====================
-const FacebookAuth = {
-  async initiateLogin() {
-    if (State.isLoading) return;
-    if (!isFirebaseReady()) { NotificationManager.show('Firebase no está listo', 'error'); return; }
-
-    State.setLoading(true);
-    NotificationManager.show('Conectando con Facebook...', 'info');
-
-    // ── MODO NATIVO (Capacitor) — usa flujo web (Facebook SDK nativo no configurado) ──
-    // Para activar Facebook nativo: añadir facebook-android-sdk en build.gradle
-    // y agregar "facebook.com" en capacitor.config.json providers.
-
-    // ── MODO WEB ────────────────────────────────────────────
-    const provider = new firebase.auth.FacebookAuthProvider();
-    provider.addScope('email');
-    provider.addScope('public_profile');
-    provider.setCustomParameters({ auth_type: 'rerequest' });
-
-    try {
-      if (isAndroidWebView()) {
-        await firebase.auth().signInWithRedirect(provider);
-      } else {
-        const result = await firebase.auth().signInWithPopup(provider);
-        if (result.user) {
-          await FormManager.upsertUserProfile(result.user);
-          NotificationManager.show(`¡Bienvenido, ${result.user.displayName || 'Gamer'}! 🎮`, 'success');
-          setTimeout(() => window.location.href = CONFIG.LOGIN_REDIRECT_URL, 800);
-        }
-      }
-    } catch (error) {
-      console.error('❌ Facebook login error:', error.code, error.message);
-      if (
-        error.code === 'auth/popup-blocked' ||
-        error.code === 'auth/operation-not-supported-in-this-environment'
-      ) {
-        try {
-          await firebase.auth().signInWithRedirect(provider);
-        } catch (e) {
-          ErrorHandler.handle(e, 'FacebookRedirect');
-          State.setLoading(false);
-        }
-      } else if (error.code === 'auth/account-exists-with-different-credential') {
-        NotificationManager.show('Ya existe una cuenta con ese correo. Inicia sesión con email o Google', 'error');
-        State.setLoading(false);
-      } else if (error.code !== 'auth/popup-closed-by-user') {
-        ErrorHandler.handle(error, 'FacebookLogin');
-        State.setLoading(false);
-      } else {
-        State.setLoading(false);
-      }
-    }
-  }
-};
 
 // ==================== SESIÓN ====================
 const SessionManager = {
@@ -587,7 +529,6 @@ function initializeApp() {
     FormManager.init();
 
     document.getElementById('google-login')?.addEventListener('click',   () => GoogleAuth.initiateLogin());
-    document.getElementById('facebook-login')?.addEventListener('click', () => FacebookAuth.initiateLogin());
   });
 }
 
