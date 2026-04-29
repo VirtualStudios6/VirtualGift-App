@@ -459,59 +459,64 @@
       // ── Setup tras obtener auth ─────────────────────────────────────
       function init() {
         const auth = window.auth || firebase.auth();
-        const user = auth.currentUser;
 
-        if (!user) { go('index.html'); return; }
-        if (user.emailVerified) { go('inicio.html'); return; }
+        // onAuthStateChanged en vez de currentUser: Firebase restaura
+        // la sesión de forma asíncrona, currentUser es null en el primer load.
+        const unsubscribe = auth.onAuthStateChanged((user) => {
+          unsubscribe();
 
-        $('userEmail').textContent = user.email || '';
+          if (!user) { go('index.html'); return; }
+          if (user.emailVerified) { go('inicio.html'); return; }
 
-        // "Ya verifiqué mi correo"
-        $('btn-verified').addEventListener('click', async () => {
-          const btn = $('btn-verified');
-          const txt = $('btn-verified-text');
-          btn.disabled = true;
-          txt.innerHTML = '<span class="spinner"></span>';
-          hideAlerts();
+          $('userEmail').textContent = user.email || '';
 
-          try {
-            await auth.currentUser.reload();
-            if (auth.currentUser && auth.currentUser.emailVerified) {
-              go('inicio.html');
-            } else {
-              showAlert('error', 'Aún no detectamos la verificación. Revisa tu correo e inténtalo de nuevo.');
+          // "Ya verifiqué mi correo"
+          $('btn-verified').addEventListener('click', async () => {
+            const btn = $('btn-verified');
+            const txt = $('btn-verified-text');
+            btn.disabled = true;
+            txt.innerHTML = '<span class="spinner"></span>';
+            hideAlerts();
+
+            try {
+              await auth.currentUser.reload();
+              if (auth.currentUser && auth.currentUser.emailVerified) {
+                go('inicio.html');
+              } else {
+                showAlert('error', 'Aún no detectamos la verificación. Revisa tu correo e inténtalo de nuevo.');
+                btn.disabled = false;
+                txt.textContent = 'Ya verifiqué mi correo';
+              }
+            } catch (e) {
+              console.error('reload error:', e);
+              showAlert('error', 'No se pudo verificar. Comprueba tu conexión e inténtalo de nuevo.');
               btn.disabled = false;
               txt.textContent = 'Ya verifiqué mi correo';
             }
-          } catch (e) {
-            console.error('reload error:', e);
-            showAlert('error', 'No se pudo verificar. Comprueba tu conexión e inténtalo de nuevo.');
-            btn.disabled = false;
-            txt.textContent = 'Ya verifiqué mi correo';
-          }
-        });
+          });
 
-        // "Reenviar correo"
-        $('btn-resend').addEventListener('click', async () => {
-          hideAlerts();
-          try {
-            await auth.currentUser.sendEmailVerification();
-            showAlert('success', 'Correo enviado. Revisa tu bandeja de entrada y spam.');
-            startCooldown();
-          } catch (e) {
-            console.error('sendEmailVerification error:', e);
-            if (e.code === 'auth/too-many-requests') {
-              showAlert('error', 'Demasiados intentos. Espera unos minutos antes de reenviar.');
-            } else {
-              showAlert('error', 'No se pudo enviar el correo. Inténtalo de nuevo.');
+          // "Reenviar correo"
+          $('btn-resend').addEventListener('click', async () => {
+            hideAlerts();
+            try {
+              await auth.currentUser.sendEmailVerification();
+              showAlert('success', 'Correo enviado. Revisa tu bandeja de entrada y spam.');
+              startCooldown();
+            } catch (e) {
+              console.error('sendEmailVerification error:', e);
+              if (e.code === 'auth/too-many-requests') {
+                showAlert('error', 'Demasiados intentos. Espera unos minutos antes de reenviar.');
+              } else {
+                showAlert('error', 'No se pudo enviar el correo. Inténtalo de nuevo.');
+              }
             }
-          }
-        });
+          });
 
-        // "Cerrar sesión"
-        $('btn-signout').addEventListener('click', async () => {
-          try { await auth.signOut(); } catch (e) { console.error('signOut error:', e); }
-          go('index.html');
+          // "Cerrar sesión"
+          $('btn-signout').addEventListener('click', async () => {
+            try { await auth.signOut(); } catch (e) { console.error('signOut error:', e); }
+            go('index.html');
+          });
         });
       }
 
