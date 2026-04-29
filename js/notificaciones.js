@@ -378,13 +378,18 @@
   function checkAuth() {
     waitForFirebase(() => {
       window.auth.onAuthStateChanged((user) => {
-        if (user) {
-          currentUserId = user.uid;
-          startRealtimeNotifications(user.uid);
-        } else {
+        if (!user) {
           stopRealtime();
           window.location.href = window.withAppFlag("index.html");
+          return;
         }
+        if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
+          stopRealtime();
+          window.location.href = window.withAppFlag("verify-pending.html");
+          return;
+        }
+        currentUserId = user.uid;
+        startRealtimeNotifications(user.uid);
       });
     });
   }

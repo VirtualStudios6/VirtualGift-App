@@ -102,6 +102,19 @@
     </div>
   </div>
 
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      window.waitForFirebase(function () {
+        var auth = window.auth || firebase.auth();
+        auth.onAuthStateChanged(function (user) {
+          if (!user) { window.location.href = withAppFlag('index.html'); return; }
+          if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
+            window.location.href = withAppFlag('verify-pending.html');
+          }
+        });
+      });
+    });
+  </script>
   <script defer src="js/notification-badge.js"></script>
   <script defer src="js/news-detail-vg.js"></script>
 </body>

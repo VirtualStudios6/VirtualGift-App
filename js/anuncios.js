@@ -249,9 +249,9 @@ function init() {
     if (err) { showToast('❌ Firebase no disponible'); return; }
 
     window.auth.onAuthStateChanged((user) => {
-      if (!user) {
-        window.location.href = withAppFlag('index.html');
-        return;
+      if (!user) { window.location.href = withAppFlag('index.html'); return; }
+      if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
+        window.location.href = withAppFlag('verify-pending.html'); return;
       }
       currentUser = user;
       loadUserData(user.uid);

@@ -213,8 +213,8 @@ const FormManager = {
       const { user } = await firebase.auth().signInWithEmailAndPassword(email, password);
 
       if (!user.emailVerified && providerFromUser(user) === 'email') {
-        NotificationManager.show('Verifica tu email antes de continuar', 'error');
-        await firebase.auth().signOut();
+        window.location.href = typeof withAppFlag === 'function'
+          ? withAppFlag('verify-pending.html') : 'verify-pending.html';
         return;
       }
 
@@ -319,11 +319,8 @@ const FormManager = {
         console.warn('pendingReferral save failed:', refErr.code);
       }
 
-      NotificationManager.show('¡Cuenta creada! Revisa tu email para verificarla 📧', 'success');
-
-      await firebase.auth().signOut();
-
-      setTimeout(() => this.showForm('login-form'), 2000);
+      window.location.href = typeof withAppFlag === 'function'
+        ? withAppFlag('verify-pending.html') : 'verify-pending.html';
 
     } catch (error) {
       console.error('❌ Error registro:', error.code, error.message);
@@ -484,7 +481,13 @@ const SessionManager = {
         window.location.pathname.includes('VirtualGift-App/index');
 
       if (user && isInLogin) {
-        window.location.href = CONFIG.LOGIN_REDIRECT_URL;
+        const isPasswordProvider = user.providerData?.[0]?.providerId === 'password';
+        if (!user.emailVerified && isPasswordProvider) {
+          window.location.href = typeof withAppFlag === 'function'
+            ? withAppFlag('verify-pending.html') : 'verify-pending.html';
+        } else {
+          window.location.href = CONFIG.LOGIN_REDIRECT_URL;
+        }
         return;
       }
 

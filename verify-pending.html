@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#03010f" />
+  <title>Verifica tu correo · VirtualGift</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script defer src="js/firebase-config.js"></script>
+  <script defer src="js/app-mode.js"></script>
+
+  <style>
+    :root {
+      --primary:  #8d17fb;
+      --secondary:#70189b;
+      --accent:   #c084fc;
+      --bg:       #03010f;
+      --bg2:      #06011c;
+      --card:     rgba(14, 11, 30, 0.92);
+      --text:     #f0eaff;
+      --text-2:   rgba(200, 185, 230, 0.8);
+      --error:    #f43f5e;
+      --success:  #22c55e;
+      --grad-1:   #a010d0;
+      --grad-2:   #d020e8;
+      --grad-3:   #e030c0;
+    }
+
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 16px) 16px;
+      position: relative;
+    }
+
+    /* ── Orbs ── */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 0;
+      will-change: transform;
+    }
+
+    .orb-1 {
+      width: 380px; height: 380px;
+      background: rgba(141, 23, 251, 0.55);
+      top: -120px; left: -100px;
+      animation: float1 18s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 320px; height: 320px;
+      background: rgba(59, 31, 168, 0.5);
+      bottom: -100px; right: -80px;
+      animation: float2 22s ease-in-out infinite;
+    }
+
+    .orb-3 {
+      width: 260px; height: 260px;
+      background: rgba(192, 132, 252, 0.35);
+      top: 40%; right: -60px;
+      animation: float3 16s ease-in-out infinite;
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translate(0, 0); }
+      50%       { transform: translate(30px, 40px); }
+    }
+    @keyframes float2 {
+      0%, 100% { transform: translate(0, 0); }
+      50%       { transform: translate(-40px, -30px); }
+    }
+    @keyframes float3 {
+      0%, 100% { transform: translate(0, 0); }
+      50%       { transform: translate(-20px, 30px); }
+    }
+
+    /* ── Card ── */
+    .card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(192, 132, 252, 0.15);
+      border-radius: 24px;
+      padding: 36px 28px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+      animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0)    scale(1); }
+    }
+
+    /* ── Logo ── */
+    .logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .logo-text {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .logo-virtual { color: var(--text); }
+
+    .logo-gift {
+      background: linear-gradient(135deg, var(--grad-1), var(--grad-2), var(--grad-3));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* ── Icon ── */
+    .icon-wrap {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .icon-wrap.info {
+      background: rgba(141, 23, 251, 0.15);
+      border: 2px solid rgba(141, 23, 251, 0.4);
+      color: var(--accent);
+    }
+
+    .icon-wrap svg {
+      width: 36px;
+      height: 36px;
+      stroke-width: 2;
+    }
+
+    .icon-wrap.info svg { stroke: var(--accent); }
+
+    .icon-wrap.info::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      opacity: 0;
+      animation: pulse 2s ease-out infinite;
+    }
+
+    @keyframes pulse {
+      0%   { opacity: 0.5; transform: scale(0.9); }
+      100% { opacity: 0;   transform: scale(1.2); }
+    }
+
+    /* ── Texts ── */
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 10px;
+      letter-spacing: -0.3px;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-2);
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+
+    .email-display {
+      display: block;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 15px;
+      word-break: break-all;
+      text-align: center;
+      margin-bottom: 14px;
+    }
+
+    .hint-text {
+      font-size: 13px;
+      color: var(--text-2);
+      text-align: center;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    /* ── Alerts ── */
+    .alert {
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.4;
+    }
+
+    .alert.show { display: flex; }
+
+    .alert-error {
+      background: rgba(244, 63, 94, 0.1);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      color: #fca5b3;
+    }
+
+    .alert-success {
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      color: #86efac;
+    }
+
+    .alert svg {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      margin-top: 1px;
+    }
+
+    /* ── Buttons ── */
+    .btn {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: none;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--grad-1), var(--grad-2), var(--grad-3));
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(160, 16, 208, 0.4);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(160, 16, 208, 0.5);
+    }
+
+    .btn-primary:active:not(:disabled) { transform: translateY(0); }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid rgba(192, 132, 252, 0.2);
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-secondary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-link {
+      display: block;
+      width: 100%;
+      background: none;
+      border: none;
+      color: var(--text-2);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 16px;
+      padding: 6px;
+      text-align: center;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.2s;
+    }
+
+    .btn-link:hover { color: var(--text); }
+
+    /* ── Spinner ── */
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-2);
+    }
+
+    @media (max-width: 380px) {
+      .card { padding: 28px 22px; }
+      h1    { font-size: 20px; }
+      .logo-text { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="card">
+
+    <div class="logo">
+      <div class="logo-text">
+        <span class="logo-virtual">Virtual</span><span class="logo-gift">Gift</span>
+      </div>
+    </div>
+
+    <div class="icon-wrap info">
+      <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+        <polyline points="22,6 12,13 2,6"></polyline>
+      </svg>
+    </div>
+
+    <h1>Verifica tu correo</h1>
+    <p class="subtitle">Te enviamos un enlace de verificación a:</p>
+    <span class="email-display" id="userEmail">—</span>
+    <p class="hint-text">Revisa tu bandeja de entrada y la carpeta de spam. Una vez verificado, vuelve aquí y refresca.</p>
+
+    <div class="alert alert-error" id="alert-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+      <span id="alert-error-text"></span>
+    </div>
+
+    <div class="alert alert-success" id="alert-success">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+      <span id="alert-success-text"></span>
+    </div>
+
+    <button class="btn btn-primary" id="btn-verified">
+      <span id="btn-verified-text">Ya verifiqué mi correo</span>
+    </button>
+
+    <button class="btn btn-secondary" id="btn-resend">
+      <span id="btn-resend-text">Reenviar correo de verificación</span>
+    </button>
+
+    <button class="btn-link" id="btn-signout">Cerrar sesión</button>
+
+    <div class="footer">© VirtualGift · VirtualStudios</div>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const go = (url) =>
+        window.location.href = (typeof withAppFlag === 'function' ? withAppFlag(url) : url);
+
+      const $ = (id) => document.getElementById(id);
+
+      // ── Alerts ─────────────────────────────────────────────────────
+      function showAlert(type, msg) {
+        $('alert-error').classList.remove('show');
+        $('alert-success').classList.remove('show');
+        if (type === 'error') {
+          $('alert-error-text').textContent = msg;
+          $('alert-error').classList.add('show');
+        } else {
+          $('alert-success-text').textContent = msg;
+          $('alert-success').classList.add('show');
+        }
+      }
+
+      function hideAlerts() {
+        $('alert-error').classList.remove('show');
+        $('alert-success').classList.remove('show');
+      }
+
+      // ── Cooldown de reenvío ─────────────────────────────────────────
+      let resendTimer = null;
+
+      function startCooldown() {
+        const btn = $('btn-resend');
+        const txt = $('btn-resend-text');
+        btn.disabled = true;
+        let secs = 60;
+        txt.textContent = `Reenviar en ${secs}s`;
+        resendTimer = setInterval(() => {
+          secs--;
+          if (secs <= 0) {
+            clearInterval(resendTimer);
+            resendTimer = null;
+            btn.disabled = false;
+            txt.textContent = 'Reenviar correo de verificación';
+          } else {
+            txt.textContent = `Reenviar en ${secs}s`;
+          }
+        }, 1000);
+      }
+
+      // ── Setup tras obtener auth ─────────────────────────────────────
+      function init() {
+        const auth = window.auth || firebase.auth();
+        const user = auth.currentUser;
+
+        if (!user) { go('index.html'); return; }
+        if (user.emailVerified) { go('inicio.html'); return; }
+
+        $('userEmail').textContent = user.email || '';
+
+        // "Ya verifiqué mi correo"
+        $('btn-verified').addEventListener('click', async () => {
+          const btn = $('btn-verified');
+          const txt = $('btn-verified-text');
+          btn.disabled = true;
+          txt.innerHTML = '<span class="spinner"></span>';
+          hideAlerts();
+
+          try {
+            await auth.currentUser.reload();
+            if (auth.currentUser && auth.currentUser.emailVerified) {
+              go('inicio.html');
+            } else {
+              showAlert('error', 'Aún no detectamos la verificación. Revisa tu correo e inténtalo de nuevo.');
+              btn.disabled = false;
+              txt.textContent = 'Ya verifiqué mi correo';
+            }
+          } catch (e) {
+            console.error('reload error:', e);
+            showAlert('error', 'No se pudo verificar. Comprueba tu conexión e inténtalo de nuevo.');
+            btn.disabled = false;
+            txt.textContent = 'Ya verifiqué mi correo';
+          }
+        });
+
+        // "Reenviar correo"
+        $('btn-resend').addEventListener('click', async () => {
+          hideAlerts();
+          try {
+            await auth.currentUser.sendEmailVerification();
+            showAlert('success', 'Correo enviado. Revisa tu bandeja de entrada y spam.');
+            startCooldown();
+          } catch (e) {
+            console.error('sendEmailVerification error:', e);
+            if (e.code === 'auth/too-many-requests') {
+              showAlert('error', 'Demasiados intentos. Espera unos minutos antes de reenviar.');
+            } else {
+              showAlert('error', 'No se pudo enviar el correo. Inténtalo de nuevo.');
+            }
+          }
+        });
+
+        // "Cerrar sesión"
+        $('btn-signout').addEventListener('click', async () => {
+          try { await auth.signOut(); } catch (e) { console.error('signOut error:', e); }
+          go('index.html');
+        });
+      }
+
+      // ── Esperar Firebase ────────────────────────────────────────────
+      if (typeof window.waitForFirebase === 'function') {
+        window.waitForFirebase(init);
+      } else {
+        const t = setInterval(() => {
+          if (typeof window.waitForFirebase === 'function') {
+            clearInterval(t);
+            window.waitForFirebase(init);
+          }
+        }, 50);
+      }
+    });
+  </script>
+</body>
+</html>

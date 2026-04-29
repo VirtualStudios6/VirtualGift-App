@@ -551,6 +551,9 @@ function checkAuth() {
   waitForFirebase(() => {
     firebase.auth().onAuthStateChanged(async user => {
       if (!user) { window.location.href = withAppFlag('index.html'); return; }
+      if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
+        window.location.href = withAppFlag('verify-pending.html'); return;
+      }
       window._vcCurrentUser = user;
       window._historyUserId = user.uid;
       loadUserPoints(user.uid);

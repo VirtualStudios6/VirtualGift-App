@@ -85,13 +85,11 @@ function loadNotificationCount(user) {
 function checkAuth() {
   waitForFirebase(() => {
     firebase.auth().onAuthStateChanged((user) => {
-      if (!user) {
-        // No hay usuario autenticado, redirigir a login
-        window.location.href = withAppFlag('index.html');
-      } else {
-        // Usuario autenticado, cargar notificaciones
-        loadNotificationCount(user);
+      if (!user) { window.location.href = withAppFlag('index.html'); return; }
+      if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
+        window.location.href = withAppFlag('verify-pending.html'); return;
       }
+      loadNotificationCount(user);
     });
   });
 }

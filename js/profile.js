@@ -431,9 +431,9 @@ function checkAuth() {
     if (err) { showError(); return; }
 
     window.auth.onAuthStateChanged(async (user) => {
-      if (!user) {
-        window.location.href = withAppFlag('index.html');
-        return;
+      if (!user) { window.location.href = withAppFlag('index.html'); return; }
+      if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
+        window.location.href = withAppFlag('verify-pending.html'); return;
       }
       loadBasicUserData(user);
       await loadFirestoreData(user);

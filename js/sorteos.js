@@ -139,6 +139,11 @@ window.addEventListener("load", () => {
           ? withAppFlag("index.html") : "index.html";
         return;
       }
+      if (!fbUser.emailVerified && fbUser.providerData?.[0]?.providerId === 'password') {
+        window.location.href = typeof withAppFlag === "function"
+          ? withAppFlag("verify-pending.html") : "verify-pending.html";
+        return;
+      }
 
       try {
         const snap = await window.db.collection("users").doc(fbUser.uid).get();
