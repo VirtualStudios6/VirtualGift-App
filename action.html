@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#03010f" />
+  <title>VirtualGift</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #8d17fb;
+      --secondary: #70189b;
+      --accent: #c084fc;
+      --bg: #03010f;
+      --bg2: #06011c;
+      --card: rgba(14, 11, 30, 0.92);
+      --text: #f0eaff;
+      --text-2: rgba(200, 185, 230, 0.8);
+      --error: #f43f5e;
+      --success: #22c55e;
+      --grad-1: #a010d0;
+      --grad-2: #d020e8;
+      --grad-3: #e030c0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 16px) 16px;
+      position: relative;
+    }
+
+    /* Orbs de fondo */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.45;
+      pointer-events: none;
+      z-index: 0;
+      will-change: transform;
+    }
+
+    .orb-1 {
+      width: 380px;
+      height: 380px;
+      background: rgba(141, 23, 251, 0.55);
+      top: -120px;
+      left: -100px;
+      animation: float1 18s ease-in-out infinite;
+    }
+
+    .orb-2 {
+      width: 320px;
+      height: 320px;
+      background: rgba(59, 31, 168, 0.5);
+      bottom: -100px;
+      right: -80px;
+      animation: float2 22s ease-in-out infinite;
+    }
+
+    .orb-3 {
+      width: 260px;
+      height: 260px;
+      background: rgba(192, 132, 252, 0.35);
+      top: 40%;
+      right: -60px;
+      animation: float3 16s ease-in-out infinite;
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(30px, 40px); }
+    }
+
+    @keyframes float2 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-40px, -30px); }
+    }
+
+    @keyframes float3 {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-20px, 30px); }
+    }
+
+    /* Card */
+    .card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+      background: var(--card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(192, 132, 252, 0.15);
+      border-radius: 24px;
+      padding: 36px 28px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+      animation: cardIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Logo */
+    .logo {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .logo-text {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .logo-virtual {
+      color: var(--text);
+    }
+
+    .logo-gift {
+      background: linear-gradient(135deg, var(--grad-1), var(--grad-2), var(--grad-3));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Icon */
+    .icon-wrap {
+      width: 72px;
+      height: 72px;
+      margin: 0 auto 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .icon-wrap.success {
+      background: rgba(34, 197, 94, 0.12);
+      border: 2px solid rgba(34, 197, 94, 0.35);
+    }
+
+    .icon-wrap.error {
+      background: rgba(244, 63, 94, 0.12);
+      border: 2px solid rgba(244, 63, 94, 0.35);
+    }
+
+    .icon-wrap.info {
+      background: rgba(141, 23, 251, 0.15);
+      border: 2px solid rgba(141, 23, 251, 0.4);
+    }
+
+    .icon-wrap svg {
+      width: 36px;
+      height: 36px;
+      stroke-width: 2.5;
+    }
+
+    .icon-wrap.success svg { stroke: var(--success); }
+    .icon-wrap.error svg { stroke: var(--error); }
+    .icon-wrap.info svg { stroke: var(--accent); }
+
+    .icon-wrap.success::after,
+    .icon-wrap.info::after {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      opacity: 0;
+      animation: pulse 2s ease-out infinite;
+    }
+
+    .icon-wrap.success { color: var(--success); }
+    .icon-wrap.info { color: var(--accent); }
+
+    @keyframes pulse {
+      0% { opacity: 0.5; transform: scale(0.9); }
+      100% { opacity: 0; transform: scale(1.2); }
+    }
+
+    /* Texts */
+    h1 {
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 10px;
+      letter-spacing: -0.3px;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-2);
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    .email-display {
+      color: var(--accent);
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    /* Form */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-2);
+      margin-bottom: 8px;
+      padding-left: 4px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    input[type="password"],
+    input[type="text"] {
+      width: 100%;
+      padding: 14px 44px 14px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(192, 132, 252, 0.2);
+      border-radius: 12px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 15px;
+      transition: all 0.2s;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 0 0 3px rgba(141, 23, 251, 0.15);
+    }
+
+    input::placeholder {
+      color: rgba(200, 185, 230, 0.4);
+    }
+
+    .toggle-pwd {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--text-2);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toggle-pwd svg { width: 20px; height: 20px; }
+
+    .pwd-hint {
+      font-size: 12px;
+      color: var(--text-2);
+      margin-top: 6px;
+      padding-left: 4px;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: none;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--grad-1), var(--grad-2), var(--grad-3));
+      color: #fff;
+      box-shadow: 0 8px 24px rgba(160, 16, 208, 0.4);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 28px rgba(160, 16, 208, 0.5);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid rgba(192, 132, 252, 0.2);
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .spinner-large {
+      width: 44px;
+      height: 44px;
+      border-width: 3px;
+      border-top-color: var(--primary);
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Loading state */
+    .loading-state {
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 16px;
+      display: none;
+      align-items: flex-start;
+      gap: 8px;
+      line-height: 1.4;
+    }
+
+    .alert.show { display: flex; }
+
+    .alert-error {
+      background: rgba(244, 63, 94, 0.1);
+      border: 1px solid rgba(244, 63, 94, 0.3);
+      color: #fca5b3;
+    }
+
+    .alert svg {
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      margin-top: 1px;
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--text-2);
+    }
+
+    /* Hidden by default */
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* Responsive */
+    @media (max-width: 380px) {
+      .card { padding: 28px 22px; }
+      h1 { font-size: 20px; }
+      .logo-text { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+
+  <div class="card">
+    <div class="logo">
+      <div class="logo-text">
+        <span class="logo-virtual">Virtual</span><span class="logo-gift">Gift</span>
+      </div>
+    </div>
+
+    <!-- Loading inicial -->
+    <div class="view active" id="view-loading">
+      <div class="loading-state">
+        <div class="spinner spinner-large"></div>
+        <h1>Procesando...</h1>
+        <p class="subtitle">Estamos validando tu solicitud</p>
+      </div>
+    </div>
+
+    <!-- Verificación de correo: éxito -->
+    <div class="view" id="view-verify-success">
+      <div class="icon-wrap success">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h1>¡Cuenta verificada!</h1>
+      <p class="subtitle">Tu correo <span class="email-display" id="verify-email"></span> ha sido confirmado correctamente.</p>
+      <button class="btn btn-primary" onclick="goToApp()">
+        Ir a VirtualGift
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </button>
+    </div>
+
+    <!-- Restablecer contraseña: formulario -->
+    <div class="view" id="view-reset-form">
+      <div class="icon-wrap info">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h1>Nueva contraseña</h1>
+      <p class="subtitle">Crea una contraseña segura para <span class="email-display" id="reset-email"></span></p>
+
+      <div class="alert alert-error" id="reset-alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <span id="reset-alert-text"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="newPassword">Nueva contraseña</label>
+        <div class="input-wrap">
+          <input type="password" id="newPassword" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+          <button type="button" class="toggle-pwd" onclick="togglePwd('newPassword', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+        <div class="pwd-hint">Usa al menos 6 caracteres</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirmPassword">Confirmar contraseña</label>
+        <div class="input-wrap">
+          <input type="password" id="confirmPassword" placeholder="Repite tu contraseña" autocomplete="new-password" />
+          <button type="button" class="toggle-pwd" onclick="togglePwd('confirmPassword', this)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="reset-submit" onclick="submitReset()">
+        <span id="reset-submit-text">Restablecer contraseña</span>
+      </button>
+    </div>
+
+    <!-- Restablecer contraseña: éxito -->
+    <div class="view" id="view-reset-success">
+      <div class="icon-wrap success">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h1>¡Contraseña actualizada!</h1>
+      <p class="subtitle">Ya puedes iniciar sesión con tu nueva contraseña.</p>
+      <button class="btn btn-primary" onclick="goToApp()">
+        Iniciar sesión
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </button>
+    </div>
+
+    <!-- Recuperar correo: éxito -->
+    <div class="view" id="view-recover-success">
+      <div class="icon-wrap success">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h1>Correo restaurado</h1>
+      <p class="subtitle">Hemos restaurado tu correo a <span class="email-display" id="recover-email"></span>. Por seguridad, también puedes restablecer tu contraseña.</p>
+      <button class="btn btn-primary" onclick="goToApp()">
+        Ir a VirtualGift
+      </button>
+      <button class="btn btn-secondary" id="recover-reset-btn" onclick="sendNewReset()">
+        Restablecer contraseña
+      </button>
+    </div>
+
+    <!-- Error genérico -->
+    <div class="view" id="view-error">
+      <div class="icon-wrap error">
+        <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="15" y1="9" x2="9" y2="15"></line>
+          <line x1="9" y1="9" x2="15" y2="15"></line>
+        </svg>
+      </div>
+      <h1 id="error-title">Enlace inválido</h1>
+      <p class="subtitle" id="error-message">Este enlace ha expirado o ya fue utilizado. Por favor, solicita uno nuevo desde la app.</p>
+      <button class="btn btn-primary" onclick="goToApp()">
+        Volver a VirtualGift
+      </button>
+    </div>
+
+    <div class="footer">
+      © VirtualGift · VirtualStudios
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js';
+    import {
+      getAuth,
+      applyActionCode,
+      checkActionCode,
+      verifyPasswordResetCode,
+      confirmPasswordReset,
+      sendPasswordResetEmail
+    } from 'https://www.gstatic.com/firebasejs/10.13.2/firebase-auth.js';
+
+    const firebaseConfig = {
+      apiKey: 'AIzaSyDFn7fJPpOzuyiBKBXh7Lm8pHN6TwY8K-g',
+      authDomain: 'virtualgift-login.firebaseapp.com',
+      projectId: 'virtualgift-login'
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // CONFIGURA AQUÍ tu URL de regreso a la app/web
+    const APP_URL = 'https://virtualgift.pro';
+
+    // Helpers
+    const $ = (id) => document.getElementById(id);
+    const showView = (id) => {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      $(id).classList.add('active');
+    };
+
+    const getParam = (name) => new URLSearchParams(window.location.search).get(name);
+
+    const showError = (title, message) => {
+      $('error-title').textContent = title;
+      $('error-message').textContent = message;
+      showView('view-error');
+    };
+
+    // Globals expuestos al window para los onclick
+    window.goToApp = () => { window.location.href = APP_URL; };
+
+    window.togglePwd = (id, btn) => {
+      const input = $(id);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    };
+
+    let recoverEmailForReset = null;
+
+    window.sendNewReset = async () => {
+      if (!recoverEmailForReset) return;
+      const btn = $('recover-reset-btn');
+      btn.disabled = true;
+      btn.textContent = 'Enviando...';
+      try {
+        await sendPasswordResetEmail(auth, recoverEmailForReset);
+        btn.textContent = '✓ Enlace enviado a tu correo';
+      } catch (e) {
+        btn.textContent = 'Error al enviar';
+        btn.disabled = false;
+      }
+    };
+
+    let actionCode = null;
+
+    window.submitReset = async () => {
+      const pwd = $('newPassword').value;
+      const confirm = $('confirmPassword').value;
+      const alert = $('reset-alert');
+      const alertText = $('reset-alert-text');
+      const btn = $('reset-submit');
+      const btnText = $('reset-submit-text');
+
+      const showAlert = (msg) => {
+        alertText.textContent = msg;
+        alert.classList.add('show');
+      };
+
+      alert.classList.remove('show');
+
+      if (pwd.length < 6) {
+        showAlert('La contraseña debe tener al menos 6 caracteres.');
+        return;
+      }
+      if (pwd !== confirm) {
+        showAlert('Las contraseñas no coinciden.');
+        return;
+      }
+
+      btn.disabled = true;
+      btnText.innerHTML = '<span class="spinner"></span>';
+
+      try {
+        await confirmPasswordReset(auth, actionCode, pwd);
+        showView('view-reset-success');
+      } catch (e) {
+        btn.disabled = false;
+        btnText.textContent = 'Restablecer contraseña';
+        if (e.code === 'auth/weak-password') {
+          showAlert('La contraseña es muy débil. Usa al menos 6 caracteres.');
+        } else if (e.code === 'auth/expired-action-code' || e.code === 'auth/invalid-action-code') {
+          showError('Enlace expirado', 'El enlace ya no es válido. Solicita uno nuevo desde la app.');
+        } else {
+          showAlert('Ocurrió un error. Inténtalo de nuevo.');
+        }
+      }
+    };
+
+    // ROUTER PRINCIPAL
+    const init = async () => {
+      const mode = getParam('mode');
+      const oobCode = getParam('oobCode');
+
+      if (!mode || !oobCode) {
+        showError('Enlace inválido', 'Este enlace no contiene la información necesaria.');
+        return;
+      }
+
+      actionCode = oobCode;
+
+      try {
+        if (mode === 'verifyEmail') {
+          // Primero obtenemos el email para mostrarlo
+          const info = await checkActionCode(auth, oobCode);
+          await applyActionCode(auth, oobCode);
+          $('verify-email').textContent = info.data.email || '';
+          showView('view-verify-success');
+
+        } else if (mode === 'resetPassword') {
+          const email = await verifyPasswordResetCode(auth, oobCode);
+          $('reset-email').textContent = email;
+          showView('view-reset-form');
+          setTimeout(() => $('newPassword').focus(), 300);
+
+        } else if (mode === 'recoverEmail') {
+          const info = await checkActionCode(auth, oobCode);
+          const restoredEmail = info.data.email;
+          await applyActionCode(auth, oobCode);
+          $('recover-email').textContent = restoredEmail || '';
+          recoverEmailForReset = restoredEmail;
+          showView('view-recover-success');
+
+        } else if (mode === 'verifyAndChangeEmail') {
+          const info = await checkActionCode(auth, oobCode);
+          await applyActionCode(auth, oobCode);
+          $('verify-email').textContent = info.data.email || '';
+          showView('view-verify-success');
+
+        } else {
+          showError('Acción no soportada', 'Este tipo de enlace no está disponible.');
+        }
+      } catch (e) {
+        console.error(e);
+        if (e.code === 'auth/expired-action-code') {
+          showError('Enlace expirado', 'Este enlace ya expiró. Solicita uno nuevo desde la app.');
+        } else if (e.code === 'auth/invalid-action-code') {
+          showError('Enlace inválido', 'Este enlace ya fue utilizado o es incorrecto.');
+        } else if (e.code === 'auth/user-disabled') {
+          showError('Cuenta deshabilitada', 'Esta cuenta ha sido deshabilitada. Contacta soporte.');
+        } else if (e.code === 'auth/user-not-found') {
+          showError('Cuenta no encontrada', 'No encontramos esta cuenta.');
+        } else {
+          showError('Algo salió mal', 'Ocurrió un error inesperado. Inténtalo de nuevo.');
+        }
+      }
+    };
+
+    init();
+
+    // Permitir Enter en el formulario de reset
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && $('view-reset-form').classList.contains('active')) {
+        window.submitReset();
+      }
+    });
+  </script>
+</body>
+</html>

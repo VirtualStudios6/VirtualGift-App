@@ -841,8 +841,14 @@ async function applyReferralCode() {
     if (wrap) wrap.classList.add('ref-enter-wrap--hidden');
 
   } catch (e) {
-    console.error('[referral] apply error:', e);
-    setMsg('Error al aplicar, intenta de nuevo', 'error');
+    console.error('[referral] apply error — code:', e.code, '| msg:', e.message);
+    if (e.code === 'permission-denied') {
+      setMsg('Sin permisos en Firestore. Revisa las reglas.', 'error');
+    } else if (e.code === 'not-found') {
+      setMsg('Código no encontrado', 'error');
+    } else {
+      setMsg('Error al aplicar, intenta de nuevo', 'error');
+    }
   } finally {
     if (btn) btn.disabled = false;
   }
