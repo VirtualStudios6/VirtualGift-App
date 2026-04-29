@@ -1,6 +1,6 @@
 {
-  "appId":   "com.virtualgift",
-  "appName": "VirtualGift",
+  "appId":   "com.virtualgift.app",
+  "appName": "VirtualGift Rewards",
   "webDir":  "www",
   "server": {
     "androidScheme": "https"
@@ -20,7 +20,7 @@
     },
     "FirebaseAuthentication": {
       "skipNativeAuth": false,
-      "providers": ["google.com", "facebook.com", "password"]
+      "providers": ["google.com", "password"]
     }
   }
 }

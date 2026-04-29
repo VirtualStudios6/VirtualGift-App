@@ -483,37 +483,9 @@ const FacebookAuth = {
     State.setLoading(true);
     NotificationManager.show('Conectando con Facebook...', 'info');
 
-    // ── MODO NATIVO (Capacitor) ─────────────────────────────
-    if (isNativePlatform()) {
-      const capAuth = getCapFirebaseAuth();
-      if (!capAuth) {
-        NotificationManager.show('Plugin de autenticación no disponible', 'error');
-        State.setLoading(false);
-        return;
-      }
-      try {
-        const result       = await capAuth.signInWithFacebook();
-        const accessToken  = result.credential?.accessToken;
-        if (!accessToken) throw new Error('No se recibió token de Facebook');
-
-        const credential     = firebase.auth.FacebookAuthProvider.credential(accessToken);
-        const firebaseResult = await firebase.auth().signInWithCredential(credential);
-        if (firebaseResult.user) {
-          await FormManager.upsertUserProfile(firebaseResult.user);
-          NotificationManager.show(`¡Bienvenido, ${firebaseResult.user.displayName || 'Gamer'}! 🎮`, 'success');
-          setTimeout(() => window.location.href = CONFIG.LOGIN_REDIRECT_URL, 800);
-        }
-      } catch (error) {
-        console.error('❌ Facebook login nativo:', error.code || error.message);
-        if (error.code === 'auth/account-exists-with-different-credential') {
-          NotificationManager.show('Ya existe una cuenta con ese correo. Inicia sesión con email o Google', 'error');
-        } else if (error.code !== 'auth/cancelled-popup-request') {
-          ErrorHandler.handle(error, 'FacebookNative');
-        }
-        State.setLoading(false);
-      }
-      return;
-    }
+    // ── MODO NATIVO (Capacitor) — usa flujo web (Facebook SDK nativo no configurado) ──
+    // Para activar Facebook nativo: añadir facebook-android-sdk en build.gradle
+    // y agregar "facebook.com" en capacitor.config.json providers.
 
     // ── MODO WEB ────────────────────────────────────────────
     const provider = new firebase.auth.FacebookAuthProvider();

@@ -220,7 +220,7 @@ body {
 
 .skin-badge {
   position: absolute; top: 8px; left: 8px; z-index: 3;
-  background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.75);
   color: white; padding: 3px 8px; border-radius: 20px;
   font-family: var(--font);
   font-size: 8px;
@@ -269,7 +269,7 @@ body {
 
 .emote-badge {
   position: absolute; top: 8px; left: 8px; z-index: 3;
-  background: rgba(0,0,0,0.65); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.75);
   color: white; padding: 3px 8px; border-radius: 20px;
   font-family: var(--font);
   font-size: 8px;

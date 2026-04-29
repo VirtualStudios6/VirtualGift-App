@@ -61,29 +61,28 @@ body {
   position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 0;
 }
 .orb {
-  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.35;
+  position: absolute; border-radius: 50%; opacity: 0.35;
   animation: orbFloat 12s ease-in-out infinite;
-  will-change: transform;
 }
 .orb-1 {
-  width: 400px; height: 400px;
-  background: radial-gradient(circle, #8d17fb, transparent 70%);
-  top: -100px; left: -100px; animation-delay: 0s;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(141,23,251,0.55) 0%, rgba(141,23,251,0.2) 35%, rgba(141,23,251,0.05) 60%, transparent 75%);
+  top: -150px; left: -150px; animation-delay: 0s;
 }
 .orb-2 {
-  width: 300px; height: 300px;
-  background: radial-gradient(circle, #3b1fa8, transparent 70%);
-  bottom: -80px; right: -80px; animation-delay: -4s;
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(59,31,168,0.55) 0%, rgba(59,31,168,0.2) 35%, rgba(59,31,168,0.05) 60%, transparent 75%);
+  bottom: -120px; right: -120px; animation-delay: -4s;
 }
 .orb-3 {
-  width: 200px; height: 200px;
-  background: radial-gradient(circle, #c084fc, transparent 70%);
+  width: 280px; height: 280px;
+  background: radial-gradient(circle, rgba(192,132,252,0.45) 0%, rgba(192,132,252,0.15) 35%, rgba(192,132,252,0.04) 60%, transparent 75%);
   top: 50%; left: 60%; animation-delay: -8s; opacity: 0.2;
 }
 @keyframes orbFloat {
-  0%,100% { transform: translate(0,0) scale(1); }
-  33%      { transform: translate(30px,-20px) scale(1.05); }
-  66%      { transform: translate(-20px,30px) scale(0.95); }
+  0%,100% { transform: translate(0, 0); }
+  33%      { transform: translate(30px, -20px); }
+  66%      { transform: translate(-20px, 30px); }
 }
 
 .bg-grid {
@@ -127,25 +126,17 @@ body {
 }
 .logo-glow {
   position: absolute; width: 120px; height: 120px; border-radius: 50%;
-  background: radial-gradient(circle, rgba(141,23,251,0.3), transparent 70%);
+  background: radial-gradient(circle, rgba(141,23,251,0.4), transparent 70%);
   filter: blur(20px); top: -20px; pointer-events: none;
+  animation: glowPulse 3.5s ease-in-out infinite;
 }
 .logo img {
   width: 62px; height: 62px; object-fit: contain; border-radius: 14px;
   position: relative; z-index: 1;
-  filter: drop-shadow(0 8px 20px rgba(141,23,251,0.5));
-  animation: logoFloat 3.5s ease-in-out infinite;
-
-  /* ✅ Fix: fuerza GPU layer — evita saltos en distintos PCs/browsers */
-  will-change: transform;
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
 }
-@keyframes logoFloat {
-  0%,100% { transform: translateY(0) translateZ(0); }
-  50%      { transform: translateY(-6px) translateZ(0); }
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
 }
 .logo-wordmark {
   font-family: var(--font);

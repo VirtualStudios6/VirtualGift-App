@@ -4,7 +4,7 @@
   "description": "VirtualGift - Sorteos y rifas con monedas virtuales",
   "private": true,
   "scripts": {
-    "build":            "cp -r css js images legal firebase-messaging-sw.js *.html www/ 2>/dev/null || true",
+    "build":            "node build.js",
     "cap:sync:android": "npm run build && npx cap sync android",
     "cap:sync:ios":     "npm run build && npx cap sync ios",
     "cap:open:android": "npx cap open android",

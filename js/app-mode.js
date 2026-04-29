@@ -1,3 +1,24 @@
+// ── Bloquear AdSense en modo nativo Capacitor ──────────────────────────────
+(function () {
+  if (!window.Capacitor?.isNativePlatform?.()) return;
+
+  var _adNoop = { push: function () {} };
+  try {
+    Object.defineProperty(window, 'adsbygoogle', {
+      get: function () { return _adNoop; },
+      set: function () {},
+      configurable: true
+    });
+  } catch (_) {
+    window.adsbygoogle = _adNoop;
+  }
+
+  var _s = document.createElement('style');
+  _s.textContent = '.adsbygoogle,.ads-container{display:none!important;height:0!important;min-height:0!important;overflow:hidden!important;padding:0!important;margin:0!important}';
+  document.head.appendChild(_s);
+})();
+
+// ── Modo Android WebView legacy (?app=android) ─────────────────────────────
 (function () {
   const isAndroidApp = new URLSearchParams(location.search).get("app") === "android";
   if (!isAndroidApp) return;

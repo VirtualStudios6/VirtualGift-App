@@ -126,14 +126,10 @@ body {
   margin: 0 auto 10px;
   position: relative; z-index: 1;
   animation: vgFloat 3s ease-in-out infinite;
-  filter: drop-shadow(0 8px 18px rgba(141,23,251,0.25));
-  will-change: transform;
-  transform: translateZ(0);
-  backface-visibility: hidden;
 }
 @keyframes vgFloat {
-  0%, 100% { transform: translateY(0) translateZ(0); }
-  50%       { transform: translateY(-10px) translateZ(0); }
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-10px); }
 }
 
 .points-label {
