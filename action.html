@@ -660,7 +660,12 @@
     };
 
     // ROUTER PRINCIPAL
+    let executed = false;
+
     const init = async () => {
+      if (executed) return;
+      executed = true;
+
       const mode = getParam('mode');
       const oobCode = getParam('oobCode');
 
@@ -673,10 +678,10 @@
 
       try {
         if (mode === 'verifyEmail') {
-          // Primero obtenemos el email para mostrarlo
           const info = await checkActionCode(auth, oobCode);
+          const email = info.data.email || '';
           await applyActionCode(auth, oobCode);
-          $('verify-email').textContent = info.data.email || '';
+          $('verify-email').textContent = email;
           showView('view-verify-success');
 
         } else if (mode === 'resetPassword') {
@@ -687,16 +692,17 @@
 
         } else if (mode === 'recoverEmail') {
           const info = await checkActionCode(auth, oobCode);
-          const restoredEmail = info.data.email;
+          const restoredEmail = info.data.email || '';
           await applyActionCode(auth, oobCode);
-          $('recover-email').textContent = restoredEmail || '';
+          $('recover-email').textContent = restoredEmail;
           recoverEmailForReset = restoredEmail;
           showView('view-recover-success');
 
         } else if (mode === 'verifyAndChangeEmail') {
           const info = await checkActionCode(auth, oobCode);
+          const email = info.data.email || '';
           await applyActionCode(auth, oobCode);
-          $('verify-email').textContent = info.data.email || '';
+          $('verify-email').textContent = email;
           showView('view-verify-success');
 
         } else {

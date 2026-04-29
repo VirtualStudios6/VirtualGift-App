@@ -24,7 +24,7 @@
     ],
     "rewrites": [
       {
-        "source": "/__/auth/action",
+        "source": "/auth/action",
         "destination": "/action.html"
       },
       {
