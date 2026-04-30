@@ -65,7 +65,7 @@ body {
 .notifications-container {
   max-width: 700px; margin: 0 auto;
   padding: 16px;
-  padding-bottom: calc(30px + env(safe-area-inset-bottom));
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
   padding-left:  calc(16px + env(safe-area-inset-left));
   padding-right: calc(16px + env(safe-area-inset-right));
 }
@@ -271,7 +271,7 @@ body {
 @media (max-width: 480px) {
   .notifications-container {
     padding: 12px;
-    padding-bottom: calc(30px + env(safe-area-inset-bottom));
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
     padding-left:  calc(12px + env(safe-area-inset-left));
     padding-right: calc(12px + env(safe-area-inset-right));
   }
