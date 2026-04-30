@@ -18,6 +18,7 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-functions.js"></script>
   <script defer src="js/firebase-config.js"></script>
   <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js" defer></script>
   <style>.lucide{width:1em;height:1em;vertical-align:-0.125em;display:inline-block}.icon-lg{width:2rem !important;height:2rem !important}.icon-xl{width:3rem !important;height:3rem !important}</style>
@@ -280,7 +281,6 @@
 </div>
 
 <script>
-  const API_KEY = "73ffb01e-97df-46f7-b5ee-4023c5c020f5";
   let selectedPlatform = "all";
   let globalData = null;
 
@@ -317,18 +317,15 @@
       </div>`;
 
     try {
-      const platform = selectedPlatform === 'all' ? '' : `&accountType=${selectedPlatform}`;
-      const res = await fetch(
-        `https://fortnite-api.com/v2/stats/br/v2?name=${encodeURIComponent(name)}${platform}&image=all`,
-        { headers: { "Authorization": API_KEY } }
-      );
-      if (res.status === 404) { showError("JUGADOR NO ENCONTRADO", "Verifica el nombre y la plataforma."); return; }
-      if (!res.ok) throw new Error(res.status);
-      const json = await res.json();
-      globalData = json?.data;
+      const fn = firebase.functions().httpsCallable('getFortniteStats');
+      const result = await fn({ name, platform: selectedPlatform });
+      globalData = result.data?.data;
       if (!globalData) throw new Error("sin datos");
       renderStats(globalData, 'overall');
     } catch(e) {
+      if (e.code === 'functions/not-found') {
+        showError("JUGADOR NO ENCONTRADO", "Verifica el nombre y la plataforma."); return;
+      }
       console.error(e);
       showError("ERROR AL BUSCAR", "No se pudo conectar. Intenta de nuevo.");
     } finally {

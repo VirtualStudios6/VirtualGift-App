@@ -430,6 +430,8 @@
   window.addEventListener("load", () => {
     setupPullToRefresh();
     checkAuth();
+    window.addEventListener('beforeunload', stopRealtime);
+    window.addEventListener('pagehide',     stopRealtime);
   });
 
 })();

@@ -15,9 +15,8 @@ const AYET_POSTBACK_TOKEN_SECRET = defineSecret("AYET_POSTBACK_TOKEN");
 const ADGEM_SECRET_KEY_SECRET    = defineSecret("ADGEM_SECRET_KEY");
 const FORTNITE_API_KEY_SECRET    = defineSecret("FORTNITE_API_KEY");
 
-// TODO: remove these fallbacks after running `firebase functions:secrets:set` for each secret
+// TODO: remove this fallback after running `firebase functions:secrets:set AYET_POSTBACK_TOKEN`
 const AYET_POSTBACK_TOKEN_FALLBACK = "VG_AYET_2026_4093228_SUPERSECRETO";
-const FORTNITE_API_KEY_FALLBACK    = "73ffb01e-97df-46f7-b5ee-4023c5c020f5";
 
 // =====================
 // HELPERS
@@ -203,9 +202,42 @@ exports.forceFortniteShopSync = onCall(
       throw new HttpsError("permission-denied", "Se requieren permisos de administrador");
     }
 
-    const apiKey = FORTNITE_API_KEY_SECRET.value() || FORTNITE_API_KEY_FALLBACK;
+    const apiKey = FORTNITE_API_KEY_SECRET.value();
     await syncShopNow(apiKey);
     return { ok: true, message: "Shop synced successfully" };
+  }
+);
+
+// =====================
+// FORTNITE PLAYER STATS
+// =====================
+
+exports.getFortniteStats = onCall(
+  { region: "us-central1", secrets: [FORTNITE_API_KEY_SECRET] },
+  async (request) => {
+    if (!request.auth?.uid) {
+      throw new HttpsError("unauthenticated", "Debes iniciar sesión");
+    }
+
+    const name     = (request.data?.name || "").trim();
+    const platform = (request.data?.platform || "").trim();
+    if (!name)           throw new HttpsError("invalid-argument", "name requerido");
+    if (name.length > 100) throw new HttpsError("invalid-argument", "name demasiado largo");
+
+    const apiKey = FORTNITE_API_KEY_SECRET.value();
+    if (!apiKey) throw new HttpsError("internal", "API key no configurada");
+
+    const platformParam = platform && platform !== "all"
+      ? `&accountType=${encodeURIComponent(platform)}`
+      : "";
+    const url = `https://fortnite-api.com/v2/stats/br/v2?name=${encodeURIComponent(name)}${platformParam}&image=all`;
+
+    const res = await fetch(url, { headers: { Authorization: apiKey } });
+    if (res.status === 404) throw new HttpsError("not-found", "Jugador no encontrado");
+    if (!res.ok) throw new HttpsError("internal", `Fortnite API error: ${res.status}`);
+
+    const json = await res.json();
+    return { data: json.data || null };
   }
 );
 
@@ -218,7 +250,7 @@ exports.syncFortniteShop = onSchedule(
     secrets:  [FORTNITE_API_KEY_SECRET],
   },
   async () => {
-    const apiKey = FORTNITE_API_KEY_SECRET.value() || FORTNITE_API_KEY_FALLBACK;
+    const apiKey = FORTNITE_API_KEY_SECRET.value();
     await syncShopNow(apiKey);
   }
 );

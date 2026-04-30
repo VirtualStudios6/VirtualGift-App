@@ -125,5 +125,7 @@ class Carousel {
 
 // Inicializar el carrusel cuando cargue la página
 document.addEventListener('DOMContentLoaded', () => {
-    new Carousel();
+    const carousel = new Carousel();
+    window.addEventListener('beforeunload', () => carousel.stopAutoplay());
+    window.addEventListener('pagehide',     () => carousel.stopAutoplay());
 });
