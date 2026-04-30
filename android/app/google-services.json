@@ -7,12 +7,20 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:807245369735:android:201f1e5e7c93eec9d28322",
+        "mobilesdk_app_id": "1:807245369735:android:77b498421cc7cc1bd28322",
         "android_client_info": {
           "package_name": "com.virtualgift.app"
         }
       },
       "oauth_client": [
+        {
+          "client_id": "807245369735-sjqf60ke7vae008v826mbsjmfraspuqu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.virtualgift.app",
+            "certificate_hash": "ba3c354758863f7483468a5ce413269251cae8af"
+          }
+        },
         {
           "client_id": "807245369735-hcn80sbrt8r8usuo15r5e37ihndq12lh.apps.googleusercontent.com",
           "client_type": 3
