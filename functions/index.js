@@ -296,6 +296,94 @@ exports.adgemPostback = onRequest(
 );
 
 // =====================
+// PARTICIPATE IN RAFFLE
+// =====================
+
+exports.participateInRaffle = onCall({ region: "us-central1" }, async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError("unauthenticated", "Debes iniciar sesión");
+
+  const raffleId = (request.data?.raffleId || "").trim();
+  if (!raffleId) throw new HttpsError("invalid-argument", "raffleId requerido");
+
+  const raffleRef = db.collection("raffles").doc(raffleId);
+  const userRef   = db.collection("users").doc(uid);
+
+  // Soft check: entry count per user per raffle (max 5)
+  // Done outside transaction because Firestore transactions don't support where queries
+  const existingSnap = await db.collection("raffleParticipants")
+    .where("raffleId", "==", raffleId)
+    .where("userId",   "==", uid)
+    .get();
+  const entryCount = existingSnap.size;
+  if (entryCount >= 5) {
+    throw new HttpsError("already-exists", "Ya alcanzaste el máximo de 5 entradas para este sorteo");
+  }
+
+  // Pre-generate doc refs so they can be used inside the transaction
+  const participantRef = db.collection("raffleParticipants").doc();
+  const historyRef     = db.collection("pointsHistory").doc();
+  const now            = admin.firestore.Timestamp.now();
+  let newCoinBalance;
+
+  await db.runTransaction(async (tx) => {
+    const [raffleSnap, userSnap] = await Promise.all([
+      tx.get(raffleRef),
+      tx.get(userRef),
+    ]);
+
+    if (!raffleSnap.exists) throw new HttpsError("not-found", "Sorteo no encontrado");
+
+    const raffle = raffleSnap.data();
+
+    if (!raffle.active) {
+      throw new HttpsError("failed-precondition", "Este sorteo ya no está activo");
+    }
+
+    const endDate = raffle.endDate?.toDate ? raffle.endDate.toDate() : new Date(raffle.endDate);
+    if (endDate < new Date()) {
+      throw new HttpsError("failed-precondition", "Este sorteo ya finalizó");
+    }
+
+    if ((raffle.participants || 0) >= raffle.maxParticipants) {
+      throw new HttpsError("resource-exhausted", "El sorteo ya alcanzó el máximo de participantes");
+    }
+
+    const userPoints = userSnap.data()?.points || 0;
+    if (userPoints < raffle.cost) {
+      throw new HttpsError("failed-precondition", "No tienes suficientes coins");
+    }
+
+    newCoinBalance = userPoints - raffle.cost;
+
+    tx.update(userRef,   { points: newCoinBalance });
+    tx.update(raffleRef, { participants: admin.firestore.FieldValue.increment(1) });
+    tx.set(participantRef, {
+      raffleId,
+      userId:      uid,
+      entryNumber: entryCount + 1,
+      enteredAt:   now,
+      requirementsCompleted: false,
+    });
+    tx.set(historyRef, {
+      userId:      uid,
+      type:        "raffle_entry",
+      points:      -raffle.cost,
+      raffleId,
+      raffleTitle: `${raffle.title || ""} ${raffle.value || ""}`.trim(),
+      createdAt:   now,
+    });
+  });
+
+  return {
+    success:        true,
+    newCoinBalance,
+    entryNumber:    entryCount + 1,
+    participantId:  participantRef.id,
+  };
+});
+
+// =====================
 // APPLY REFERRAL CODE
 // =====================
 

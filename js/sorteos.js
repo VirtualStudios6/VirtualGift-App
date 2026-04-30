@@ -467,56 +467,34 @@ async function confirmParticipation() {
   text.textContent      = "Procesando…";
 
   try {
-    const db         = window.db;
-    const FieldValue = window.firebase.firestore.FieldValue;
-    const uid        = currentUser.uid;
-    const raffle     = selectedRaffle;
+    const fn     = firebase.functions().httpsCallable("participateInRaffle");
+    const result = await fn({ raffleId: selectedRaffle.id });
 
-    // Verificar entradas existentes (máximo 5)
-    const existing = await db.collection("raffleParticipants")
-      .where("raffleId", "==", raffle.id)
-      .where("userId",   "==", uid)
-      .get();
-    const entryCount = existing.size;
-    if (entryCount >= 5) throw new Error("Alcanzaste el máximo de 5 entradas para este sorteo.");
-
-    // Verificar coins en tiempo real — usa data.points igual que puntos.js
-    const userSnap  = await db.collection("users").doc(uid).get();
-    const freshCoins = (userSnap.data() || {}).points || 0;
-    if (freshCoins < raffle.cost) throw new Error("No tienes suficientes coins.");
-
-    const newCoins = freshCoins - raffle.cost;
-
-    await db.collection("users").doc(uid).update({ points: newCoins });
-    await db.collection("raffles").doc(raffle.id).update({
-      participants: FieldValue.increment(1),
-    });
-    await db.collection("raffleParticipants").add({
-      raffleId:    raffle.id,
-      userId:      uid,
-      entryNumber: entryCount + 1,
-      enteredAt:   FieldValue.serverTimestamp(),
-      requirementsCompleted: false,
-    });
-
-    // Historial de puntos
-    await db.collection("pointsHistory").add({
-      userId:      uid,
-      type:        "raffle_entry",
-      points:      -raffle.cost,
-      raffleId:    raffle.id,
-      raffleTitle: `${raffle.title} ${raffle.value}`,
-      createdAt:   FieldValue.serverTimestamp(),
-    });
-
-    userCoins = newCoins;
+    userCoins = result.data.newCoinBalance;
     updateBalanceUI();
     closeModal();
-    openRequirements(raffle, entryCount + 1);
+    openRequirements(selectedRaffle, result.data.entryNumber);
 
   } catch (err) {
+    const code = err.code || "";
+    let userMsg;
+
+    if (code === "functions/failed-precondition") {
+      userMsg = err.message || "No se puede completar la participación";
+    } else if (code === "functions/already-exists") {
+      userMsg = err.message || "Ya estás participando en este sorteo";
+    } else if (code === "functions/resource-exhausted") {
+      userMsg = err.message || "El sorteo ya alcanzó el máximo de participantes";
+    } else if (code === "functions/not-found") {
+      userMsg = "Sorteo no encontrado. Recarga la página.";
+    } else if (code === "functions/unauthenticated") {
+      userMsg = "Sesión expirada. Recarga la página.";
+    } else {
+      userMsg = "Error inesperado. Intenta de nuevo.";
+    }
+
     document.getElementById("mNoticeWarn").style.display = "flex";
-    document.getElementById("mWarnText").textContent = err.message || "Ocurrió un error. Intenta de nuevo.";
+    document.getElementById("mWarnText").textContent = userMsg;
     btn.disabled          = false;
     spinner.style.display = "none";
     arrow.style.display   = "inline";
