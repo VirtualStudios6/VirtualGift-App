@@ -8,7 +8,30 @@
       "Bash(cp -r css js images legal firebase-messaging-sw.js www/)",
       "Bash(for f:*)",
       "Bash(do cp:*)",
-      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''''package_name:'''', d[''''client''''][0][''''client_info''''][''''android_client_info''''][''''package_name'''']\\)\")"
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''''package_name:'''', d[''''client''''][0][''''client_info''''][''''android_client_info''''][''''package_name'''']\\)\")",
+      "Bash(python3 -c ':*)",
+      "Bash(sed -i 's|            🔔 Activar notificaciones push|            <i data-lucide=\"bell\"></i> Activar notificaciones push|g' 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/home.html')",
+      "Bash(sed -i 's|<div class=\"fn-view-shop-icon\">🛒</div>|<div class=\"fn-view-shop-icon\"><i data-lucide=\"shopping-cart\" class=\"icon-lg\"></i></div>|g' 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/inicio.html')",
+      "Bash(sed -i 's|const info = CAT_LABELS\\\\[key\\\\] || { label: key, emoji: \"📦\" };|const info = CAT_LABELS[key] || { label: key, icon: '\\\\''package'\\\\'' };|g' 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/tienda.html')",
+      "Bash(sed -i -e 's|<span class=\"coin-prefix\">🪙</span>|<span class=\"coin-prefix\"><i data-lucide=\"coins\" style=\"width:1.1em;height:1.1em\"></i></span>|g' -e 's|<div class=\"hist-title\">📋 Historial de actividad</div>|<div class=\"hist-title\"><i data-lucide=\"clipboard-list\" style=\"width:1em;height:1em\"></i> Historial de actividad</div>|g' 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/puntos.html')",
+      "Bash(sed -i -e 's|<span class=\"header-coins-icon\">🪙</span>|<span class=\"header-coins-icon\"><i data-lucide=\"coins\" style=\"width:1.1em;height:1.1em\"></i></span>|g' -e 's|>🪙 Hasta |><i data-lucide=\"coins\" style=\"width:.9em;height:.9em\"></i> Hasta |g' -e 's|>🕹️</div>|><i data-lucide=\"joystick\" class=\"icon-lg\"></i></div>|g' 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/ofertas.html')",
+      "Bash(sed -i -e 's|onclick=\"alert\\('\\\\''🕹️ Minijuegos próximamente'\\\\''\\)\"|onclick=\"alert\\('\\\\''Minijuegos próximamente'\\\\''\\)\"|g' -e 's|<div class=\"quick-card-icon\">📺</div>|<div class=\"quick-card-icon\"><i data-lucide=\"tv\" class=\"icon-lg\"></i></div>|g' 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/ofertas.html')",
+      "Bash(sed -i 's|<div class=\"checkin-day-coins\">🪙'\\\\''|<div class=\"checkin-day-coins\"><i data-lucide=\\\\\"coins\\\\\" style=\\\\\"width:.85em;height:.85em\\\\\"><\\\\/i>'\\\\''|g' 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/ofertas.html')",
+      "WebFetch(domain:capacitorjs.com)",
+      "WebSearch",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('@cap/android:', p.dependencies?.['@capacitor/android']||p.devDependencies?.['@capacitor/android']||'no instalado'\\)\")",
+      "Bash(firebase deploy:*)",
+      "Bash(cp 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/images/ofertas/1.png' 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/images/ofertas/2.png')",
+      "Bash(cp 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/images/ofertas/1.png' 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/images/ofertas/3.png')",
+      "Bash(cp 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/images/ofertas/1.png' 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/images/ofertas/4.png')",
+      "Bash(cp 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/images/ofertas/1.png' 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/www/images/ofertas/2.png')",
+      "Bash(cp 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/images/ofertas/1.png' 'c:/Users/VirtualStudios/Desktop/VirtualDisk/Paginas Webs/VirtualGift-APP/www/images/ofertas/3.png')",
+      "Bash(cp ofertas.html puntos.html tienda.html cosmeticos.html stats.html news.html home.html www/)",
+      "Bash(cp sorteos.html www/)",
+      "Bash(xargs sed:*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\VirtualStudios\\Desktop\\VirtualDisk\\Paginas Webs\\VirtualGift-APP"
     ]
   }
 }
