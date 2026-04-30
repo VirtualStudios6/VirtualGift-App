@@ -791,64 +791,25 @@ async function applyReferralCode() {
   setMsg('Verificando...', '');
 
   try {
-    const db = window.db;
-    // Buscar al referidor
-    const snap = await db.collection('users')
-      .where('referralCode', '==', rawCode)
-      .limit(1).get();
+    const fn = firebase.functions().httpsCallable('applyReferral');
+    const result = await fn({ code: rawCode });
+    const BONUS = result.data?.bonus || 500;
 
-    if (snap.empty) { setMsg('Código no encontrado', 'error'); return; }
-
-    const referrerId  = snap.docs[0].id;
-    const referrerRef = snap.docs[0].ref;
-    const BONUS       = 500;
-    const userRef     = db.collection('users').doc(user.uid);
-    const now         = firebase.firestore.Timestamp.now();
-
-    // Verificar que el usuario actual no tenga ya un referido
-    const mySnap = await userRef.get();
-    if (mySnap.data()?.referredBy) {
-      setMsg('Ya tienes un código aplicado', 'error'); return;
-    }
-
-    // Recompensar al referidor
-    await referrerRef.update({
-      points:        firebase.firestore.FieldValue.increment(BONUS),
-      referralCount: firebase.firestore.FieldValue.increment(1),
-    });
-    await db.collection('pointsHistory').add({
-      userId: referrerId, type: 'referral_bonus',
-      points: BONUS, fromUser: user.uid, createdAt: now,
-    });
-
-    // Recompensar al usuario actual
-    await userRef.update({
-      points:    firebase.firestore.FieldValue.increment(BONUS),
-      referredBy: referrerId,
-    });
-    await db.collection('pointsHistory').add({
-      userId: user.uid, type: 'referral_bonus',
-      points: BONUS, fromCode: rawCode, createdAt: now,
-    });
-
-    // Actualizar UI
     setMsg(`¡+${BONUS} coins aplicados!`, 'success');
     toast(`+${BONUS} coins de bienvenida`);
     const statsEl = document.getElementById('referralStats');
     if (statsEl) statsEl.textContent = '✓ Ya usaste un código de invitación';
-    // Ocultar el bloque de ingreso
     const wrap = document.getElementById('refEnterWrap');
     if (wrap) wrap.classList.add('ref-enter-wrap--hidden');
 
   } catch (e) {
     console.error('[referral] apply error — code:', e.code, '| msg:', e.message);
-    if (e.code === 'permission-denied') {
-      setMsg('Sin permisos en Firestore. Revisa las reglas.', 'error');
-    } else if (e.code === 'not-found') {
-      setMsg('Código no encontrado', 'error');
-    } else {
-      setMsg('Error al aplicar, intenta de nuevo', 'error');
-    }
+    const msg = e.message || '';
+    if (e.code === 'functions/not-found')      { setMsg('Código no encontrado', 'error'); }
+    else if (e.code === 'functions/already-exists') { setMsg('Ya tienes un código aplicado', 'error'); }
+    else if (e.code === 'functions/invalid-argument') { setMsg(msg || 'Código inválido', 'error'); }
+    else if (e.code === 'functions/unauthenticated')  { setMsg('Sesión expirada, recarga la página', 'error'); }
+    else { setMsg('Error al aplicar, intenta de nuevo', 'error'); }
   } finally {
     if (btn) btn.disabled = false;
   }

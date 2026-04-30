@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Users — read any (for referral code lookup), write only own
+    match /users/{userId} {
+      allow read:  if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Points history — own records only
+    match /pointsHistory/{docId} {
+      allow read:   if request.auth != null && resource.data.userId == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+    }
+
+    // Notifications — own only
+    match /notifications/{docId} {
+      allow read:   if request.auth != null && resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+    }
+
+    // Shop, news, cosmetics, sorteos, stats — read-only for authenticated
+    match /shopDailyItems/{docId} {
+      allow read: if request.auth != null;
+    }
+    match /shopDaily/{docId} {
+      allow read: if request.auth != null;
+    }
+    match /noticias/{docId} {
+      allow read: if request.auth != null;
+    }
+    match /cosmeticos/{docId} {
+      allow read: if request.auth != null;
+    }
+    match /sorteos/{docId} {
+      allow read: if request.auth != null;
+    }
+    match /stats/{docId} {
+      allow read: if request.auth != null;
+    }
+
+    // Ayet/AdGem transactions — server-side only (no client access)
+    match /ayetTransactions/{docId} {
+      allow read, write: if false;
+    }
+    match /adgemTransactions/{docId} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,5 +1,5 @@
 const admin = require("firebase-admin");
-const { onRequest } = require("firebase-functions/v2/https");
+const { onRequest, onCall, HttpsError } = require("firebase-functions/v2/https");
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 
 admin.initializeApp();
@@ -243,3 +243,59 @@ exports.adgemPostback = onRequest(
     }
   }
 );
+
+// =====================
+// APPLY REFERRAL CODE
+// =====================
+
+exports.applyReferral = onCall({ region: "us-central1" }, async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError("unauthenticated", "Debes iniciar sesión");
+
+  const code = (request.data?.code || "").trim().toUpperCase();
+  if (!/^VG[A-Z0-9]{6}$/.test(code)) {
+    throw new HttpsError("invalid-argument", "Formato de código inválido");
+  }
+
+  const usersRef = db.collection("users");
+  const myRef = usersRef.doc(uid);
+
+  const snap = await usersRef.where("referralCode", "==", code).limit(1).get();
+  if (snap.empty) throw new HttpsError("not-found", "Código no encontrado");
+
+  const referrerId = snap.docs[0].id;
+  if (referrerId === uid) {
+    throw new HttpsError("invalid-argument", "No puedes usar tu propio código");
+  }
+
+  const referrerRef = snap.docs[0].ref;
+  const BONUS = 500;
+  const now = admin.firestore.Timestamp.now();
+
+  await db.runTransaction(async (tx) => {
+    const mySnap = await tx.get(myRef);
+    if (!mySnap.exists) throw new HttpsError("not-found", "Usuario no encontrado");
+    if (mySnap.data().referredBy) {
+      throw new HttpsError("already-exists", "Ya tienes un código aplicado");
+    }
+
+    tx.update(referrerRef, {
+      points: admin.firestore.FieldValue.increment(BONUS),
+      referralCount: admin.firestore.FieldValue.increment(1),
+    });
+    tx.set(db.collection("pointsHistory").doc(), {
+      userId: referrerId, type: "referral_bonus",
+      points: BONUS, fromUser: uid, createdAt: now,
+    });
+    tx.update(myRef, {
+      points: admin.firestore.FieldValue.increment(BONUS),
+      referredBy: referrerId,
+    });
+    tx.set(db.collection("pointsHistory").doc(), {
+      userId: uid, type: "referral_bonus",
+      points: BONUS, fromCode: code, createdAt: now,
+    });
+  });
+
+  return { success: true, bonus: BONUS };
+});
