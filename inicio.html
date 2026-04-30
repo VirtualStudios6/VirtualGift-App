@@ -20,7 +20,7 @@
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script defer src="js/firebase-config.js"></script>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js" defer></script>
   <style>.lucide{width:1em;height:1em;vertical-align:-0.125em;display:inline-block}.icon-lg{width:2rem !important;height:2rem !important}.icon-xl{width:3rem !important;height:3rem !important}</style>
 
 </head>
@@ -46,7 +46,7 @@
             </div>
             <div class="icon-notification" onclick="window.location.href=withAppFlag('notificaciones.html')" style="cursor:pointer;">
                 <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
-                <span class="notification-badge" id="notificationBadge">0</span>
+                <span class="notification-badge" id="badgeCount" style="display:none;">0</span>
             </div>
         </div>
     </header>
@@ -79,10 +79,10 @@
                     <img src="images/banner-sorteos/1.png" alt="Sorteo 1">
                 </div>
                 <div class="carousel-slide" onclick="window.location.href=withAppFlag('sorteos.html')" style="cursor:pointer;">
-                    <img src="images/banner-sorteos/2.png" alt="Sorteo 2">
+                    <img src="images/banner-sorteos/2.png" alt="Sorteo 2" loading="lazy">
                 </div>
                 <div class="carousel-slide" onclick="window.location.href=withAppFlag('sorteos.html')" style="cursor:pointer;">
-                    <img src="images/banner-sorteos/3.png" alt="Sorteo 3">
+                    <img src="images/banner-sorteos/3.png" alt="Sorteo 3" loading="lazy">
                 </div>
             </div>
             <div class="carousel-dots">
@@ -166,22 +166,22 @@
         <div class="skins-grid">
             <div class="skin-card" onclick="window.location.href=withAppFlag('ofertas.html')" style="cursor:pointer;">
                 <div class="skin-badge"><i data-lucide="puzzle"></i> OFERTAS</div>
-                <div class="skin-image"><img src="images/ofertas/1.png" alt="Ofertas" onerror="this.style.display='none'"></div>
+                <div class="skin-image"><img src="images/ofertas/1.png" alt="Ofertas" loading="lazy" onerror="this.style.display='none'"></div>
                 <p class="skin-name">Ofertas de Juegos</p>
             </div>
             <div class="skin-card" onclick="window.location.href=withAppFlag('ofertas.html')" style="cursor:pointer;">
                 <div class="skin-badge"><i data-lucide="file-text"></i> ENCUESTAS</div>
-                <div class="skin-image"><img src="images/ofertas/2.png" alt="Encuestas" onerror="this.style.display='none'"></div>
+                <div class="skin-image"><img src="images/ofertas/2.png" alt="Encuestas" loading="lazy" onerror="this.style.display='none'"></div>
                 <p class="skin-name">Encuestas</p>
             </div>
             <div class="skin-card" onclick="window.location.href=withAppFlag('ofertas.html')" style="cursor:pointer;">
                 <div class="skin-badge"><i data-lucide="banknote"></i> BONUS</div>
-                <div class="skin-image"><img src="images/ofertas/3.png" alt="Bonus" onerror="this.style.display='none'"></div>
+                <div class="skin-image"><img src="images/ofertas/3.png" alt="Bonus" loading="lazy" onerror="this.style.display='none'"></div>
                 <p class="skin-name">Mejores Pagos</p>
             </div>
             <div class="skin-card" onclick="window.location.href=withAppFlag('ofertas.html')" style="cursor:pointer;">
                 <div class="skin-badge"><i data-lucide="flame"></i> TOP</div>
-                <div class="skin-image"><img src="images/ofertas/4.png" alt="Top" onerror="this.style.display='none'"></div>
+                <div class="skin-image"><img src="images/ofertas/4.png" alt="Top" loading="lazy" onerror="this.style.display='none'"></div>
                 <p class="skin-name">Top Ofertas</p>
             </div>
         </div>
@@ -234,6 +234,7 @@
 
     <script defer src="js/carousel.js"></script>
     <script defer src="js/news-feed.js"></script>
+    <script defer src="js/notification-badge.js"></script>
     <script defer src="js/inicio.js"></script>
 
     <script>
@@ -402,6 +403,6 @@
         setTimeout(updateArrows, 300);
     })();
     </script>
-<script>if(window.lucide)lucide.createIcons();</script>
+<script>document.addEventListener('DOMContentLoaded', function() { if(window.lucide)lucide.createIcons(); });</script>
 </body>
 </html>
