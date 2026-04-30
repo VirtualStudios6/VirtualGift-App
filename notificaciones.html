@@ -47,7 +47,7 @@
           <path d="M 30 30 L 42 65 L 50 65 L 58 65 L 70 30 L 62 30 L 54 57 L 50 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
         </svg>
       </div>
-      <div class="icon-notification" onclick="window.location.href=withAppFlag('notificaciones.html')" style="cursor:pointer;">
+      <div class="icon-notification icon-active" onclick="window.location.href=withAppFlag('notificaciones.html')" style="cursor:pointer;">
         <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
         <span class="notification-badge" id="badgeCount" style="display:none;">0</span>
       </div>
@@ -60,13 +60,6 @@
   </div>
 
   <main class="notifications-container">
-
-    <!-- Top bar: botón volver full width -->
-    <div class="notif-top-bar">
-      <button class="back-button" onclick="window.location.href=withAppFlag('inicio.html')">
-        ← Volver al inicio
-      </button>
-    </div>
 
     <!-- Header móvil (oculto en desktop) -->
     <div class="notif-mobile-header">

@@ -24,10 +24,14 @@ service cloud.firestore {
     }
 
     // ─── NOTIFICATIONS ───────────────────────────────────────
-    // Own notifications only.
+    // Personal notifications (userId == uid) or global broadcasts (userId == "ALL").
+    // "ALL" notifications are never written client-side — hidden via localStorage only.
     match /notifications/{docId} {
-      allow read:   if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read:   if request.auth != null
+                    && (resource.data.userId == request.auth.uid
+                        || resource.data.userId == "ALL");
       allow update: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
 
     // ─── RAFFLES ─────────────────────────────────────────────

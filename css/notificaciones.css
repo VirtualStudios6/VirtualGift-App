@@ -1,4 +1,11 @@
 /* ============================================ */
+/* MODO ANDROID APP                            */
+/* ============================================ */
+html.android-app .header,
+body.android-app .header { display: none !important; }
+html.android-app body, body.android-app { padding-top: 0 !important; }
+
+/* ============================================ */
 /* VARIABLES                                   */
 /* ============================================ */
 :root {
@@ -19,6 +26,8 @@
 /* ============================================ */
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
+html, body { width: 100%; }
+
 body {
   font-family: var(--font);
   background:
@@ -27,6 +36,8 @@ body {
     linear-gradient(160deg, #020515 0%, #06011c 60%, #080120 100%);
   color: var(--text-primary);
   min-height: 100vh;
+  min-height: 100svh;
+  padding-top: calc(62px + env(safe-area-inset-top));
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -54,7 +65,6 @@ body {
 .notifications-container {
   max-width: 700px; margin: 0 auto;
   padding: 16px;
-  padding-top: calc(62px + env(safe-area-inset-top) + 16px);
   padding-bottom: calc(30px + env(safe-area-inset-bottom));
   padding-left:  calc(16px + env(safe-area-inset-left));
   padding-right: calc(16px + env(safe-area-inset-right));
@@ -261,7 +271,6 @@ body {
 @media (max-width: 480px) {
   .notifications-container {
     padding: 12px;
-    padding-top: calc(62px + env(safe-area-inset-top) + 12px);
     padding-bottom: calc(30px + env(safe-area-inset-bottom));
     padding-left:  calc(12px + env(safe-area-inset-left));
     padding-right: calc(12px + env(safe-area-inset-right));
@@ -277,14 +286,14 @@ body {
 
   .notifications-container {
     max-width: 1020px;
-    /* Sin calc(62px+...) — el padding-top ya viene del base */
-    padding: 0 32px 60px;
+    padding: 40px 32px 60px;
+    padding-left:  calc(32px + env(safe-area-inset-left));
+    padding-right: calc(32px + env(safe-area-inset-right));
   }
 
   /* ── top bar full width ── */
   .notif-top-bar {
     width: 100%;
-    padding-top: 16px;
     margin-bottom: 32px;
   }
   .back-button {

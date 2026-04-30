@@ -53,7 +53,15 @@
 .icon-coin:active,
 .icon-notification:active { transform: scale(0.93); }
 .icon-users:hover,
-.icon-coin:hover { border-color: rgba(141,23,251,0.4); background: rgba(141,23,251,0.08); }
+.icon-coin:hover,
+.icon-notification:hover { border-color: rgba(141,23,251,0.4); background: rgba(141,23,251,0.08); }
+
+/* Página activa */
+.icon-active {
+  border-color: rgba(141,23,251,0.55) !important;
+  background: rgba(141,23,251,0.14) !important;
+  box-shadow: 0 0 0 1px rgba(141,23,251,0.25);
+}
 
 .icon-users svg,
 .icon-notification svg {
