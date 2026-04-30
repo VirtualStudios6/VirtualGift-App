@@ -65,13 +65,14 @@ const REQUIREMENTS = [
 ];
 
 // ── ESTADO ──
-let currentUser      = null;
-let userCoins        = 0;
-let allRaffles       = [];
-let selectedRaffle   = null;
-let reqCompleted     = {};
-let adTimers         = {};
+let currentUser        = null;
+let userCoins          = 0;
+let allRaffles         = [];
+let selectedRaffle     = null;
+let reqCompleted       = {};
+let adTimers           = {};
 let currentEntryNumber = 1;
+let currentParticipantId = null;
 
 // ── UTILIDADES ──
 function formatTimeLeft(endDate) {
@@ -470,6 +471,7 @@ async function confirmParticipation() {
     const fn     = firebase.functions().httpsCallable("participateInRaffle");
     const result = await fn({ raffleId: selectedRaffle.id });
 
+    currentParticipantId = result.data.participantId;
     userCoins = result.data.newCoinBalance;
     updateBalanceUI();
     closeModal();
@@ -586,17 +588,44 @@ function updateReqProgress() {
   btn.classList.toggle("ready", allDone);
 }
 
-function finishRequirements() {
+async function finishRequirements() {
+  if (!currentUser || !selectedRaffle) return;
+
+  const btn = document.getElementById("reqFinishBtn");
+  const originalText = btn?.textContent || "";
+  if (btn) { btn.disabled = true; btn.textContent = "Procesando…"; }
+
   const done = Object.values(reqCompleted).filter(Boolean).length;
-  if (done > 0 && currentUser && selectedRaffle) {
-    window.db.collection("raffleParticipants")
-      .where("raffleId", "==", selectedRaffle.id)
-      .where("userId",   "==", currentUser.uid)
-      .get()
-      .then(snap => {
-        if (!snap.empty) snap.docs[0].ref.update({ requirementsCompleted: true });
-      });
+
+  // Only call the Cloud Function if at least one requirement was done
+  // and we have the participantId from the earlier participation step
+  if (done > 0 && currentParticipantId) {
+    try {
+      const fn = firebase.functions().httpsCallable("completeRaffleRequirements");
+      await fn({ participantId: currentParticipantId, raffleId: selectedRaffle.id });
+    } catch (err) {
+      const code = err.code || "";
+
+      // Idempotent — already completed is not an error, continue to success
+      if (code !== "functions/already-exists") {
+        let userMsg;
+        if (code === "functions/failed-precondition") userMsg = err.message || "El sorteo ya finalizó";
+        else if (code === "functions/not-found")      userMsg = "Participación no encontrada. Recarga la página.";
+        else if (code === "functions/unauthenticated")userMsg = "Sesión expirada. Recarga la página.";
+        else                                          userMsg = "Error al guardar requisitos. Intenta de nuevo.";
+
+        // Show error inside requirements screen — do NOT proceed to success
+        const errEl = document.getElementById("reqErrorMsg");
+        if (errEl) {
+          errEl.textContent    = userMsg;
+          errEl.style.display  = "block";
+        }
+        if (btn) { btn.disabled = false; btn.textContent = originalText; }
+        return;
+      }
+    }
   }
+
   document.getElementById("sgReqScreen").style.display = "none";
   openSuccess(selectedRaffle, currentEntryNumber);
 }

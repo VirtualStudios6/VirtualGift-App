@@ -384,6 +384,61 @@ exports.participateInRaffle = onCall({ region: "us-central1" }, async (request) 
 });
 
 // =====================
+// COMPLETE RAFFLE REQUIREMENTS
+// =====================
+
+exports.completeRaffleRequirements = onCall({ region: "us-central1" }, async (request) => {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError("unauthenticated", "Debes iniciar sesión");
+
+  const participantId = (request.data?.participantId || "").trim();
+  const raffleId      = (request.data?.raffleId      || "").trim();
+  if (!participantId || !raffleId) {
+    throw new HttpsError("invalid-argument", "participantId y raffleId son requeridos");
+  }
+
+  const participantRef = db.collection("raffleParticipants").doc(participantId);
+  const raffleRef      = db.collection("raffles").doc(raffleId);
+
+  const [participantSnap, raffleSnap] = await Promise.all([
+    participantRef.get(),
+    raffleRef.get(),
+  ]);
+
+  if (!participantSnap.exists) {
+    throw new HttpsError("not-found", "Participación no encontrada");
+  }
+
+  const participant = participantSnap.data();
+
+  if (participant.userId !== uid) {
+    throw new HttpsError("permission-denied", "Esta participación no es tuya");
+  }
+
+  // Idempotent — already completed is not an error
+  if (participant.requirementsCompleted === true) {
+    return { success: true, alreadyCompleted: true };
+  }
+
+  if (!raffleSnap.exists) {
+    throw new HttpsError("not-found", "Sorteo no encontrado");
+  }
+
+  const raffle  = raffleSnap.data();
+  const endDate = raffle.endDate?.toDate ? raffle.endDate.toDate() : new Date(raffle.endDate);
+  if (!raffle.active || endDate < new Date()) {
+    throw new HttpsError("failed-precondition", "El sorteo ya finalizó");
+  }
+
+  await participantRef.update({
+    requirementsCompleted:   true,
+    requirementsCompletedAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
+  return { success: true, alreadyCompleted: false };
+});
+
+// =====================
 // APPLY REFERRAL CODE
 // =====================
 

@@ -317,7 +317,8 @@ body {
 .sg-req-action-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
 .sg-req-done-badge  { font-size: .78rem; font-weight: 700; color: #4ade80; }
 .sg-req-countdown   { width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(141,23,251,0.45); display: flex; align-items: center; justify-content: center; font-size: .88rem; font-weight: 800; color: var(--accent); }
-.sg-req-note { font-size: .72rem; color: var(--text-3); text-align: center; margin-bottom: 20px; }
+.sg-req-note  { font-size: .72rem; color: var(--text-3); text-align: center; margin-bottom: 20px; }
+.sg-req-error { font-size: .8rem; color: #f87171; text-align: center; margin: 8px 0 0; display: none; }
 .sg-req-btn  { width: 100%; padding: 16px; border-radius: 14px; border: 1px solid var(--card-border); background: var(--card); color: var(--text-2); font-family: var(--font); font-size: .95rem; font-weight: 700; cursor: pointer; transition: all .3s; }
 .sg-req-btn.ready { background: linear-gradient(135deg, var(--secondary), var(--primary)); border-color: transparent; color: #fff; box-shadow: var(--glow-soft); }
 .sg-req-btn.ready:hover { box-shadow: var(--glow); transform: translateY(-1px); }
