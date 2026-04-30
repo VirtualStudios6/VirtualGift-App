@@ -65,14 +65,15 @@ const REQUIREMENTS = [
 ];
 
 // ── ESTADO ──
-let currentUser        = null;
-let userCoins          = 0;
-let allRaffles         = [];
-let selectedRaffle     = null;
-let reqCompleted       = {};
-let adTimers           = {};
-let currentEntryNumber = 1;
+let currentUser          = null;
+let userCoins            = 0;
+let allRaffles           = [];
+let selectedRaffle       = null;
+let reqCompleted         = {};
+let adTimers             = {};
+let currentEntryNumber   = 1;
 let currentParticipantId = null;
+let _unsubNotifCount     = null;
 
 // ── UTILIDADES ──
 function formatTimeLeft(endDate) {
@@ -112,8 +113,13 @@ function updateBalanceUI() {
   if (el) el.textContent = userCoins.toLocaleString('en-US');
 }
 
+function stopNotifCount() {
+  if (_unsubNotifCount) { _unsubNotifCount(); _unsubNotifCount = null; }
+}
+
 function loadNotificationCount(uid) {
-  window.db.collection("notifications")
+  stopNotifCount();
+  _unsubNotifCount = window.db.collection("notifications")
     .where("userId", "in", [uid, "ALL"])
     .orderBy("timestamp", "desc")
     .limit(50)
@@ -136,6 +142,7 @@ window.addEventListener("load", () => {
   window.waitForFirebase(() => {
     window.auth.onAuthStateChanged(async (fbUser) => {
       if (!fbUser) {
+        stopNotifCount();
         window.location.href = typeof withAppFlag === "function"
           ? withAppFlag("index.html") : "index.html";
         return;
@@ -646,3 +653,6 @@ function openSuccess(raffle, entryNumber = 1) {
   document.getElementById("sgSuccessScreen").style.display = "flex";
   window.scrollTo(0, 0);
 }
+
+window.addEventListener('beforeunload', stopNotifCount);
+window.addEventListener('pagehide', stopNotifCount);

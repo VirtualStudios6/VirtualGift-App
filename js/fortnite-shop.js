@@ -65,6 +65,12 @@
       .join("");
   }
 
+  let _unsubShop = null;
+
+  function stopShop() {
+    if (_unsubShop) { _unsubShop(); _unsubShop = null; }
+  }
+
   function initRealtimeShop() {
     if (!window.db) {
       console.warn("Firestore (window.db) no está listo aún.");
@@ -83,7 +89,8 @@
     skinsGrid.innerHTML = `<div class="skin-card"><p class="skin-name">Cargando tienda...</p></div>`;
     emotesGrid.innerHTML = `<div class="emote-card"><p class="emote-name">Cargando tienda...</p></div>`;
 
-    window.db
+    stopShop();
+    _unsubShop = window.db
       .collection("shopDailyItems")
       .orderBy("sort", "asc")
       .onSnapshot(
@@ -128,4 +135,6 @@
   }
 
   window.addEventListener("load", () => waitDb());
+  window.addEventListener('beforeunload', stopShop);
+  window.addEventListener('pagehide', stopShop);
 })();

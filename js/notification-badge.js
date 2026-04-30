@@ -22,9 +22,16 @@
     }
   }
 
+  let _unsubBadge = null;
+
+  function stopBadge() {
+    if (_unsubBadge) { _unsubBadge(); _unsubBadge = null; }
+  }
+
   function start(uid) {
     if (!window.db) return;
-    window.db
+    stopBadge();
+    _unsubBadge = window.db
       .collection("notifications")
       .where("userId", "in", [uid, "ALL"])
       .orderBy("timestamp", "desc")
@@ -42,9 +49,12 @@
   function init() {
     if (!window.auth || !window.db) return;
     window.auth.onAuthStateChanged((user) => {
-      if (user) start(user.uid);
+      if (user) { start(user.uid); } else { stopBadge(); }
     });
   }
+
+  window.addEventListener('beforeunload', stopBadge);
+  window.addEventListener('pagehide', stopBadge);
 
   if (typeof window.waitForFirebase === "function") {
     window.waitForFirebase((err) => { if (!err) init(); });

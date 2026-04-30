@@ -15,6 +15,7 @@ const CHECKIN_REWARDS = [10, 15, 20, 25, 30, 40, 75];
 let currentUserPoints = 0;
 let currentUserId     = null;
 let selectedPlatform  = null;
+let _unsubNotifCount  = null;
 
 /* ============================================ */
 /* MODAL PERSONALIZADO */
@@ -116,8 +117,13 @@ function waitForFirebase(cb, max = 80) {
 /* ============================================ */
 /* NOTIFICACIONES (BADGE) */
 /* ============================================ */
+function stopNotifCount() {
+  if (_unsubNotifCount) { _unsubNotifCount(); _unsubNotifCount = null; }
+}
+
 function loadNotificationCount(uid) {
-  window.db.collection('notifications')
+  stopNotifCount();
+  _unsubNotifCount = window.db.collection('notifications')
     .where('userId', 'in', [uid, 'ALL'])
     .orderBy('timestamp', 'desc')
     .limit(50)
@@ -550,9 +556,9 @@ async function loadHistory(userId, append = false) {
 function checkAuth() {
   waitForFirebase(() => {
     firebase.auth().onAuthStateChanged(async user => {
-      if (!user) { window.location.href = withAppFlag('index.html'); return; }
+      if (!user) { stopNotifCount(); window.location.href = withAppFlag('index.html'); return; }
       if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
-        window.location.href = withAppFlag('verify-pending.html'); return;
+        stopNotifCount(); window.location.href = withAppFlag('verify-pending.html'); return;
       }
       window._vcCurrentUser = user;
       window._historyUserId = user.uid;
@@ -587,3 +593,6 @@ window.addEventListener('load', () => {
 
   checkAuth();
 });
+
+window.addEventListener('beforeunload', stopNotifCount);
+window.addEventListener('pagehide', stopNotifCount);

@@ -56,10 +56,16 @@ function updateBadge(count) {
  * Inicia el listener en tiempo real del badge de notificaciones
  * @param {Object} user - Usuario autenticado de Firebase
  */
+let _unsubNotifCount = null;
+
+function stopNotifCount() {
+  if (_unsubNotifCount) { _unsubNotifCount(); _unsubNotifCount = null; }
+}
+
 function loadNotificationCount(user) {
   if (!isFirebaseReady()) return;
-
-  firebase.firestore()
+  stopNotifCount();
+  _unsubNotifCount = firebase.firestore()
     .collection('notifications')
     .where('userId', 'in', [user.uid, 'ALL'])
     .orderBy('timestamp', 'desc')
@@ -85,9 +91,9 @@ function loadNotificationCount(user) {
 function checkAuth() {
   waitForFirebase(() => {
     firebase.auth().onAuthStateChanged((user) => {
-      if (!user) { window.location.href = withAppFlag('index.html'); return; }
+      if (!user) { stopNotifCount(); window.location.href = withAppFlag('index.html'); return; }
       if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
-        window.location.href = withAppFlag('verify-pending.html'); return;
+        stopNotifCount(); window.location.href = withAppFlag('verify-pending.html'); return;
       }
       loadNotificationCount(user);
     });
@@ -99,6 +105,9 @@ function checkAuth() {
 /* ============================================ */
 
 checkAuth();
+
+window.addEventListener('beforeunload', stopNotifCount);
+window.addEventListener('pagehide', stopNotifCount);
 
 document.addEventListener('DOMContentLoaded', () => {
   const logo = document.getElementById('appLogo');
