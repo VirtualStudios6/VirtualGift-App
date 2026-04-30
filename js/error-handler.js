@@ -14,7 +14,7 @@ window.ErrorHandler = {
     console.error('[' + context + ']', error);
 
     // Obtener mensaje para el usuario
-    var userMessage = this.getUserMessage(error);
+    const userMessage = this.getUserMessage(error);
 
     // Mostrar al usuario si es necesario
     if (showToUser && typeof NotificationManager !== 'undefined') {
@@ -50,7 +50,7 @@ window.ErrorHandler = {
    * Mensajes de error de Firebase Auth en español
    */
   getAuthErrorMessage: function(code) {
-    var messages = {
+    const messages = {
       // Registro
       'auth/email-already-in-use': 'Este correo ya está registrado',
       'auth/invalid-email': 'Correo electrónico inválido',
@@ -82,4 +82,4 @@ window.ErrorHandler = {
   }
 };
 
-console.log('✅ ErrorHandler cargado');
+vgLog('✅ ErrorHandler cargado');

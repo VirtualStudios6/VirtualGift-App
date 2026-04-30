@@ -2,7 +2,7 @@
 (function () {
   if (!window.Capacitor?.isNativePlatform?.()) return;
 
-  var _adNoop = { push: function () {} };
+  const _adNoop = { push: function () {} };
   try {
     Object.defineProperty(window, 'adsbygoogle', {
       get: function () { return _adNoop; },
@@ -13,7 +13,7 @@
     window.adsbygoogle = _adNoop;
   }
 
-  var _s = document.createElement('style');
+  const _s = document.createElement('style');
   _s.textContent = '.adsbygoogle,.ads-container{display:none!important;height:0!important;min-height:0!important;overflow:hidden!important;padding:0!important;margin:0!important}';
   document.head.appendChild(_s);
 })();

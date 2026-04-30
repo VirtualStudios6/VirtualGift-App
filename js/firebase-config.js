@@ -1,4 +1,12 @@
 
+// Conditional logger — silent in production unless localStorage.VG_DEBUG='true'
+if (typeof window.vgLog !== 'function') {
+  window.vgLog = (function () {
+    const on = typeof localStorage !== 'undefined' && localStorage.getItem('VG_DEBUG') === 'true';
+    return on ? console.log.bind(console) : function () {};
+  })();
+}
+
 const firebaseConfig = {
   apiKey: "AIzaSyDFn7fJPpOzuyiBKBXh7Lm8pHN6TwY8K-g",
   authDomain: "virtualgift-login.firebaseapp.com",
@@ -35,9 +43,9 @@ const firebaseConfig = {
       // 1) Init app (solo una vez)
       if (!firebase.apps || firebase.apps.length === 0) {
         firebase.initializeApp(firebaseConfig);
-        console.log("✅ Firebase inicializado");
+        vgLog("✅ Firebase inicializado");
       } else {
-        console.log("ℹ️ Firebase ya estaba inicializado");
+        vgLog("ℹ️ Firebase ya estaba inicializado");
       }
 
       // 2) Servicios
@@ -49,7 +57,7 @@ const firebaseConfig = {
 
       // 3) Persistencia (no bloquea la app)
       auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-        .then(() => console.log("✅ Persistencia LOCAL configurada"))
+        .then(() => vgLog("✅ Persistencia LOCAL configurada"))
         .catch((e) => console.warn("⚠️ Persistencia no se pudo establecer:", e?.message || e));
 
       // Idioma
@@ -65,7 +73,7 @@ const firebaseConfig = {
       window.__firebaseReady = true;
       window.__firebaseStorageReady = !!storage;
 
-      console.log("📦 Firebase listo:", {
+      vgLog("📦 Firebase listo:", {
         auth: !!window.auth,
         firestore: !!window.db,
         storage: !!window.storage

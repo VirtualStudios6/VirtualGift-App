@@ -15,7 +15,6 @@ const CHECKIN_REWARDS = [10, 15, 20, 25, 30, 40, 75];
 let currentUserPoints = 0;
 let currentUserId     = null;
 let selectedPlatform  = null;
-let _unsubNotifCount  = null;
 
 /* ============================================ */
 /* MODAL PERSONALIZADO */
@@ -112,33 +111,6 @@ function waitForFirebase(cb, max = 80) {
     if (isFirebaseReady()) { clearInterval(t); cb(); }
     else if (i >= max) { clearInterval(t); window.location.href = withAppFlag('index.html'); }
   }, 100);
-}
-
-/* ============================================ */
-/* NOTIFICACIONES (BADGE) */
-/* ============================================ */
-function stopNotifCount() {
-  if (_unsubNotifCount) { _unsubNotifCount(); _unsubNotifCount = null; }
-}
-
-function loadNotificationCount(uid) {
-  stopNotifCount();
-  _unsubNotifCount = window.db.collection('notifications')
-    .where('userId', 'in', [uid, 'ALL'])
-    .orderBy('timestamp', 'desc')
-    .limit(50)
-    .onSnapshot(
-      (snap) => {
-        let hidden = new Set();
-        try { hidden = new Set(JSON.parse(localStorage.getItem(`vg_notifs_hidden_${uid}`) || '[]')); } catch {}
-        const unread = snap.docs.filter(doc => !doc.data().read && !hidden.has(doc.id)).length;
-        const badge = document.getElementById('notificationBadge');
-        if (!badge) return;
-        badge.textContent = unread;
-        badge.style.display = unread > 0 ? 'flex' : 'none';
-      },
-      () => {}
-    );
 }
 
 /* ============================================ */
@@ -556,14 +528,13 @@ async function loadHistory(userId, append = false) {
 function checkAuth() {
   waitForFirebase(() => {
     firebase.auth().onAuthStateChanged(async user => {
-      if (!user) { stopNotifCount(); window.location.href = withAppFlag('index.html'); return; }
+      if (!user) { window.location.href = withAppFlag('index.html'); return; }
       if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
-        stopNotifCount(); window.location.href = withAppFlag('verify-pending.html'); return;
+        window.location.href = withAppFlag('verify-pending.html'); return;
       }
       window._vcCurrentUser = user;
       window._historyUserId = user.uid;
       loadUserPoints(user.uid);
-      loadNotificationCount(user.uid);
       loadCheckin(user);
       loadHistory(user.uid);
     });
@@ -593,6 +564,3 @@ window.addEventListener('load', () => {
 
   checkAuth();
 });
-
-window.addEventListener('beforeunload', stopNotifCount);
-window.addEventListener('pagehide', stopNotifCount);

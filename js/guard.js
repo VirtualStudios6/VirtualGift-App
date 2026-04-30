@@ -13,7 +13,7 @@
     if (typeof window.waitForFirebase === 'function') {
       window.waitForFirebase(callback);
     } else {
-      var t = setInterval(function () {
+      const t = setInterval(function () {
         if (typeof window.waitForFirebase === 'function') {
           clearInterval(t);
           window.waitForFirebase(callback);
@@ -27,8 +27,8 @@
     options = options || {};
     return new Promise(function (resolve) {
       _runWhenReady(function () {
-        var auth = window.auth || firebase.auth();
-        var unsub = auth.onAuthStateChanged(function (user) {
+        const auth = window.auth || firebase.auth();
+        const unsub = auth.onAuthStateChanged(function (user) {
           unsub();
           if (!user) { _go('index.html'); resolve(null); return; }
           if (!user.emailVerified && _isPasswordProvider(user)) {
@@ -46,8 +46,8 @@
     options = options || {};
     return new Promise(function (resolve) {
       _runWhenReady(function () {
-        var auth = window.auth || firebase.auth();
-        var unsub = auth.onAuthStateChanged(function (user) {
+        const auth = window.auth || firebase.auth();
+        const unsub = auth.onAuthStateChanged(function (user) {
           unsub();
           if (!user) { _go('index.html'); resolve(null); return; }
           if (!user.emailVerified && _isPasswordProvider(user)) {

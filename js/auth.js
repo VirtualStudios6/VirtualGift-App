@@ -260,7 +260,7 @@ const FormManager = {
       // Guardar displayName en Firebase Auth
       try {
         await user.updateProfile({ displayName: username });
-        console.log('✅ displayName guardado en Auth:', username);
+        vgLog('✅ displayName guardado en Auth:', username);
       } catch(e) {
         console.error('❌ Error guardando displayName en Auth:', e.code, e.message);
       }
@@ -268,7 +268,7 @@ const FormManager = {
       // Email de verificación
       try {
         await user.sendEmailVerification();
-        console.log('✅ Email de verificación enviado a:', email);
+        vgLog('✅ Email de verificación enviado a:', email);
       } catch(e) {
         console.error('❌ Error enviando verificación:', e.code, e.message);
       }
@@ -277,7 +277,7 @@ const FormManager = {
       // Esto garantiza que las reglas de seguridad reconozcan al usuario recién creado
       try {
         await user.getIdToken(true);
-        console.log('✅ Token refrescado');
+        vgLog('✅ Token refrescado');
       } catch(e) {
         console.warn('⚠️ No se pudo refrescar el token:', e.message);
       }
@@ -301,7 +301,7 @@ const FormManager = {
         lastLogin: firebase.firestore.FieldValue.serverTimestamp()
       });
 
-      console.log('✅ Firestore: usuario creado | username:', username, '| points:', CONFIG.INITIAL_USER_POINTS);
+      vgLog('✅ Firestore: usuario creado | username:', username, '| points:', CONFIG.INITIAL_USER_POINTS);
 
       // Guardar código de referido pendiente (si existe)
       try {

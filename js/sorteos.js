@@ -73,7 +73,6 @@ let reqCompleted         = {};
 let adTimers             = {};
 let currentEntryNumber   = 1;
 let currentParticipantId = null;
-let _unsubNotifCount     = null;
 
 // ── UTILIDADES ──
 function formatTimeLeft(endDate) {
@@ -113,36 +112,11 @@ function updateBalanceUI() {
   if (el) el.textContent = userCoins.toLocaleString('en-US');
 }
 
-function stopNotifCount() {
-  if (_unsubNotifCount) { _unsubNotifCount(); _unsubNotifCount = null; }
-}
-
-function loadNotificationCount(uid) {
-  stopNotifCount();
-  _unsubNotifCount = window.db.collection("notifications")
-    .where("userId", "in", [uid, "ALL"])
-    .orderBy("timestamp", "desc")
-    .limit(50)
-    .onSnapshot(
-      (snap) => {
-        let hidden = new Set();
-        try { hidden = new Set(JSON.parse(localStorage.getItem(`vg_notifs_hidden_${uid}`) || '[]')); } catch {}
-        const unread = snap.docs.filter(doc => !doc.data().read && !hidden.has(doc.id)).length;
-        const badge = document.getElementById("notificationBadge");
-        if (!badge) return;
-        badge.textContent = unread;
-        badge.style.display = unread > 0 ? "flex" : "none";
-      },
-      () => {}
-    );
-}
-
 // ── INIT (usando window.waitForFirebase igual que puntos.js) ──
 window.addEventListener("load", () => {
   window.waitForFirebase(() => {
     window.auth.onAuthStateChanged(async (fbUser) => {
       if (!fbUser) {
-        stopNotifCount();
         window.location.href = typeof withAppFlag === "function"
           ? withAppFlag("index.html") : "index.html";
         return;
@@ -170,7 +144,6 @@ window.addEventListener("load", () => {
       }
 
       updateBalanceUI();
-      loadNotificationCount(fbUser.uid);
       loadRaffles();
     });
   });
@@ -654,5 +627,3 @@ function openSuccess(raffle, entryNumber = 1) {
   window.scrollTo(0, 0);
 }
 
-window.addEventListener('beforeunload', stopNotifCount);
-window.addEventListener('pagehide', stopNotifCount);

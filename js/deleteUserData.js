@@ -87,7 +87,7 @@ async function deleteUserFirestoreData(uid) {
     await batch.commit();
   }
 
-  console.log(`[deleteUserData] Firestore limpio para uid: ${uid} (${deletedPaths.size + directDocs.length} docs)`);
+  vgLog(`[deleteUserData] Firestore limpio para uid: ${uid} (${deletedPaths.size + directDocs.length} docs)`);
 }
 
 /**
@@ -112,7 +112,7 @@ async function deleteUserStorageData(uid) {
     try {
       const ref = window.storage.ref().child(path);
       await ref.delete();
-      console.log(`[deleteUserData] Storage eliminado: ${path}`);
+      vgLog(`[deleteUserData] Storage eliminado: ${path}`);
     } catch (e) {
       // object-not-found es normal si el archivo no existe
       if (e.code !== 'storage/object-not-found') {
@@ -130,12 +130,12 @@ async function deleteUserStorageData(uid) {
 async function deleteUserData(uid) {
   if (!uid) throw new Error('deleteUserData: uid es requerido');
 
-  console.log(`[deleteUserData] Iniciando limpieza para uid: ${uid}`);
+  vgLog(`[deleteUserData] Iniciando limpieza para uid: ${uid}`);
 
   await Promise.allSettled([
     deleteUserFirestoreData(uid),
     deleteUserStorageData(uid)
   ]);
 
-  console.log(`[deleteUserData] Limpieza completa para uid: ${uid}`);
+  vgLog(`[deleteUserData] Limpieza completa para uid: ${uid}`);
 }

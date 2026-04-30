@@ -203,20 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 referredBy      = refSnap.docs[0].id;
                 initialPoints  += REFERRAL_BONUS;
 
-                // Intentar recompensar al referidor (requiere reglas permisivas o Cloud Function)
-                try {
-                  await refSnap.docs[0].ref.update({
-                    points: firebase.firestore.FieldValue.increment(REFERRAL_BONUS)
-                  });
-                  await db.collection('pointsHistory').add({
-                    userId: referredBy, type: 'referral_bonus',
-                    points: REFERRAL_BONUS, fromUser: user.uid,
-                    createdAt: firebase.firestore.Timestamp.now(),
-                  });
-                } catch(rErr) {
-                  console.warn('[referral] No se pudo recompensar al referidor:', rErr.code);
-                }
-
+                // Referral bonus is handled by the applyReferral Cloud Function
                 await db.collection('pointsHistory').add({
                   userId: user.uid, type: 'referral_bonus',
                   points: REFERRAL_BONUS, fromCode: prevData.pendingReferral,
