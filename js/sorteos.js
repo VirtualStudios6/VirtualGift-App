@@ -459,6 +459,7 @@ async function confirmParticipation() {
 
   } catch (err) {
     const code = err.code || "";
+    console.error("[sorteos] participateInRaffle error:", code, err.message, err.details, err);
     let userMsg;
 
     if (code === "functions/failed-precondition") {
@@ -471,8 +472,16 @@ async function confirmParticipation() {
       userMsg = "Sorteo no encontrado. Recarga la página.";
     } else if (code === "functions/unauthenticated") {
       userMsg = "Sesión expirada. Recarga la página.";
+    } else if (code === "functions/invalid-argument") {
+      userMsg = "Datos inválidos. Recarga la página.";
+    } else if (code === "functions/permission-denied") {
+      userMsg = "Sin permisos. Recarga la página.";
+    } else if (code === "functions/internal") {
+      userMsg = "Error en el servidor. Intenta de nuevo en unos minutos.";
+    } else if (code === "functions/unavailable" || code === "functions/deadline-exceeded") {
+      userMsg = "Servicio no disponible. Comprueba tu conexión e intenta de nuevo.";
     } else {
-      userMsg = "Error inesperado. Intenta de nuevo.";
+      userMsg = `Error inesperado (${code || "sin código"}). Intenta de nuevo.`;
     }
 
     document.getElementById("mNoticeWarn").style.display = "flex";

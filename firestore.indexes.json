@@ -1,0 +1,21 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "raffleParticipants",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "raffleId", "order": "ASCENDING" },
+        { "fieldPath": "userId",   "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "raffleParticipants",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",   "order": "ASCENDING" },
+        { "fieldPath": "enteredAt","order": "DESCENDING" }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

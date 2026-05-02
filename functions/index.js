@@ -373,20 +373,32 @@ exports.participateInRaffle = onCall({ region: "us-central1" }, async (request) 
     }
 
     const endDate = raffle.endDate?.toDate ? raffle.endDate.toDate() : new Date(raffle.endDate);
+    if (!(endDate instanceof Date) || isNaN(endDate.getTime())) {
+      throw new HttpsError("failed-precondition", "El sorteo tiene una fecha inválida");
+    }
     if (endDate < new Date()) {
       throw new HttpsError("failed-precondition", "Este sorteo ya finalizó");
     }
 
-    if ((raffle.participants || 0) >= raffle.maxParticipants) {
+    const maxParticipants = Number(raffle.maxParticipants);
+    if (!Number.isFinite(maxParticipants) || maxParticipants <= 0) {
+      throw new HttpsError("failed-precondition", "Configuración del sorteo inválida");
+    }
+    if ((raffle.participants || 0) >= maxParticipants) {
       throw new HttpsError("resource-exhausted", "El sorteo ya alcanzó el máximo de participantes");
     }
 
-    const userPoints = userSnap.data()?.points || 0;
-    if (userPoints < raffle.cost) {
-      throw new HttpsError("failed-precondition", "No tienes suficientes coins");
+    const cost = Number(raffle.cost);
+    if (!Number.isFinite(cost) || cost < 0) {
+      throw new HttpsError("failed-precondition", "Costo del sorteo inválido");
     }
 
-    newCoinBalance = userPoints - raffle.cost;
+    const userPoints = Number(userSnap.data()?.points) || 0;
+    if (userPoints < cost) {
+      throw new HttpsError("failed-precondition", `No tienes suficientes coins. Necesitas ${cost}, tienes ${userPoints}`);
+    }
+
+    newCoinBalance = userPoints - cost;
 
     tx.update(userRef,   { points: newCoinBalance });
     tx.update(raffleRef, { participants: admin.firestore.FieldValue.increment(1) });
@@ -400,7 +412,7 @@ exports.participateInRaffle = onCall({ region: "us-central1" }, async (request) 
     tx.set(historyRef, {
       userId:      uid,
       type:        "raffle_entry",
-      points:      -raffle.cost,
+      points:      -cost,
       raffleId,
       raffleTitle: `${raffle.title || ""} ${raffle.value || ""}`.trim(),
       createdAt:   now,
