@@ -86,10 +86,6 @@ function formatTimeLeft(endDate) {
   return `${m}m`;
 }
 
-function getWinChance(participants) {
-  const c = (1 / Math.max(participants, 1)) * 100;
-  return c < 0.1 ? "<0.1" : c.toFixed(1);
-}
 
 function imgPath(filename) {
   return `images/giftcards/${filename}`;
@@ -175,81 +171,9 @@ async function loadRaffles() {
   }
 
   renderRaffles();
-  loadMyRaffles();
 }
 
 // ── MIS PARTICIPACIONES ──
-async function loadMyRaffles() {
-  if (!currentUser) return;
-  const section = document.getElementById("myRafflesSection");
-  const list    = document.getElementById("myRafflesList");
-  if (!section || !list) return;
-
-  try {
-    const snap = await window.db.collection("raffleParticipants")
-      .where("userId", "==", currentUser.uid)
-      .limit(50)
-      .get();
-
-    if (snap.empty) return;
-
-    const grouped = {};
-    snap.docs.forEach(doc => {
-      const d = doc.data();
-      if (!grouped[d.raffleId]) grouped[d.raffleId] = { raffleId: d.raffleId, count: 0 };
-      grouped[d.raffleId].count++;
-    });
-
-    await fetchMissingRaffles(Object.keys(grouped));
-
-    const items = Object.values(grouped).map(g => buildMyRaffleItem(g));
-    if (!items.length) return;
-    list.innerHTML = items.join('');
-    section.style.display = 'block';
-
-  } catch(e) {
-    console.warn("[myRaffles]", e.code, e.message);
-  }
-}
-
-async function fetchMissingRaffles(ids) {
-  const missing = ids.filter(id => !allRaffles.find(r => r.id === id));
-  if (!missing.length) return;
-  const snaps = await Promise.all(missing.map(id => window.db.collection("raffles").doc(id).get()));
-  snaps.forEach(s => {
-    if (s.exists) {
-      const data = s.data();
-      allRaffles.push({
-        id: s.id, ...data,
-        endDate: data.endDate?.toDate ? data.endDate.toDate() : new Date(data.endDate),
-        image: data.image || guessImage(data.title),
-      });
-    }
-  });
-}
-
-function buildMyRaffleItem(g) {
-  const raffle  = allRaffles.find(r => r.id === g.raffleId);
-  const title   = raffle ? escapeHTML(`${raffle.title} ${raffle.value}`) : "Sorteo";
-  const expired = raffle ? (raffle.endDate < Date.now()) : false;
-  const color   = raffle?.color || '#8b5cf6';
-  const imgHTML = raffle?.image
-    ? `<img class="my-rf-img" src="${imgPath(raffle.image)}" alt="${escapeHTML(raffle.title || '')}">`
-    : `<span class="my-rf-emoji">🎁</span>`;
-
-  return `<div class="my-rf-item" style="--rfc:${color}">
-    ${imgHTML}
-    <div class="my-rf-info">
-      <span class="my-rf-title">${title}</span>
-      <span class="my-rf-sub">${expired ? '⏰ Sorteo finalizado' : `⏰ Sortea en ${raffle ? formatTimeLeft(raffle.endDate) : '—'}`}</span>
-    </div>
-    <div class="my-rf-badge">
-      <span class="my-rf-badge-n">${g.count}</span>
-      <span class="my-rf-badge-l">ENTR.</span>
-    </div>
-  </div>`;
-}
-
 // ── YA AL MÁXIMO SCREEN ──
 function openAlreadyScreen(raffle) {
   const screen = document.getElementById("sgAlreadyScreen");
@@ -284,79 +208,9 @@ function closeAlreadyScreen() {
   document.body.style.overflow = "";
 }
 
-// ── MIS PARTICIPACIONES SCREEN ──
-async function openMyRafflesScreen() {
-  closeAlreadyScreen();
-  const screen = document.getElementById("sgMyScreen");
-  if (!screen) return;
-  screen.classList.remove("sg-screen-hidden");
-  document.body.style.overflow = "hidden";
-  await loadMyRafflesScreen();
-}
-
-function closeMyScreen() {
-  const screen = document.getElementById("sgMyScreen");
-  if (screen) screen.classList.add("sg-screen-hidden");
-  document.body.style.overflow = "";
-}
-
-async function loadMyRafflesScreen() {
-  const container = document.getElementById("myScreenList");
-  const countEl   = document.getElementById("myScreenCount");
-  if (!container) return;
-
-  container.innerHTML = `<div class="sg-my-skel"></div><div class="sg-my-skel"></div><div class="sg-my-skel"></div>`;
-
-  try {
-    const snap = await window.db.collection("raffleParticipants")
-      .where("userId", "==", currentUser.uid)
-      .limit(50)
-      .get();
-
-    if (snap.empty) {
-      container.innerHTML = `<div class="sg-my-empty">🎁<br>No tienes participaciones activas aún.</div>`;
-      return;
-    }
-
-    const grouped = {};
-    snap.docs.forEach(doc => {
-      const d = doc.data();
-      if (!grouped[d.raffleId]) grouped[d.raffleId] = { raffleId: d.raffleId, count: 0 };
-      grouped[d.raffleId].count++;
-    });
-
-    await fetchMissingRaffles(Object.keys(grouped));
-
-    const items = Object.values(grouped).map(g => buildMyScreenItem(g));
-    if (countEl) countEl.textContent = `${items.length} sorteo${items.length !== 1 ? 's' : ''}`;
-    container.innerHTML = items.join('');
-
-  } catch(e) {
-    console.warn("[myScreen]", e);
-    container.innerHTML = `<div class="sg-my-empty">Error al cargar. Intenta de nuevo.</div>`;
-  }
-}
-
-function buildMyScreenItem(g) {
-  const raffle  = allRaffles.find(r => r.id === g.raffleId);
-  const title   = raffle ? escapeHTML(`${raffle.title} ${raffle.value}`) : "Sorteo";
-  const color   = raffle?.color || '#8b5cf6';
-  const expired = raffle ? (raffle.endDate < Date.now()) : false;
-  const imgHTML = raffle?.image
-    ? `<img class="sg-my-item-img" src="${imgPath(raffle.image)}" alt="">`
-    : `<span class="sg-my-item-emoji">🎁</span>`;
-
-  return `<div class="sg-my-item" style="--rfc:${color}">
-    ${imgHTML}
-    <div class="sg-my-item-info">
-      <span class="sg-my-item-title">${title}</span>
-      <span class="sg-my-item-sub">${expired ? '⏰ Sorteo finalizado' : `⏰ Sortea en ${raffle ? formatTimeLeft(raffle.endDate) : '—'}`}</span>
-    </div>
-    <div class="sg-my-item-badge">
-      <span class="sg-my-item-badge-n">${g.count}</span>
-      <span class="sg-my-item-badge-l">ENTR.</span>
-    </div>
-  </div>`;
+function goToParticipaciones() {
+  window.location.href = typeof withAppFlag === "function"
+    ? withAppFlag("participaciones.html") : "participaciones.html";
 }
 
 // ── RENDER CARDS ──
@@ -399,7 +253,6 @@ function escapeHTML(str) {
 function buildCard(r, i) {
   const timeLeft  = formatTimeLeft(r.endDate);
   const fillPct   = Math.round((r.participants / r.maxParticipants) * 100);
-  const winChance = getWinChance(r.participants);
   const isUrgent  = r.endDate - Date.now() < 86400000;
 
   const tagHTML = r.tag
@@ -425,11 +278,6 @@ function buildCard(r, i) {
       <div class="sg-card-stat">
         <span class="sg-stat-label">Participantes</span>
         <span class="sg-stat-val">${r.participants.toLocaleString()}</span>
-      </div>
-      <div class="sg-stat-div"></div>
-      <div class="sg-card-stat">
-        <span class="sg-stat-label">Tu chance</span>
-        <span class="sg-stat-val">${winChance}%</span>
       </div>
       <div class="sg-stat-div"></div>
       <div class="sg-card-stat">
@@ -461,8 +309,6 @@ function openModal(raffle) {
   selectedRaffle = raffle;
   const canAfford = userCoins >= raffle.cost;
 
-  const winChance = getWinChance(raffle.participants + 1);
-
   const hero = document.getElementById("modalHero");
   hero.style.background  = `linear-gradient(145deg, ${raffle.colorDark}cc, ${raffle.color}22)`;
   hero.style.borderColor = `${raffle.color}33`;
@@ -492,7 +338,6 @@ document.getElementById("mRowBalance").textContent  = userCoins.toLocaleString('
 
 
   document.getElementById("mRowPart").textContent     = raffle.participants.toLocaleString();
-  document.getElementById("mRowChance").textContent   = `${winChance}%`;
   document.getElementById("mRowTime").textContent     = formatTimeLeft(raffle.endDate);
   document.getElementById("mNoteCost").textContent    = raffle.cost.toLocaleString();
 

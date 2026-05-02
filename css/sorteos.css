@@ -262,7 +262,6 @@ body {
 .sg-modal-row span:first-child { font-size: .8rem; color: var(--text-2); font-weight: 500; }
 .sg-modal-row span:last-child  { font-size: .86rem; font-weight: 700; }
 .sg-modal-divider { height: 1px; background: rgba(255,255,255,0.06); margin: 0 16px; }
-.sg-chance { color: var(--accent) !important; font-weight: 800 !important; }
 
 .sg-modal-notice { display: flex; gap: 10px; padding: 12px 14px; border-radius: 10px; font-size: .78rem; line-height: 1.5; margin-bottom: 12px; }
 .sg-notice-info  { background: rgba(141,23,251,0.1); border: 1px solid rgba(141,23,251,0.28); color: var(--accent); }
@@ -381,6 +380,10 @@ body {
 
 /* hidden utility for screens toggled by JS */
 .sg-screen-hidden { display: none !important; }
+
+/* modal elements hidden by default, shown via JS inline style */
+#mNoticeWarn { display: none; }
+#mSpinner    { display: none; }
 
 /* ── MIS SORTEOS FULL SCREEN ── */
 .sg-my-screen        { position: fixed; inset: 0; z-index: 320; background: #06011c; overflow-y: auto; padding-bottom: calc(90px + env(safe-area-inset-bottom)); }

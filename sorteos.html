@@ -82,15 +82,6 @@
       </div>
     </div>
 
-    <!-- MIS PARTICIPACIONES -->
-    <div class="my-rf-section" id="myRafflesSection">
-      <div class="my-rf-heading-row" onclick="openMyRafflesScreen()" role="button" aria-label="Ver mis participaciones">
-        <p class="my-rf-heading"><i data-lucide="check-circle"></i> Mis participaciones activas</p>
-        <svg class="my-rf-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
-      </div>
-      <div class="my-rf-list" id="myRafflesList"></div>
-    </div>
-
     <!-- CONTADOR -->
     <p class="sg-count" id="sgCount"></p>
 
@@ -139,24 +130,22 @@
       <div class="sg-modal-divider"></div>
       <div class="sg-modal-row"><span>Participantes</span><span id="mRowPart"></span></div>
       <div class="sg-modal-divider"></div>
-      <div class="sg-modal-row"><span>Tu probabilidad</span><span id="mRowChance" class="sg-chance"></span></div>
-      <div class="sg-modal-divider"></div>
       <div class="sg-modal-row"><span>Termina en</span><span id="mRowTime"></span></div>
     </div>
     <div class="sg-modal-notice sg-notice-info" id="mNoticeInfo">
       <i data-lucide="info"></i>
       <p>Máximo <strong>5 entradas por sorteo</strong>. Los coins se descuentan al confirmar.</p>
     </div>
-    <div class="sg-modal-notice sg-notice-warn" id="mNoticeWarn" style="display:none">
+    <div class="sg-modal-notice sg-notice-warn" id="mNoticeWarn">
       <i data-lucide="alert-triangle"></i><p id="mWarnText"></p>
     </div>
-    <button class="sg-modal-btn" id="mConfirmBtn" onclick="confirmParticipation()">
+    <button type="button" class="sg-modal-btn" id="mConfirmBtn" onclick="confirmParticipation()">
       <span id="mBtnText">Participar en el sorteo</span>
       <svg id="mBtnArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-      <span class="sg-spinner" id="mSpinner" style="display:none"></span>
+      <span class="sg-spinner" id="mSpinner"></span>
     </button>
     <p class="sg-modal-note">Se descontarán <span class="sg-coins" id="mNoteCost"></span> de tu cuenta</p>
-    <button class="sg-modal-close" onclick="closeModal()">Cancelar</button>
+    <button type="button" class="sg-modal-close" onclick="closeModal()">Cancelar</button>
   </div>
 
   <!-- PANTALLA REQUISITOS -->
@@ -222,24 +211,13 @@
       <h2 class="sg-already-title">¡Ya estás al máximo!</h2>
       <p class="sg-already-raffle" id="alreadyRaffleName"></p>
       <p class="sg-already-note">Tienes el máximo de <strong>5 entradas</strong> en este sorteo.<br>¡Mucha suerte! 🍀</p>
-      <button type="button" class="sg-already-primary" onclick="openMyRafflesScreen()">
+      <button type="button" class="sg-already-primary" onclick="goToParticipaciones()">
         Ver mis participaciones
       </button>
       <button type="button" class="sg-already-close" onclick="closeAlreadyScreen()">Cerrar</button>
     </div>
   </div>
 
-  <!-- PANTALLA: MIS PARTICIPACIONES -->
-  <div class="sg-my-screen sg-screen-hidden" id="sgMyScreen">
-    <div class="sg-my-header">
-      <button type="button" class="sg-my-back" onclick="closeMyScreen()" aria-label="Volver">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-      </button>
-      <h2 class="sg-my-h-title">Mis participaciones</h2>
-      <span class="sg-my-h-count" id="myScreenCount"></span>
-    </div>
-    <div class="sg-my-list" id="myScreenList"></div>
-  </div>
 
 <script>document.addEventListener('DOMContentLoaded', function() { if(window.lucide)lucide.createIcons(); });</script>
   <script defer src="js/bottom-nav.js"></script>
