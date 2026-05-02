@@ -458,27 +458,28 @@ async function confirmParticipation() {
     openRequirements(selectedRaffle, result.data.entryNumber);
 
   } catch (err) {
-    const code = err.code || "";
-    console.error("[sorteos] participateInRaffle error:", code, err.message, err.details, err);
+    // v2 callable functions return codes without "functions/" prefix
+    const code = (err.code || "").replace(/^functions\//, "");
+    console.error("[sorteos] participateInRaffle error:", err.code, err.message, err.details);
     let userMsg;
 
-    if (code === "functions/failed-precondition") {
+    if (code === "failed-precondition") {
       userMsg = err.message || "No se puede completar la participación";
-    } else if (code === "functions/already-exists") {
+    } else if (code === "already-exists") {
       userMsg = err.message || "Ya estás participando en este sorteo";
-    } else if (code === "functions/resource-exhausted") {
+    } else if (code === "resource-exhausted") {
       userMsg = err.message || "El sorteo ya alcanzó el máximo de participantes";
-    } else if (code === "functions/not-found") {
+    } else if (code === "not-found") {
       userMsg = "Sorteo no encontrado. Recarga la página.";
-    } else if (code === "functions/unauthenticated") {
+    } else if (code === "unauthenticated") {
       userMsg = "Sesión expirada. Recarga la página.";
-    } else if (code === "functions/invalid-argument") {
+    } else if (code === "invalid-argument") {
       userMsg = "Datos inválidos. Recarga la página.";
-    } else if (code === "functions/permission-denied") {
+    } else if (code === "permission-denied") {
       userMsg = "Sin permisos. Recarga la página.";
-    } else if (code === "functions/internal") {
+    } else if (code === "internal") {
       userMsg = "Error en el servidor. Intenta de nuevo en unos minutos.";
-    } else if (code === "functions/unavailable" || code === "functions/deadline-exceeded") {
+    } else if (code === "unavailable" || code === "deadline-exceeded") {
       userMsg = "Servicio no disponible. Comprueba tu conexión e intenta de nuevo.";
     } else {
       userMsg = `Error inesperado (${code || "sin código"}). Intenta de nuevo.`;
