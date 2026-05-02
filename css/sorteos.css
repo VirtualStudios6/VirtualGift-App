@@ -345,3 +345,59 @@ body {
 
 /* ── LOADING ── */
 .sg-loading { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 50vh; gap: 16px; color: var(--text-3); font-size: .9rem; }
+
+/* ── MIS PARTICIPACIONES (mini section) ── */
+.my-rf-section     { margin: 0 0 4px; }
+.my-rf-heading-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 0 2px; cursor: pointer; }
+.my-rf-heading     { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .06em; margin: 0; }
+.my-rf-chevron     { width: 16px; height: 16px; color: rgba(255,255,255,.35); flex-shrink: 0; }
+.my-rf-list        { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.my-rf-item        { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-left: 3px solid var(--rfc,#8b5cf6); border-radius: 12px; padding: 11px 14px; }
+.my-rf-img         { width: 30px; height: 30px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
+.my-rf-emoji       { font-size: 1.5rem; flex-shrink: 0; }
+.my-rf-info        { flex: 1; min-width: 0; }
+.my-rf-title       { display: block; font-size: 13px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.my-rf-sub         { display: block; font-size: 11px; color: rgba(255,255,255,.45); margin-top: 2px; }
+.my-rf-badge       { display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,.08); border-radius: 8px; padding: 5px 9px; min-width: 38px; flex-shrink: 0; }
+.my-rf-badge-n     { font-size: 15px; font-weight: 800; color: white; line-height: 1; }
+.my-rf-badge-l     { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.5); margin-top: 1px; }
+#myRafflesSection  { display: none; }
+
+/* ── YA AL MÁXIMO SCREEN ── */
+.sg-already-screen   { position: fixed; inset: 0; z-index: 320; background: linear-gradient(160deg,#0e0320 0%,#06011c 100%); display: flex; align-items: center; justify-content: center; padding: 32px 24px; }
+.sg-already-inner    { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; max-width: 340px; width: 100%; }
+.sg-already-top      { position: relative; margin-bottom: 4px; }
+.sg-already-img-wrap { width: 84px; height: 84px; background: rgba(255,255,255,.06); border-radius: 20px; display: flex; align-items: center; justify-content: center; }
+.sg-already-img-wrap img  { width: 56px; height: 56px; object-fit: contain; }
+.sg-already-img-wrap span { font-size: 2.6rem; line-height: 1; }
+.sg-already-cnt      { position: absolute; top: -10px; right: -14px; background: #8b5cf6; border-radius: 14px; padding: 5px 10px; display: flex; flex-direction: column; align-items: center; line-height: 1.1; box-shadow: 0 0 20px rgba(139,92,246,.55); }
+.sg-already-cnt-n    { font-size: 18px; font-weight: 800; color: white; }
+.sg-already-cnt-l    { font-size: 8px; font-weight: 700; color: rgba(255,255,255,.75); text-transform: uppercase; letter-spacing: .04em; }
+.sg-already-title    { font-size: 22px; font-weight: 800; color: white; margin: 0; }
+.sg-already-raffle   { font-size: 14px; font-weight: 600; color: #a78bfa; margin: 0; }
+.sg-already-note     { font-size: 13px; color: rgba(255,255,255,.45); margin: 4px 0 8px; line-height: 1.5; }
+.sg-already-primary  { width: 100%; background: #8b5cf6; color: white; border: none; border-radius: 14px; padding: 15px 20px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: var(--font); }
+.sg-already-close    { background: none; border: none; color: rgba(255,255,255,.35); font-size: 14px; cursor: pointer; padding: 8px; font-family: var(--font); }
+
+/* hidden utility for screens toggled by JS */
+.sg-screen-hidden { display: none !important; }
+
+/* ── MIS SORTEOS FULL SCREEN ── */
+.sg-my-screen        { position: fixed; inset: 0; z-index: 320; background: #06011c; overflow-y: auto; padding-bottom: calc(90px + env(safe-area-inset-bottom)); }
+.sg-my-header        { position: sticky; top: 0; z-index: 1; background: rgba(6,1,28,.96); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); display: flex; align-items: center; gap: 12px; padding: calc(env(safe-area-inset-top) + 56px) 20px 14px; border-bottom: 1px solid rgba(255,255,255,.07); }
+.sg-my-back          { width: 36px; height: 36px; background: rgba(255,255,255,.07); border: none; border-radius: 10px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.sg-my-back svg      { width: 18px; height: 18px; }
+.sg-my-h-title       { font-size: 18px; font-weight: 800; color: white; margin: 0; }
+.sg-my-h-count       { font-size: 12px; color: rgba(255,255,255,.35); font-weight: 600; margin: 0 0 0 auto; }
+.sg-my-list          { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.sg-my-empty         { text-align: center; color: rgba(255,255,255,.3); font-size: 14px; padding: 60px 20px; line-height: 1.8; }
+.sg-my-item          { display: flex; align-items: center; gap: 14px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-left: 3px solid var(--rfc,#8b5cf6); border-radius: 14px; padding: 13px 16px; }
+.sg-my-item-img      { width: 40px; height: 40px; object-fit: contain; border-radius: 8px; flex-shrink: 0; }
+.sg-my-item-emoji    { font-size: 1.9rem; flex-shrink: 0; line-height: 1; }
+.sg-my-item-info     { flex: 1; min-width: 0; }
+.sg-my-item-title    { display: block; font-size: 14px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sg-my-item-sub      { display: block; font-size: 11px; color: rgba(255,255,255,.4); margin-top: 3px; }
+.sg-my-item-badge    { display: flex; flex-direction: column; align-items: center; background: rgba(255,255,255,.08); border-radius: 10px; padding: 6px 11px; flex-shrink: 0; }
+.sg-my-item-badge-n  { font-size: 18px; font-weight: 800; color: white; line-height: 1; }
+.sg-my-item-badge-l  { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.4); margin-top: 1px; text-transform: uppercase; }
+.sg-my-skel          { height: 68px; border-radius: 14px; background: linear-gradient(90deg,rgba(255,255,255,.04) 0%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 100%); background-size: 200% 100%; animation: sgShimmer 1.5s infinite; }

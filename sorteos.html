@@ -29,23 +29,6 @@
   <script defer src="js/notification-badge.js"></script>
   <script defer src="js/sorteos.js"></script>
 
-  <style>
-    /* ===== MIS PARTICIPACIONES ===== */
-    .my-rf-section { margin: 0 0 4px; }
-    .my-rf-heading { font-size: 13px; font-weight: 700; color: rgba(255,255,255,.55); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; padding: 0 2px; }
-    .my-rf-list    { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
-    .my-rf-item    { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-left: 3px solid var(--rfc, #8b5cf6); border-radius: 12px; padding: 11px 14px; }
-    .my-rf-img     { width: 30px; height: 30px; object-fit: contain; border-radius: 6px; flex-shrink: 0; }
-    .my-rf-emoji   { font-size: 1.5rem; flex-shrink: 0; }
-    .my-rf-info    { flex: 1; min-width: 0; }
-    .my-rf-title   { display: block; font-size: 13px; font-weight: 800; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .my-rf-sub     { display: block; font-size: 11px; color: rgba(255,255,255,.45); margin-top: 2px; }
-    .my-rf-badge   { display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,.08); border-radius: 8px; padding: 5px 9px; min-width: 38px; flex-shrink: 0; }
-    .my-rf-badge-n { font-size: 15px; font-weight: 800; color: white; line-height: 1; }
-    .my-rf-badge-l { font-size: 9px; font-weight: 700; color: rgba(255,255,255,.5); margin-top: 1px; }
-    #myRafflesSection { display: none; }
-  </style>
-
   <link rel="stylesheet" href="css/bottom-nav.css">
   <script defer src="js/sounds.js"></script>
 </head>
@@ -101,7 +84,10 @@
 
     <!-- MIS PARTICIPACIONES -->
     <div class="my-rf-section" id="myRafflesSection">
-      <p class="my-rf-heading"><i data-lucide="check-circle"></i> Mis participaciones activas</p>
+      <div class="my-rf-heading-row" onclick="openMyRafflesScreen()" role="button" aria-label="Ver mis participaciones">
+        <p class="my-rf-heading"><i data-lucide="check-circle"></i> Mis participaciones activas</p>
+        <svg class="my-rf-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
       <div class="my-rf-list" id="myRafflesList"></div>
     </div>
 
@@ -174,7 +160,7 @@
   </div>
 
   <!-- PANTALLA REQUISITOS -->
-  <div class="sg-req-screen" id="sgReqScreen" style="display:none">
+  <div class="sg-req-screen sg-screen-hidden" id="sgReqScreen">
     <div class="sg-req-inner">
       <div class="sg-req-pill" id="reqPill"></div>
       <h2 class="sg-req-title">Completa los requisitos</h2>
@@ -187,14 +173,14 @@
       <div class="sg-req-list" id="reqList"></div>
       <p class="sg-req-note">* Los requisitos son opcionales, pero te dan coins bonus <i data-lucide="gift"></i></p>
       <p id="reqErrorMsg" class="sg-req-error"></p>
-      <button class="sg-req-btn" id="reqFinishBtn" onclick="finishRequirements()">
+      <button type="button" class="sg-req-btn" id="reqFinishBtn" onclick="finishRequirements()">
         Continuar sin completar todo (0/3)
       </button>
     </div>
   </div>
 
   <!-- PANTALLA ÉXITO -->
-  <div class="sg-success-screen" id="sgSuccessScreen" style="display:none">
+  <div class="sg-success-screen sg-screen-hidden" id="sgSuccessScreen">
     <div class="sg-success-inner">
       <div class="sg-success-rings">
         <div class="sg-ring r1"></div>
@@ -217,8 +203,42 @@
           <span class="sg-success-stat-label">Para el sorteo</span>
         </div>
       </div>
-      <button class="sg-success-btn" onclick="window.location.reload()">Ver más sorteos</button>
+      <button type="button" class="sg-success-btn" onclick="window.location.reload()">Ver más sorteos</button>
     </div>
+  </div>
+
+  <!-- PANTALLA: YA TIENES EL MÁXIMO -->
+  <div class="sg-already-screen sg-screen-hidden" id="sgAlreadyScreen">
+    <div class="sg-already-inner">
+      <div class="sg-already-top">
+        <div class="sg-already-img-wrap" id="alreadyImgWrap">
+          <span>🎁</span>
+        </div>
+        <div class="sg-already-cnt">
+          <span class="sg-already-cnt-n" id="alreadyCount">5</span>
+          <span class="sg-already-cnt-l">entradas</span>
+        </div>
+      </div>
+      <h2 class="sg-already-title">¡Ya estás al máximo!</h2>
+      <p class="sg-already-raffle" id="alreadyRaffleName"></p>
+      <p class="sg-already-note">Tienes el máximo de <strong>5 entradas</strong> en este sorteo.<br>¡Mucha suerte! 🍀</p>
+      <button type="button" class="sg-already-primary" onclick="openMyRafflesScreen()">
+        Ver mis participaciones
+      </button>
+      <button type="button" class="sg-already-close" onclick="closeAlreadyScreen()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- PANTALLA: MIS PARTICIPACIONES -->
+  <div class="sg-my-screen sg-screen-hidden" id="sgMyScreen">
+    <div class="sg-my-header">
+      <button type="button" class="sg-my-back" onclick="closeMyScreen()" aria-label="Volver">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      </button>
+      <h2 class="sg-my-h-title">Mis participaciones</h2>
+      <span class="sg-my-h-count" id="myScreenCount"></span>
+    </div>
+    <div class="sg-my-list" id="myScreenList"></div>
   </div>
 
 <script>document.addEventListener('DOMContentLoaded', function() { if(window.lucide)lucide.createIcons(); });</script>

@@ -193,7 +193,6 @@ async function loadMyRaffles() {
 
     if (snap.empty) return;
 
-    // Agrupar por raffleId y contar entradas
     const grouped = {};
     snap.docs.forEach(doc => {
       const d = doc.data();
@@ -201,10 +200,9 @@ async function loadMyRaffles() {
       grouped[d.raffleId].count++;
     });
 
-    const items = Object.values(grouped)
-      .map(g => buildMyRaffleItem(g))
-      .filter(Boolean);
+    await fetchMissingRaffles(Object.keys(grouped));
 
+    const items = Object.values(grouped).map(g => buildMyRaffleItem(g));
     if (!items.length) return;
     list.innerHTML = items.join('');
     section.style.display = 'block';
@@ -214,27 +212,149 @@ async function loadMyRaffles() {
   }
 }
 
-function buildMyRaffleItem(g) {
-  const raffle = allRaffles.find(r => r.id === g.raffleId);
-  if (!raffle) return '';
+async function fetchMissingRaffles(ids) {
+  const missing = ids.filter(id => !allRaffles.find(r => r.id === id));
+  if (!missing.length) return;
+  const snaps = await Promise.all(missing.map(id => window.db.collection("raffles").doc(id).get()));
+  snaps.forEach(s => {
+    if (s.exists) {
+      const data = s.data();
+      allRaffles.push({
+        id: s.id, ...data,
+        endDate: data.endDate?.toDate ? data.endDate.toDate() : new Date(data.endDate),
+        image: data.image || guessImage(data.title),
+      });
+    }
+  });
+}
 
-  const title     = escapeHTML(`${raffle.title} ${raffle.value}`);
-  const timeLeft  = formatTimeLeft(raffle.endDate);
-  const expired   = raffle.endDate < Date.now();
-  const color     = raffle.color || '#8b5cf6';
-  const imgHTML   = raffle.image
-    ? `<img class="my-rf-img" src="${imgPath(raffle.image)}" alt="${escapeHTML(raffle.title)}">`
+function buildMyRaffleItem(g) {
+  const raffle  = allRaffles.find(r => r.id === g.raffleId);
+  const title   = raffle ? escapeHTML(`${raffle.title} ${raffle.value}`) : "Sorteo";
+  const expired = raffle ? (raffle.endDate < Date.now()) : false;
+  const color   = raffle?.color || '#8b5cf6';
+  const imgHTML = raffle?.image
+    ? `<img class="my-rf-img" src="${imgPath(raffle.image)}" alt="${escapeHTML(raffle.title || '')}">`
     : `<span class="my-rf-emoji">🎁</span>`;
 
   return `<div class="my-rf-item" style="--rfc:${color}">
     ${imgHTML}
     <div class="my-rf-info">
       <span class="my-rf-title">${title}</span>
-      <span class="my-rf-sub">${expired ? '⏰ Sorteo finalizado' : `⏰ Sortea en ${timeLeft}`}</span>
+      <span class="my-rf-sub">${expired ? '⏰ Sorteo finalizado' : `⏰ Sortea en ${raffle ? formatTimeLeft(raffle.endDate) : '—'}`}</span>
     </div>
     <div class="my-rf-badge">
       <span class="my-rf-badge-n">${g.count}</span>
       <span class="my-rf-badge-l">ENTR.</span>
+    </div>
+  </div>`;
+}
+
+// ── YA AL MÁXIMO SCREEN ──
+function openAlreadyScreen(raffle) {
+  const screen = document.getElementById("sgAlreadyScreen");
+  if (!screen) return;
+
+  const nameEl   = document.getElementById("alreadyRaffleName");
+  const imgWrap  = document.getElementById("alreadyImgWrap");
+  const countEl  = document.getElementById("alreadyCount");
+
+  if (nameEl) nameEl.textContent = raffle ? `${raffle.title} ${raffle.value}` : "Este sorteo";
+  if (imgWrap && raffle?.image) {
+    imgWrap.innerHTML = `<img src="${imgPath(raffle.image)}" alt="${escapeHTML(raffle.title || '')}">`;
+  }
+  if (countEl) countEl.textContent = "5";
+
+  if (currentUser && raffle) {
+    window.db.collection("raffleParticipants")
+      .where("raffleId", "==", raffle.id)
+      .where("userId",   "==", currentUser.uid)
+      .get()
+      .then(snap => { if (countEl) countEl.textContent = snap.size; })
+      .catch(() => {});
+  }
+
+  screen.classList.remove("sg-screen-hidden");
+  document.body.style.overflow = "hidden";
+}
+
+function closeAlreadyScreen() {
+  const screen = document.getElementById("sgAlreadyScreen");
+  if (screen) screen.classList.add("sg-screen-hidden");
+  document.body.style.overflow = "";
+}
+
+// ── MIS PARTICIPACIONES SCREEN ──
+async function openMyRafflesScreen() {
+  closeAlreadyScreen();
+  const screen = document.getElementById("sgMyScreen");
+  if (!screen) return;
+  screen.classList.remove("sg-screen-hidden");
+  document.body.style.overflow = "hidden";
+  await loadMyRafflesScreen();
+}
+
+function closeMyScreen() {
+  const screen = document.getElementById("sgMyScreen");
+  if (screen) screen.classList.add("sg-screen-hidden");
+  document.body.style.overflow = "";
+}
+
+async function loadMyRafflesScreen() {
+  const container = document.getElementById("myScreenList");
+  const countEl   = document.getElementById("myScreenCount");
+  if (!container) return;
+
+  container.innerHTML = `<div class="sg-my-skel"></div><div class="sg-my-skel"></div><div class="sg-my-skel"></div>`;
+
+  try {
+    const snap = await window.db.collection("raffleParticipants")
+      .where("userId", "==", currentUser.uid)
+      .limit(50)
+      .get();
+
+    if (snap.empty) {
+      container.innerHTML = `<div class="sg-my-empty">🎁<br>No tienes participaciones activas aún.</div>`;
+      return;
+    }
+
+    const grouped = {};
+    snap.docs.forEach(doc => {
+      const d = doc.data();
+      if (!grouped[d.raffleId]) grouped[d.raffleId] = { raffleId: d.raffleId, count: 0 };
+      grouped[d.raffleId].count++;
+    });
+
+    await fetchMissingRaffles(Object.keys(grouped));
+
+    const items = Object.values(grouped).map(g => buildMyScreenItem(g));
+    if (countEl) countEl.textContent = `${items.length} sorteo${items.length !== 1 ? 's' : ''}`;
+    container.innerHTML = items.join('');
+
+  } catch(e) {
+    console.warn("[myScreen]", e);
+    container.innerHTML = `<div class="sg-my-empty">Error al cargar. Intenta de nuevo.</div>`;
+  }
+}
+
+function buildMyScreenItem(g) {
+  const raffle  = allRaffles.find(r => r.id === g.raffleId);
+  const title   = raffle ? escapeHTML(`${raffle.title} ${raffle.value}`) : "Sorteo";
+  const color   = raffle?.color || '#8b5cf6';
+  const expired = raffle ? (raffle.endDate < Date.now()) : false;
+  const imgHTML = raffle?.image
+    ? `<img class="sg-my-item-img" src="${imgPath(raffle.image)}" alt="">`
+    : `<span class="sg-my-item-emoji">🎁</span>`;
+
+  return `<div class="sg-my-item" style="--rfc:${color}">
+    ${imgHTML}
+    <div class="sg-my-item-info">
+      <span class="sg-my-item-title">${title}</span>
+      <span class="sg-my-item-sub">${expired ? '⏰ Sorteo finalizado' : `⏰ Sortea en ${raffle ? formatTimeLeft(raffle.endDate) : '—'}`}</span>
+    </div>
+    <div class="sg-my-item-badge">
+      <span class="sg-my-item-badge-n">${g.count}</span>
+      <span class="sg-my-item-badge-l">ENTR.</span>
     </div>
   </div>`;
 }
@@ -466,7 +586,13 @@ async function confirmParticipation() {
     if (code === "failed-precondition") {
       userMsg = err.message || "No se puede completar la participación";
     } else if (code === "already-exists") {
-      userMsg = err.message || "Ya estás participando en este sorteo";
+      btn.disabled          = false;
+      spinner.style.display = "none";
+      arrow.style.display   = "inline";
+      text.textContent      = "Participar en el sorteo";
+      closeModal();
+      openAlreadyScreen(selectedRaffle);
+      return;
     } else if (code === "resource-exhausted") {
       userMsg = err.message || "El sorteo ya alcanzó el máximo de participantes";
     } else if (code === "not-found") {
@@ -511,7 +637,7 @@ function openRequirements(raffle, entryNumber = 1) {
 
   renderReqList();
   updateReqProgress();
-  document.getElementById("sgReqScreen").style.display = "block";
+  document.getElementById("sgReqScreen").classList.remove("sg-screen-hidden");
   window.scrollTo(0, 0);
 }
 
@@ -616,7 +742,7 @@ async function finishRequirements() {
     }
   }
 
-  document.getElementById("sgReqScreen").style.display = "none";
+  document.getElementById("sgReqScreen").classList.add("sg-screen-hidden");
   openSuccess(selectedRaffle, currentEntryNumber);
 }
 
@@ -633,7 +759,7 @@ function openSuccess(raffle, entryNumber = 1) {
 
   document.getElementById("successEntry").textContent = `#${entryNumber}`;
   document.getElementById("successTime").textContent = formatTimeLeft(raffle.endDate);
-  document.getElementById("sgSuccessScreen").style.display = "flex";
+  document.getElementById("sgSuccessScreen").classList.remove("sg-screen-hidden");
   if (window.VGSounds) VGSounds.join();
   window.scrollTo(0, 0);
 }
