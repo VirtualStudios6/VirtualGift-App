@@ -178,20 +178,55 @@ body {
   align-items: center;
   text-align: center;
   gap: 12px;
-  padding: 60px 24px;
+  padding: 36px 24px 20px;
   color: rgba(255,255,255,.35);
 }
 .part-empty-icon { font-size: 3rem; line-height: 1; }
 .part-empty p    { font-size: 14px; line-height: 1.6; }
+
+/* ── DISCOVER (sorteos disponibles cuando no hay participaciones) ── */
+.part-discover-title {
+  font-size: .7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: rgba(192,166,250,.55);
+  margin: 4px 0 10px;
+}
+.part-card-discover {
+  cursor: pointer;
+  transition: transform .15s, border-color .2s;
+}
+.part-card-discover:active { transform: scale(.98); }
+.part-card-badge-join {
+  background: rgba(139,92,246,.22);
+}
+.part-card-badge-join .part-card-badge-n {
+  font-size: 22px;
+  color: #c4b5fd;
+}
+.part-card-badge-join .part-card-badge-l {
+  color: rgba(196,181,253,.6);
+}
+.part-empty-cta {
+  text-align: center;
+  padding: 16px 24px 32px;
+  color: rgba(255,255,255,.3);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .part-btn {
+  display: block;
+  width: 100%;
   background: #8b5cf6;
   color: #fff;
   border: none;
   border-radius: 12px;
-  padding: 12px 24px;
+  padding: 14px 24px;
   font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   font-family: 'Inter', sans-serif;
-  margin-top: 4px;
+  text-align: center;
 }

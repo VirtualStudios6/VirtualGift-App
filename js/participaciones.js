@@ -56,15 +56,12 @@ async function loadParticipaciones() {
 
     if (snap.empty) {
       if (sub) sub.textContent = 'Sin participaciones aún';
-      list.innerHTML = `
-        <div class="part-empty">
-          <span class="part-empty-icon">🎁</span>
-          <p>Aún no has participado en ningún sorteo.</p>
-          <button type="button" class="part-btn"
-            onclick="window.location.href=withAppFlag('sorteos.html')">
-            Ver sorteos disponibles
-          </button>
-        </div>`;
+      list.innerHTML = `<div class="part-empty">
+        <span class="part-empty-icon">🎁</span>
+        <p>Aún no has participado en ningún sorteo.</p>
+      </div>
+      <div id="partDiscoverSection"></div>`;
+      loadActiveRaffles();
       return;
     }
 
@@ -131,7 +128,7 @@ function buildCard(g, raffle) {
     : `<span class="part-card-emoji">🎁</span>`;
   const statusHTML = expired
     ? `<span class="part-status done">⏰ Finalizado</span>`
-    : `<span class="part-status active">⏱ Sortea en ${formatTimeLeft(raffle.endDate)}</span>`;
+    : `<span class="part-status active">⏱ Termina en ${formatTimeLeft(raffle.endDate)}</span>`;
 
   return `<div class="part-card" style="--cc:${color}">
     <div class="part-card-img-wrap">${imgHTML}</div>
@@ -142,6 +139,69 @@ function buildCard(g, raffle) {
     <div class="part-card-badge">
       <span class="part-card-badge-n">${g.count}</span>
       <span class="part-card-badge-l">ENTR.</span>
+    </div>
+  </div>`;
+}
+
+// ── Sorteos activos (estado vacío) ──
+
+async function loadActiveRaffles() {
+  const section = document.getElementById('partDiscoverSection');
+  if (!section) return;
+
+  try {
+    const snap = await window.db.collection('raffles')
+      .where('endDate', '>', new Date())
+      .orderBy('endDate', 'asc')
+      .limit(6)
+      .get();
+
+    if (snap.empty) {
+      section.innerHTML = `<div class="part-empty-cta">
+        <p>No hay sorteos activos en este momento.<br>¡Vuelve pronto!</p>
+      </div>`;
+      return;
+    }
+
+    const items = snap.docs.map(d => {
+      const data = d.data();
+      return {
+        id: d.id,
+        ...data,
+        endDate: data.endDate?.toDate ? data.endDate.toDate() : new Date(data.endDate),
+        image: data.image || guessImage(data.title),
+      };
+    });
+
+    section.innerHTML = `
+      <p class="part-discover-title">Sorteos disponibles</p>
+      ${items.map(r => buildDiscoverCard(r)).join('')}
+      <button type="button" class="part-btn" style="margin:8px 0 24px"
+        onclick="window.location.href=(typeof withAppFlag==='function'?withAppFlag('sorteos.html'):'sorteos.html')">
+        Ver todos los sorteos
+      </button>`;
+  } catch (e) {
+    console.error('[participaciones] loadActiveRaffles', e);
+  }
+}
+
+function buildDiscoverCard(r) {
+  const color  = r.color || '#8b5cf6';
+  const imgHTML = r.image
+    ? `<img class="part-card-img" src="${imgPath(r.image)}" alt="">`
+    : `<span class="part-card-emoji">🎁</span>`;
+  const title = esc(`${r.title} ${r.value}`);
+
+  return `<div class="part-card part-card-discover" style="--cc:${color}"
+    onclick="window.location.href=(typeof withAppFlag==='function'?withAppFlag('sorteos.html'):'sorteos.html')">
+    <div class="part-card-img-wrap">${imgHTML}</div>
+    <div class="part-card-body">
+      <span class="part-card-title">${title}</span>
+      <span class="part-status active">⏱ Termina en ${formatTimeLeft(r.endDate)}</span>
+    </div>
+    <div class="part-card-badge part-card-badge-join">
+      <span class="part-card-badge-n">+</span>
+      <span class="part-card-badge-l">UNIRSE</span>
     </div>
   </div>`;
 }
