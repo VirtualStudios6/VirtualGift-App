@@ -6,10 +6,11 @@
 (function () {
 
   const PAGE_TO_ACTIVE = {
-    'inicio.html':         'inicio',
-    'home.html':           'perfil',
-    'puntos.html':         'recompensa',
-    'notificaciones.html': null,
+    'inicio.html':           'inicio',
+    'home.html':             'perfil',
+    'puntos.html':           'recompensa',
+    'participaciones.html':  'participaciones',
+    'notificaciones.html':   null,
   };
 
   const ITEMS = [
@@ -20,10 +21,10 @@
       icon:  '<path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>',
     },
     {
-      id:    'recompensa',
-      label: 'Recompensa',
-      href:  null,
-      icon:  '<path d="M12 17.27 18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>',
+      id:    'participaciones',
+      label: 'Participar',
+      href:  'participaciones.html',
+      icon:  '<path d="M20 12c0-1.1.9-2 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v4c1.1 0 2 .9 2 2s-.9 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2zm-4.42 4.8L12 14.5l-3.58 2.3 1.08-4.12-3.29-2.69 4.24-.25L12 5.8l1.54 3.94 4.24.25-3.29 2.69 1.09 4.12z"/>',
     },
     {
       id:    'comunidad',

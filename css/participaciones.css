@@ -1,0 +1,197 @@
+/* ═══════════════════════════════════════════════
+   PARTICIPACIONES.CSS — VirtualGift
+═══════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: #03010f; -webkit-text-size-adjust: 100%; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #03010f;
+  color: #dcefff;
+  min-height: 100dvh;
+  padding-top: calc(62px + env(safe-area-inset-top));
+  padding-bottom: calc(90px + env(safe-area-inset-bottom));
+  overflow-x: hidden;
+}
+
+/* ── PÁGINA ── */
+.part-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 16px 24px;
+}
+
+/* ── HERO ── */
+.part-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(141,23,251,.18) 0%, rgba(112,24,155,.10) 100%);
+  border: 1px solid rgba(141,23,251,.22);
+  border-radius: 20px;
+  padding: 24px 20px;
+  margin: 16px 0 20px;
+  display: flex;
+  align-items: center;
+}
+.part-hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.part-hero-orb1 {
+  width: 180px; height: 180px;
+  background: radial-gradient(circle, rgba(141,23,251,.25) 0%, transparent 70%);
+  top: -60px; right: -40px;
+}
+.part-hero-orb2 {
+  width: 120px; height: 120px;
+  background: radial-gradient(circle, rgba(192,84,252,.18) 0%, transparent 70%);
+  bottom: -40px; left: 10px;
+}
+.part-hero-content {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.part-hero-icon {
+  font-size: 2.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.part-hero-title {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: -.03em;
+  color: #fff;
+  margin-bottom: 4px;
+}
+.part-hero-sub {
+  font-size: .82rem;
+  color: rgba(192,166,250,.75);
+  font-weight: 500;
+}
+
+/* ── LISTA ── */
+.part-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── CARD ── */
+.part-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(14,10,35,.97);
+  border: 1px solid rgba(255,255,255,.07);
+  border-left: 3px solid var(--cc, #8b5cf6);
+  border-radius: 16px;
+  padding: 14px 16px;
+  transition: border-color .2s;
+}
+.part-card:hover { border-color: rgba(255,255,255,.12); }
+
+.part-card-img-wrap {
+  width: 46px;
+  height: 46px;
+  background: rgba(255,255,255,.05);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.part-card-img   { width: 34px; height: 34px; object-fit: contain; }
+.part-card-emoji { font-size: 1.7rem; line-height: 1; }
+
+.part-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.part-card-title {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 5px;
+}
+
+/* ── STATUS ── */
+.part-status {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+.part-status.active {
+  background: rgba(139,92,246,.18);
+  color: #c4b5fd;
+}
+.part-status.done {
+  background: rgba(255,255,255,.06);
+  color: rgba(255,255,255,.4);
+}
+
+/* ── BADGE ENTRADAS ── */
+.part-card-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255,255,255,.07);
+  border-radius: 10px;
+  padding: 7px 12px;
+  flex-shrink: 0;
+  min-width: 44px;
+}
+.part-card-badge-n { font-size: 18px; font-weight: 800; color: #fff; line-height: 1; }
+.part-card-badge-l { font-size: 8px;  font-weight: 700; color: rgba(255,255,255,.4); margin-top: 2px; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── SKELETON ── */
+@keyframes partShimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.part-skel {
+  height: 76px;
+  border-radius: 16px;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,.04) 0%,
+    rgba(255,255,255,.08) 50%,
+    rgba(255,255,255,.04) 100%);
+  background-size: 200% 100%;
+  animation: partShimmer 1.5s infinite;
+}
+
+/* ── EMPTY STATE ── */
+.part-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 60px 24px;
+  color: rgba(255,255,255,.35);
+}
+.part-empty-icon { font-size: 3rem; line-height: 1; }
+.part-empty p    { font-size: 14px; line-height: 1.6; }
+.part-btn {
+  background: #8b5cf6;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  margin-top: 4px;
+}
