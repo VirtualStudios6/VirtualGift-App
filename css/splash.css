@@ -1,0 +1,69 @@
+/* ============================================ */
+/* SPLASH SCREEN — VirtualGift                 */
+/* ============================================ */
+
+#vg-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 5%  0%,   rgba(141,23,251,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 55% 50% at 95% 100%, rgba(112,24,155,0.13) 0%, transparent 55%),
+    linear-gradient(160deg, #020515 0%, #06011c 60%, #080120 100%);
+  opacity: 1;
+  transition: opacity 0.35s ease;
+  pointer-events: all;
+}
+
+#vg-splash.vg-splash--out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Logo */
+#vg-splash-logo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  animation: vg-splash-pulse 2.2s ease-in-out infinite;
+  margin-bottom: 18px;
+  filter: drop-shadow(0 0 18px rgba(141,23,251,0.45));
+}
+
+@keyframes vg-splash-pulse {
+  0%, 100% { transform: scale(1);    opacity: 1;   }
+  50%       { transform: scale(1.07); opacity: 0.88; }
+}
+
+/* Nombre */
+#vg-splash-name {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 2.5px;
+  color: #dcefff;
+  margin-bottom: 32px;
+  user-select: none;
+}
+
+#vg-splash-name span { color: #8d17fb; }
+
+/* Spinner */
+#vg-splash-spinner {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 3px solid rgba(141,23,251,0.18);
+  border-top-color: #8d17fb;
+  animation: vg-spin 0.75s linear infinite;
+  box-shadow: 0 0 12px rgba(141,23,251,0.3);
+}
+
+@keyframes vg-spin {
+  to { transform: rotate(360deg); }
+}

@@ -74,7 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
     grid.innerHTML = Array(6).fill(0).map(() => `
       <div class="news-card skeleton-news">
         <div class="news-image"></div>
-        <p class="news-label"></p>
+        <div class="news-label"></div>
+        <div class="news-label-2"></div>
       </div>
     `).join("");
   }

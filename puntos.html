@@ -12,7 +12,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/inicio.css">
+    <link rel="stylesheet" href="css/splash.css">
+  <link rel="stylesheet" href="css/inicio.css">
     <link rel="stylesheet" href="css/header.css">
     <link rel="stylesheet" href="css/puntos.css">
 
@@ -132,6 +133,13 @@
 </head>
 
 <body>
+
+  <div id="vg-splash">
+    <img id="vg-splash-logo" src="images/logo-virtual-login.png" alt="VirtualGift">
+    <div id="vg-splash-name">VIRTUAL<span>GIFT</span></div>
+    <div id="vg-splash-spinner"></div>
+  </div>
+
     <!-- HEADER -->
     <header class="header">
         <div class="logo">
@@ -158,13 +166,6 @@
     </header>
 
     <div class="points-container">
-
-        <!-- Top bar — full width encima del sidebar -->
-        <div class="points-top-bar">
-            <button class="back-button" onclick="window.location.href=withAppFlag('inicio.html')">
-                ← Volver al inicio
-            </button>
-        </div>
 
         <!-- Layout sidebar -->
         <div class="points-layout">
@@ -358,5 +359,6 @@
     <script defer src="js/puntos.js"></script>
 <script>document.addEventListener('DOMContentLoaded', function() { if(window.lucide)lucide.createIcons(); });</script>
   <script defer src="js/bottom-nav.js"></script>
+  <script src="js/splash.js"></script>
 </body>
 </html>

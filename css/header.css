@@ -27,9 +27,9 @@
 .logo-text {
   font-family: 'Inter', sans-serif;
   font-size: 16px; font-weight: 900;
-  color: #dcefff; letter-spacing: 1px;
+  color: #dcefff; letter-spacing: 2.5px;
 }
-.logo-studios { color: #dcefff; }
+.logo-studios { color: #8d17fb; }
 
 /* ============================================ */
 /* ICONOS DEL HEADER                           */

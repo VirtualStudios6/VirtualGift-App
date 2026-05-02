@@ -14,6 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
 
+  <link rel="stylesheet" href="css/splash.css">
   <link rel="stylesheet" href="css/news-vg.css">
   <link rel="stylesheet" href="css/header.css"> <!-- ✅ Header compartido -->
 
@@ -25,16 +26,17 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
 
-  <style>
-    /* Compensar header fijo para el contenedor original */
-    .container {
-      padding-top: calc(62px + env(safe-area-inset-top) + 16px) !important;
-    }
-  </style>
   <link rel="stylesheet" href="css/bottom-nav.css">
 </head>
 
 <body>
+
+  <div id="vg-splash">
+    <img id="vg-splash-logo" src="images/logo-virtual-login.png" alt="VirtualGift">
+    <div id="vg-splash-name">VIRTUAL<span>GIFT</span></div>
+    <div id="vg-splash-spinner"></div>
+  </div>
+
 
   <!-- ✅ HEADER COMPARTIDO -->
   <header class="header">
@@ -61,21 +63,35 @@
     </div>
   </header>
 
-  <!-- ✅ Estructura original intacta — solo se añadió el header arriba -->
   <div class="container">
-    <a href="inicio.html" class="back-button" onclick="this.href=withAppFlag('inicio.html')">← Volver al inicio</a>
+    <!-- Skeleton mientras carga -->
+    <div class="article-skeleton visible" id="articleSkeleton">
+      <div class="skeleton-cover"></div>
+      <div class="skeleton-body">
+        <div class="skeleton-meta"></div>
+        <div class="skeleton-title"></div>
+        <div class="skeleton-title-2"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line skeleton-line--short"></div>
+        <div class="skeleton-line"></div>
+        <div class="skeleton-line skeleton-line--shorter"></div>
+      </div>
+    </div>
 
-    <div class="article-card">
+    <!-- Artículo real -->
+    <div class="article-card news-hidden" id="articleCard">
       <div class="article-header">
-        <img id="headerImage" class="header-image" alt="Imagen principal de la noticia" style="display:none;" />
+        <img id="headerImage" class="header-image news-hidden" alt="Imagen principal de la noticia" />
         <div class="header-fallback" id="headerFallback">
-          <span>VIRTUALGIFT</span>
+          <img src="images/logo-virtual-login.png" alt="VirtualGift" />
+          <span>VIRTUAL<em>GIFT</em></span>
         </div>
       </div>
 
       <div class="article-content">
         <div class="article-meta">
-          <span class="status-badge" id="statusBadge" style="display:none;">
+          <span class="status-badge news-hidden" id="statusBadge">
             <span class="status-dot"></span>
             <span id="statusText">Noticia</span>
           </span>
@@ -83,11 +99,10 @@
           <span class="date-text" id="dateText">—</span>
         </div>
 
-        <h1 id="titleText">Cargando...</h1>
+        <h1 id="titleText"></h1>
 
         <div class="article-body" id="blocksContainer"></div>
 
-        <!-- AdSense Article -->
         <div class="ads-container">
           <ins class="adsbygoogle"
                data-ad-client="ca-pub-1930529129644930"
@@ -98,7 +113,7 @@
           <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
 
-        <div id="galleryContainer" class="gallery" style="display:none;"></div>
+        <div id="galleryContainer" class="gallery news-hidden"></div>
       </div>
     </div>
   </div>
@@ -119,5 +134,6 @@
   <script defer src="js/notification-badge.js"></script>
   <script defer src="js/news-detail-vg.js"></script>
   <script defer src="js/bottom-nav.js"></script>
+  <script src="js/splash.js"></script>
 </body>
 </html>

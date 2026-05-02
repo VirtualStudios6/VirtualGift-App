@@ -12,6 +12,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
 
+  <link rel="stylesheet" href="css/splash.css">
   <link rel="stylesheet" href="css/header.css">
   <link rel="stylesheet" href="css/anuncios.css">
 
@@ -25,6 +26,13 @@
 </head>
 
 <body>
+
+  <div id="vg-splash">
+    <img id="vg-splash-logo" src="images/logo-virtual-login.png" alt="VirtualGift">
+    <div id="vg-splash-name">VIRTUAL<span>GIFT</span></div>
+    <div id="vg-splash-spinner"></div>
+  </div>
+
 
   <!-- HEADER -->
   <header class="header">
@@ -53,9 +61,8 @@
 
   <div class="ad-page">
 
-    <!-- Back + balance -->
+    <!-- Balance -->
     <div class="ad-topbar">
-      <button class="back-btn" onclick="window.location.href=withAppFlag('puntos.html')">← Volver</button>
       <div class="ad-balance-chip">
         <svg viewBox="0 0 100 100" class="chip-coin">
           <circle cx="50" cy="50" r="48" fill="#FDB813"/>
@@ -188,5 +195,6 @@
   <script defer src="js/notification-badge.js"></script>
   <script defer src="js/anuncios.js"></script>
   <script defer src="js/bottom-nav.js"></script>
+  <script src="js/splash.js"></script>
 </body>
 </html>

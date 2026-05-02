@@ -15,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
 
+  <link rel="stylesheet" href="css/splash.css">
   <link rel="stylesheet" href="css/profile.css">
   <link rel="stylesheet" href="css/header.css">
 
@@ -31,6 +32,13 @@
 </head>
 
 <body>
+
+  <div id="vg-splash">
+    <img id="vg-splash-logo" src="images/logo-virtual-login.png" alt="VirtualGift">
+    <div id="vg-splash-name">VIRTUAL<span>GIFT</span></div>
+    <div id="vg-splash-spinner"></div>
+  </div>
+
 
   <!-- HEADER -->
   <header class="header">
@@ -82,13 +90,6 @@
   <!-- CONTENIDO PRINCIPAL -->
   <!-- ✅ FIX: clase "hidden" en vez de style="display:none" para que el CSS desktop pueda aplicar display:flex -->
   <div id="content" class="container page-content hidden">
-
-    <!-- Top bar -->
-    <div class="top-bar">
-      <button class="back-btn" onclick="window.location.href=withAppFlag('inicio.html')">
-        ← Volver al inicio
-      </button>
-    </div>
 
     <!-- SIDEBAR: tarjeta de perfil -->
     <div class="profile-card">
@@ -236,5 +237,6 @@
   <script defer src="js/profile.js"></script>
 <script>document.addEventListener('DOMContentLoaded', function() { if(window.lucide)lucide.createIcons(); });</script>
   <script defer src="js/bottom-nav.js"></script>
+  <script src="js/splash.js"></script>
 </body>
 </html>

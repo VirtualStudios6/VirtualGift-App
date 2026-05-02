@@ -14,6 +14,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
 
+  <link rel="stylesheet" href="css/splash.css">
   <link rel="stylesheet" href="css/header.css">
   <link rel="stylesheet" href="css/sorteos.css">
 
@@ -49,6 +50,13 @@
 </head>
 <body>
 
+  <div id="vg-splash">
+    <img id="vg-splash-logo" src="images/logo-virtual-login.png" alt="VirtualGift">
+    <div id="vg-splash-name">VIRTUAL<span>GIFT</span></div>
+    <div id="vg-splash-spinner"></div>
+  </div>
+
+
   <!-- HEADER COMPLETO igual que inicio y puntos -->
   <header class="header">
     <div class="logo" id="appLogo" style="cursor:pointer;" onclick="window.location.href=withAppFlag('inicio.html')">
@@ -76,9 +84,6 @@
 
   <!-- page-content compensa el header fijo -->
   <div class="page-content">
-
-    <!-- BOTÓN VOLVER (igual que puntos.html) -->
-    <button class="back-button" onclick="history.back()">← Volver al inicio</button>
 
     <!-- HERO -->
     <div class="sg-hero">
@@ -217,5 +222,6 @@
 
 <script>document.addEventListener('DOMContentLoaded', function() { if(window.lucide)lucide.createIcons(); });</script>
   <script defer src="js/bottom-nav.js"></script>
+  <script src="js/splash.js"></script>
 </body>
 </html>

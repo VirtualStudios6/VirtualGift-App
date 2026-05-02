@@ -3,15 +3,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const params = new URLSearchParams(location.search);
   const id     = params.get("id");
 
-  const titleEl       = document.getElementById("titleText");
-  const dateEl        = document.getElementById("dateText");
-  const categoryEl    = document.getElementById("categoryText");
-  const statusBadge   = document.getElementById("statusBadge");
-  const statusTextEl  = document.getElementById("statusText");
-  const blocksContainer = document.getElementById("blocksContainer");
-  const headerImageEl   = document.getElementById("headerImage");
+  const titleEl          = document.getElementById("titleText");
+  const dateEl           = document.getElementById("dateText");
+  const categoryEl       = document.getElementById("categoryText");
+  const statusBadge      = document.getElementById("statusBadge");
+  const statusTextEl     = document.getElementById("statusText");
+  const blocksContainer  = document.getElementById("blocksContainer");
+  const headerImageEl    = document.getElementById("headerImage");
   const headerFallbackEl = document.getElementById("headerFallback");
   const galleryContainer = document.getElementById("galleryContainer");
+  const articleSkeleton  = document.getElementById("articleSkeleton");
+  const articleCard      = document.getElementById("articleCard");
 
   /* ------------------------------------------ */
   /* withAppFlag fallback                         */
@@ -37,11 +39,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showError(msg) {
     console.error("[news-detail-vg]", msg || "Error");
+    hide(articleSkeleton);
+    show(articleCard);
     if (titleEl) titleEl.textContent = "No se pudo cargar la noticia.";
     if (blocksContainer) {
       clearNode(blocksContainer);
       const p = document.createElement("p");
-      p.style.opacity = ".85";
+      p.style.opacity = ".75";
       p.textContent = msg || "Error cargando noticia";
       blocksContainer.appendChild(p);
     }
@@ -60,26 +64,29 @@ document.addEventListener("DOMContentLoaded", () => {
     while (el.firstChild) el.removeChild(el.firstChild);
   }
 
+  function show(el) { if (el) el.classList.remove("news-hidden"); }
+  function hide(el) { if (el) el.classList.add("news-hidden"); }
+
   function setHeaderImage(url, title) {
     const clean = (url && String(url).trim()) ? String(url).trim() : "";
 
     if (!clean) {
-      if (headerImageEl)   headerImageEl.style.display   = "none";
-      if (headerFallbackEl) headerFallbackEl.style.display = "flex";
+      hide(headerImageEl);
+      show(headerFallbackEl);
       return;
     }
 
     if (headerImageEl) {
-      headerImageEl.style.display = "block";
+      show(headerImageEl);
       headerImageEl.src = clean;
       headerImageEl.alt = title || "Imagen principal de la noticia";
       headerImageEl.onerror = () => {
-        headerImageEl.style.display = "none";
-        if (headerFallbackEl) headerFallbackEl.style.display = "flex";
+        hide(headerImageEl);
+        show(headerFallbackEl);
       };
     }
 
-    if (headerFallbackEl) headerFallbackEl.style.display = "none";
+    hide(headerFallbackEl);
   }
 
   function renderBlocks(blocks) {
@@ -152,12 +159,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!galleryContainer) return;
 
     if (!Array.isArray(gallery) || gallery.length === 0) {
-      galleryContainer.style.display = "none";
+      hide(galleryContainer);
       clearNode(galleryContainer);
       return;
     }
 
-    galleryContainer.style.display = "block";
+    show(galleryContainer);
     clearNode(galleryContainer);
 
     gallery.forEach((url) => {
@@ -197,14 +204,18 @@ document.addEventListener("DOMContentLoaded", () => {
       const st = String(data.statusText || "").trim();
       if (st && statusBadge && statusTextEl) {
         statusTextEl.textContent = st;
-        statusBadge.style.display = "inline-flex";
-      } else if (statusBadge) {
-        statusBadge.style.display = "none";
+        show(statusBadge);
+      } else {
+        hide(statusBadge);
       }
 
       setHeaderImage(data.headerImageUrl || data.coverImageUrl || "", title);
       renderBlocks(data.blocks);
       renderGallery(data.gallery);
+
+      // Swap skeleton → article
+      hide(articleSkeleton);
+      show(articleCard);
 
     } catch (e) {
       console.error("[news-detail-vg] Error:", e);

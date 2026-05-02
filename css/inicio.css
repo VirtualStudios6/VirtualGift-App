@@ -8,22 +8,48 @@ html.android-app body, body.android-app { padding-top: 0 !important; }
 /* ============================================ */
 /* SKELETON LOADER */
 /* ============================================ */
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
 .skeleton-news {
-  animation: shimmer 1.5s infinite;
+  background: rgba(12,10,28,0.9);
+  border: 1px solid rgba(41,50,68,0.6);
+  border-radius: 14px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.skeleton-news .news-image {
+  height: 96px;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.09) 50%,
+    rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 0;
+}
+.skeleton-news .news-label {
+  height: 12px; width: 70%;
   background: linear-gradient(90deg,
     rgba(255,255,255,0.05) 25%,
     rgba(255,255,255,0.10) 50%,
     rgba(255,255,255,0.05) 75%);
   background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 4px;
+  margin: 9px 10px 4px;
 }
-@keyframes shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-.skeleton-news .news-image { background: rgba(255,255,255,0.1); }
-.skeleton-news .news-label {
-  height: 14px; width: 80%; background: rgba(255,255,255,0.1);
-  border-radius: 4px; margin: 0 auto;
+.skeleton-news .news-label-2 {
+  height: 10px; width: 45%;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.04) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 4px;
+  margin: 5px 10px 10px;
 }
 
 /* ============================================ */
@@ -118,21 +144,28 @@ body {
 /* NEWS GRID */
 /* ============================================ */
 .news-grid {
-  display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;
+  display: flex; gap: 10px; overflow-x: auto;
+  padding: 4px 2px 12px;
   -webkit-overflow-scrolling: touch; scroll-behavior: smooth;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
+.news-grid::-webkit-scrollbar { display: none; }
 @media (min-width: 769px) {
   .news-grid {
-    gap: 16px; display: grid;
-    grid-template-columns: repeat(8,1fr); overflow-x: visible;
+    gap: 14px; display: grid;
+    grid-template-columns: repeat(4,1fr); overflow-x: visible;
+    padding: 4px 0 12px;
   }
 }
-.news-grid::-webkit-scrollbar { height: 4px; }
-.news-grid::-webkit-scrollbar-thumb { background-color: #374151; border-radius: 2px; }
 
 .news-card {
-  flex-shrink: 0; width: 100px; text-decoration: none !important; color: inherit;
+  flex-shrink: 0; width: 152px;
+  background: rgba(12,10,28,0.9);
+  border: 1px solid rgba(41,50,68,0.7);
+  border-radius: 14px; overflow: hidden;
+  text-decoration: none !important; color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 @media (min-width: 769px) { .news-card { width: 100%; } }
 .news-card:visited, .news-card:hover, .news-card:active {
@@ -140,21 +173,26 @@ body {
 }
 
 .news-image {
-  width: 100px; height: 100px; background-color: #4b5563;
-  border-radius: 12px; margin-bottom: 6px; overflow: hidden;
+  width: 100%; height: 96px; background-color: #1c1f2f;
+  overflow: hidden;
   display: flex; align-items: center; justify-content: center;
 }
-.news-image img { width: 100%; height: 100%; object-fit: cover; }
-@media (min-width: 769px) { .news-image { width: 100%; height: 150px; border-radius: 16px; } }
+.news-image img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+@media (min-width: 769px) { .news-image { height: 120px; } }
 
 .news-label {
   font-family: var(--font);
-  font-size: 11px;
-  font-weight: 500;
-  text-align: center; color: #e5e7eb; line-height: 1.2;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left; color: #e2e8f0; line-height: 1.35;
+  padding: 9px 10px 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
   text-decoration: none !important;
 }
-@media (min-width: 769px) { .news-label { font-size: 12px; margin-top: 8px; } }
+@media (min-width: 769px) { .news-label { font-size: 13px; padding: 10px 12px 12px; } }
 
 /* ============================================ */
 /* CAROUSEL SORTEOS */
@@ -402,17 +440,27 @@ body {
 /* HOVER / TAP EFFECTS */
 /* ============================================ */
 @media (max-width: 768px) {
-  .news-card, .game-card {
+  .news-card:active { transform: scale(0.96); }
+  .game-card {
     cursor: pointer; transition: transform 0.2s ease;
     -webkit-tap-highlight-color: transparent;
   }
-  .news-card:active, .game-card:active { transform: scale(0.95); }
+  .game-card:active { transform: scale(0.95); }
 }
 @media (min-width: 769px) {
-  .news-card, .game-card {
+  .news-card {
+    cursor: pointer;
+  }
+  .news-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    border-color: rgba(141,23,251,0.3);
+  }
+  .news-card:hover .news-image img { transform: scale(1.05); }
+  .game-card {
     cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
-  .news-card:hover, .game-card:hover {
+  .game-card:hover {
     transform: translateY(-5px); box-shadow: var(--shadow-hover);
   }
 }
