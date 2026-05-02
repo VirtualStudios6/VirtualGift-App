@@ -20,6 +20,7 @@
       badge.textContent   = unread;
       badge.style.display = unread > 0 ? "flex" : "none";
     }
+    if (window.VGSounds) VGSounds.checkNotifBadge(unread);
   }
 
   let _unsubBadge = null;

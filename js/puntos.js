@@ -419,6 +419,7 @@ async function processRedeem(e) {
     setCachedPoints(newPoints);
 
     closeRedeemModal();
+    if (window.VGSounds) VGSounds.prize();
 
     await showModal(
       '✅ Solicitud enviada',

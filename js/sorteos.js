@@ -624,6 +624,7 @@ function openSuccess(raffle, entryNumber = 1) {
   document.getElementById("successEntry").textContent = `#${entryNumber}`;
   document.getElementById("successTime").textContent = formatTimeLeft(raffle.endDate);
   document.getElementById("sgSuccessScreen").style.display = "flex";
+  if (window.VGSounds) VGSounds.join();
   window.scrollTo(0, 0);
 }
 

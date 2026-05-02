@@ -706,6 +706,7 @@ function setupEventListeners() {
     el.classList.add('show');
     clearTimeout(el._hideTimer);
     el._hideTimer = setTimeout(() => el.classList.remove('show'), 2400);
+    if (window.VGSounds) VGSounds.copy();
   }
 
   // ── Copiar solo el código ────────────────────────────────
@@ -716,6 +717,7 @@ function setupEventListeners() {
     await copyToClipboard(code);
     btn?.classList.add('copied');
     setTimeout(() => btn?.classList.remove('copied'), 1600);
+    if (window.VGSounds) VGSounds.copy();
     toast('Código copiado');
   });
 

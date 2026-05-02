@@ -162,6 +162,7 @@ async function saveAdReward() {
     updateBalanceUI();
     updateProgressUI();
     addEarnedChip();
+    if (window.VGSounds) VGSounds.coin();
     showToast(`🎉 +${AD_REWARD} coins ganados!`);
   } catch (e) {
     console.error('[anuncios] saveAdReward:', e);
