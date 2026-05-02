@@ -137,16 +137,17 @@ async function loadUserData(userId) {
 }
 
 async function saveAdReward() {
-  const today     = todayStr();
-  const newCount  = adsToday + 1;
-  const newPoints = currentPoints + AD_REWARD;
+  const today    = todayStr();
+  const newCount = adsToday + 1;
 
   try {
     await window.db.collection('users').doc(currentUser.uid).update({
-      points:     newPoints,
+      points:     firebase.firestore.FieldValue.increment(AD_REWARD), // atómico — nunca sobreescribe
       adLastDate: today,
       adCount:    newCount
     });
+
+    const newPoints = currentPoints + AD_REWARD; // actualizar variable local después del write
 
     await window.db.collection('pointsHistory').add({
       userId:    currentUser.uid,

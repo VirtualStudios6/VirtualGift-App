@@ -219,14 +219,14 @@ window.doCheckin = async function() {
     const consecutive = lastCheckin && lastCheckin.toDateString() === yesterdayStr;
     const newStreak   = consecutive ? streak + 1 : 1;
     const reward      = CHECKIN_REWARDS[(newStreak - 1) % 7];
-    const currentPts  = data.points || 0;
-    const newPts      = currentPts + reward;
 
     await userRef.set({
       checkinStreak: newStreak,
       lastCheckin: firebase.firestore.Timestamp.now(),
-      points: newPts,
+      points: firebase.firestore.FieldValue.increment(reward), // atómico — nunca sobreescribe
     }, { merge: true });
+
+    const newPts = (data.points || 0) + reward; // actualizar variable local después del write
 
     await window.db.collection('pointsHistory').add({
       userId: user.uid,
