@@ -256,11 +256,11 @@ window.doCheckin = async function() {
 /* SELECTOR DE PLATAFORMA + INPUT CANJE */
 /* ============================================ */
 const PLATFORM_LABELS = {
-  paypal:     { name: 'PayPal',           field: 'Correo PayPal',   placeholder: 'ejemplo@paypal.com' },
-  amazon:     { name: 'Amazon Gift Card', field: 'Correo Amazon',   placeholder: 'ejemplo@email.com'  },
-  steam:      { name: 'Steam Wallet',     field: 'Steam Trade URL', placeholder: 'https://steamcommunity.com/...' },
-  googleplay: { name: 'Google Play',      field: 'Correo Google',   placeholder: 'ejemplo@gmail.com'  },
-  psn:        { name: 'PlayStation',      field: 'PSN ID',          placeholder: 'Tu PSN ID'          },
+  paypal:     { name: 'PayPal',           field: 'Correo electrónico', placeholder: 'ejemplo@paypal.com' },
+  amazon:     { name: 'Amazon Gift Card', field: 'Correo electrónico', placeholder: 'ejemplo@email.com'  },
+  steam:      { name: 'Steam Wallet',     field: 'Correo electrónico', placeholder: 'ejemplo@email.com'  },
+  googleplay: { name: 'Google Play',      field: 'Correo electrónico', placeholder: 'ejemplo@gmail.com'  },
+  psn:        { name: 'PlayStation',      field: 'Correo electrónico', placeholder: 'ejemplo@email.com'  },
 };
 
 function setupPlatformCards() {
@@ -420,17 +420,7 @@ async function processRedeem(e) {
 
     closeRedeemModal();
     if (window.VGSounds) VGSounds.prize();
-
-    await showModal(
-      '✅ Solicitud enviada',
-      `Recibirás $${usdAmt} USD en tu cuenta de ${platform.name} en 24–48 horas.\n\nCoins restantes: ${newPoints.toLocaleString()}`
-    );
-
-    document.getElementById('redeemPoints').value = '';
-    document.getElementById('redeemUsdPreview').textContent = '$0.00 USD';
-    document.querySelectorAll('.platform-card').forEach(c => c.classList.remove('selected'));
-    selectedPlatform = null;
-    validateRedeemForm();
+    openRedeemSuccess(points, usdAmt, platform, account);
 
   } catch(err) {
     console.error('processRedeem:', err);
@@ -438,6 +428,34 @@ async function processRedeem(e) {
     if (btn) { btn.textContent = 'Confirmar'; btn.disabled = false; }
   }
 }
+
+/* ============================================ */
+/* PANTALLA ÉXITO CANJE                        */
+/* ============================================ */
+function openRedeemSuccess(points, usdAmt, platform, account) {
+  const screen = document.getElementById('redeemSuccess');
+  if (!screen) return;
+  document.getElementById('rsChip').textContent     = platform.name || 'Canje exitoso';
+  document.getElementById('rsCoins').textContent    = points.toLocaleString() + ' 🪙';
+  document.getElementById('rsUsd').textContent      = '$' + usdAmt + ' USD';
+  document.getElementById('rsPlatform').textContent = platform.name || '';
+  document.getElementById('rsAccount').textContent  = account;
+  screen.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+window.closeRedeemSuccess = function () {
+  const screen = document.getElementById('redeemSuccess');
+  if (screen) screen.style.display = 'none';
+  document.body.style.overflow = '';
+  const inp = document.getElementById('redeemPoints');
+  if (inp) inp.value = '';
+  const prev = document.getElementById('redeemUsdPreview');
+  if (prev) prev.textContent = '$0.00 USD';
+  document.querySelectorAll('.platform-card').forEach(c => c.classList.remove('selected'));
+  selectedPlatform = null;
+  validateRedeemForm();
+};
 
 /* ============================================ */
 /* HISTORIAL DE ACTIVIDAD                      */
