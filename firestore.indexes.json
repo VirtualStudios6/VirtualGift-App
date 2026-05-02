@@ -12,8 +12,24 @@
       "collectionGroup": "raffleParticipants",
       "queryScope": "COLLECTION",
       "fields": [
-        { "fieldPath": "userId",   "order": "ASCENDING" },
-        { "fieldPath": "enteredAt","order": "DESCENDING" }
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "enteredAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "pointsHistory",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "userId",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "redeemRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "status",    "order": "ASCENDING" },
+        { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
     }
   ],

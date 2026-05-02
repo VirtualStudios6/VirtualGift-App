@@ -256,7 +256,7 @@ window.doCheckin = async function() {
 /* SELECTOR DE PLATAFORMA + INPUT CANJE */
 /* ============================================ */
 const PLATFORM_LABELS = {
-  paypal:     { name: 'PayPal',           field: 'Correo electrónico', placeholder: 'ejemplo@paypal.com' },
+  paypal:     { name: 'PayPal',           field: 'Correo de PayPal',   placeholder: 'ejemplo@paypal.com' },
   amazon:     { name: 'Amazon Gift Card', field: 'Correo electrónico', placeholder: 'ejemplo@email.com'  },
   steam:      { name: 'Steam Wallet',     field: 'Correo electrónico', placeholder: 'ejemplo@email.com'  },
   googleplay: { name: 'Google Play',      field: 'Correo electrónico', placeholder: 'ejemplo@gmail.com'  },
