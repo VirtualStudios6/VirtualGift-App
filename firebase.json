@@ -26,14 +26,17 @@
         ]
       }
     ],
+    "redirects": [
+      {
+        "source": "/",
+        "destination": "/landing.html",
+        "type": 302
+      }
+    ],
     "rewrites": [
       {
         "source": "/auth/action",
         "destination": "/action.html"
-      },
-      {
-        "source": "/index.html",
-        "destination": "/index.html"
       }
     ]
   },

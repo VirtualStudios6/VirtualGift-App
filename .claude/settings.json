@@ -2,7 +2,18 @@
   "permissions": {
     "allow": [
       "Bash(node -e ' *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(xargs -I {} bash -c 'wc -c \"{}\"')",
+      "Bash(awk '{print $1, $2}')",
+      "Bash(sort -k2)",
+      "Bash(grep \"\\\\.js$\")",
+      "Bash(grep \"\\\\.css$\")",
+      "Bash(sed -n '120,165p' css/inicio.css)",
+      "Bash(sed -n '400,420p' css/inicio.css)",
+      "Bash(python -c \"import sys,json; p=json.load\\(sys.stdin\\); print\\(json.dumps\\(p.get\\('scripts',{}\\), indent=2\\)\\)\")",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\(p.scripts,null,2\\)\\)\")",
+      "Bash(git commit -m 'fix: normalize callable error codes — strip functions/ prefix for v2 SDK compatibility *)",
+      "Bash(Select-Object -First 20)"
     ]
   }
 }

@@ -20,8 +20,9 @@ const SEGMENTS = [
 
 const TOTAL_WEIGHT = SEGMENTS.reduce((s, g) => s + g.weight, 0);
 
-const FREE_PLAYS = 3;
-const MAX_EXTRA  = 3;
+const FREE_PLAYS       = 3;
+const MAX_EXTRA        = 3;
+const REWARDED_UNIT_ID = '7d073f1e-bb56-4a59-90d0-ea9dd0285f13';
 
 // ── Estado ──
 let currentUser   = null;
@@ -310,50 +311,37 @@ window.doSpin = async function() {
   });
 };
 
-// ── Ad extra spin ──
-let adTimer = null;
+// ── Giro extra (Wortise Rewarded) ──
+window.watchAd = async function() {
+  const btn = document.getElementById('adPlayBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Cargando anuncio…'; }
 
-window.watchAd = function() {
-  const overlay  = document.getElementById('adOverlay');
-  const timerEl  = document.getElementById('adTimerVal');
-  const closeBtn = document.getElementById('adCloseBtn');
-  if (!overlay) return;
-
-  overlay.style.display = 'flex';
-  closeBtn.disabled = true;
-  closeBtn.classList.remove('ready');
-
-  let secs = 6;
-  if (timerEl) timerEl.textContent = secs;
-
-  clearInterval(adTimer);
-  adTimer = setInterval(() => {
-    secs--;
-    if (timerEl) timerEl.textContent = secs;
-    if (secs <= 0) {
-      clearInterval(adTimer);
-      closeBtn.disabled = false;
-      closeBtn.classList.add('ready');
+  try {
+    const result = await WortiseAds.showRewarded(REWARDED_UNIT_ID);
+    if (result.rewarded) {
+      await grantExtraRoulettePlay();
+    } else {
+      toast('El anuncio no se completó — inténtalo de nuevo');
     }
-  }, 1000);
+  } catch (e) {
+    console.error('[ruleta] watchAd error', e);
+    toast('No se pudo cargar el anuncio');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '▶ Ver anuncio para +1 giro'; }
+  }
 };
 
-window.closeAd = async function() {
-  const overlay = document.getElementById('adOverlay');
-  if (overlay) overlay.style.display = 'none';
-  clearInterval(adTimer);
-
+async function grantExtraRoulettePlay() {
   extraUsed++;
   try {
     await window.db.collection('users').doc(currentUser.uid).update({
       rouletteDate:  today(),
       rouletteExtra: extraUsed,
     });
-  } catch(e) { console.error('[ruleta] closeAd save', e); }
-
+  } catch(e) { console.error('[ruleta] grantExtraPlay save', e); }
   toast('✅ +1 giro desbloqueado');
   updatePlaysUI();
-};
+}
 
 // ── Init ──
 window.addEventListener('load', () => {

@@ -5,11 +5,12 @@
 'use strict';
 
 // ── Constantes ──
-const SYMBOLS    = ['🎁','💎','⭐','🍀','🪙','🔥'];
-const PAYOUTS    = { '🎁':150, '💎':100, '⭐':75, '🍀':50, '🪙':30, '🔥':20 };
-const FREE_PLAYS = 5;
-const MAX_EXTRA  = 3;    // extra tiradas por día via anuncio
-const SPIN_MS    = [900, 1150, 1400]; // delay de parada por carrete
+const SYMBOLS          = ['🎁','💎','⭐','🍀','🪙','🔥'];
+const PAYOUTS          = { '🎁':150, '💎':100, '⭐':75, '🍀':50, '🪙':30, '🔥':20 };
+const FREE_PLAYS       = 5;
+const MAX_EXTRA        = 3;
+const SPIN_MS          = [900, 1150, 1400];
+const REWARDED_UNIT_ID = '7d073f1e-bb56-4a59-90d0-ea9dd0285f13';
 
 // ── Estado ──
 let currentUser  = null;
@@ -200,50 +201,37 @@ window.doSpin = async function() {
   updatePlaysUI();
 };
 
-// ── Anuncio para tirada extra ──
-let adTimer = null;
+// ── Anuncio para tirada extra (Wortise Rewarded) ──
+window.watchAd = async function() {
+  const btn = document.getElementById('adPlayBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Cargando anuncio…'; }
 
-window.watchAd = function() {
-  const overlay = document.getElementById('adOverlay');
-  const timerEl = document.getElementById('adTimerVal');
-  const closeBtn = document.getElementById('adCloseBtn');
-  if (!overlay) return;
-
-  overlay.style.display = 'flex';
-  closeBtn.disabled = true;
-  closeBtn.classList.remove('ready');
-
-  let secs = 6;
-  if (timerEl) timerEl.textContent = secs;
-
-  clearInterval(adTimer);
-  adTimer = setInterval(() => {
-    secs--;
-    if (timerEl) timerEl.textContent = secs;
-    if (secs <= 0) {
-      clearInterval(adTimer);
-      closeBtn.disabled = false;
-      closeBtn.classList.add('ready');
+  try {
+    const result = await WortiseAds.showRewarded(REWARDED_UNIT_ID);
+    if (result.rewarded) {
+      await grantExtraSlotPlay();
+    } else {
+      toast('El anuncio no se completó — inténtalo de nuevo');
     }
-  }, 1000);
+  } catch (e) {
+    console.error('[slot] watchAd error', e);
+    toast('No se pudo cargar el anuncio');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '▶ Ver anuncio para +1 tirada'; }
+  }
 };
 
-window.closeAd = async function() {
-  const overlay = document.getElementById('adOverlay');
-  if (overlay) overlay.style.display = 'none';
-  clearInterval(adTimer);
-
+async function grantExtraSlotPlay() {
   extraUsed++;
   try {
     await window.db.collection('users').doc(currentUser.uid).update({
       slotDate:  today(),
       slotExtra: extraUsed,
     });
-  } catch(e) { console.error('[slot] closeAd save', e); }
-
+  } catch(e) { console.error('[slot] grantExtraPlay save', e); }
   toast('✅ +1 tirada desbloqueada');
   updatePlaysUI();
-};
+}
 
 // ── Auth + Init ──
 window.addEventListener('load', () => {
