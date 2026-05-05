@@ -1,4 +1,4 @@
-// ══════════════════════════════════════════════════════
+﻿// ══════════════════════════════════════════════════════
 //  PARTICIPACIONES.JS — VirtualGift
 //  Muestra todos los sorteos en los que ha participado
 //  el usuario actual, agrupados por raffle.
@@ -213,7 +213,7 @@ window.addEventListener('load', function () {
     window.auth.onAuthStateChanged(async function (fbUser) {
       if (!fbUser) {
         window.location.href = typeof withAppFlag === 'function'
-          ? withAppFlag('index.html') : 'index.html';
+          ? withAppFlag('login.html') : 'login.html';
         return;
       }
       if (!fbUser.emailVerified && fbUser.providerData?.[0]?.providerId === 'password') {

@@ -1,4 +1,4 @@
-/* ============================================ */
+﻿/* ============================================ */
 /* CONSTANTES Y CONFIGURACIÓN */
 /* ============================================ */
 const AVATAR_PLACEHOLDER = 'images/logo-virtual-login.png';
@@ -431,7 +431,7 @@ function checkAuth() {
     if (err) { showError(); return; }
 
     window.auth.onAuthStateChanged(async (user) => {
-      if (!user) { window.location.href = withAppFlag('index.html'); return; }
+      if (!user) { window.location.href = withAppFlag('login.html'); return; }
       if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
         window.location.href = withAppFlag('verify-pending.html'); return;
       }
@@ -510,10 +510,10 @@ async function logout() {
 
   if (window.auth) {
     window.auth.signOut()
-      .then(() => window.location.href = withAppFlag('index.html'))
-      .catch(() => window.location.href = withAppFlag('index.html'));
+      .then(() => window.location.href = withAppFlag('login.html'))
+      .catch(() => window.location.href = withAppFlag('login.html'));
   } else {
-    window.location.href = withAppFlag('index.html');
+    window.location.href = withAppFlag('login.html');
   }
 }
 
@@ -579,7 +579,7 @@ async function deleteAccount(user) {
     await user.delete();
 
     // 4. Redirigir
-    window.location.href = withAppFlag('index.html');
+    window.location.href = withAppFlag('login.html');
 
   } catch (e) {
     console.error('Error eliminando cuenta:', e);
@@ -680,7 +680,7 @@ function setupEventListeners() {
     const code = document.getElementById('referralCode')?.textContent || '';
     if (!code || code === '—') return null;
     const base = window.location.href.replace(/home\.html.*$/, '');
-    return `${base}index.html?ref=${code}`;
+    return `${base}login.html?ref=${code}`;
   }
 
   async function copyToClipboard(text) {

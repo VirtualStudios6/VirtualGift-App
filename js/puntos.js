@@ -1,4 +1,4 @@
-/* ============================================ */
+﻿/* ============================================ */
 /* CONSTANTES */
 /* ============================================ */
 const POINTS_CACHE_KEY      = "vg_points_cache";
@@ -109,7 +109,7 @@ function waitForFirebase(cb, max = 80) {
   const t = setInterval(() => {
     i++;
     if (isFirebaseReady()) { clearInterval(t); cb(); }
-    else if (i >= max) { clearInterval(t); window.location.href = withAppFlag('index.html'); }
+    else if (i >= max) { clearInterval(t); window.location.href = withAppFlag('login.html'); }
   }, 100);
 }
 
@@ -547,7 +547,7 @@ async function loadHistory(userId, append = false) {
 function checkAuth() {
   waitForFirebase(() => {
     firebase.auth().onAuthStateChanged(async user => {
-      if (!user) { window.location.href = withAppFlag('index.html'); return; }
+      if (!user) { window.location.href = withAppFlag('login.html'); return; }
       if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
         window.location.href = withAppFlag('verify-pending.html'); return;
       }

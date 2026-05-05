@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -465,7 +465,7 @@
         const unsubscribe = auth.onAuthStateChanged((user) => {
           unsubscribe();
 
-          if (!user) { go('index.html'); return; }
+          if (!user) { go('login.html'); return; }
           if (user.emailVerified) { go('inicio.html'); return; }
 
           $('userEmail').textContent = user.email || '';
@@ -515,7 +515,7 @@
           // "Cerrar sesión"
           $('btn-signout').addEventListener('click', async () => {
             try { await auth.signOut(); } catch (e) { console.error('signOut error:', e); }
-            go('index.html');
+            go('login.html');
           });
         });
       }

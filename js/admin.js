@@ -1,4 +1,4 @@
-/* =================================================
+﻿/* =================================================
    ADMIN.JS — VirtualGift Panel de Administración
    Guard: users/{uid}.isAdmin === true
    ================================================= */
@@ -485,7 +485,7 @@ window.addEventListener('load', () => {
     firebase.auth().onAuthStateChanged(user => {
       if (!user) {
         window.location.href = typeof withAppFlag === 'function'
-          ? withAppFlag('index.html') : 'index.html';
+          ? withAppFlag('login.html') : 'login.html';
         return;
       }
       checkAdmin(user);

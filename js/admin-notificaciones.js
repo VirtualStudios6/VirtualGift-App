@@ -1,4 +1,4 @@
-/* ============================================ */
+﻿/* ============================================ */
 /* ADMIN-NOTIFICACIONES.JS - VirtualGift        */
 /* ✅ Guarda real: redirige si isAdmin !== true  */
 /* ✅ Usa window.waitForFirebase global          */
@@ -274,7 +274,7 @@
 
       window.auth.onAuthStateChanged(async (user) => {
         if (!user) {
-          window.location.href = window.withAppFlag("index.html");
+          window.location.href = window.withAppFlag("login.html");
           return;
         }
 

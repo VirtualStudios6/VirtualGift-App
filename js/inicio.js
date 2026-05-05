@@ -1,4 +1,4 @@
-/* ============================================ */
+﻿/* ============================================ */
 /* GESTIÓN DE NOTIFICACIONES */
 /* ============================================ */
 
@@ -31,7 +31,7 @@ function waitForFirebase(callback, maxAttempts = 30) {
     } else if (attempts >= maxAttempts) {
       clearInterval(check);
       console.error('Firebase timeout - redirigiendo a login');
-      window.location.href = withAppFlag('index.html');
+      window.location.href = withAppFlag('login.html');
     }
   }, 100);
 }
@@ -46,7 +46,7 @@ function waitForFirebase(callback, maxAttempts = 30) {
 function checkAuth() {
   waitForFirebase(() => {
     firebase.auth().onAuthStateChanged((user) => {
-      if (!user) { window.location.href = withAppFlag('index.html'); return; }
+      if (!user) { window.location.href = withAppFlag('login.html'); return; }
       if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
         window.location.href = withAppFlag('verify-pending.html'); return;
       }

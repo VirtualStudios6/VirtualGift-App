@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════
+﻿/* ═══════════════════════════════════════════════
    RULETA.JS — VirtualGift
    3 giros gratis/día · +1 por anuncio (máx 3)
    Canvas wheel con animación suave ease-out
@@ -360,7 +360,7 @@ window.addEventListener('load', () => {
     firebase.auth().onAuthStateChanged(async user => {
       if (!user) {
         window.location.href = typeof withAppFlag === 'function'
-          ? withAppFlag('index.html') : 'index.html';
+          ? withAppFlag('login.html') : 'login.html';
         return;
       }
       if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {

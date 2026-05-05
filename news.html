@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
       <style>.adsbygoogle{display:block}.ads-container{margin:16px 0;overflow:hidden;text-align:center}</style>
@@ -124,7 +124,7 @@
       window.waitForFirebase(function () {
         var auth = window.auth || firebase.auth();
         auth.onAuthStateChanged(function (user) {
-          if (!user) { window.location.href = withAppFlag('index.html'); return; }
+          if (!user) { window.location.href = withAppFlag('login.html'); return; }
           if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
             window.location.href = withAppFlag('verify-pending.html');
           }

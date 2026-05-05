@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════
 //  VIRTUALGIFT — SORTEOS.JS
 //  Usa window.db / window.auth / window.waitForFirebase
 //  Campo de coins: data.points (igual que puntos.js)
@@ -114,7 +114,7 @@ window.addEventListener("load", () => {
     window.auth.onAuthStateChanged(async (fbUser) => {
       if (!fbUser) {
         window.location.href = typeof withAppFlag === "function"
-          ? withAppFlag("index.html") : "index.html";
+          ? withAppFlag("login.html") : "login.html";
         return;
       }
       if (!fbUser.emailVerified && fbUser.providerData?.[0]?.providerId === 'password') {

@@ -1,4 +1,4 @@
-/* =========================================================
+﻿/* =========================================================
    NOTIFICACIONES.JS - VirtualGift (REALTIME)
    ========================================================= */
 
@@ -44,7 +44,7 @@
       if (isFirebaseReady()) { clearInterval(check); callback(); }
       else if (attempts >= maxAttempts) {
         clearInterval(check);
-        window.location.href = window.withAppFlag("index.html");
+        window.location.href = window.withAppFlag("login.html");
       }
     }, 100);
   }
@@ -380,7 +380,7 @@
       window.auth.onAuthStateChanged((user) => {
         if (!user) {
           stopRealtime();
-          window.location.href = window.withAppFlag("index.html");
+          window.location.href = window.withAppFlag("login.html");
           return;
         }
         if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {

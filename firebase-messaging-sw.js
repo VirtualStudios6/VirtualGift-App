@@ -1,7 +1,7 @@
-/* ============================================================ */
+﻿/* ============================================================ */
 /* FIREBASE MESSAGING SERVICE WORKER                            */
 /* Coloca este archivo en la RAÍZ del dominio (mismo nivel      */
-/* que index.html) para que el scope sea correcto.              */
+/* que login.html) para que el scope sea correcto.              */
 /* ============================================================ */
 
 importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js');

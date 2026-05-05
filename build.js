@@ -38,4 +38,8 @@ for (const f of fs.readdirSync(ROOT)) {
   }
 }
 
+// Landing page como root: www/index.html = landing, www/login.html = login
+copyFile(path.join(ROOT, 'landing.html'), path.join(WWW, 'index.html'));
+copyFile(path.join(ROOT, 'index.html'),   path.join(WWW, 'login.html'));
+
 console.log('✅ Build completado: archivos copiados a www/');

@@ -1,4 +1,4 @@
-(function () {
+﻿(function () {
   'use strict';
 
   function _go(url) {
@@ -30,7 +30,7 @@
         const auth = window.auth || firebase.auth();
         const unsub = auth.onAuthStateChanged(function (user) {
           unsub();
-          if (!user) { _go('index.html'); resolve(null); return; }
+          if (!user) { _go('login.html'); resolve(null); return; }
           if (!user.emailVerified && _isPasswordProvider(user)) {
             _go('verify-pending.html'); resolve(null); return;
           }
@@ -49,7 +49,7 @@
         const auth = window.auth || firebase.auth();
         const unsub = auth.onAuthStateChanged(function (user) {
           unsub();
-          if (!user) { _go('index.html'); resolve(null); return; }
+          if (!user) { _go('login.html'); resolve(null); return; }
           if (!user.emailVerified && _isPasswordProvider(user)) {
             resolve(null); return;
           }

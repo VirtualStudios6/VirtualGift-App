@@ -1,4 +1,4 @@
-// ==================== CONFIGURACIÓN ====================
+﻿// ==================== CONFIGURACIÓN ====================
 
 const CONFIG = {
   NOTIFICATION_DURATION: 3500,
@@ -10,7 +10,7 @@ const CONFIG = {
   NEXT_LEVEL_THRESHOLD: 200,
 
   LOGIN_REDIRECT_URL: 'welcome.html',
-  LOGOUT_REDIRECT_URL: 'index.html'
+  LOGOUT_REDIRECT_URL: 'login.html'
 };
 
 // ==================== UTILIDADES ====================
@@ -477,7 +477,7 @@ const SessionManager = {
 
       const isInLogin =
         window.location.pathname.endsWith('/') ||
-        window.location.pathname.includes('index.html') ||
+        window.location.pathname.includes('login.html') ||
         window.location.pathname.includes('VirtualGift-App/index');
 
       if (user && isInLogin) {

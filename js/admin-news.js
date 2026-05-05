@@ -1,4 +1,4 @@
-/* ============================================ */
+﻿/* ============================================ */
 /* ADMIN-NEWS.JS - VirtualGift                  */
 /* ✅ Sin alert/confirm nativos                 */
 /* ✅ withAppFlag en todas las redirecciones    */
@@ -598,7 +598,7 @@ function bindUI() {
     const confirmed = await showConfirm("¿Cerrar sesión?");
     if (!confirmed) return;
     try { await firebase.auth().signOut(); } catch {}
-    window.location.href = withAppFlag("index.html");
+    window.location.href = withAppFlag("login.html");
   });
 
   qs("addP")?.addEventListener("click",   () => addBlock("p"));
@@ -632,7 +632,7 @@ window.addEventListener("load", () => {
 
     firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) {
-        window.location.href = withAppFlag("index.html");
+        window.location.href = withAppFlag("login.html");
         return;
       }
       await checkAndInitAdmin(user);

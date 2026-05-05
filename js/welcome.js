@@ -1,4 +1,4 @@
-const POINTS_CACHE_KEY      = "vg_points_cache";
+﻿const POINTS_CACHE_KEY      = "vg_points_cache";
 const POINTS_CACHE_DURATION = 2 * 60 * 1000;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -159,13 +159,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     firebase.auth().onAuthStateChanged(async (user) => {
-      if (!user) { window.location.href = withAppFlag("index.html"); return; }
+      if (!user) { window.location.href = withAppFlag("login.html"); return; }
 
       // Solo verificar email si es registro con email/contraseña
       if (!user.emailVerified && user.providerData?.[0]?.providerId === "password") {
         await showEmailModal();
         await firebase.auth().signOut();
-        window.location.href = withAppFlag("index.html");
+        window.location.href = withAppFlag("login.html");
         return;
       }
 

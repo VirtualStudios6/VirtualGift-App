@@ -23,11 +23,23 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = false
+        }
+    }
 }
 
 repositories {
     flatDir{
         dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        force 'pl.droidsonroids.gif:android-gif-drawable:1.2.29'
     }
 }
 

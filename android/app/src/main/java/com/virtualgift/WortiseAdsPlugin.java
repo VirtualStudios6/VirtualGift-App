@@ -10,9 +10,11 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
+import com.wortise.ads.AdError;
 import com.wortise.ads.RevenueData;
 import com.wortise.ads.WortiseSdk;
 import com.wortise.ads.rewarded.RewardedAd;
+import com.wortise.ads.rewarded.models.Reward;
 
 @CapacitorPlugin(name = "WortiseAds")
 public class WortiseAdsPlugin extends Plugin {
@@ -58,7 +60,10 @@ public class WortiseAdsPlugin extends Plugin {
                 public void onRewardedClicked(RewardedAd ad) {}
 
                 @Override
-                public void onRewardedCompleted(RewardedAd ad) {
+                public void onRewardedShown(RewardedAd ad) {}
+
+                @Override
+                public void onRewardedCompleted(RewardedAd ad, Reward reward) {
                     wasRewarded = true;
                     notifyListeners("rewardedCompleted", new JSObject());
                 }
@@ -70,10 +75,28 @@ public class WortiseAdsPlugin extends Plugin {
                 }
 
                 @Override
+                public void onRewardedFailedToLoad(RewardedAd ad, AdError error) {
+                    resolveCall(false, error.getMessage());
+                }
+
+                @Override
+                public void onRewardedFailedToShow(RewardedAd ad, AdError error) {
+                    resolveCall(false, error.getMessage());
+                }
+
+                @Override
                 public void onRewardedRevenuePaid(RewardedAd ad, RevenueData data) {}
             });
             rewardedAd.loadAd();
         });
+    }
+
+    @Override
+    protected void handleOnDestroy() {
+        if (rewardedAd != null) {
+            rewardedAd.destroy();
+            rewardedAd = null;
+        }
     }
 
     private void resolveCall(boolean rewarded, String error) {

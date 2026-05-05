@@ -1,4 +1,4 @@
-// js/anuncios.js
+﻿// js/anuncios.js
 
 const AD_REWARD    = 50;   // coins por anuncio
 const AD_MAX_DAILY = 10;   // máximo de anuncios por día
@@ -251,7 +251,7 @@ function init() {
     if (err) { showToast('❌ Firebase no disponible'); return; }
 
     window.auth.onAuthStateChanged((user) => {
-      if (!user) { window.location.href = withAppFlag('index.html'); return; }
+      if (!user) { window.location.href = withAppFlag('login.html'); return; }
       if (!user.emailVerified && user.providerData?.[0]?.providerId === 'password') {
         window.location.href = withAppFlag('verify-pending.html'); return;
       }
