@@ -107,6 +107,56 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch {}
   }
 
+  /* ------------------------------------------ */
+  /* Coin sound — Web Audio API synthesis         */
+  /* ------------------------------------------ */
+  let _audioCtx = null;
+
+  function _getAudioCtx() {
+    if (!_audioCtx || _audioCtx.state === 'closed') {
+      _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (_audioCtx.state === 'suspended') _audioCtx.resume();
+    return _audioCtx;
+  }
+
+  function playCoinTick() {
+    try {
+      const ctx  = _getAudioCtx();
+      const osc  = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      const t = ctx.currentTime;
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(1400, t);
+      osc.frequency.exponentialRampToValueAtTime(900, t + 0.055);
+      gain.gain.setValueAtTime(0.22, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.07);
+      osc.start(t);
+      osc.stop(t + 0.07);
+    } catch (e) {}
+  }
+
+  function playCoinFinal() {
+    try {
+      const ctx = _getAudioCtx();
+      const t   = ctx.currentTime;
+      [{ freq: 1200, delay: 0 }, { freq: 1600, delay: 0.11 }].forEach(({ freq, delay }) => {
+        const osc  = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, t + delay);
+        gain.gain.setValueAtTime(0.28, t + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.18);
+        osc.start(t + delay);
+        osc.stop(t + delay + 0.18);
+      });
+    } catch (e) {}
+  }
+
   function animatePoints(finalPoints) {
     if (!userPointsElem) return;
     const final = safeNumber(finalPoints, 0);
@@ -115,8 +165,15 @@ document.addEventListener("DOMContentLoaded", () => {
     let current = 0, step = 0;
     const timer = setInterval(() => {
       step++; current += inc;
-      if (step >= steps) { current = final; clearInterval(timer); }
+      if (step >= steps) {
+        current = final;
+        clearInterval(timer);
+        userPointsElem.textContent = Math.floor(current).toLocaleString();
+        if (final > 0) playCoinFinal();
+        return;
+      }
       userPointsElem.textContent = Math.floor(current).toLocaleString();
+      if (step % 3 === 0 && final > 0) playCoinTick();
     }, 900 / steps);
   }
 

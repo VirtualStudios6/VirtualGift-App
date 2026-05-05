@@ -129,7 +129,12 @@
       font-size: 20px; font-weight: 900; letter-spacing: 2px; color: white;
       position: relative; z-index: 1;
     }
-    .logo-wordmark span { color: var(--primary); }
+    .logo-wordmark span {
+      background: linear-gradient(135deg, #a010d0, #d020e8, #e030c0);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
 
     /* ===== DIVIDER ===== */
     .divider {
@@ -188,23 +193,23 @@
       width: 100%;
       display: flex; align-items: center; justify-content: center; gap: 10px;
       padding: 15px 24px;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+      background: linear-gradient(135deg, #a010d0, #d020e8, #e030c0);
       border: none; border-radius: 14px;
       color: white; font-size: 16px; font-weight: 800;
       font-family: var(--font); letter-spacing: 0.3px;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(141,23,251,0.4);
+      box-shadow: 0 0 14px rgba(208,32,232,0.4), 0 4px 16px rgba(160,16,208,0.3);
       transition: all 0.2s ease;
       position: relative; overflow: hidden;
       -webkit-tap-highlight-color: transparent;
     }
     #continue-btn::before {
       content: ''; position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 60%);
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 60%);
     }
-    #continue-btn:hover { transform:translateY(-1px); box-shadow:0 8px 28px rgba(141,23,251,0.55); }
-    #continue-btn:active { transform: scale(0.98); }
-    #continue-btn:disabled { opacity: 0.7; pointer-events: none; }
+    #continue-btn:hover { transform:translateY(-1px); box-shadow: 0 0 22px rgba(208,32,232,0.55), 0 0 44px rgba(245,112,248,0.25); }
+    #continue-btn:active { transform: scale(0.98); box-shadow: none; }
+    #continue-btn:disabled { opacity: 0.45; pointer-events: none; }
     #continue-btn svg.arrow { width:18px; height:18px; fill:white; transition:transform 0.2s; }
     #continue-btn:hover svg.arrow { transform: translateX(3px); }
 
