@@ -211,23 +211,45 @@
             <h2 class="section-title">Popular Games</h2>
         </div>
         <div class="games-grid">
-            <div class="game-card" onclick="window.location.href=withAppFlag('tragamonedas.html')" style="cursor:pointer">
-                <div class="playing-badge"><span style="display:inline-block;width:.55em;height:.55em;border-radius:50%;background:#22c55e;margin-right:4px;vertical-align:middle"></span>JUGAR</div>
-                <div class="game-image" style="font-size:2.4rem;display:flex;align-items:center;justify-content:center">🎰</div>
-                <p class="game-name">Tragamonedas</p>
-                <div class="rating"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+            <div class="game-card" onclick="window.location.href=withAppFlag('tragamonedas.html')">
+                <div class="game-image">
+                    <img src="images/tragamonedas.jpg" alt="Tragamonedas" loading="lazy">
+                </div>
+                <span class="playing-badge"><span class="dot-live"></span>JUGAR</span>
+                <div class="game-info">
+                    <p class="game-name">Tragamonedas</p>
+                    <div class="game-meta">
+                        <span class="rating">★★★★★</span>
+                        <span class="game-coins">🪙 +50</span>
+                    </div>
+                </div>
+                <div class="game-play-btn">Jugar ahora →</div>
             </div>
-            <div class="game-card" onclick="window.location.href=withAppFlag('ruleta.html')" style="cursor:pointer">
-                <div class="playing-badge"><span style="display:inline-block;width:.55em;height:.55em;border-radius:50%;background:#22c55e;margin-right:4px;vertical-align:middle"></span>JUGAR</div>
-                <div class="game-image" style="font-size:2.4rem;display:flex;align-items:center;justify-content:center">🎡</div>
-                <p class="game-name">Ruleta de Coins</p>
-                <div class="rating"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+            <div class="game-card" onclick="window.location.href=withAppFlag('ruleta.html')">
+                <div class="game-image">
+                    <img src="images/ruleta.jpg" alt="Ruleta de Coins" loading="lazy">
+                </div>
+                <span class="playing-badge"><span class="dot-live"></span>JUGAR</span>
+                <div class="game-info">
+                    <p class="game-name">Ruleta de Coins</p>
+                    <div class="game-meta">
+                        <span class="rating">★★★★★</span>
+                        <span class="game-coins">🪙 +50</span>
+                    </div>
+                </div>
+                <div class="game-play-btn">Jugar ahora →</div>
             </div>
-            <div class="game-card" style="opacity:.5;cursor:not-allowed">
-                <div class="playing-badge"><span style="display:inline-block;width:.55em;height:.55em;border-radius:50%;background:#6b7280;margin-right:4px;vertical-align:middle"></span>PRONTO</div>
-                <div class="game-image" style="font-size:2.4rem;display:flex;align-items:center;justify-content:center">🃏</div>
-                <p class="game-name">Más juegos…</p>
-                <div class="rating"><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i></div>
+            <div class="game-card game-card--soon">
+                <div class="game-image game-image--placeholder">
+                    <span class="game-placeholder-emoji">🃏</span>
+                </div>
+                <span class="playing-badge playing-badge--soon"><span class="dot-soon"></span>PRONTO</span>
+                <div class="game-info">
+                    <p class="game-name">Más juegos…</p>
+                    <div class="game-meta">
+                        <span class="rating">★★★★★</span>
+                    </div>
+                </div>
             </div>
         </div>
     </section>

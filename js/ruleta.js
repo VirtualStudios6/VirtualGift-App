@@ -7,15 +7,14 @@
 
 // ── Segmentos ──
 const SEGMENTS = [
-  { label: '+5',   coins: 5,   color: '#7c3aed', weight: 28 },
-  { label: '+10',  coins: 10,  color: '#2563eb', weight: 22 },
-  { label: '+15',  coins: 15,  color: '#059669', weight: 18 },
-  { label: '+25',  coins: 25,  color: '#d97706', weight: 12 },
-  { label: '+50',  coins: 50,  color: '#dc2626', weight:  8 },
-  { label: '+5',   coins: 5,   color: '#7c3aed', weight: 28 / 2 }, // duplicate for symmetry
-  { label: '+10',  coins: 10,  color: '#2563eb', weight: 22 / 2 },
-  { label: '+100', coins: 100, color: '#db2777', weight:  3 },
-  { label: 'MISS', coins: 0,   color: '#1f2937', weight:  2 },
+  { label: 'MISS', icon: '💀', coins: 0,   color: '#1c0000', weight: 22 },
+  { label: '+5',   icon: '🪙',  coins: 5,   color: '#2d0073', weight: 20 },
+  { label: '+10',  icon: '💰',  coins: 10,  color: '#001a60', weight: 16 },
+  { label: 'MISS', icon: '💀',  coins: 0,   color: '#0a0a12', weight: 14 },
+  { label: '+5',   icon: '🪙',  coins: 5,   color: '#1e0059', weight: 12 },
+  { label: '+20',  icon: '⭐',  coins: 20,  color: '#003320', weight: 10 },
+  { label: '+50',  icon: '💎',  coins: 50,  color: '#331400', weight:  5 },
+  { label: '+100', icon: '🔥',  coins: 100, color: '#4a001a', weight:  1 },
 ];
 
 const TOTAL_WEIGHT = SEGMENTS.reduce((s, g) => s + g.weight, 0);
@@ -48,33 +47,26 @@ function toast(msg) {
 
 // ── Wheel drawing ──
 function drawWheel(rotDeg) {
-  const W   = canvas.width;
-  const H   = canvas.height;
-  const cx  = W / 2;
-  const cy  = H / 2;
-  const r   = cx - 6;
+  const W  = canvas.width;
+  const H  = canvas.height;
+  const cx = W / 2;
+  const cy = H / 2;
+  const r  = cx - 14;
   const rot = (rotDeg * Math.PI) / 180;
 
   ctx.clearRect(0, 0, W, H);
 
-  // Outer glow ring
-  ctx.beginPath();
-  ctx.arc(cx, cy, r + 4, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(139,92,246,0.25)';
-  ctx.lineWidth = 8;
-  ctx.stroke();
-
-  // Segments
   ctx.save();
   ctx.translate(cx, cy);
   ctx.rotate(rot);
 
-  let startAngle = -Math.PI / 2; // start from top
+  let startAngle = -Math.PI / 2;
 
   SEGMENTS.forEach(seg => {
-    const slice = (seg.weight / TOTAL_WEIGHT) * Math.PI * 2;
+    const slice     = (seg.weight / TOTAL_WEIGHT) * Math.PI * 2;
+    const sliceFrac = slice / (Math.PI * 2);
 
-    // Fill
+    // Segment fill
     ctx.beginPath();
     ctx.moveTo(0, 0);
     ctx.arc(0, 0, r, startAngle, startAngle + slice);
@@ -82,49 +74,129 @@ function drawWheel(rotDeg) {
     ctx.fillStyle = seg.color;
     ctx.fill();
 
-    // Separator
+    // Subtle inner shimmer on outer arc
+    ctx.beginPath();
+    ctx.arc(0, 0, r - 2, startAngle + 0.03, startAngle + slice - 0.03);
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+    ctx.stroke();
+
+    // Separator line
     ctx.beginPath();
     ctx.moveTo(0, 0);
-    ctx.arc(0, 0, r, startAngle, startAngle + slice);
-    ctx.closePath();
-    ctx.strokeStyle = 'rgba(0,0,0,0.35)';
+    ctx.lineTo(Math.cos(startAngle) * r, Math.sin(startAngle) * r);
+    ctx.strokeStyle = 'rgba(255,255,255,0.28)';
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
-    // Label text
-    const textAngle = startAngle + slice / 2;
-    const textR     = r * 0.64;
+    // Icon + label
+    const midAngle = startAngle + slice / 2;
+    const textR    = r * 0.60;
+    const iconSize = Math.max(10, Math.min(16, sliceFrac * 200));
+    const lblSize  = Math.max(7,  Math.min(11, sliceFrac * 118));
+
     ctx.save();
-    ctx.translate(Math.cos(textAngle) * textR, Math.sin(textAngle) * textR);
-    ctx.rotate(textAngle + Math.PI / 2);
+    ctx.translate(Math.cos(midAngle) * textR, Math.sin(midAngle) * textR);
+    ctx.rotate(midAngle + Math.PI / 2);
     ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle    = '#fff';
-    ctx.font         = `800 ${slice > 0.5 ? 13 : 11}px Inter, sans-serif`;
-    ctx.shadowColor  = 'rgba(0,0,0,0.6)';
-    ctx.shadowBlur   = 3;
-    ctx.fillText(seg.label, 0, 0);
-    ctx.restore();
 
+    // Emoji icon
+    ctx.shadowColor = 'rgba(0,0,0,0.95)';
+    ctx.shadowBlur  = 8;
+    ctx.font = `${iconSize}px "Segoe UI Emoji","Apple Color Emoji",sans-serif`;
+    ctx.fillStyle = '#fff';
+    ctx.fillText(seg.icon, 0, -(lblSize * 1.15));
+
+    // Label
+    ctx.shadowBlur = 3;
+    ctx.font = `900 ${lblSize}px Inter,sans-serif`;
+    ctx.fillStyle = seg.coins > 0 ? '#fde68a' : '#fca5a5';
+    ctx.fillText(seg.label, 0, iconSize * 0.72);
+
+    ctx.restore();
     startAngle += slice;
   });
 
+  // Radial depth overlay
+  const shade = ctx.createRadialGradient(0, 0, r * 0.12, 0, 0, r);
+  shade.addColorStop(0,    'rgba(255,255,255,0.09)');
+  shade.addColorStop(0.55, 'rgba(0,0,0,0.0)');
+  shade.addColorStop(1,    'rgba(0,0,0,0.30)');
+  ctx.beginPath();
+  ctx.arc(0, 0, r, 0, Math.PI * 2);
+  ctx.fillStyle = shade;
+  ctx.fill();
+
+  // Rim decorative dot ring
+  const numDots = 44;
+  for (let i = 0; i < numDots; i++) {
+    const a = (i / numDots) * Math.PI * 2 - Math.PI / 2;
+    ctx.beginPath();
+    ctx.arc(Math.cos(a) * (r - 6), Math.sin(a) * (r - 6), 2.2, 0, Math.PI * 2);
+    if (i % 2 !== 0) {
+      ctx.shadowColor = 'rgba(167,139,250,0.9)';
+      ctx.shadowBlur  = 5;
+      ctx.fillStyle   = 'rgba(167,139,250,0.9)';
+    } else {
+      ctx.shadowBlur  = 0;
+      ctx.fillStyle   = 'rgba(255,255,255,0.75)';
+    }
+    ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+
   ctx.restore();
+
+  // Outer frame rings
+  ctx.beginPath();
+  ctx.arc(cx, cy, r + 2, 0, Math.PI * 2);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, r + 7, 0, Math.PI * 2);
+  ctx.lineWidth = 9;
+  ctx.strokeStyle = 'rgba(109,40,217,0.35)';
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, r + 12, 0, Math.PI * 2);
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = 'rgba(250,200,50,0.55)';
+  ctx.stroke();
 
   // Center hub
   ctx.beginPath();
-  ctx.arc(cx, cy, 20, 0, Math.PI * 2);
-  ctx.fillStyle = '#0f0c22';
+  ctx.arc(cx, cy, 28, 0, Math.PI * 2);
+  const hubGrad = ctx.createRadialGradient(cx - 6, cy - 6, 0, cx, cy, 28);
+  hubGrad.addColorStop(0,   '#7c3aed');
+  hubGrad.addColorStop(0.5, '#2d0a6b');
+  hubGrad.addColorStop(1,   '#0a0618');
+  ctx.fillStyle = hubGrad;
   ctx.fill();
-  ctx.strokeStyle = 'rgba(139,92,246,0.7)';
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 2.5;
+  ctx.strokeStyle = 'rgba(167,139,250,0.9)';
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(cx, cy, 18, 0, Math.PI * 2);
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(196,181,253,0.35)';
   ctx.stroke();
 
   // Center dot
   ctx.beginPath();
-  ctx.arc(cx, cy, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#8b5cf6';
+  ctx.arc(cx, cy, 8, 0, Math.PI * 2);
+  const dotGrad = ctx.createRadialGradient(cx - 3, cy - 3, 0, cx, cy, 8);
+  dotGrad.addColorStop(0, '#f0abfc');
+  dotGrad.addColorStop(1, '#7c3aed');
+  ctx.fillStyle = dotGrad;
   ctx.fill();
+  ctx.lineWidth = 1.5;
+  ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+  ctx.stroke();
 }
 
 // ── Weighted random ──
@@ -220,13 +292,16 @@ function buildLegend() {
   el.innerHTML = SEGMENTS.filter(s => {
     if (seen.has(s.label)) return false;
     seen.add(s.label); return true;
-  }).map(s => `
+  }).map(s => {
+    const glow = s.color + 'bb';
+    return `
     <div class="legend-item">
-      <div class="legend-dot" style="background:${s.color}"></div>
+      <div class="legend-dot" style="background:${s.color};box-shadow:0 0 8px ${glow},0 0 16px ${glow}"></div>
+      <span class="legend-icon">${s.icon}</span>
       <span class="legend-label">${s.label === 'MISS' ? 'Sin suerte' : s.label}</span>
-      <span class="legend-coins">${s.coins > 0 ? s.coins + ' 🪙' : '—'}</span>
-    </div>`
-  ).join('');
+      <span class="legend-coins">${s.coins > 0 ? '+' + s.coins + ' 🪙' : '—'}</span>
+    </div>`;
+  }).join('');
 }
 
 function setResult(html) {

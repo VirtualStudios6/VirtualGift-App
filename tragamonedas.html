@@ -41,8 +41,9 @@
 
     <!-- HERO -->
     <div class="slots-hero">
-      <p class="slots-hero-title">¡Gira y gana coins!</p>
-      <p class="slots-hero-sub">Consigue 3 iguales para el premio mayor</p>
+      <div class="slots-hero-glow" aria-hidden="true"></div>
+      <p class="slots-hero-title">¡Gira y Gana!</p>
+      <p class="slots-hero-sub">3 iguales = premio mayor &nbsp;·&nbsp; 2 iguales = +8 🪙</p>
     </div>
 
     <!-- PLAYS -->
@@ -54,15 +55,20 @@
     <!-- MACHINE -->
     <div class="slots-machine">
 
+      <div class="slots-lights" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
+
       <div class="slots-jackpot">
-        <div class="jackpot-label">Jackpot</div>
-        <div class="jackpot-val">🎁🎁🎁 = 150 🪙</div>
+        <div class="jackpot-label">✦ JACKPOT ✦</div>
+        <div class="jackpot-val">🍒🍒🍒 = 150 🪙</div>
       </div>
 
       <div class="slots-window">
-        <div class="slot-reel" id="reel0">🎁</div>
+        <div class="slot-reel" id="reel0">🍒</div>
         <div class="slot-reel" id="reel1">💎</div>
-        <div class="slot-reel" id="reel2">⭐</div>
+        <div class="slot-reel" id="reel2">🍊</div>
         <div class="slots-line"></div>
       </div>
 
@@ -71,15 +77,20 @@
         <span class="result-miss">Pulsa GIRAR para jugar</span>
       </div>
 
-      <button class="spin-btn" id="spinBtn" onclick="doSpin()">
-        🎰 GIRAR
+      <button type="button" class="spin-btn" id="spinBtn" onclick="doSpin()">
+        🎰 &nbsp;GIRAR
       </button>
+
+      <div class="slots-lights slots-lights--bottom" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
 
     </div>
 
     <!-- EXTRA PLAY (ad) -->
-    <div class="ad-play-row" id="adPlayRow" style="display:none">
-      <button class="ad-play-btn" id="adPlayBtn" onclick="watchAd()">
+    <div class="ad-play-row" id="adPlayRow">
+      <button type="button" class="ad-play-btn" id="adPlayBtn" onclick="watchAd()">
         <span class="ad-play-btn-icon">▶</span>
         Ver anuncio para +1 tirada
       </button>
@@ -87,18 +98,39 @@
 
     <!-- PAYTABLE -->
     <div class="paytable">
-      <p class="paytable-title">Premios</p>
-      <div class="paytable-row"><span class="paytable-syms">🎁🎁🎁</span><span class="paytable-prize">+150 🪙</span></div>
-      <div class="paytable-row"><span class="paytable-syms">💎💎💎</span><span class="paytable-prize">+100 🪙</span></div>
-      <div class="paytable-row"><span class="paytable-syms">⭐⭐⭐</span><span class="paytable-prize">+75 🪙</span></div>
-      <div class="paytable-row"><span class="paytable-syms">🍀🍀🍀</span><span class="paytable-prize">+50 🪙</span></div>
-      <div class="paytable-row"><span class="paytable-syms">🪙🪙🪙</span><span class="paytable-prize">+30 🪙</span></div>
-      <div class="paytable-row"><span class="paytable-syms">🔥🔥🔥</span><span class="paytable-prize">+20 🪙</span></div>
-      <div class="paytable-row"><span class="paytable-syms">Dos iguales</span><span class="paytable-prize">+8 🪙</span></div>
+      <p class="paytable-title">Tabla de Premios</p>
+      <div class="paytable-row paytable-row--jackpot">
+        <span class="paytable-syms">🍒🍒🍒</span>
+        <span class="paytable-prize paytable-prize--jackpot">+150 🪙</span>
+      </div>
+      <div class="paytable-row">
+        <span class="paytable-syms">💎💎💎</span>
+        <span class="paytable-prize paytable-prize--high">+100 🪙</span>
+      </div>
+      <div class="paytable-row">
+        <span class="paytable-syms">🍇🍇🍇</span>
+        <span class="paytable-prize paytable-prize--high">+75 🪙</span>
+      </div>
+      <div class="paytable-row">
+        <span class="paytable-syms">🔔🔔🔔</span>
+        <span class="paytable-prize paytable-prize--mid">+50 🪙</span>
+      </div>
+      <div class="paytable-row">
+        <span class="paytable-syms">🍋🍋🍋</span>
+        <span class="paytable-prize paytable-prize--mid">+30 🪙</span>
+      </div>
+      <div class="paytable-row">
+        <span class="paytable-syms">🍊🍊🍊</span>
+        <span class="paytable-prize paytable-prize--low">+20 🪙</span>
+      </div>
+      <div class="paytable-row paytable-row--last">
+        <span class="paytable-syms paytable-syms--text">Dos iguales</span>
+        <span class="paytable-prize paytable-prize--low">+8 🪙</span>
+      </div>
     </div>
 
     <!-- AdSense -->
-    <div class="ads-container" style="margin-top:20px">
+    <div class="ads-container ads-container--game">
       <ins class="adsbygoogle"
            data-ad-client="ca-pub-1930529129644930"
            data-ad-slot="6388933118"
@@ -110,7 +142,7 @@
   </div>
 
   <!-- AD OVERLAY -->
-  <div class="ad-overlay" id="adOverlay" style="display:none">
+  <div class="ad-overlay" id="adOverlay">
     <div class="ad-overlay-box">
       <p class="ad-overlay-title">▶ Viendo anuncio…</p>
       <p class="ad-overlay-sub">Espera para recibir tu tirada extra</p>
@@ -123,7 +155,7 @@
              data-full-width-responsive="true"></ins>
         <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
       </div>
-      <button class="ad-close-btn" id="adCloseBtn" onclick="closeAd()" disabled>
+      <button type="button" class="ad-close-btn" id="adCloseBtn" onclick="closeAd()" disabled>
         ✓ Reclamar tirada extra
       </button>
     </div>

@@ -5,8 +5,8 @@
 'use strict';
 
 // ── Constantes ──
-const SYMBOLS          = ['🎁','💎','⭐','🍀','🪙','🔥'];
-const PAYOUTS          = { '🎁':150, '💎':100, '⭐':75, '🍀':50, '🪙':30, '🔥':20 };
+const SYMBOLS          = ['🍒','💎','🍇','🔔','🍋','🍊'];
+const PAYOUTS          = { '🍒':150, '💎':100, '🍇':75, '🔔':50, '🍋':30, '🍊':20 };
 const FREE_PLAYS       = 5;
 const MAX_EXTRA        = 3;
 const SPIN_MS          = [900, 1150, 1400];

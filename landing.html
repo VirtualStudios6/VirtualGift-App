@@ -404,71 +404,51 @@
     .phone-header {
       background: rgba(141,23,251,0.08);
       border-bottom: 1px solid rgba(141,23,251,0.15);
-      padding: 10px 16px;
-      display: flex; align-items: center; gap: 8px;
+      padding: 8px 12px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-    .phone-header-logo {
-      width: 24px; height: 24px; border-radius: 7px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
+    .phone-logo-wrap { display: flex; align-items: center; gap: 5px; }
+    .phone-logo-img { width: 18px; height: 18px; border-radius: 5px; object-fit: contain; }
+    .phone-header-title { font-size: 11px; font-weight: 900; letter-spacing: 1px; color: white; }
+    .ph-gift {
+      background: linear-gradient(135deg, #a010d0, #d020e8, #e030c0);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
     }
-    .phone-header-title {
-      font-size: 13px; font-weight: 800; letter-spacing: 1px;
-      color: var(--text);
-    }
-    .phone-header-title span { color: var(--accent); }
-    .phone-coins-badge {
-      margin-left: auto;
-      background: rgba(245,158,11,0.15);
-      border: 1px solid rgba(245,158,11,0.3);
-      border-radius: 999px; padding: 3px 8px;
-      font-size: 11px; font-weight: 800; color: var(--gold-light);
+    .phone-header-icons { display: flex; align-items: center; gap: 9px; }
+    .ph-icon { width: 14px; height: 14px; fill: rgba(220,239,255,0.75); flex-shrink: 0; }
+    .ph-coin-svg { width: 15px; height: 15px; flex-shrink: 0; }
+    .ph-bell-wrap { position: relative; display: flex; }
+    .ph-bell-badge {
+      position: absolute; top: -3px; right: -3px;
+      width: 7px; height: 7px; border-radius: 50%; background: #ef4444;
     }
     /* Phone content */
-    .phone-body { padding: 14px; overflow: hidden; }
-    /* Welcome card */
-    .phone-greeting {
-      margin-bottom: 12px;
+    .phone-body { padding: 10px 12px; overflow: hidden; }
+    /* Section headers */
+    .ph-sec-hdr {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;
     }
-    .phone-greeting-text {
-      font-size: 12px; color: var(--text-3); margin-bottom: 2px;
+    .ph-sec-title { font-size: 11px; font-weight: 800; color: var(--text); }
+    .ph-sec-link  { font-size: 10px; font-weight: 700; color: var(--accent); }
+    /* Sorteo card */
+    .ph-sorteo-card {
+      background: linear-gradient(135deg, rgba(141,23,251,0.22), rgba(104,227,255,0.08));
+      border: 1px solid rgba(141,23,251,0.3);
+      border-radius: 10px; padding: 9px 10px; margin-bottom: 10px;
     }
-    .phone-greeting-name {
-      font-size: 16px; font-weight: 800; color: var(--text);
-    }
-    /* Coins display */
-    .phone-coins-row {
-      display: flex; align-items: center; gap: 8px;
-      background: rgba(245,158,11,0.08);
-      border: 1px solid rgba(245,158,11,0.2);
-      border-radius: var(--radius-sm);
-      padding: 10px 12px; margin-bottom: 12px;
-    }
-    .phone-coins-icon { font-size: 18px; color: var(--gold-light); }
-    .phone-coins-info {}
-    .phone-coins-label { font-size: 10px; color: var(--text-3); font-weight: 600; }
-    .phone-coins-amount { font-size: 18px; font-weight: 900; color: var(--gold-light); }
-    /* Raffle card */
-    .phone-raffle {
-      background: rgba(141,23,251,0.1);
-      border: 1px solid rgba(141,23,251,0.25);
-      border-radius: var(--radius-md);
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-    .phone-raffle-badge {
+    .ph-sorteo-tag {
       display: inline-block;
-      background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4);
-      border-radius: 999px; padding: 2px 8px;
-      font-size: 10px; font-weight: 700; color: #fca5a5;
-      margin-bottom: 8px;
+      background: rgba(239,68,68,0.18); border: 1px solid rgba(239,68,68,0.35);
+      border-radius: 999px; padding: 1px 6px;
+      font-size: 9px; font-weight: 700; color: #fca5a5; margin-bottom: 4px;
     }
-    .phone-raffle-title { font-size: 15px; font-weight: 800; color: var(--text); margin-bottom: 2px; }
-    .phone-raffle-prize { font-size: 11px; color: var(--accent); font-weight: 600; margin-bottom: 8px; }
-    .phone-progress-bar {
+    .ph-sorteo-name  { font-size: 13px; font-weight: 800; color: white; margin-bottom: 1px; }
+    .ph-sorteo-prize { font-size: 10px; color: var(--accent); font-weight: 600; margin-bottom: 6px; }
+    .ph-progress-bar {
       background: rgba(141,23,251,0.15);
-      border-radius: 999px; height: 5px; margin-bottom: 4px; overflow: hidden;
+      border-radius: 999px; height: 4px; margin-bottom: 3px; overflow: hidden;
     }
-    .phone-progress-fill {
+    .ph-progress-fill {
       height: 100%; width: 72%;
       background: linear-gradient(90deg, var(--primary), var(--accent));
       border-radius: 999px;
@@ -478,32 +458,42 @@
       0%,100% { opacity: 1; }
       50%      { opacity: 0.7; }
     }
-    .phone-progress-info {
+    .ph-progress-info {
       display: flex; justify-content: space-between;
-      font-size: 10px; color: var(--text-3); font-weight: 600;
-      margin-bottom: 10px;
+      font-size: 9px; color: var(--text-3); font-weight: 600; margin-bottom: 7px;
     }
-    .phone-raffle-btn {
-      width: 100%; padding: 8px;
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      border-radius: var(--radius-sm);
-      font-size: 12px; font-weight: 800; color: white; text-align: center;
-      animation: btnGlow 2s ease-in-out infinite;
+    .ph-sorteo-btn {
+      width: 100%; padding: 6px;
+      background: linear-gradient(135deg, #a010d0, #d020e8, #e030c0);
+      border-radius: 7px;
+      font-size: 11px; font-weight: 800; color: white; text-align: center;
+      box-shadow: 0 3px 10px rgba(208,32,232,0.35);
     }
-    @keyframes btnGlow {
-      0%,100% { box-shadow: 0 4px 16px rgba(141,23,251,0.3); }
-      50%      { box-shadow: 0 4px 24px rgba(141,23,251,0.55); }
+    /* Games row */
+    .ph-games-row { display: flex; gap: 6px; }
+    .ph-game-card {
+      flex: 1; background: rgba(141,23,251,0.1);
+      border: 1px solid rgba(141,23,251,0.2);
+      border-radius: 9px; padding: 7px 4px; text-align: center;
     }
+    .ph-game-badge { font-size: 8px; font-weight: 700; color: #22c55e; margin-bottom: 3px; }
+    .ph-game-icon  { font-size: 18px; margin-bottom: 2px; }
+    .ph-game-name  { font-size: 9px; font-weight: 700; color: var(--text-2); }
     /* Bottom nav */
     .phone-nav {
       position: absolute; bottom: 0; left: 0; right: 0;
-      background: rgba(6,1,28,0.95);
-      border-top: 1px solid rgba(141,23,251,0.15);
+      background: rgba(6,1,28,0.97);
+      border-top: 1px solid rgba(141,23,251,0.2);
       display: flex; justify-content: space-around; align-items: center;
-      padding: 10px 0 14px;
+      padding: 6px 0 9px;
     }
-    .phone-nav-item { font-size: 16px; opacity: 0.5; }
-    .phone-nav-item.active { opacity: 1; }
+    .phone-nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 2px;
+      opacity: 0.45; flex: 1; color: var(--text);
+    }
+    .phone-nav-item.active { opacity: 1; color: var(--primary); }
+    .phone-nav-item svg { width: 15px; height: 15px; fill: currentColor; }
+    .phone-nav-item span { font-size: 8px; font-weight: 700; }
 
     /* Floating badges around phone */
     .float-badge {
@@ -1162,42 +1152,88 @@
                   <span>9:41</span>
                   <span>▲▲▲ ▮▮▮▮</span>
                 </div>
+
+                <!-- Header igual al de la app real -->
                 <div class="phone-header" aria-hidden="true">
-                  <div class="phone-header-logo"></div>
-                  <div class="phone-header-title">VIRTUAL<span>GIFT</span></div>
-                  <div class="phone-coins-badge"><i class="fas fa-coins"></i> 1,250</div>
+                  <div class="phone-logo-wrap">
+                    <img src="images/logo-virtual-login.png" class="phone-logo-img" alt="">
+                    <div class="phone-header-title">VIRTUAL<span class="ph-gift">GIFT</span></div>
+                  </div>
+                  <div class="phone-header-icons">
+                    <!-- User -->
+                    <svg class="ph-icon" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <!-- Coin (gold SVG igual que la app) -->
+                    <svg class="ph-coin-svg" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="48" fill="#FDB813"/>
+                      <circle cx="50" cy="50" r="42" fill="#FFD700"/>
+                      <path d="M 30 30 L 42 65 L 50 65 L 58 65 L 70 30 L 62 30 L 54 57 L 50 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
+                    </svg>
+                    <!-- Bell con badge -->
+                    <div class="ph-bell-wrap">
+                      <svg class="ph-icon" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                      <span class="ph-bell-badge"></span>
+                    </div>
+                  </div>
                 </div>
+
                 <div class="phone-body" aria-hidden="true">
-                  <div class="phone-greeting">
-                    <div class="phone-greeting-text">Bienvenido de vuelta</div>
-                    <div class="phone-greeting-name">Gamer_Pro</div>
+                  <!-- Top Sorteos -->
+                  <div class="ph-sec-hdr">
+                    <span class="ph-sec-title">Top Sorteos 🏆</span>
+                    <span class="ph-sec-link">Ver todo</span>
                   </div>
-                  <div class="phone-coins-row">
-                    <div class="phone-coins-icon"><i class="fas fa-coins"></i></div>
-                    <div class="phone-coins-info">
-                      <div class="phone-coins-label">TUS COINS</div>
-                      <div class="phone-coins-amount" id="phoneCoinAnim">1,250</div>
+                  <div class="ph-sorteo-card">
+                    <div class="ph-sorteo-tag">🔥 POPULAR</div>
+                    <div class="ph-sorteo-name">Amazon Gift Card</div>
+                    <div class="ph-sorteo-prize">$50 USD · 800 Coins</div>
+                    <div class="ph-progress-bar"><div class="ph-progress-fill"></div></div>
+                    <div class="ph-progress-info">
+                      <span>1,247 participantes</span><span>72%</span>
                     </div>
+                    <div class="ph-sorteo-btn">Participar · 800 C</div>
                   </div>
-                  <div class="phone-raffle">
-                    <div class="phone-raffle-badge"><i class="fas fa-fire"></i> POPULAR</div>
-                    <div class="phone-raffle-title">Amazon Gift Card</div>
-                    <div class="phone-raffle-prize">$50 USD · Solo 800 C</div>
-                    <div class="phone-progress-bar">
-                      <div class="phone-progress-fill"></div>
+
+                  <!-- Popular Games -->
+                  <div class="ph-sec-hdr">
+                    <span class="ph-sec-title">Popular Games</span>
+                  </div>
+                  <div class="ph-games-row">
+                    <div class="ph-game-card">
+                      <div class="ph-game-badge">● JUGAR</div>
+                      <div class="ph-game-icon">🎰</div>
+                      <div class="ph-game-name">Tragamonedas</div>
                     </div>
-                    <div class="phone-progress-info">
-                      <span>1,247 participantes</span>
-                      <span>72%</span>
+                    <div class="ph-game-card">
+                      <div class="ph-game-badge">● JUGAR</div>
+                      <div class="ph-game-icon">🎡</div>
+                      <div class="ph-game-name">Ruleta</div>
                     </div>
-                    <div class="phone-raffle-btn">Participar · 800 Coins</div>
+                    <div class="ph-game-card" style="opacity:.45">
+                      <div class="ph-game-badge" style="color:#6b7280">● PRONTO</div>
+                      <div class="ph-game-icon">🃏</div>
+                      <div class="ph-game-name">Más…</div>
+                    </div>
                   </div>
                 </div>
+
+                <!-- Bottom nav con SVGs reales de la app -->
                 <nav class="phone-nav" aria-hidden="true">
-                  <div class="phone-nav-item active"><i class="fas fa-home"></i></div>
-                  <div class="phone-nav-item"><i class="fas fa-dice"></i></div>
-                  <div class="phone-nav-item"><i class="fas fa-gift"></i></div>
-                  <div class="phone-nav-item"><i class="fas fa-user"></i></div>
+                  <div class="phone-nav-item active">
+                    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                    <span>Inicio</span>
+                  </div>
+                  <div class="phone-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M20 12c0-1.1.9-2 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v4c1.1 0 2 .9 2 2s-.9 2-2 2v4c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2v-4c-1.1 0-2-.9-2-2zm-4.42 4.8L12 14.5l-3.58 2.3 1.08-4.12-3.29-2.69 4.24-.25L12 5.8l1.54 3.94 4.24.25-3.29 2.69 1.09 4.12z"/></svg>
+                    <span>Sorteos</span>
+                  </div>
+                  <div class="phone-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    <span>Comunidad</span>
+                  </div>
+                  <div class="phone-nav-item">
+                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    <span>Perfil</span>
+                  </div>
                 </nav>
               </div>
 
