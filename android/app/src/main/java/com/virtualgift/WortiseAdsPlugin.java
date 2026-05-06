@@ -14,6 +14,7 @@ import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
 import com.wortise.ads.AdError;
+import com.wortise.ads.AdSize;
 import com.wortise.ads.RevenueData;
 import com.wortise.ads.WortiseSdk;
 import com.wortise.ads.banner.BannerAd;
@@ -109,15 +110,18 @@ public class WortiseAdsPlugin extends Plugin {
             ViewGroup root = (ViewGroup) activity.getWindow().getDecorView().getRootView();
             bannerContainer = new FrameLayout(activity);
 
+            // Altura fija: 50dp → evita que el banner renderice enorme
+            int bannerHeightPx = Math.round(50 * activity.getResources().getDisplayMetrics().density);
             FrameLayout.LayoutParams containerLp = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
+                bannerHeightPx,
                 Gravity.BOTTOM
             );
             root.addView(bannerContainer, containerLp);
 
             bannerAd = new BannerAd(activity);
             bannerAd.setAdUnitId(unitId);
+            bannerAd.setAdSize(AdSize.HEIGHT_50); // banner estándar 320×50
             bannerAd.setListener(new BannerAd.Listener() {
                 @Override
                 public void onBannerLoaded(BannerAd ad) {

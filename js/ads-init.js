@@ -9,7 +9,7 @@
 (function () {
   'use strict';
 
-  const BOTTOM_NAV_BANNER_OFFSET = 52; // px que sube el bottom-nav cuando el banner está activo
+  const BOTTOM_NAV_BANNER_OFFSET = 56; // px: 50dp banner + 6dp margen visual
 
   function adjustBottomNav(visible) {
     const nav = document.querySelector('.bottom-nav');
