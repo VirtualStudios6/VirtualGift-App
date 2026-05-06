@@ -29,6 +29,7 @@ let userCoins     = 0;
 let playsUsed     = 0;
 let extraUsed     = 0;
 let isSpinning    = false;
+let spinsSinceAd  = 0; // interstitial cada 3 giros
 let displayedRot  = 0; // ángulo actual en canvas (grados, acumulado)
 
 // ── Canvas ──
@@ -386,6 +387,12 @@ window.doSpin = async function() {
 
     isSpinning = false;
     updatePlaysUI();
+
+    spinsSinceAd++;
+    if (spinsSinceAd >= 3) {
+      spinsSinceAd = 0;
+      window.showInterstitialIfReady?.();
+    }
   });
 };
 
@@ -395,9 +402,11 @@ window.watchAd = async function() {
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Cargando anuncio…'; }
 
   try {
-    const result = await WortiseAds.showRewarded(REWARDED_UNIT_ID);
+    const result = await AdManager.showRewarded();
     if (result.rewarded) {
       await grantExtraRoulettePlay();
+    } else if (!result.skipped) {
+      toast('No hay anuncios disponibles en este momento');
     } else {
       toast('El anuncio no se completó — inténtalo de nuevo');
     }

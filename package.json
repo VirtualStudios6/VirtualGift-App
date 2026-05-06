@@ -4,23 +4,24 @@
   "description": "VirtualGift - Sorteos y rifas con monedas virtuales",
   "private": true,
   "scripts": {
-    "build":            "node build.js",
+    "build": "node build.js",
     "cap:sync:android": "npm run build && npx cap sync android",
-    "cap:sync:ios":     "npm run build && npx cap sync ios",
+    "cap:sync:ios": "npm run build && npx cap sync ios",
     "cap:open:android": "npx cap open android",
-    "cap:open:ios":     "npx cap open ios",
-    "cap:assets":       "npx capacitor-assets generate"
+    "cap:open:ios": "npx cap open ios",
+    "cap:assets": "npx capacitor-assets generate"
   },
   "dependencies": {
-    "@capacitor/android":  "^6.2.0",
-    "@capacitor/core":     "^6.2.0",
-    "@capacitor/ios":      "^6.2.0",
+    "@capacitor-firebase/authentication": "^6.3.1",
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/app": "^6.0.3",
+    "@capacitor/core": "^6.2.0",
+    "@capacitor/ios": "^6.2.0",
     "@capacitor/splash-screen": "^6.0.2",
-    "@capacitor/status-bar":    "^6.0.1",
-    "@capacitor-firebase/authentication": "^6.3.1"
+    "@capacitor/status-bar": "^6.0.1"
   },
   "devDependencies": {
-    "@capacitor/cli":    "^6.2.0",
-    "@capacitor/assets": "^3.0.5"
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^6.2.0"
   }
 }

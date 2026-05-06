@@ -54,6 +54,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
     implementation 'com.wortise:android-sdk:1.7.2'
+    implementation 'com.unity3d.ads:unity-ads:4.7.0'
 }
 
 apply from: 'capacitor.build.gradle'

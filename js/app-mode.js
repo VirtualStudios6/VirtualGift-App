@@ -61,3 +61,22 @@ window.isCapacitorNative = function isCapacitorNative() {
     document.body?.classList.add('cap-native');
   });
 })();
+
+// ── Botón físico de retroceso Android ─────────────────────────────────────
+// Navega atrás en el historial; si no hay historial, minimiza la app.
+(function () {
+  if (!window.Capacitor?.isNativePlatform?.()) return;
+
+  window.addEventListener('DOMContentLoaded', function () {
+    const App = window.Capacitor?.Plugins?.App;
+    if (!App) return;
+
+    App.addListener('backButton', function (info) {
+      if (info.canGoBack) {
+        window.history.back();
+      } else {
+        App.minimizeApp();
+      }
+    });
+  });
+})();
