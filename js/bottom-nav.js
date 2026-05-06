@@ -12,6 +12,7 @@
     'participaciones.html':  'participaciones',
     'comunidad.html':        'comunidad',
     'notificaciones.html':   null,
+    'soporte.html':          null,
   };
 
   const ITEMS = [

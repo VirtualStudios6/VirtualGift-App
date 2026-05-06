@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#06011c">
+  <title>Centro de Ayuda — VirtualGift</title>
+  <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/splash.css">
+  <link rel="stylesheet" href="css/bottom-nav.css">
+
+  <script defer src="js/app-mode.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: #03010f; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #03010f;
+      color: #dcefff;
+      min-height: 100dvh;
+      overflow-x: hidden;
+      padding-top: calc(56px + env(safe-area-inset-top));
+      padding-bottom: calc(96px + env(safe-area-inset-bottom));
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      height: calc(56px + env(safe-area-inset-top));
+      padding-top: env(safe-area-inset-top);
+      background: rgba(3,1,15,.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      display: flex; align-items: center; gap: 12px;
+      padding-left: 16px; padding-right: 20px;
+    }
+    .back-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; flex-shrink: 0;
+      transition: background .15s;
+    }
+    .back-btn:active { background: rgba(255,255,255,.14); }
+    .back-btn svg { width: 18px; height: 18px; fill: rgba(220,239,255,.8); }
+    .top-bar-title {
+      font-size: .93rem; font-weight: 800; color: #fff;
+      letter-spacing: -.01em;
+    }
+
+    /* ── LAYOUT ── */
+    .page-wrap {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 0 16px 20px;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 28px 0 24px;
+      position: relative;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+      width: 320px; height: 120px;
+      background: radial-gradient(ellipse, rgba(139,92,246,.2) 0%, transparent 70%);
+      filter: blur(28px); pointer-events: none;
+    }
+    .hero-emoji { font-size: 2.8rem; line-height: 1; margin-bottom: 10px; display: block; }
+    .hero-title {
+      font-size: 1.8rem; font-weight: 900; letter-spacing: -.03em;
+      background: linear-gradient(135deg, #e879f9 0%, #a78bfa 45%, #60a5fa 90%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 7px;
+    }
+    .hero-sub { font-size: .8rem; color: rgba(196,181,253,.5); line-height: 1.5; }
+
+    /* ── QUICK LINKS ── */
+    .quick-links {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 9px; margin: 20px 0 28px;
+    }
+    .quick-card {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 16px; padding: 16px 8px;
+      cursor: pointer; text-decoration: none;
+      transition: background .15s, border-color .15s;
+    }
+    .quick-card:active { background: rgba(139,92,246,.12); border-color: rgba(139,92,246,.35); }
+    .quick-card-icon { font-size: 1.6rem; line-height: 1; }
+    .quick-card-label { font-size: .68rem; font-weight: 700; color: rgba(220,239,255,.65); text-align: center; }
+
+    /* ── SECTION TITLE ── */
+    .s-title {
+      font-size: .95rem; font-weight: 900; color: #fff;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    /* ── FAQ ACCORDION ── */
+    .faq-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 28px; }
+    .faq-item {
+      background: rgba(255,255,255,.03);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: border-color .2s;
+    }
+    .faq-item.open { border-color: rgba(139,92,246,.32); }
+    .faq-q {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 15px 16px;
+      cursor: pointer; user-select: none;
+    }
+    .faq-q-text {
+      font-size: .84rem; font-weight: 700; color: rgba(220,239,255,.9);
+      line-height: 1.35; flex: 1;
+    }
+    .faq-arrow {
+      width: 20px; height: 20px; flex-shrink: 0;
+      fill: rgba(196,181,253,.4);
+      transition: transform .25s;
+    }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-body {
+      max-height: 0; overflow: hidden;
+      transition: max-height .3s ease;
+    }
+    .faq-body-inner {
+      padding: 0 16px 16px;
+      font-size: .8rem; font-weight: 500;
+      color: rgba(220,239,255,.55);
+      line-height: 1.6;
+    }
+    .faq-body-inner a {
+      color: #a78bfa; text-decoration: none; font-weight: 700;
+    }
+
+    /* ── CONTACT CARD ── */
+    .contact-card {
+      background: linear-gradient(135deg, rgba(139,92,246,.12) 0%, rgba(96,165,250,.07) 100%);
+      border: 1px solid rgba(139,92,246,.28);
+      border-radius: 20px;
+      padding: 22px 20px;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+    .contact-icon { font-size: 2rem; margin-bottom: 10px; }
+    .contact-title { font-size: .97rem; font-weight: 800; color: #fff; margin-bottom: 6px; }
+    .contact-desc { font-size: .78rem; color: rgba(196,181,253,.55); line-height: 1.55; margin-bottom: 18px; }
+    .contact-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      color: #fff; font-family: inherit;
+      font-size: .84rem; font-weight: 700;
+      border: none; border-radius: 12px;
+      padding: 12px 24px; cursor: pointer;
+      text-decoration: none;
+      transition: opacity .15s;
+    }
+    .contact-btn:active { opacity: .8; }
+    .contact-btn svg { width: 16px; height: 16px; fill: #fff; }
+
+    /* ── LEGAL ── */
+    .legal-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 8px; }
+    .legal-row {
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255,255,255,.025);
+      border: 1px solid rgba(255,255,255,.06);
+      border-radius: 14px; padding: 13px 16px;
+      text-decoration: none; cursor: pointer;
+      transition: background .15s;
+    }
+    .legal-row:active { background: rgba(255,255,255,.05); }
+    .legal-row-left { display: flex; align-items: center; gap: 10px; }
+    .legal-icon { font-size: 1.1rem; }
+    .legal-label { font-size: .83rem; font-weight: 700; color: rgba(220,239,255,.8); }
+    .legal-chevron { fill: rgba(220,239,255,.2); width: 18px; height: 18px; }
+
+    /* ── VERSION ── */
+    .version-note {
+      text-align: center;
+      font-size: .7rem; color: rgba(220,239,255,.2);
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SPLASH -->
+  <div id="vg-splash">
+    <img id="vg-splash-logo" src="images/logo-virtual-login.png" alt="VirtualGift">
+    <div id="vg-splash-name">VIRTUAL<span>GIFT</span></div>
+    <div id="vg-splash-spinner"></div>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <button class="back-btn" onclick="history.length>1 ? history.back() : window.location.href=withAppFlag('home.html')" aria-label="Volver">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+    </button>
+    <span class="top-bar-title">Centro de Ayuda</span>
+  </div>
+
+  <div class="page-wrap">
+
+    <!-- HERO -->
+    <div class="hero">
+      <span class="hero-emoji">🛟</span>
+      <h1 class="hero-title">¿En qué te ayudamos?</h1>
+      <p class="hero-sub">Encuentra respuestas rápidas o contáctanos directamente</p>
+    </div>
+
+    <!-- QUICK LINKS -->
+    <div class="quick-links">
+      <a class="quick-card" href="#faq" onclick="scrollToSection('faq')">
+        <span class="quick-card-icon">❓</span>
+        <span class="quick-card-label">Preguntas frecuentes</span>
+      </a>
+      <a class="quick-card" href="#contacto" onclick="scrollToSection('contacto')">
+        <span class="quick-card-icon">✉️</span>
+        <span class="quick-card-label">Contactar soporte</span>
+      </a>
+      <a class="quick-card" href="#legal" onclick="scrollToSection('legal')">
+        <span class="quick-card-icon">📄</span>
+        <span class="quick-card-label">Legal & Privacidad</span>
+      </a>
+    </div>
+
+    <!-- FAQ -->
+    <div id="faq">
+      <div class="s-title">❓ Preguntas frecuentes</div>
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">¿Cómo gano Coins?</span>
+            <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+          <div class="faq-body">
+            <div class="faq-body-inner">
+              Ganas Coins girando la ruleta diaria en la sección <strong>Inicio</strong>. Cada giro te da una cantidad aleatoria de Coins. También recibes Coins extra al invitar amigos con tu código de referido (+500 coins para ti y tu amigo).
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">¿Cómo participo en un sorteo?</span>
+            <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+          <div class="faq-body">
+            <div class="faq-body-inner">
+              Ve a la sección <strong>Sorteos</strong> desde el menú inferior. Elige un sorteo activo y usa tus Coins para comprar entradas. Cuantas más entradas tengas, mayor será tu probabilidad de ganar.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">¿Cuándo y cómo entrego mi premio?</span>
+            <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+          <div class="faq-body">
+            <div class="faq-body-inner">
+              Los ganadores son notificados por correo electrónico y dentro de la app. Las gift cards digitales se entregan en un plazo de <strong>24–72 horas</strong> tras confirmar el ganador. Si ganas, recibirás una notificación con instrucciones para reclamar tu premio.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">¿Los sorteos son legítimos?</span>
+            <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+          <div class="faq-body">
+            <div class="faq-body-inner">
+              Sí. VirtualGift es una plataforma de sorteos gratuitos de gift cards digitales. El ganador se selecciona de forma aleatoria entre todos los participantes al finalizar el sorteo. Los resultados se publican en la app y se notifica al ganador directamente.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">¿Por qué ver anuncios para girar la ruleta?</span>
+            <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+          <div class="faq-body">
+            <div class="faq-body-inner">
+              VirtualGift es completamente gratuito. Los anuncios son nuestra única fuente de ingresos para costear los premios y el funcionamiento de la plataforma. Sin anuncios, no hay gift cards. ¡Gracias por tu comprensión!
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">¿Puedo usar la app sin conexión?</span>
+            <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+          <div class="faq-body">
+            <div class="faq-body-inner">
+              No. VirtualGift requiere conexión a internet para sincronizar tus Coins, participaciones y sorteos en tiempo real. Asegúrate de tener una conexión activa antes de usar la app.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">¿Cómo cambio mi nombre o foto de perfil?</span>
+            <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+          <div class="faq-body">
+            <div class="faq-body-inner">
+              Ve a <strong>Perfil</strong> (ícono de persona en el menú). Desde ahí puedes cambiar tu nombre con el botón "Cambiar nombre" y tu foto tocando el ícono de edición sobre tu avatar.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">¿Cómo elimino mi cuenta?</span>
+            <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+          <div class="faq-body">
+            <div class="faq-body-inner">
+              Ve a <strong>Perfil → Soporte → Eliminar mi cuenta</strong>. Esta acción borrará permanentemente todos tus datos, Coins y participaciones. La eliminación no se puede deshacer.
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)">
+            <span class="faq-q-text">Olvidé mi contraseña, ¿qué hago?</span>
+            <svg class="faq-arrow" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+          </div>
+          <div class="faq-body">
+            <div class="faq-body-inner">
+              En la pantalla de inicio de sesión, toca <strong>"¿Olvidaste tu contraseña?"</strong> e ingresa tu correo. Recibirás un enlace para restablecerla. Si iniciaste sesión con Google, no tienes contraseña en VirtualGift — usa siempre el botón de Google.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CONTACTO -->
+    <div id="contacto">
+      <div class="s-title">✉️ Contacto</div>
+      <div class="contact-card">
+        <div class="contact-icon">💬</div>
+        <div class="contact-title">¿No encontraste tu respuesta?</div>
+        <div class="contact-desc">
+          Escríbenos y te responderemos lo antes posible.<br>
+          Tiempo de respuesta habitual: <strong style="color:rgba(196,181,253,.8);">24–48 horas</strong>.
+        </div>
+        <a class="contact-btn" href="mailto:ceovirtualstudios@gmail.com?subject=Soporte%20VirtualGift">
+          <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          Enviar mensaje
+        </a>
+      </div>
+    </div>
+
+    <!-- LEGAL -->
+    <div id="legal">
+      <div class="s-title">📄 Legal</div>
+      <div class="legal-list">
+        <a class="legal-row" href="legal/terminos.html">
+          <div class="legal-row-left">
+            <span class="legal-icon">📋</span>
+            <span class="legal-label">Términos y Condiciones</span>
+          </div>
+          <svg class="legal-chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </a>
+        <a class="legal-row" href="legal/Politicas.html">
+          <div class="legal-row-left">
+            <span class="legal-icon">🔒</span>
+            <span class="legal-label">Política de Privacidad</span>
+          </div>
+          <svg class="legal-chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </a>
+        <a class="legal-row" href="legal/pautas.html">
+          <div class="legal-row-left">
+            <span class="legal-icon">📜</span>
+            <span class="legal-label">Pautas de la Comunidad</span>
+          </div>
+          <svg class="legal-chevron" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="version-note">VirtualGift · v1.0 · ceovirtualstudios@gmail.com</div>
+
+  </div>
+
+  <script defer src="js/wortise-ads.js"></script>
+  <script defer src="js/unity-ads.js"></script>
+  <script defer src="js/ad-manager.js"></script>
+  <script defer src="js/ads-init.js"></script>
+  <script defer src="js/bottom-nav.js"></script>
+  <script src="js/splash.js"></script>
+
+  <script>
+    function toggleFaq(btn) {
+      const item = btn.closest('.faq-item');
+      const body = item.querySelector('.faq-body');
+      const isOpen = item.classList.contains('open');
+
+      // Close all
+      document.querySelectorAll('.faq-item.open').forEach(function(el) {
+        el.classList.remove('open');
+        el.querySelector('.faq-body').style.maxHeight = null;
+      });
+
+      if (!isOpen) {
+        item.classList.add('open');
+        body.style.maxHeight = body.scrollHeight + 'px';
+      }
+    }
+
+    function scrollToSection(id) {
+      var el = document.getElementById(id);
+      if (el) {
+        setTimeout(function() {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+      }
+      return false;
+    }
+  </script>
+</body>
+</html>
