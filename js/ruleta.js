@@ -7,14 +7,14 @@
 
 // ── Segmentos ──
 const SEGMENTS = [
-  { label: 'MISS', icon: '💀', coins: 0,   color: '#1c0000', weight: 22 },
-  { label: '+5',   icon: '🪙',  coins: 5,   color: '#2d0073', weight: 20 },
-  { label: '+10',  icon: '💰',  coins: 10,  color: '#001a60', weight: 16 },
-  { label: 'MISS', icon: '💀',  coins: 0,   color: '#0a0a12', weight: 14 },
-  { label: '+5',   icon: '🪙',  coins: 5,   color: '#1e0059', weight: 12 },
-  { label: '+20',  icon: '⭐',  coins: 20,  color: '#003320', weight: 10 },
-  { label: '+50',  icon: '💎',  coins: 50,  color: '#331400', weight:  5 },
-  { label: '+100', icon: '🔥',  coins: 100, color: '#4a001a', weight:  1 },
+  { label: 'MISS', icon: '💀', coins: 0,   color: '#4a0010', weight: 22 },
+  { label: '+5',   icon: '🪙',  coins: 5,   color: '#3b0075', weight: 20 },
+  { label: '+10',  icon: '💰',  coins: 10,  color: '#00267a', weight: 16 },
+  { label: 'MISS', icon: '💀',  coins: 0,   color: '#1a1a30', weight: 14 },
+  { label: '+5',   icon: '🪙',  coins: 5,   color: '#220065', weight: 12 },
+  { label: '+20',  icon: '⭐',  coins: 20,  color: '#004020', weight: 10 },
+  { label: '+50',  icon: '💎',  coins: 50,  color: '#4d2000', weight:  5 },
+  { label: '+100', icon: '🔥',  coins: 100, color: '#660033', weight:  1 },
 ];
 
 const TOTAL_WEIGHT = SEGMENTS.reduce((s, g) => s + g.weight, 0);
@@ -213,19 +213,22 @@ function getResult() {
 function calcTargetRotation(targetSeg) {
   const idx = SEGMENTS.indexOf(targetSeg);
 
-  // Angle of target segment center from top (degrees, clockwise)
+  // Ángulo del centro del segmento desde el inicio del dibujo (degrees, clockwise from top)
   let start = 0;
   for (let i = 0; i < idx; i++) {
     start += (SEGMENTS[i].weight / TOTAL_WEIGHT) * 360;
   }
   const center = start + (SEGMENTS[idx].weight / TOTAL_WEIGHT) * 180;
 
-  // How much to rotate so target lands under the pointer (top = 0)
+  // Para que el segmento quede bajo el puntero (top), la rotación total debe ser (360 - center) mod 360.
+  // Fórmula: cuando canvas rota +rot, el punto originalmente en ángulo 'a' aparece en 'a + rot'.
+  // Queremos a + rot ≡ 0° (top) → rot ≡ -center ≡ 360 - center (mod 360).
   const currentNorm = ((displayedRot % 360) + 360) % 360;
-  let needed = center - currentNorm;
+  let target = (360 - center) % 360;
+  let needed  = target - currentNorm;
   if (needed <= 0) needed += 360;
 
-  // Add 6–8 full spins for visual effect
+  // 6–8 vueltas completas para efecto visual
   const extraSpins = (6 + Math.floor(Math.random() * 3)) * 360;
 
   return displayedRot + needed + extraSpins;
@@ -293,10 +296,10 @@ function buildLegend() {
     if (seen.has(s.label)) return false;
     seen.add(s.label); return true;
   }).map(s => {
-    const glow = s.color + 'bb';
+    const glow = s.color + 'cc';
     return `
-    <div class="legend-item">
-      <div class="legend-dot" style="background:${s.color};box-shadow:0 0 8px ${glow},0 0 16px ${glow}"></div>
+    <div class="legend-item" style="border-left-color:${s.color}">
+      <div class="legend-dot" style="background:${s.color};box-shadow:0 0 7px ${glow}"></div>
       <span class="legend-icon">${s.icon}</span>
       <span class="legend-label">${s.label === 'MISS' ? 'Sin suerte' : s.label}</span>
       <span class="legend-coins">${s.coins > 0 ? '+' + s.coins + ' 🪙' : '—'}</span>
@@ -339,7 +342,7 @@ window.doSpin = async function() {
 
   isSpinning = true;
   document.getElementById('spinBtn').disabled = true;
-  setResult('<span class="result-miss">Girando…</span>');
+  setResult('<span class="result-hint">⏳ Girando…</span>');
 
   const result = getResult();
   const target = calcTargetRotation(result);
@@ -350,7 +353,7 @@ window.doSpin = async function() {
       setResult(`<span class="result-win">+${result.coins} 🪙</span>`);
       if (window.VGSounds) VGSounds.prize();
     } else {
-      setResult('<span class="result-miss">¡Sin suerte! Intenta de nuevo 🎡</span>');
+      setResult('<span class="result-miss">💀 Sin suerte esta vez</span>');
     }
 
     // Save to Firestore

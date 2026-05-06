@@ -382,6 +382,7 @@ window.saveSorteo = async function() {
       toast('✅ Sorteo actualizado');
     } else {
       data.participants = 0;
+      data.active = true;
       data.createdAt = firebase.firestore.Timestamp.now();
       await window.db.collection('raffles').add(data);
       toast('✅ Sorteo creado');

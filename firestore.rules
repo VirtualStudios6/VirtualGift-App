@@ -25,11 +25,12 @@ service cloud.firestore {
 
     // ─── NOTIFICATIONS ───────────────────────────────────────
     // Personal notifications (userId == uid) or global broadcasts (userId == "ALL").
-    // "ALL" notifications are never written client-side — hidden via localStorage only.
+    // Only admins can create notifications (global or personal).
     match /notifications/{docId} {
       allow read:   if request.auth != null
                     && (resource.data.userId == request.auth.uid
                         || resource.data.userId == "ALL");
+      allow create: if isAdmin();
       allow update: if request.auth != null && resource.data.userId == request.auth.uid;
       allow delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }
