@@ -410,6 +410,11 @@ body {
   background: linear-gradient(160deg, #1a0535, #0d0520);
   border-radius: 0; margin-bottom: 0; overflow: hidden; position: relative;
 }
+.offer-game-image { display: flex; align-items: center; justify-content: center; }
+.offer-game-image img { object-fit: contain; padding: 24px; width: 60%; height: 60%; }
+.offer-bg-purple { background: linear-gradient(160deg, #0d0520, #1a0840, #0a0318); }
+.offer-bg-blue   { background: linear-gradient(135deg, #00234b, #003d80); }
+.offer-bg-green  { background: linear-gradient(135deg, #1a2a00, #2d4a00); }
 .game-image::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(to bottom, transparent 40%, rgba(6,1,28,0.75) 100%);
@@ -987,6 +992,13 @@ body {
   .skin-image { height: 240px; }
   .skin-badge { font-size: 10px; padding: 4px 10px; top: 10px; left: 10px; }
   .skin-name { font-size: 14px; padding: 12px 14px 14px; }
+
+  /* Ofertas CPX — tarjetas de encuestas */
+  .offer-game-image { display: flex; align-items: center; justify-content: center; }
+  .offer-game-image img { object-fit: contain; padding: 24px; width: 60%; height: 60%; }
+  .offer-bg-purple { background: linear-gradient(135deg, #1a0040, #4b0082); }
+  .offer-bg-blue   { background: linear-gradient(135deg, #00234b, #003d80); }
+  .offer-bg-green  { background: linear-gradient(135deg, #1a2a00, #2d4a00); }
 
   /* Ads no intrusivos en desktop — centrar con max-width */
   .ads-container { max-width: 1440px; margin: 0 auto; padding: 0 80px; }

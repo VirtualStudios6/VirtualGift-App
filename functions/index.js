@@ -392,61 +392,104 @@ exports.applyReferral = onCall({ region: "us-central1" }, async (request) => {
 // =====================
 // CPX RESEARCH POSTBACK
 // =====================
-// CPX Research llama a esta URL cuando un usuario completa una encuesta.
-// Configurar en el panel de CPX Research:
+// CPX Research llama a esta URL cuando un usuario completa o cancela una encuesta.
+// Configurar en el panel de CPX Research → Ajustes de Postback:
 // https://us-central1-virtualgift-login.cloudfunctions.net/cpxPostback
-//   ?ext_user_id=[EXT_USER_ID]&amount_usd=[CURRENCY_USD]
-//   &transaction_id=[TRANSACTION_ID]&hash=[HASH_SECRET]
+//   ?user_id={user_id}&amount_local={amount_local}&amount_usd={amount_usd}&trans_id={trans_id}&status={status}&hash={secure_hash}
+// Hash: MD5(trans_id + "-" + secure_hash_key)
+// status=1 → acreditar | status=2 → revertir
 // Conversión: 1 USD = 1000 coins
 
 exports.cpxPostback = onRequest(
   { region: "us-central1", cors: false, secrets: [CPX_HASH_KEY_SECRET] },
   async (req, res) => {
-    const { ext_user_id, amount_usd, transaction_id, hash } = req.query;
+    const { user_id, amount_local, amount_usd, trans_id, status, hash } = req.query;
 
-    if (!ext_user_id || !amount_usd || !transaction_id || !hash) {
+    if (!user_id || !amount_usd || !trans_id || !hash) {
       return res.status(400).send("Missing parameters");
     }
 
-    // Verificar hash: MD5(ext_user_id + secret_key)
+    // Verificar hash: MD5(trans_id + "-" + secret_key)
     const expectedHash = createHash("md5")
-      .update(ext_user_id + CPX_HASH_KEY_SECRET.value())
+      .update(trans_id + "-" + CPX_HASH_KEY_SECRET.value().trim())
       .digest("hex");
 
     if (hash !== expectedHash) {
-      console.warn("[cpxPostback] Hash inválido para user:", ext_user_id);
+      console.warn("[cpxPostback] Hash inválido para trans:", trans_id);
       return res.status(403).send("Invalid hash");
     }
 
     const coins = Math.round(parseFloat(amount_usd) * 1000);
     if (!coins || coins <= 0) return res.status(400).send("Invalid amount");
 
-    try {
-      // Idempotencia: evitar duplicados por mismo transaction_id
-      const dupSnap = await db.collection("pointsHistory")
-        .where("transactionId", "==", transaction_id)
-        .limit(1).get();
+    // status=2 → encuesta cancelada/revertida → descontar coins
+    const isReversal = String(status) === "2";
 
-      if (!dupSnap.empty) {
-        console.log("[cpxPostback] Transacción duplicada:", transaction_id);
+    try {
+      if (isReversal) {
+        // Buscar la transacción original para revertirla
+        const origSnap = await db.collection("pointsHistory")
+          .where("transactionId", "==", trans_id)
+          .where("type", "==", "cpx_survey")
+          .limit(1).get();
+
+        if (origSnap.empty) {
+          console.log("[cpxPostback] Reversión sin transacción original:", trans_id);
+          return res.status(200).send("1");
+        }
+
+        const origData = origSnap.docs[0].data();
+        // Evitar doble reversión
+        if (origData.reversed === true) {
+          return res.status(200).send("1");
+        }
+
+        await db.runTransaction(async (tx) => {
+          tx.update(origSnap.docs[0].ref, { reversed: true });
+          tx.update(db.collection("users").doc(user_id), {
+            points: admin.firestore.FieldValue.increment(-coins),
+          });
+          tx.set(db.collection("pointsHistory").doc(), {
+            userId:        user_id,
+            type:          "cpx_survey_reversal",
+            points:        -coins,
+            transactionId: trans_id,
+            amountUsd:     parseFloat(amount_usd),
+            createdAt:     admin.firestore.Timestamp.now(),
+          });
+        });
+
+        console.log(`[cpxPostback] REVERSIÓN -${coins} coins → ${user_id}`);
         return res.status(200).send("1");
       }
 
-      // Acreditar coins al usuario
-      await db.collection("users").doc(ext_user_id).update({
-        points: admin.firestore.FieldValue.increment(coins),
+      // status=1 → acreditar (idempotente)
+      const dupSnap = await db.collection("pointsHistory")
+        .where("transactionId", "==", trans_id)
+        .where("type", "==", "cpx_survey")
+        .limit(1).get();
+
+      if (!dupSnap.empty) {
+        console.log("[cpxPostback] Transacción duplicada:", trans_id);
+        return res.status(200).send("1");
+      }
+
+      await db.runTransaction(async (tx) => {
+        tx.update(db.collection("users").doc(user_id), {
+          points: admin.firestore.FieldValue.increment(coins),
+        });
+        tx.set(db.collection("pointsHistory").doc(), {
+          userId:        user_id,
+          type:          "cpx_survey",
+          points:        coins,
+          transactionId: trans_id,
+          amountUsd:     parseFloat(amount_usd),
+          reversed:      false,
+          createdAt:     admin.firestore.Timestamp.now(),
+        });
       });
 
-      await db.collection("pointsHistory").add({
-        userId:        ext_user_id,
-        type:          "cpx_survey",
-        points:        coins,
-        transactionId: transaction_id,
-        amountUsd:     parseFloat(amount_usd),
-        createdAt:     admin.firestore.Timestamp.now(),
-      });
-
-      console.log(`[cpxPostback] +${coins} coins → ${ext_user_id}`);
+      console.log(`[cpxPostback] +${coins} coins → ${user_id}`);
       return res.status(200).send("1");
     } catch (err) {
       console.error("[cpxPostback] Error:", err);
