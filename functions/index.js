@@ -1,7 +1,8 @@
 const admin  = require("firebase-admin");
-const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
 const { onSchedule }  = require("firebase-functions/v2/scheduler");
 const { defineSecret } = require("firebase-functions/params");
+const { createHash }  = require("crypto");
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -10,10 +11,8 @@ const db = admin.firestore();
 // SECRETS
 // =====================
 
-// Required only for getFortniteStats (player stats endpoint needs auth).
-// Set via: firebase functions:secrets:set FORTNITE_API_KEY
-// The shop sync functions do NOT need this key (public endpoint).
 const FORTNITE_API_KEY_SECRET = defineSecret("FORTNITE_API_KEY");
+const CPX_HASH_KEY_SECRET     = defineSecret("CPX_HASH_KEY");
 
 // =====================
 // HELPERS
@@ -389,3 +388,69 @@ exports.applyReferral = onCall({ region: "us-central1" }, async (request) => {
 
   return { success: true, bonus: BONUS };
 });
+
+// =====================
+// CPX RESEARCH POSTBACK
+// =====================
+// CPX Research llama a esta URL cuando un usuario completa una encuesta.
+// Configurar en el panel de CPX Research:
+// https://us-central1-virtualgift-login.cloudfunctions.net/cpxPostback
+//   ?ext_user_id=[EXT_USER_ID]&amount_usd=[CURRENCY_USD]
+//   &transaction_id=[TRANSACTION_ID]&hash=[HASH_SECRET]
+// Conversión: 1 USD = 1000 coins
+
+exports.cpxPostback = onRequest(
+  { region: "us-central1", cors: false, secrets: [CPX_HASH_KEY_SECRET] },
+  async (req, res) => {
+    const { ext_user_id, amount_usd, transaction_id, hash } = req.query;
+
+    if (!ext_user_id || !amount_usd || !transaction_id || !hash) {
+      return res.status(400).send("Missing parameters");
+    }
+
+    // Verificar hash: MD5(ext_user_id + secret_key)
+    const expectedHash = createHash("md5")
+      .update(ext_user_id + CPX_HASH_KEY_SECRET.value())
+      .digest("hex");
+
+    if (hash !== expectedHash) {
+      console.warn("[cpxPostback] Hash inválido para user:", ext_user_id);
+      return res.status(403).send("Invalid hash");
+    }
+
+    const coins = Math.round(parseFloat(amount_usd) * 1000);
+    if (!coins || coins <= 0) return res.status(400).send("Invalid amount");
+
+    try {
+      // Idempotencia: evitar duplicados por mismo transaction_id
+      const dupSnap = await db.collection("pointsHistory")
+        .where("transactionId", "==", transaction_id)
+        .limit(1).get();
+
+      if (!dupSnap.empty) {
+        console.log("[cpxPostback] Transacción duplicada:", transaction_id);
+        return res.status(200).send("1");
+      }
+
+      // Acreditar coins al usuario
+      await db.collection("users").doc(ext_user_id).update({
+        points: admin.firestore.FieldValue.increment(coins),
+      });
+
+      await db.collection("pointsHistory").add({
+        userId:        ext_user_id,
+        type:          "cpx_survey",
+        points:        coins,
+        transactionId: transaction_id,
+        amountUsd:     parseFloat(amount_usd),
+        createdAt:     admin.firestore.Timestamp.now(),
+      });
+
+      console.log(`[cpxPostback] +${coins} coins → ${ext_user_id}`);
+      return res.status(200).send("1");
+    } catch (err) {
+      console.error("[cpxPostback] Error:", err);
+      return res.status(500).send("Error");
+    }
+  }
+);

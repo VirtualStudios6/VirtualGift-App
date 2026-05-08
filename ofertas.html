@@ -179,9 +179,12 @@
       cursor: pointer; font-family: inherit;
     }
     .quick-card-disabled { opacity: .55; cursor: default; }
+    .sec-label-top { padding-top: 16px; }
+    .cpx-iframe { display:block;width:100%;border:none;height:calc(100dvh - 220px);min-height:600px; }
   </style>
   <link rel="stylesheet" href="css/bottom-nav.css">
   <script defer src="js/sounds.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
 </head>
 <body>
 
@@ -208,16 +211,23 @@
 
   <!-- OFERTAS -->
   <div class="main-section active" id="sec-ofertas">
-    <div class="coming-soon-wrap">
-      <div class="coming-soon-emoji">🚀</div>
-      <div class="coming-soon-title">Ofertas próximamente</div>
-      <div class="coming-soon-desc">
-        Pronto podrás completar tareas y ofertas para ganar Coins.<br>
-        Mientras tanto, gana Coins con el check-in diario o viendo anuncios.
+    <div class="sec-label sec-label-top">Plataformas disponibles</div>
+    <div class="wall-tabs">
+      <div class="wall-tab active" id="tab-cpx">
+        <span class="wall-tab-logo-emoji">📊</span>
+        <span class="wall-tab-name">CPX Research</span>
+        <span class="wall-tab-badge nuevo">Encuestas</span>
       </div>
-      <button type="button" class="coming-soon-btn" onclick="switchMain('checkin', document.querySelectorAll('.main-tab')[1])">
-        Ir al Check-in diario
-      </button>
+    </div>
+    <div class="wall-container">
+      <div class="wall-panel active" id="panel-cpx">
+        <div class="wall-iframe-wrap" id="cpxWrap">
+          <div class="wall-loading" id="cpxLoading">
+            <div class="wall-spinner"></div>
+            <div class="wall-loading-txt">Cargando encuestas...</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -287,6 +297,35 @@
   <script>
     const CHECKIN_REWARDS = [10, 15, 20, 25, 30, 40, 75];
     let currentUser = null;
+
+    // ── CPX Research ──────────────────────────────────
+    const CPX_APP_ID   = 32955;
+    const CPX_HASH_KEY = 'KwYa4M02A8kLxYbzXXstl4FUGkfgxdHG';
+    var cpxLoaded = false;
+
+    function loadCPXWall(user) {
+      if (cpxLoaded || typeof md5 === 'undefined') return;
+      cpxLoaded = true;
+      var hash  = md5(user.uid + CPX_HASH_KEY);
+      var uname = encodeURIComponent(user.displayName || 'User');
+      var email = encodeURIComponent(user.email || '');
+      var uid   = encodeURIComponent(user.uid);
+      var url   = 'https://offers.cpx-research.com/index.php'
+                + '?app_id='      + CPX_APP_ID
+                + '&ext_user_id=' + uid
+                + '&username='    + uname
+                + '&email='       + email
+                + '&secure_hash=' + hash;
+      var wrap    = document.getElementById('cpxWrap');
+      var loading = document.getElementById('cpxLoading');
+      if (!wrap) return;
+      var iframe = document.createElement('iframe');
+      iframe.src = url;
+      iframe.className = 'cpx-iframe';
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.onload = function() { if (loading) loading.style.display = 'none'; };
+      wrap.appendChild(iframe);
+    }
 
     function showToast(msg, duration) {
       duration = duration || 2800;
@@ -378,9 +417,10 @@
       daily_checkin: { icon: '<i data-lucide="calendar"></i>',  label: 'Check-in diario' },
       minigame:      { icon: '<i data-lucide="joystick"></i>',  label: 'Minijuego'       },
       redeem:        { icon: '<i data-lucide="gift"></i>',      label: 'Canje'           },
-      raffle_entry:  { icon: '<i data-lucide="ticket"></i>',    label: 'Entrada a sorteo'},
-      referral_bonus:{ icon: '<i data-lucide="users"></i>',     label: 'Bono de referido'},
-      ad_reward:     { icon: '<i data-lucide="tv-2"></i>',      label: 'Recompensa por anuncio' }
+      raffle_entry:  { icon: '<i data-lucide="ticket"></i>',         label: 'Entrada a sorteo'         },
+      referral_bonus:{ icon: '<i data-lucide="users"></i>',          label: 'Bono de referido'         },
+      ad_reward:     { icon: '<i data-lucide="tv-2"></i>',           label: 'Recompensa por anuncio'   },
+      cpx_survey:    { icon: '<i data-lucide="clipboard-list"></i>', label: 'Encuesta CPX Research'    }
     };
 
     function formatDate(ts) {
@@ -433,6 +473,7 @@
             document.getElementById('headerCoins').textContent = ((snap.data() && snap.data().points) || 0).toLocaleString();
           } catch(e) {}
           loadCheckin(user);
+          loadCPXWall(user);
         });
       });
     });
