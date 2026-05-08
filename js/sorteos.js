@@ -391,11 +391,11 @@ async function _updateModalEntryCount(raffle) {
   } catch {}
 }
 
-function closeModal() {
+function closeModal(clearRaffle = true) {
   document.getElementById("sgOverlay").classList.remove("open");
   document.getElementById("sgModal").classList.remove("open");
   document.body.style.overflow = "";
-  selectedRaffle = null;
+  if (clearRaffle) selectedRaffle = null;
 }
 
 // ── CONFIRMAR PARTICIPACIÓN ──
@@ -419,8 +419,9 @@ async function confirmParticipation() {
     currentParticipantId = result.data.participantId;
     userCoins = result.data.newCoinBalance;
     updateBalanceUI();
-    closeModal();
-    openRequirements(selectedRaffle, result.data.entryNumber);
+    const raffleToOpen = selectedRaffle;
+    closeModal(false);
+    openRequirements(raffleToOpen, result.data.entryNumber);
 
   } catch (err) {
     // v2 callable functions return codes without "functions/" prefix
@@ -435,8 +436,9 @@ async function confirmParticipation() {
       spinner.style.display = "none";
       arrow.style.display   = "inline";
       text.textContent      = "Participar en el sorteo";
-      closeModal();
-      openAlreadyScreen(selectedRaffle);
+      const alreadyRaffle = selectedRaffle;
+      closeModal(false);
+      openAlreadyScreen(alreadyRaffle);
       return;
     } else if (code === "resource-exhausted") {
       userMsg = err.message || "El sorteo ya alcanzó el máximo de participantes";

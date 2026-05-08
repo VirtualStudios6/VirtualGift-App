@@ -168,6 +168,17 @@
     .main-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
     .main-section { display: none; }
     .main-section.active { display: block; }
+    .coming-soon-wrap { padding: 32px 16px; text-align: center; }
+    .coming-soon-emoji { font-size: 56px; margin-bottom: 16px; }
+    .coming-soon-title { font-size: 18px; font-weight: 800; color: white; margin-bottom: 10px; }
+    .coming-soon-desc { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.7; margin-bottom: 24px; }
+    .coming-soon-btn {
+      padding: 13px 28px; border-radius: 12px;
+      background: linear-gradient(135deg,#7c3aed,#a855f7);
+      border: none; color: white; font-size: 15px; font-weight: 800;
+      cursor: pointer; font-family: inherit;
+    }
+    .quick-card-disabled { opacity: .55; cursor: default; }
   </style>
   <link rel="stylesheet" href="css/bottom-nav.css">
   <script defer src="js/sounds.js"></script>
@@ -197,36 +208,16 @@
 
   <!-- OFERTAS -->
   <div class="main-section active" id="sec-ofertas">
-    <div class="sec-label">Selecciona una plataforma</div>
-    <div class="wall-tabs" id="wallTabs">
-      <div class="wall-tab active" onclick="switchWall('ayet', this)">
-        <span class="wall-tab-logo-emoji"><i data-lucide="gamepad-2" class="icon-lg"></i></span>
-        <span class="wall-tab-name">AyetStudios</span>
-        <span class="wall-tab-badge">ACTIVO</span>
+    <div class="coming-soon-wrap">
+      <div class="coming-soon-emoji">🚀</div>
+      <div class="coming-soon-title">Ofertas próximamente</div>
+      <div class="coming-soon-desc">
+        Pronto podrás completar tareas y ofertas para ganar Coins.<br>
+        Mientras tanto, gana Coins con el check-in diario o viendo anuncios.
       </div>
-      <div class="wall-tab" onclick="switchWall('adgem', this)">
-        <span class="wall-tab-logo-emoji"><i data-lucide="coins" class="icon-lg"></i></span>
-        <span class="wall-tab-name">AdGem</span>
-        <span class="wall-tab-badge nuevo">NUEVO</span>
-      </div>
-    </div>
-    <div class="wall-container">
-      <div class="wall-panel active" id="panel-ayet">
-        <div class="wall-iframe-wrap">
-          <div class="wall-loading">
-            <div class="wall-spinner"></div>
-            <div class="wall-loading-txt">Cargando AyetStudios...</div>
-          </div>
-        </div>
-      </div>
-      <div class="wall-panel" id="panel-adgem">
-        <div class="wall-iframe-wrap">
-          <div class="wall-loading">
-            <div class="wall-spinner"></div>
-            <div class="wall-loading-txt">Cargando AdGem...</div>
-          </div>
-        </div>
-      </div>
+      <button type="button" class="coming-soon-btn" onclick="switchMain('checkin', document.querySelectorAll('.main-tab')[1])">
+        Ir al Check-in diario
+      </button>
     </div>
   </div>
 
@@ -268,16 +259,16 @@
         <div class="quick-card-sub">Próximamente</div>
         <div class="quick-card-reward"><i data-lucide="coins" style="width:.9em;height:.9em"></i> Hasta 100</div>
       </div>
-      <div class="quick-card" onclick="switchMain('ofertas', document.querySelectorAll('.main-tab')[0]); setTimeout(()=>switchWall('adgem', document.querySelectorAll('.wall-tab')[1]),100)">
+      <div class="quick-card quick-card-disabled">
         <div class="quick-card-icon"><i data-lucide="gem" class="icon-lg"></i></div>
         <div class="quick-card-title">Encuestas</div>
-        <div class="quick-card-sub">Comparte tu opinion</div>
+        <div class="quick-card-sub">Próximamente</div>
         <div class="quick-card-reward"><i data-lucide="coins" style="width:.9em;height:.9em"></i> Hasta 500</div>
       </div>
-      <div class="quick-card" onclick="switchMain('ofertas', document.querySelectorAll('.main-tab')[0]); setTimeout(()=>switchWall('ayet', document.querySelectorAll('.wall-tab')[0]),100)">
+      <div class="quick-card quick-card-disabled">
         <div class="quick-card-icon"><i data-lucide="tv" class="icon-lg"></i></div>
         <div class="quick-card-title">Videos</div>
-        <div class="quick-card-sub">Ve anuncios</div>
+        <div class="quick-card-sub">Próximamente</div>
         <div class="quick-card-reward"><i data-lucide="coins" style="width:.9em;height:.9em"></i> Hasta 50</div>
       </div>
     </div>
@@ -294,12 +285,8 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    const AYET_PUB_ID  = "4093228";
-    const ADGEM_APP_ID = "32042"; // App ID de AdGem // Reemplaza con tu App ID de AdGem
-
     const CHECKIN_REWARDS = [10, 15, 20, 25, 30, 40, 75];
     let currentUser = null;
-    let wallsLoaded = {};
 
     function showToast(msg, duration) {
       duration = duration || 2800;
@@ -316,37 +303,6 @@
       if (sec) sec.classList.add('active');
       if (el) el.classList.add('active');
       if (id === 'historial') loadHistory();
-    }
-
-    function switchWall(wall, el) {
-      document.querySelectorAll('.wall-tab').forEach(function(t){ t.classList.remove('active'); });
-      document.querySelectorAll('.wall-panel').forEach(function(p){ p.classList.remove('active'); });
-      if (el) el.classList.add('active');
-      var panel = document.getElementById('panel-' + wall);
-      if (panel) panel.classList.add('active');
-      if (!wallsLoaded[wall] && currentUser) loadWall(wall, currentUser.uid);
-    }
-
-    function loadWall(wall, uid) {
-      if (wallsLoaded[wall]) return;
-      wallsLoaded[wall] = true;
-      var panel = document.getElementById('panel-' + wall);
-      if (!panel) return;
-      var wrap = panel.querySelector('.wall-iframe-wrap');
-      if (!wrap) return;
-      var src = null;
-      if (wall === 'ayet') {
-        src = 'https://wall.ayetstudios.com/?publisher_id=' + encodeURIComponent(AYET_PUB_ID) + '&user_id=' + encodeURIComponent(uid);
-      } else if (wall === 'adgem' && ADGEM_APP_ID !== 'TU_ADGEM_APP_ID') {
-        src = 'https://wall.adgem.com/?app_id=' + encodeURIComponent(ADGEM_APP_ID) + '&user_id=' + encodeURIComponent(uid);
-      }
-      if (src) {
-        var iframe = document.createElement('iframe');
-        iframe.src = src;
-        iframe.style.cssText = 'width:100%;min-height:700px;border:none;display:block;';
-        wrap.innerHTML = '';
-        wrap.appendChild(iframe);
-      }
     }
 
     function buildCheckinUI(streak, alreadyDone) {
@@ -419,11 +375,12 @@
     }
 
     var TYPE_LABELS = {
-      ayet_offer:    { icon: '<i data-lucide="target"></i>',    label: 'Oferta completada (Ayet)'  },
-      adgem_offer:   { icon: '<i data-lucide="coins"></i>',     label: 'Oferta completada (AdGem)' },
-      daily_checkin: { icon: '<i data-lucide="calendar"></i>',  label: 'Check-in diario'           },
-      minigame:      { icon: '<i data-lucide="joystick"></i>',  label: 'Minijuego'                 },
-      redeem:        { icon: '<i data-lucide="gift"></i>',      label: 'Canje'                     }
+      daily_checkin: { icon: '<i data-lucide="calendar"></i>',  label: 'Check-in diario' },
+      minigame:      { icon: '<i data-lucide="joystick"></i>',  label: 'Minijuego'       },
+      redeem:        { icon: '<i data-lucide="gift"></i>',      label: 'Canje'           },
+      raffle_entry:  { icon: '<i data-lucide="ticket"></i>',    label: 'Entrada a sorteo'},
+      referral_bonus:{ icon: '<i data-lucide="users"></i>',     label: 'Bono de referido'},
+      ad_reward:     { icon: '<i data-lucide="tv-2"></i>',      label: 'Recompensa por anuncio' }
     };
 
     function formatDate(ts) {
@@ -475,7 +432,6 @@
             var snap = await window.db.collection('users').doc(user.uid).get();
             document.getElementById('headerCoins').textContent = ((snap.data() && snap.data().points) || 0).toLocaleString();
           } catch(e) {}
-          loadWall('ayet', user.uid);
           loadCheckin(user);
         });
       });

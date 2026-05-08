@@ -24,17 +24,13 @@ async function deleteUserFirestoreData(uid) {
     { col: 'redeemRequests',     field: 'userId' },
     { col: 'activities',         field: 'userId' },
     { col: 'user_rewards',       field: 'userId' },
-    { col: 'ayetTransactions',   field: 'userId' },
-    { col: 'adgemTransactions',  field: 'userId' },
     // Fallback: también buscar por campo 'uid' en las mismas colecciones
     { col: 'notifications',      field: 'uid' },
     { col: 'pointsHistory',      field: 'uid' },
     { col: 'raffleParticipants', field: 'uid' },
     { col: 'redeemRequests',     field: 'uid' },
     { col: 'activities',         field: 'uid' },
-    { col: 'user_rewards',       field: 'uid' },
-    { col: 'ayetTransactions',   field: 'uid' },
-    { col: 'adgemTransactions',  field: 'uid' }
+    { col: 'user_rewards',       field: 'uid' }
   ];
 
   const MAX_BATCH = 450; // Firestore batch limit es 500, dejamos margen

@@ -468,8 +468,6 @@ const HIST_META = {
   raffle_entry:   { icon: '🎁', label: 'Entrada a sorteo' },
   redeem:         { icon: '💳', label: 'Canje' },
   ad_reward:      { icon: '🎬', label: 'Recompensa por anuncio' },
-  ayet_offer:     { icon: '📱', label: 'Oferta completada' },
-  adgem_offer:    { icon: '📱', label: 'Oferta completada' },
   referral_bonus: { icon: '👥', label: 'Bono de referido' },
 };
 

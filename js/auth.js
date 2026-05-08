@@ -37,8 +37,7 @@ function waitForFirebase(callback, maxAttempts = 60) {
 
 function providerFromUser(user) {
   const providerId = user?.providerData?.[0]?.providerId || 'password';
-  if (providerId === 'google.com')   return 'google';
-  if (providerId === 'facebook.com') return 'facebook';
+  if (providerId === 'google.com') return 'google';
   return 'email';
 }
 

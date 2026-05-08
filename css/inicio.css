@@ -81,14 +81,20 @@ body {
   color: var(--text);
   font-family: var(--font);
   font-weight: 400;
-  padding-top: calc(62px + env(safe-area-inset-top)); /* ✅ compensa header fijo */
+  padding-top: calc(62px + env(safe-area-inset-top));
   padding-bottom: calc(40px + env(safe-area-inset-bottom));
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
 
 @media (max-width: 768px)  { body { padding-bottom: calc(80px + env(safe-area-inset-bottom)); } }
-@media (min-width: 769px)  { body { padding-bottom: calc(60px + env(safe-area-inset-bottom)); } }
+@media (min-width: 769px)  {
+  body {
+    padding-top: calc(72px + env(safe-area-inset-top)); /* header desktop = 72px */
+    padding-bottom: 60px;
+    background: linear-gradient(160deg, #020515 0%, #06011c 40%, #090120 100%);
+  }
+}
 
 /* ============================================ */
 /* SECCIONES */
@@ -857,4 +863,131 @@ body {
 .logo:active {
   transform: scale(0.95);
   transition: transform 0.15s ease;
+}
+
+/* ============================================================ */
+/* DESKTOP ENHANCEMENTS (769px+)                               */
+/* ============================================================ */
+@media (min-width: 769px) {
+
+  /* Secciones con más respiración y separador visual */
+  .section {
+    padding: 48px 80px;
+    max-width: 1440px;
+    position: relative;
+  }
+  .section + .section::before {
+    content: '';
+    display: block;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(141,23,251,0.15) 30%, rgba(141,23,251,0.15) 70%, transparent);
+    margin: 0 80px;
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Section title más grande y con accent */
+  .section-title {
+    font-size: 28px;
+    letter-spacing: -0.3px;
+  }
+  .section-header { margin-bottom: 20px; }
+
+  /* NEWS GRID — 4 columnas, cards más altas y con hover premium */
+  /* Limitamos a 4 items para evitar filas incompletas */
+  .news-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  .news-card:nth-child(n+5) { display: none; }
+  .news-card {
+    border-radius: 16px;
+    border-color: rgba(41,50,68,0.5);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+  .news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(141,23,251,0.25);
+    border-color: rgba(141,23,251,0.35);
+  }
+  .news-image { height: 160px; }
+  .news-image img { transition: transform 0.35s ease; }
+  .news-card:hover .news-image img { transform: scale(1.06); }
+  .news-label { font-size: 14px; padding: 12px 14px 14px; line-height: 1.45; }
+
+  /* CAROUSEL — más alto y con sombra */
+  .carousel-slide { height: 480px; border-radius: 22px; }
+  .carousel-container { border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.4); }
+  .carousel-dots { margin-top: 18px; gap: 10px; }
+  .carousel-dot { width: 10px; height: 10px; }
+  .carousel-dot.active { width: 36px; }
+
+  /* FORTNITE SHOP — header con más padding y máximo ancho consistente */
+  .fn-shop-section {
+    padding: 48px 80px 0;
+    max-width: 1440px;
+  }
+  .fn-shop-title { font-size: 30px; font-weight: 900; }
+  .fn-countdown-timer { font-size: 24px; letter-spacing: 3px; }
+  .fn-strip-wrapper { max-width: 1440px; padding: 0 80px; }
+  .fn-shop-strip { gap: 14px; padding: 12px 0 24px; }
+  .fn-view-shop-card,
+  .fn-strip-item,
+  .fn-strip-skeleton { width: 170px; height: 255px; border-radius: 16px; }
+  .fn-view-shop-card:hover,
+  .fn-strip-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.55);
+  }
+  .fn-strip-item-name { font-size: 13px; }
+  .fn-view-shop-text { font-size: 18px; }
+
+  /* GAMES GRID — cards más grandes y visuales */
+  .games-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .game-card {
+    border-radius: 20px;
+    border-color: rgba(141,23,251,0.18);
+  }
+  .game-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 24px 56px rgba(141,23,251,0.2), 0 0 0 1px rgba(141,23,251,0.4);
+    border-color: rgba(141,23,251,0.5);
+  }
+  .game-image { height: 220px; }
+  .game-info { padding: 14px 16px 8px; }
+  .game-info .game-name { font-size: 17px; margin-bottom: 8px; }
+  .game-play-btn {
+    margin: 10px 16px 16px;
+    padding: 11px 0;
+    font-size: 13px;
+    border-radius: 12px;
+    letter-spacing: 0.4px;
+  }
+  .game-card:hover .game-play-btn {
+    background: linear-gradient(135deg, rgba(141,23,251,0.55), rgba(91,33,182,0.45));
+    border-color: rgba(141,23,251,0.6);
+  }
+  .game-card .rating { font-size: 12px; }
+  .game-coins { font-size: 12px; }
+
+  /* SKINS GRID — para la sección Ofertas */
+  .skins-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  .skin-card { border-radius: 18px; }
+  .skin-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 44px rgba(0,0,0,0.5);
+  }
+  .skin-image { height: 240px; }
+  .skin-badge { font-size: 10px; padding: 4px 10px; top: 10px; left: 10px; }
+  .skin-name { font-size: 14px; padding: 12px 14px 14px; }
+
+  /* Ads no intrusivos en desktop — centrar con max-width */
+  .ads-container { max-width: 1440px; margin: 0 auto; padding: 0 80px; }
 }
