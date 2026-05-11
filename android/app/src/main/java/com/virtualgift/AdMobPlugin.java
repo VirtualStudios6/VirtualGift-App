@@ -90,13 +90,16 @@ public class AdMobPlugin extends Plugin {
             }
 
             int bannerHeightPx = Math.round(50 * density);
-            // Offset total que JS debe aplicar al bottom-nav (banner + barra sistema, en dp)
-            int totalOffsetDp = 50 + Math.round(sysNavPx / density);
+            int navHeightPx    = Math.round(62 * density);
+            // Posicionamos el banner encima del bottom-nav HTML (nav + sistema en px)
+            int bannerBottomMargin = sysNavPx + navHeightPx;
+            // Offset total que JS usa para el paddingBottom del body
+            int totalOffsetDp = 50 + 62 + Math.round(sysNavPx / density);
 
             bannerContainer = new FrameLayout(activity);
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT, bannerHeightPx, Gravity.BOTTOM);
-            lp.bottomMargin = sysNavPx; // posiciona el banner sobre la barra del sistema
+            lp.bottomMargin = bannerBottomMargin; // encima del bottom-nav HTML
             root.addView(bannerContainer, lp);
 
             bannerView = new AdView(activity);

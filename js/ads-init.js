@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════
    ADS-INIT.JS — VirtualGift
    Inicializa anuncios en cada página de la app.
-   • Banner inferior permanente (AdMob)
+   • Banner encima del bottom-nav (AdMob nativo)
    • Interstitial + Rewarded precargados
    • Global window.showInterstitialIfReady()
    • Solo actúa en plataforma nativa (Capacitor)
@@ -9,24 +9,17 @@
 (function () {
   'use strict';
 
-  const BOTTOM_NAV_HEIGHT = 62; // px (altura visible del bottom-nav, sin safe-area)
-  const BANNER_FALLBACK_DP = 50; // dp — usado si el plugin no devuelve offsetDp
+  // Fallback si el plugin no devuelve offsetDp: banner(50) + nav(62) = 112dp
+  const BANNER_FALLBACK_DP = 112;
 
-  // Mueve el bottom-nav hacia arriba para que quede encima del banner.
-  // bannerOffsetDp: valor devuelto por AdMobPlugin (banner + barra sistema en dp).
-  function adjustLayout(bannerOffsetDp) {
-    const nav = document.querySelector('.bottom-nav');
-    if (nav) {
-      nav.style.bottom = bannerOffsetDp + 'px';
-    }
-    // Padding al body para que el contenido nunca quede oculto detrás del nav+banner
-    document.body.style.paddingBottom =
-      (bannerOffsetDp + BOTTOM_NAV_HEIGHT + 8) + 'px';
+  // El banner nativo ya se posiciona encima del bottom-nav en Java.
+  // Aquí solo añadimos paddingBottom al body para que el contenido
+  // no quede oculto detrás del nav + banner.
+  function adjustLayout(totalOffsetDp) {
+    document.body.style.paddingBottom = (totalOffsetDp + 8) + 'px';
   }
 
   function resetLayout() {
-    const nav = document.querySelector('.bottom-nav');
-    if (nav) nav.style.bottom = '';
     document.body.style.paddingBottom = '';
   }
 
