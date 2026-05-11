@@ -22,15 +22,10 @@
             </intent-filter>
         </activity>
 
-        <!-- Elimina el ContentProvider de GMA que crashea sin APPLICATION_ID.     -->
-        <!-- Wortise SDK inicializa GMA internamente vía WortiseSdk.initialize(). -->
-        <!-- Quitar este bloque y añadir el meta-data APPLICATION_ID cuando       -->
-        <!-- tengas una cuenta AdMob real.                                        -->
-        <provider
-            android:name="com.google.android.gms.ads.MobileAdsInitProvider"
-            android:authorities="${applicationId}.mobileadsinitprovider"
-            android:exported="false"
-            tools:node="remove" />
+        <!-- Google Mobile Ads: APP ID de AdMob para VirtualGift -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-1930529129644930~4611784141" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

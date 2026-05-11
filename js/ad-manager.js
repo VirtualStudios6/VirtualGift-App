@@ -1,19 +1,18 @@
 /* ═══════════════════════════════════════════════
    AD-MANAGER.JS — VirtualGift
-   Orquestador de anuncios con fallback automático:
-     Wortise (primario) → Unity Ads (respaldo)
+   Orquestador de anuncios:
+     AdMob (primario) → Unity Ads (respaldo)
 
-   Uso:
-     AdManager.showRewarded()      → Promise<{ rewarded, network }>
-     AdManager.showInterstitial()  → Promise<void>
-     AdManager.showBanner()        → Promise<void>
-     AdManager.hideBanner()        → Promise<void>
-     AdManager.preloadAll()        → Promise<void>
+   AdManager.showRewarded()     → Promise<{ rewarded, network }>
+   AdManager.showInterstitial() → Promise<void>
+   AdManager.showBanner()       → Promise<void>
+   AdManager.hideBanner()       → Promise<void>
+   AdManager.preloadAll()       → Promise<void>
 ═══════════════════════════════════════════════ */
 (function (w) {
   'use strict';
 
-  function log(msg)  { console.log('[AdManager]',  msg); }
+  function log(msg)  { console.log('[AdManager]', msg); }
   function warn(msg) { console.warn('[AdManager]', msg); }
 
   w.AdManager = {
@@ -21,37 +20,31 @@
     // ── Rewarded ────────────────────────────────────────────────────────────
     //
     // Lógica de fallback:
-    //   1. Intenta Wortise
-    //      • rewarded:true              → concede recompensa, fin
-    //      • rewarded:false sin error   → usuario cerró el anuncio a propósito,
-    //                                     NO intentar Unity (fue una decisión del user)
-    //      • rewarded:false CON error   → sin fill / fallo de red → fallback Unity
-    //   2. Intenta Unity Ads
-    //      • rewarded:true              → concede recompensa
-    //      • cualquier otro caso        → no recompensa
-    //   3. Si los dos fallan            → { rewarded:false, network:'none' }
+    //   1. AdMob rewarded:true              → recompensa, fin
+    //      rewarded:false sin error         → usuario cerró, NO hacer fallback
+    //      rewarded:false CON error         → sin fill → fallback Unity
+    //   2. Unity Ads como respaldo
+    //   3. Ambas fallan                     → { rewarded:false, network:'none' }
 
     async showRewarded() {
-      // ── 1. Wortise ──────────────────────────────────────────────────────
+      // ── 1. AdMob ────────────────────────────────────────────────────────
       try {
-        log('Rewarded: probando Wortise…');
-        const r = await w.WortiseAds.showRewarded(w.WortiseAds.AD_UNITS.REWARDED);
+        log('Rewarded: probando AdMob…');
+        const r = await w.AdMob.showRewarded();
 
         if (r.rewarded) {
-          log('Rewarded: Wortise otorgó recompensa ✓');
-          return { rewarded: true, network: 'wortise' };
+          log('Rewarded: AdMob otorgó recompensa ✓');
+          return { rewarded: true, network: 'admob' };
         }
 
         if (!r.error) {
-          // El usuario cerró el anuncio deliberadamente → no hacer fallback
-          log('Rewarded: Wortise omitido por el usuario');
-          return { rewarded: false, network: 'wortise', skipped: true };
+          log('Rewarded: AdMob omitido por el usuario');
+          return { rewarded: false, network: 'admob', skipped: true };
         }
 
-        // Sin fill o error de red → intentar Unity
-        warn('Rewarded: Wortise sin fill (' + r.error + ') → fallback Unity');
+        warn('Rewarded: AdMob sin fill (' + r.error + ') → fallback Unity');
       } catch (e) {
-        warn('Rewarded: Wortise excepción (' + (e?.message || e) + ') → fallback Unity');
+        warn('Rewarded: AdMob excepción (' + (e?.message || e) + ') → fallback Unity');
       }
 
       // ── 2. Unity Ads (fallback) ─────────────────────────────────────────
@@ -70,7 +63,6 @@
         warn('Rewarded: Unity Ads excepción (' + (e?.message || e) + ')');
       }
 
-      // ── 3. Ambas redes fallaron ─────────────────────────────────────────
       warn('Rewarded: ninguna red disponible');
       return { rewarded: false, network: 'none' };
     },
@@ -78,22 +70,21 @@
     // ── Interstitial ─────────────────────────────────────────────────────────
     //
     // Fire-and-forget: nunca bloquea la UX aunque ambas redes fallen.
-    // Devuelve Promise<void>.
 
     async showInterstitial() {
-      if (!w.WortiseAds?.isNative) return;
+      if (!w.AdMob?.isNative) return;
 
-      // ── 1. Wortise ──────────────────────────────────────────────────────
+      // ── 1. AdMob ────────────────────────────────────────────────────────
       try {
-        log('Interstitial: probando Wortise…');
-        const r = await w.WortiseAds.showInterstitial();
+        log('Interstitial: probando AdMob…');
+        const r = await w.AdMob.showInterstitial();
         if (r?.showed) {
-          log('Interstitial: Wortise mostró el anuncio ✓');
+          log('Interstitial: AdMob mostró el anuncio ✓');
           return;
         }
-        log('Interstitial: Wortise sin fill → fallback Unity');
+        log('Interstitial: AdMob sin fill → fallback Unity');
       } catch (e) {
-        warn('Interstitial: Wortise excepción (' + (e?.message || e) + ') → fallback Unity');
+        warn('Interstitial: AdMob excepción (' + (e?.message || e) + ') → fallback Unity');
       }
 
       // ── 2. Unity Ads (fallback) ─────────────────────────────────────────
@@ -111,31 +102,34 @@
     },
 
     // ── Banner ────────────────────────────────────────────────────────────────
-    // Solo Wortise (Unity Ads SDK 4.x no provee banner overlay estándar).
+    // Solo AdMob (Unity Ads SDK 4.x no provee banner overlay estándar).
 
     async showBanner() {
       try {
-        await w.WortiseAds.showBanner();
-        log('Banner: Wortise cargado ✓');
+        const result = await w.AdMob.showBanner();
+        log('Banner: AdMob cargado ✓');
+        return result; // { offsetDp } para que ads-init ajuste el nav
       } catch (e) {
         warn('Banner: falló (' + (e?.message || e) + ')');
+        throw e;
       }
     },
 
     hideBanner() {
-      return w.WortiseAds.hideBanner?.() ?? Promise.resolve();
+      return w.AdMob.hideBanner?.() ?? Promise.resolve();
     },
 
     // ── Precarga ──────────────────────────────────────────────────────────────
-    // Llama a esto una vez al iniciar la app para tener ambas redes listas.
+    // Llama una vez al iniciar la app para tener las redes listas.
 
     async preloadAll() {
-      if (!w.WortiseAds?.isNative) return;
+      if (!w.AdMob?.isNative) return;
       log('Precargando todas las redes…');
 
       await Promise.allSettled([
-        w.WortiseAds.loadInterstitial().catch(e => warn('Wortise preload: ' + e?.message)),
-        w.UnityAds.loadInterstitial().catch(e  => warn('Unity preload: '   + e?.message)),
+        w.AdMob.loadInterstitial().catch(e   => warn('AdMob interstitial preload: '  + e?.message)),
+        w.AdMob.loadRewarded().catch(e        => warn('AdMob rewarded preload: '       + e?.message)),
+        w.UnityAds.loadInterstitial().catch(e => warn('Unity interstitial preload: '  + e?.message)),
       ]);
 
       log('Precarga completa');

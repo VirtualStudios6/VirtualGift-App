@@ -1,39 +1,53 @@
 /* ═══════════════════════════════════════════════
    ADS-INIT.JS — VirtualGift
    Inicializa anuncios en cada página de la app.
-   • Banner inferior permanente (Wortise)
-   • Interstitial precargado en ambas redes
+   • Banner inferior permanente (AdMob)
+   • Interstitial + Rewarded precargados
    • Global window.showInterstitialIfReady()
    • Solo actúa en plataforma nativa (Capacitor)
 ═══════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  const BOTTOM_NAV_BANNER_OFFSET = 56; // px: 50dp banner + 6dp margen visual
+  const BOTTOM_NAV_HEIGHT = 62; // px (altura visible del bottom-nav, sin safe-area)
+  const BANNER_FALLBACK_DP = 50; // dp — usado si el plugin no devuelve offsetDp
 
-  function adjustBottomNav(visible) {
+  // Mueve el bottom-nav hacia arriba para que quede encima del banner.
+  // bannerOffsetDp: valor devuelto por AdMobPlugin (banner + barra sistema en dp).
+  function adjustLayout(bannerOffsetDp) {
     const nav = document.querySelector('.bottom-nav');
-    if (!nav) return;
-    nav.style.bottom = visible ? BOTTOM_NAV_BANNER_OFFSET + 'px' : '';
+    if (nav) {
+      nav.style.bottom = bannerOffsetDp + 'px';
+    }
+    // Padding al body para que el contenido nunca quede oculto detrás del nav+banner
+    document.body.style.paddingBottom =
+      (bannerOffsetDp + BOTTOM_NAV_HEIGHT + 8) + 'px';
+  }
+
+  function resetLayout() {
+    const nav = document.querySelector('.bottom-nav');
+    if (nav) nav.style.bottom = '';
+    document.body.style.paddingBottom = '';
   }
 
   async function initAds() {
-    if (!window.WortiseAds?.isNative) return;
+    if (!window.AdMob?.isNative) return;
 
-    // Precarga interstitial en Wortise + Unity simultáneamente
+    // Precarga interstitial + rewarded en paralelo
     window.AdManager.preloadAll();
 
-    // Banner (solo Wortise)
+    // Banner
     try {
-      await window.AdManager.showBanner();
-      adjustBottomNav(true);
+      const result = await window.AdManager.showBanner();
+      const offsetDp = result?.offsetDp ?? BANNER_FALLBACK_DP;
+      adjustLayout(offsetDp);
     } catch (e) {
       console.warn('[ads-init] banner falló', e);
-      adjustBottomNav(false);
+      resetLayout();
     }
   }
 
-  // Global helper: llámalo en cualquier punto de la app
+  // Helper global para mostrar interstitial desde cualquier página
   window.showInterstitialIfReady = async function () {
     try { await window.AdManager.showInterstitial(); } catch (_) {}
   };

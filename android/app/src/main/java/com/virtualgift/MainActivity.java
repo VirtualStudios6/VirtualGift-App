@@ -6,7 +6,7 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        registerPlugin(WortiseAdsPlugin.class);
+        registerPlugin(AdMobPlugin.class);
         registerPlugin(UnityAdsPlugin.class);
         super.onCreate(savedInstanceState);
     }

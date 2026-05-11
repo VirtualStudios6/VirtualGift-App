@@ -34,21 +34,17 @@
 -keep class kotlin.** { *; }
 -keep class kotlinx.coroutines.** { *; }
 
-# ── Wortise Ads SDK ───────────────────────────────────────────────────────────
--keep class com.wortise.** { *; }
--dontwarn com.wortise.**
--keepattributes *Annotation*
-
 # ── Unity Ads SDK ─────────────────────────────────────────────────────────────
 -keep class com.unity3d.ads.** { *; }
 -keep class com.unity3d.services.** { *; }
 -dontwarn com.unity3d.ads.**
 -dontwarn com.unity3d.services.**
 
-# ── Google Mobile Ads / Ad Manager (dependencia transitiva de Wortise) ────────
+# ── Google Mobile Ads SDK (AdMob) ─────────────────────────────────────────────
 -keep class com.google.android.gms.ads.** { *; }
 -keep class com.google.ads.** { *; }
 -dontwarn com.google.android.gms.ads.**
+-keepattributes *Annotation*
 
 # ── OkHttp / Retrofit (usado por SDKs de anuncios para llamadas de red) ───────
 -dontwarn okhttp3.**
