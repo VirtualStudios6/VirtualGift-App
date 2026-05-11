@@ -39,6 +39,10 @@ public class AdMobPlugin extends Plugin {
     private AdView      bannerView;
     private FrameLayout bannerContainer;
 
+    // ── MREC inline (300×250) ─────────────────────────────────────────────────
+    private AdView      mrecView;
+    private FrameLayout mrecContainer;
+
     // ── Interstitial ──────────────────────────────────────────────────────────
     private InterstitialAd interstitialAd;
     private String         interstitialUnitId;
@@ -145,6 +149,68 @@ public class AdMobPlugin extends Plugin {
             bannerContainer = null;
         }
         if (bannerView != null) { bannerView.destroy(); bannerView = null; }
+    }
+
+    // ── MREC inline 300×250 ───────────────────────────────────────────────────
+
+    @PluginMethod
+    public void showMrecAt(PluginCall call) {
+        String unitId = call.getString("unitId", "");
+        if (unitId.isEmpty()) { call.reject("unitId required"); return; }
+
+        int xDp = call.getInt("x", 0);
+        int yDp = call.getInt("y", 0);
+
+        Activity activity = getActivity();
+        mainHandler.post(() -> {
+            float density = activity.getResources().getDisplayMetrics().density;
+            int xPx = Math.round(xDp * density);
+            int yPx = Math.round(yDp * density);
+            int wPx = Math.round(300 * density);
+            int hPx = Math.round(250 * density);
+
+            ViewGroup root = (ViewGroup) activity.getWindow().getDecorView().getRootView();
+
+            if (mrecContainer == null) {
+                mrecView = new AdView(activity);
+                mrecView.setAdUnitId(unitId);
+                mrecView.setAdSize(AdSize.MEDIUM_RECTANGLE);
+
+                mrecContainer = new FrameLayout(activity);
+                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(wPx, hPx);
+                lp.gravity = Gravity.TOP | Gravity.START;
+                lp.leftMargin = xPx;
+                lp.topMargin  = yPx;
+                root.addView(mrecContainer, lp);
+                mrecContainer.addView(mrecView, new FrameLayout.LayoutParams(
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    FrameLayout.LayoutParams.MATCH_PARENT));
+                mrecView.loadAd(new AdRequest.Builder().build());
+            } else {
+                FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) mrecContainer.getLayoutParams();
+                lp.leftMargin = xPx;
+                lp.topMargin  = yPx;
+                mrecContainer.setLayoutParams(lp);
+            }
+            call.resolve();
+        });
+    }
+
+    @PluginMethod
+    public void hideMrec(PluginCall call) {
+        mainHandler.post(() -> { destroyMrec(); call.resolve(); });
+    }
+
+    private void destroyMrec() {
+        if (mrecContainer != null) {
+            Activity a = getActivity();
+            if (a != null) {
+                ViewGroup root = (ViewGroup) a.getWindow().getDecorView().getRootView();
+                root.removeView(mrecContainer);
+            }
+            mrecContainer = null;
+        }
+        if (mrecView != null) { mrecView.destroy(); mrecView = null; }
     }
 
     // ── Interstitial ──────────────────────────────────────────────────────────
@@ -330,6 +396,7 @@ public class AdMobPlugin extends Plugin {
     @Override
     protected void handleOnDestroy() {
         destroyBanner();
+        destroyMrec();
         interstitialAd = null;
         rewardedAd = null;
     }

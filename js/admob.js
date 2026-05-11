@@ -17,12 +17,14 @@
 
   const AD_UNITS = TEST_MODE ? {
     BANNER:                'ca-app-pub-3940256099942544/6300978111',
+    MREC:                  'ca-app-pub-3940256099942544/6300978111',
     INTERSTITIAL:          'ca-app-pub-3940256099942544/1033173712',
     REWARDED_INTERSTITIAL: 'ca-app-pub-3940256099942544/5354046379',
     APP_OPEN:              'ca-app-pub-3940256099942544/9257395921',
     NATIVE:                'ca-app-pub-3940256099942544/2247696110',
   } : {
     BANNER:                'ca-app-pub-1930529129644930/7702567097',
+    MREC:                  'ca-app-pub-1930529129644930/7702567097',
     INTERSTITIAL:          'ca-app-pub-1930529129644930/5843074952',
     REWARDED_INTERSTITIAL: 'ca-app-pub-1930529129644930/3819546847',
     APP_OPEN:              'ca-app-pub-1930529129644930/3138459959',
@@ -63,6 +65,16 @@
         setTimeout(() => resolve({ rewarded: true }), 1200)
       );
       return plugin.showRewarded({ unitId: AD_UNITS.REWARDED_INTERSTITIAL });
+    },
+
+    // ── MREC inline 300×250 ──────────────────────
+    showMrecAt(params) {
+      if (!plugin) return Promise.resolve();
+      return plugin.showMrecAt({ unitId: AD_UNITS.MREC, ...params });
+    },
+    hideMrec() {
+      if (!plugin) return Promise.resolve();
+      return plugin.hideMrec();
     },
 
     // ── Events ───────────────────────────────────

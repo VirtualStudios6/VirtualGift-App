@@ -250,7 +250,10 @@
         </div>
     </section>
 
-    <!-- AdSense Feed -->
+    <!-- MREC slot nativo (300×250) — visible solo en app -->
+    <div id="mrec-inline-slot" style="display:none;width:300px;height:250px;margin:16px auto;border-radius:10px;overflow:hidden;background:rgba(141,23,251,0.04);border:1px solid rgba(141,23,251,0.08);"></div>
+
+    <!-- AdSense Feed — visible solo en web (oculto en app por app-mode.js) -->
     <div class="ads-container">
       <ins class="adsbygoogle"
            data-ad-format="fluid"
@@ -438,5 +441,36 @@
   <script defer src="js/ads-init.js"></script>
   <script defer src="js/bottom-nav.js"></script>
   <script src="js/splash.js"></script>
+
+  <script>
+  // MREC inline — solo en app nativa. DOMContentLoaded garantiza que admob.js ya ejecutó.
+  document.addEventListener('DOMContentLoaded', function () {
+    var slot = document.getElementById('mrec-inline-slot');
+    if (!slot || !window.AdMob || !window.AdMob.isNative) return;
+
+    slot.style.display = 'block';
+
+    var scrollTimer = null;
+    var mrecVisible = false;
+
+    function updateMrec() {
+      var rect = slot.getBoundingClientRect();
+      var inView = rect.top < window.innerHeight && rect.bottom > 0;
+      if (inView) {
+        window.AdMob.showMrecAt({ x: Math.round(rect.left), y: Math.round(rect.top) });
+        mrecVisible = true;
+      } else if (mrecVisible) {
+        window.AdMob.hideMrec();
+        mrecVisible = false;
+      }
+    }
+
+    setTimeout(updateMrec, 250);
+    window.addEventListener('scroll', function () {
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(updateMrec, 60);
+    }, { passive: true });
+  });
+  </script>
 </body>
 </html>
