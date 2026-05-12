@@ -1,6 +1,16 @@
-// ── Bloquear AdSense en modo nativo Capacitor ──────────────────────────────
+// ── Bloquear AdSense en modo nativo Capacitor Y en entornos de desarrollo ───
+// RAZÓN: cargar AdSense real durante desarrollo genera tráfico inválido (IVT).
+// Google puede suspender la cuenta si detecta clics/impresiones del desarrollador.
 (function () {
-  if (!window.Capacitor?.isNativePlatform?.()) return;
+  const _isNative = window.Capacitor?.isNativePlatform?.();
+  const _h = typeof location !== 'undefined' ? location.hostname : '';
+  const _isDev = !_isNative && (
+    !_h || _h === 'localhost' ||
+    _h.startsWith('192.168.') || _h.startsWith('10.') || _h.startsWith('172.') ||
+    _h.endsWith('.local') || _h.endsWith('.test')
+  );
+
+  if (!_isNative && !_isDev) return; // producción web → AdSense normal
 
   const _adNoop = { push: function () {} };
   try {
@@ -16,6 +26,10 @@
   const _s = document.createElement('style');
   _s.textContent = '.adsbygoogle,.ads-container{display:none!important;height:0!important;min-height:0!important;overflow:hidden!important;padding:0!important;margin:0!important}';
   document.head.appendChild(_s);
+
+  if (_isDev) {
+    console.info('[app-mode] AdSense bloqueado — entorno de desarrollo detectado (hostname: ' + _h + ')');
+  }
 })();
 
 // ── Modo Android WebView legacy (?app=android) ─────────────────────────────
