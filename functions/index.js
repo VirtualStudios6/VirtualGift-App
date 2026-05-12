@@ -538,10 +538,15 @@ exports.bitlabsPostback = onRequest(
       return res.status(400).send("Missing parameters");
     }
 
-    // ── 2. Verificar HMAC-SHA1 ────────────────────────────────────────────
+    // ── 2. Verificar HMAC-SHA1 sobre la URL completa (sin el parámetro hash) ─
+    // BitLabs firma: HMAC-SHA1(key=api_secret, message=full_url_sin_hash)
     const secret = BITLABS_API_SECRET.value().trim();
+    const FUNCTION_BASE_URL = "https://us-central1-virtualgift-login.cloudfunctions.net/bitlabsPostback";
+    const rawQuery = req.url.includes("?") ? req.url.split("?").slice(1).join("?") : "";
+    const queryWithoutHash = rawQuery.split("&").filter(function(s){ return !s.startsWith("hash="); }).join("&");
+    const urlToVerify = FUNCTION_BASE_URL + "?" + queryWithoutHash;
     const expectedHash = createHmac("sha1", secret)
-      .update(String(uid) + String(trans_id))
+      .update(urlToVerify)
       .digest("hex");
 
     if (hash !== expectedHash) {
