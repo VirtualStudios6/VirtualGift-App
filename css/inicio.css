@@ -416,6 +416,15 @@ body {
 .offer-bg-blue   { background: linear-gradient(135deg, #00234b, #003d80); }
 .offer-bg-green  { background: linear-gradient(135deg, #1a2a00, #2d4a00); }
 .offer-emoji-icon { font-size: 52px; }
+
+/* ── Provider brand cards ─────────────────────────────────────────────────── */
+.offer-brand-bg      { display: flex; align-items: center; justify-content: center; }
+.offer-brand-cpx     { background: linear-gradient(155deg, #07111f 0%, #0d2040 60%, #102a50 100%); }
+.offer-brand-bitlabs { background: linear-gradient(155deg, #0047c8 0%, #006eff 60%, #1a7fff 100%); }
+.offer-brand-wrap    { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; }
+.offer-brand-icon    { width: 52px; height: 52px; }
+.offer-brand-label   { font-size: 11px; font-weight: 900; color: white; letter-spacing: 1.8px; text-transform: uppercase; text-align: center; opacity: 0.92; }
+
 .mrec-slot {
   display: none; width: 300px; height: 250px;
   margin: 16px auto; border-radius: 10px; overflow: hidden;
