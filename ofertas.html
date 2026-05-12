@@ -1,190 +1,203 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-      <style>.adsbygoogle{display:block}.ads-container{margin:16px 0;overflow:hidden;text-align:center}</style>
   <script>(function(){if(window.Capacitor?.isNativePlatform?.())return;if(location.hostname!=='virtualgift.pro')return;var s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1930529129644930';document.head.appendChild(s)})();</script>
 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#06011c">
   <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
-  <title>Ganar Coins — VirtualGift</title>
+  <title>Ofertas — VirtualGift</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/splash.css">
-  <link rel="stylesheet" href="css/inicio.css">
-  <link rel="stylesheet" href="css/header.css">
+  <link rel="stylesheet" href="css/bottom-nav.css">
+
   <script defer src="js/app-mode.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
-  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js" defer></script>
-  <style>.lucide{width:1em;height:1em;vertical-align:-0.125em;display:inline-block}.icon-lg{width:2rem !important;height:2rem !important}.icon-xl{width:3rem !important;height:3rem !important}</style>
-  <style>
-    :root {
-      --coin: #ffc837; --coin-dim: rgba(255,200,55,0.12);
-      --cyan: #00d4ff; --purple: #8b5cf6;
-      --green: #10b981; --red: #ef4444;
-      --card: rgba(255,255,255,0.04); --border: rgba(255,255,255,0.07);
-    }
-    .earn-header {
-      display: flex; align-items: center; gap: 12px;
-      padding: 14px 18px; position: sticky; top: 0; z-index: 100;
-      background: rgba(2,5,21,0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-    }
-    .earn-header-title { flex: 1; font-size: 18px; font-weight: 800; color: white; }
-    .header-coins {
-      display: flex; align-items: center; gap: 6px;
-      background: var(--coin-dim); border: 1px solid rgba(255,200,55,0.25);
-      border-radius: 20px; padding: 6px 12px; flex-shrink: 0;
-    }
-    .header-coins-icon { font-size: 16px; }
-    .header-coins-val  { font-size: 15px; font-weight: 800; color: var(--coin); }
-    .checkin-card {
-      border-radius: 18px; overflow: hidden; position: relative;
-      background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-      border: 1px solid rgba(139,92,246,0.3); padding: 18px;
-    }
-    .checkin-card::before {
-      content: ''; position: absolute; top: -40px; right: -40px;
-      width: 150px; height: 150px; border-radius: 50%;
-      background: rgba(139,92,246,0.15); filter: blur(30px); pointer-events: none;
-    }
-    .checkin-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-    .checkin-title { font-size: 16px; font-weight: 800; color: white; }
-    .checkin-streak {
-      display: flex; align-items: center; gap: 5px;
-      background: rgba(255,200,55,0.15); border: 1px solid rgba(255,200,55,0.3);
-      border-radius: 20px; padding: 4px 10px; font-size: 12px; font-weight: 700; color: var(--coin);
-    }
-    .checkin-days { display: flex; gap: 6px; margin-bottom: 14px; }
-    .checkin-day {
-      flex: 1; border-radius: 10px; padding: 8px 4px; text-align: center;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-    }
-    .checkin-day.done  { background: rgba(139,92,246,0.2); border-color: rgba(139,92,246,0.5); }
-    .checkin-day.today { background: rgba(139,92,246,0.3); border-color: #8b5cf6; box-shadow: 0 0 12px rgba(139,92,246,0.4); }
-    .checkin-day-label { font-size: 9px; color: rgba(255,255,255,0.5); font-weight: 600; }
-    .checkin-day-coins { font-size: 11px; font-weight: 800; color: var(--coin); margin-top: 3px; }
-    .checkin-day.done .checkin-day-coins::before { content: 'v '; }
-    .checkin-day.today .checkin-day-label { color: #c4b5fd; }
-    .checkin-btn {
-      width: 100%; padding: 13px; border-radius: 12px;
-      background: linear-gradient(135deg, #7c3aed, #a855f7);
-      border: none; color: white; font-size: 15px; font-weight: 800;
-      cursor: pointer; transition: opacity 0.2s; font-family: inherit;
-    }
-    .checkin-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .checkin-btn:active:not(:disabled) { transform: scale(0.98); }
-    .sec-label {
-      font-size: 12px; font-weight: 800; color: rgba(255,255,255,0.4);
-      text-transform: uppercase; letter-spacing: 1.5px; padding: 20px 16px 10px;
-    }
-    .wall-tabs { display: flex; gap: 8px; padding: 0 16px; overflow-x: auto; scrollbar-width: none; }
-    .wall-tabs::-webkit-scrollbar { display: none; }
-    .wall-tab {
-      flex-shrink: 0; display: flex; align-items: center; gap: 8px;
-      padding: 10px 16px; border-radius: 12px; cursor: pointer;
-      background: var(--card); border: 1px solid var(--border); transition: all 0.2s; user-select: none;
-    }
-    .wall-tab.active { border-color: rgba(0,212,255,0.4); background: rgba(0,212,255,0.08); }
-    .wall-tab-logo-emoji { font-size: 18px; }
-    .wall-tab-name { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.6); white-space: nowrap; }
-    .wall-tab.active .wall-tab-name { color: var(--cyan); }
-    .wall-tab-badge {
-      font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 8px;
-      background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.3);
-    }
-    .wall-tab-badge.nuevo { background: rgba(255,200,55,0.15); color: var(--coin); border-color: rgba(255,200,55,0.3); }
-    .wall-container { margin: 12px 16px 0; }
-    .wall-panel { display: none; }
-    .wall-panel.active { display: block; }
-    .wall-iframe-wrap {
-      border-radius: 16px; overflow: hidden; border: 1px solid var(--border);
-      background: rgba(255,255,255,0.02); min-height: 700px;
-    }
-    .wall-iframe-wrap iframe { display: block; width: 100%; border: none; min-height: 700px; }
-    .wall-loading {
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; padding: 60px 20px; gap: 14px;
-    }
-    .wall-spinner {
-      width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.06);
-      border-top-color: var(--cyan); border-radius: 50%; animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .wall-loading-txt { font-size: 13px; color: rgba(255,255,255,0.4); }
-    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; }
-    .quick-card {
-      border-radius: 16px; padding: 16px; cursor: pointer;
-      background: var(--card); border: 1px solid var(--border);
-      transition: transform 0.2s; display: block;
-    }
-    .quick-card:active { transform: scale(0.97); }
-    .quick-card-icon  { font-size: 28px; margin-bottom: 8px; }
-    .quick-card-title { font-size: 14px; font-weight: 800; color: white; }
-    .quick-card-sub   { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 3px; }
-    .quick-card-reward {
-      display: inline-flex; align-items: center; gap: 4px;
-      margin-top: 8px; padding: 3px 8px; border-radius: 8px;
-      background: var(--coin-dim); font-size: 12px; font-weight: 700; color: var(--coin);
-    }
-    .history-list { padding: 0 16px 100px; display: flex; flex-direction: column; gap: 8px; }
-    .history-item {
-      display: flex; align-items: center; gap: 12px;
-      background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px;
-    }
-    .history-icon {
-      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; font-size: 18px;
-    }
-    .history-icon.earn  { background: rgba(16,185,129,0.15); }
-    .history-icon.spend { background: rgba(239,68,68,0.12); }
-    .history-info { flex: 1; min-width: 0; }
-    .history-title { font-size: 13px; font-weight: 700; color: white; }
-    .history-date  { font-size: 11px; color: rgba(255,255,255,0.35); margin-top: 2px; }
-    .history-pts   { font-size: 16px; font-weight: 800; }
-    .history-pts.earn  { color: var(--green); }
-    .history-pts.spend { color: var(--red); }
-    .history-empty { text-align: center; padding: 30px; color: rgba(255,255,255,0.3); font-size: 13px; }
-    .toast {
-      position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
-      background: #1e1b4b; border: 1px solid rgba(139,92,246,0.4);
-      border-radius: 12px; padding: 12px 20px; font-size: 14px; font-weight: 700; color: white;
-      opacity: 0; transition: all 0.3s; z-index: 9999; white-space: nowrap;
-    }
-    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-    .main-tabs {
-      display: flex; background: rgba(255,255,255,0.03);
-      border-bottom: 1px solid var(--border); position: sticky; top: 61px; z-index: 9;
-    }
-    .main-tab {
-      flex: 1; padding: 12px 8px; text-align: center; font-size: 12px; font-weight: 700;
-      color: rgba(255,255,255,0.4); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; user-select: none;
-    }
-    .main-tab.active { color: var(--cyan); border-bottom-color: var(--cyan); }
-    .main-section { display: none; }
-    .main-section.active { display: block; }
-    .coming-soon-wrap { padding: 32px 16px; text-align: center; }
-    .coming-soon-emoji { font-size: 56px; margin-bottom: 16px; }
-    .coming-soon-title { font-size: 18px; font-weight: 800; color: white; margin-bottom: 10px; }
-    .coming-soon-desc { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.7; margin-bottom: 24px; }
-    .coming-soon-btn {
-      padding: 13px 28px; border-radius: 12px;
-      background: linear-gradient(135deg,#7c3aed,#a855f7);
-      border: none; color: white; font-size: 15px; font-weight: 800;
-      cursor: pointer; font-family: inherit;
-    }
-    .quick-card-disabled { opacity: .55; cursor: default; }
-    .sec-label-top { padding-top: 16px; }
-    .cpx-iframe { display:block;width:100%;border:none;height:calc(100dvh - 220px);min-height:600px; }
-  </style>
-  <link rel="stylesheet" href="css/bottom-nav.css">
   <script defer src="js/sounds.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #02050f;
+      color: white;
+      height: 100dvh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ─────────────────────────────────── */
+    .of-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      height: 56px;
+      flex-shrink: 0;
+      background: rgba(2,5,21,0.98);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      position: relative;
+      z-index: 20;
+    }
+    .of-back {
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .of-back svg { width: 18px; height: 18px; fill: white; }
+    .of-title {
+      flex: 1;
+      font-size: 17px;
+      font-weight: 800;
+      color: white;
+    }
+    .of-coins {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,200,55,0.1);
+      border: 1px solid rgba(255,200,55,0.22);
+      border-radius: 20px;
+      padding: 5px 12px;
+    }
+    .of-coins-icon { font-size: 15px; }
+    .of-coins-val  { font-size: 14px; font-weight: 800; color: #ffc837; }
+
+    /* ── Provider tabs ───────────────────────────── */
+    .of-tabs {
+      display: flex;
+      gap: 0;
+      flex-shrink: 0;
+      background: rgba(255,255,255,0.025);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      overflow-x: auto;
+    }
+    .of-tabs { -ms-overflow-style: none; }
+    .of-tabs::-webkit-scrollbar { display: none; }
+    .of-tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 20px;
+      height: 48px;
+      flex-shrink: 0;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .of-tab-emoji { font-size: 16px; }
+    .of-tab-name  { font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.45); white-space: nowrap; }
+    .of-tab-badge {
+      font-size: 9px; font-weight: 800;
+      padding: 2px 6px; border-radius: 6px;
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.4);
+    }
+    .of-tab.active { border-bottom-color: #00d4ff; }
+    .of-tab.active .of-tab-name  { color: #00d4ff; }
+    .of-tab.active .of-tab-badge { background: rgba(0,212,255,0.12); color: #00d4ff; }
+
+    /* ── Content area ────────────────────────────── */
+    .of-content {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    .of-panel {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+    }
+    .of-panel.active { display: flex; }
+
+    /* iframe fills panel */
+    .of-iframe-wrap {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+    }
+    .of-iframe-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+
+    /* ── Loading state ───────────────────────────── */
+    .of-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: #02050f;
+      z-index: 5;
+      transition: opacity 0.3s;
+    }
+    .of-loading.hidden { opacity: 0; pointer-events: none; }
+    .of-spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(255,255,255,0.06);
+      border-top-color: #00d4ff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .of-loading-name  { font-size: 15px; font-weight: 800; color: white; }
+    .of-loading-sub   { font-size: 12px; color: rgba(255,255,255,0.35); }
+
+    /* ── Dev / not-verified notice ───────────────── */
+    .of-notice {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 40px 24px;
+      text-align: center;
+      height: 100%;
+    }
+    .of-notice-emoji { font-size: 48px; }
+    .of-notice-title { font-size: 16px; font-weight: 800; color: white; }
+    .of-notice-desc  { font-size: 13px; color: rgba(255,255,255,0.4); line-height: 1.7; max-width: 280px; }
+
+    /* ── Toast ───────────────────────────────────── */
+    .of-toast {
+      position: fixed;
+      bottom: 80px; left: 50%;
+      transform: translateX(-50%) translateY(16px);
+      background: #1e1b4b;
+      border: 1px solid rgba(139,92,246,0.4);
+      border-radius: 12px;
+      padding: 11px 20px;
+      font-size: 13px; font-weight: 700; color: white;
+      opacity: 0; transition: all 0.3s;
+      z-index: 9999; white-space: nowrap;
+      pointer-events: none;
+    }
+    .of-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
 </head>
 <body>
 
@@ -194,141 +207,112 @@
     <div id="vg-splash-spinner"></div>
   </div>
 
-
-  <div class="earn-header">
-    <div class="earn-header-title">Ganar Coins</div>
-    <div class="header-coins">
-      <span class="header-coins-icon"><i data-lucide="coins" style="width:1.1em;height:1.1em"></i></span>
-      <span class="header-coins-val" id="headerCoins">---</span>
+  <!-- Header -->
+  <header class="of-header">
+    <div class="of-back" onclick="history.back()">
+      <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
     </div>
-  </div>
-
-  <div class="main-tabs">
-    <div class="main-tab active" onclick="switchMain('ofertas', this)">Ofertas</div>
-    <div class="main-tab" onclick="switchMain('checkin', this)">Check-in</div>
-    <div class="main-tab" onclick="switchMain('historial', this)">Historial</div>
-  </div>
-
-  <!-- OFERTAS -->
-  <div class="main-section active" id="sec-ofertas">
-    <div class="sec-label sec-label-top">Plataformas disponibles</div>
-    <div class="wall-tabs">
-      <div class="wall-tab active" id="tab-cpx" onclick="switchWall('cpx', this)">
-        <span class="wall-tab-logo-emoji">📊</span>
-        <span class="wall-tab-name">CPX Research</span>
-        <span class="wall-tab-badge nuevo">Encuestas</span>
-      </div>
-      <div class="wall-tab" id="tab-bitlabs" onclick="switchWall('bitlabs', this)">
-        <span class="wall-tab-logo-emoji">🎯</span>
-        <span class="wall-tab-name">BitLabs</span>
-        <span class="wall-tab-badge">Encuestas</span>
-      </div>
+    <span class="of-title">Ofertas</span>
+    <div class="of-coins">
+      <span class="of-coins-icon">🪙</span>
+      <span class="of-coins-val" id="ofCoins">---</span>
     </div>
-    <div class="wall-container">
-      <div class="wall-panel active" id="panel-cpx">
-        <div class="wall-iframe-wrap" id="cpxWrap">
-          <div class="wall-loading" id="cpxLoading">
-            <div class="wall-spinner"></div>
-            <div class="wall-loading-txt">Cargando encuestas...</div>
-          </div>
-        </div>
-      </div>
-      <div class="wall-panel" id="panel-bitlabs">
-        <div class="wall-iframe-wrap" id="bitlabsWrap">
-          <div class="wall-loading" id="bitlabsLoading">
-            <div class="wall-spinner"></div>
-            <div class="wall-loading-txt">Cargando BitLabs...</div>
-          </div>
+  </header>
+
+  <!-- Provider tabs -->
+  <nav class="of-tabs">
+    <div class="of-tab active" id="tab-cpx" onclick="switchWall('cpx', this)">
+      <span class="of-tab-emoji">📊</span>
+      <span class="of-tab-name">CPX Research</span>
+      <span class="of-tab-badge">Encuestas</span>
+    </div>
+    <div class="of-tab" id="tab-bitlabs" onclick="switchWall('bitlabs', this)">
+      <span class="of-tab-emoji">🎯</span>
+      <span class="of-tab-name">BitLabs</span>
+      <span class="of-tab-badge">Encuestas</span>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="of-content">
+
+    <!-- CPX panel -->
+    <div class="of-panel active" id="panel-cpx">
+      <div class="of-iframe-wrap" id="cpxWrap">
+        <div class="of-loading" id="cpxLoading">
+          <div class="of-spinner"></div>
+          <div class="of-loading-name">CPX Research</div>
+          <div class="of-loading-sub">Cargando encuestas...</div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- CHECK-IN -->
-  <div class="main-section" id="sec-checkin">
-    <div style="padding: 24px 16px;">
-      <div style="border-radius:18px; background:linear-gradient(135deg,#0f0c29,#302b63,#24243e); border:1px solid rgba(139,92,246,0.3); padding:24px; text-align:center;">
-        <div style="font-size:48px; margin-bottom:12px;"><i data-lucide="flame" style="width:3rem;height:3rem"></i></div>
-        <div style="font-size:18px; font-weight:800; color:white; margin-bottom:8px;">Recompensa Diaria</div>
-        <div style="font-size:13px; color:rgba(255,255,255,0.5); margin-bottom:20px; line-height:1.6;">
-          Tu racha diaria esta en <strong>Mis Puntos</strong>. Reclama tus coins y manten la racha!
+    <!-- BitLabs panel -->
+    <div class="of-panel" id="panel-bitlabs">
+      <div class="of-iframe-wrap" id="bitlabsWrap">
+        <div class="of-loading" id="bitlabsLoading">
+          <div class="of-spinner"></div>
+          <div class="of-loading-name">BitLabs</div>
+          <div class="of-loading-sub">Cargando encuestas...</div>
         </div>
-        <button onclick="window.location.href=withAppFlag('puntos.html')"
-          style="width:100%; padding:13px; border-radius:12px; background:linear-gradient(135deg,#7c3aed,#a855f7); border:none; color:white; font-size:15px; font-weight:800; cursor:pointer; font-family:inherit;">
-          Ir a Mis Puntos
-        </button>
       </div>
     </div>
-    <!-- AdSense Display -->
-    <div class="ads-container">
-      <ins class="adsbygoogle"
-           data-ad-client="ca-pub-1930529129644930"
-           data-ad-slot="6388933118"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </div>
-    <div class="sec-label">Mas formas de ganar</div>
-    <div class="quick-grid">
-      <div class="quick-card" onclick="switchMain('ofertas', document.querySelector('.main-tab'))">
-        <div class="quick-card-icon"><i data-lucide="target" class="icon-lg"></i></div>
-        <div class="quick-card-title">Ofertas</div>
-        <div class="quick-card-sub">Completa tareas</div>
-        <div class="quick-card-reward"><i data-lucide="coins" style="width:.9em;height:.9em"></i> Hasta 5000</div>
-      </div>
-      <div class="quick-card" onclick="alert('Minijuegos próximamente')" style="opacity:.55;cursor:default;">
-        <div class="quick-card-icon"><i data-lucide="joystick" class="icon-lg"></i></div>
-        <div class="quick-card-title">Minijuegos</div>
-        <div class="quick-card-sub">Próximamente</div>
-        <div class="quick-card-reward"><i data-lucide="coins" style="width:.9em;height:.9em"></i> Hasta 100</div>
-      </div>
-      <div class="quick-card quick-card-disabled">
-        <div class="quick-card-icon"><i data-lucide="gem" class="icon-lg"></i></div>
-        <div class="quick-card-title">Encuestas</div>
-        <div class="quick-card-sub">Próximamente</div>
-        <div class="quick-card-reward"><i data-lucide="coins" style="width:.9em;height:.9em"></i> Hasta 500</div>
-      </div>
-      <div class="quick-card quick-card-disabled">
-        <div class="quick-card-icon"><i data-lucide="tv" class="icon-lg"></i></div>
-        <div class="quick-card-title">Videos</div>
-        <div class="quick-card-sub">Próximamente</div>
-        <div class="quick-card-reward"><i data-lucide="coins" style="width:.9em;height:.9em"></i> Hasta 50</div>
-      </div>
-    </div>
-  </div>
 
-  <!-- HISTORIAL -->
-  <div class="main-section" id="sec-historial">
-    <div class="sec-label">Ultimas transacciones</div>
-    <div class="history-list" id="historyList">
-      <div class="history-empty">Cargando historial...</div>
-    </div>
-  </div>
+  </main>
 
-  <div class="toast" id="toast"></div>
+  <div class="of-toast" id="ofToast"></div>
+
+  <script defer src="js/bottom-nav.js"></script>
+  <script src="js/splash.js"></script>
 
   <script>
-    const CHECKIN_REWARDS = [10, 15, 20, 25, 30, 40, 75];
-    let currentUser = null;
-
-    // ── CPX Research ──────────────────────────────────
-    const CPX_APP_ID   = 32955;
-    const CPX_HASH_KEY = 'KwYa4M02A8kLxYbzXXstl4FUGkfgxdHG';
-    var cpxLoaded     = false;
-    var bitlabsLoaded = false;
-
+    // ── Constants ─────────────────────────────────────────────────────────────
+    const CPX_APP_ID        = 32955;
+    const CPX_HASH_KEY      = 'KwYa4M02A8kLxYbzXXstl4FUGkfgxdHG';
     const BITLABS_APP_TOKEN = '9bd3e655-255a-4250-a038-108697b7c47c';
 
+    let currentUser   = null;
+    let cpxLoaded     = false;
+    let bitlabsLoaded = false;
+
+    // ── Tab switcher ──────────────────────────────────────────────────────────
     function switchWall(id, el) {
-      document.querySelectorAll('.wall-panel').forEach(function(p){ p.classList.remove('active'); });
-      document.querySelectorAll('.wall-tab').forEach(function(t){ t.classList.remove('active'); });
+      document.querySelectorAll('.of-panel').forEach(function(p){ p.classList.remove('active'); });
+      document.querySelectorAll('.of-tab').forEach(function(t){ t.classList.remove('active'); });
       var panel = document.getElementById('panel-' + id);
       if (panel) panel.classList.add('active');
-      if (el) el.classList.add('active');
-      if (id === 'cpx'      && currentUser && !cpxLoaded)     loadCPXWall(currentUser);
-      if (id === 'bitlabs'  && currentUser && !bitlabsLoaded) loadBitlabsWall(currentUser);
+      if (el)    el.classList.add('active');
+      if (id === 'cpx'     && currentUser && !cpxLoaded)     loadCPXWall(currentUser);
+      if (id === 'bitlabs' && currentUser && !bitlabsLoaded) loadBitlabsWall(currentUser);
     }
 
+    // ── CPX Research ──────────────────────────────────────────────────────────
+    function loadCPXWall(user) {
+      if (cpxLoaded || typeof md5 === 'undefined') return;
+      cpxLoaded = true;
+      var hash   = md5(user.uid + CPX_HASH_KEY);
+      var uname  = encodeURIComponent(user.displayName || 'User');
+      var email  = encodeURIComponent(user.email || '');
+      var uid    = encodeURIComponent(user.uid);
+      var url    = 'https://offers.cpx-research.com/index.php'
+                 + '?app_id='      + CPX_APP_ID
+                 + '&ext_user_id=' + uid
+                 + '&username='    + uname
+                 + '&email='       + email
+                 + '&secure_hash=' + hash;
+      var wrap    = document.getElementById('cpxWrap');
+      var loading = document.getElementById('cpxLoading');
+      if (!wrap) return;
+      var iframe = document.createElement('iframe');
+      iframe.src = url;
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.onload = function() {
+        if (loading) loading.classList.add('hidden');
+      };
+      wrap.appendChild(iframe);
+    }
+
+    // ── BitLabs ───────────────────────────────────────────────────────────────
     function loadBitlabsWall(user) {
       if (bitlabsLoaded) return;
       bitlabsLoaded = true;
@@ -337,177 +321,44 @@
       if (!wrap) return;
 
       if (window.VG_IS_DEV) {
-        wrap.innerHTML = '<div style="padding:40px 20px;text-align:center;color:rgba(255,255,255,0.4);font-size:13px;line-height:1.7;"><div style="font-size:32px;margin-bottom:12px;">🧪</div><div style="font-weight:700;color:rgba(255,255,255,0.6);margin-bottom:6px;">Modo desarrollo</div>BitLabs no carga en localhost.<br>Los coins se acreditan solo via postback real en producción.</div>';
+        loading.classList.add('hidden');
+        wrap.insertAdjacentHTML('beforeend',
+          '<div class="of-notice">'
+          + '<div class="of-notice-emoji">🧪</div>'
+          + '<div class="of-notice-title">Modo desarrollo</div>'
+          + '<div class="of-notice-desc">BitLabs no carga en localhost.<br>Las encuestas se acreditan solo via postback real en producción.</div>'
+          + '</div>');
         return;
       }
 
       var url = 'https://web.bitlabs.ai/'
               + '?uid='   + encodeURIComponent(user.uid)
               + '&token=' + encodeURIComponent(BITLABS_APP_TOKEN);
-
       var iframe = document.createElement('iframe');
       iframe.src = url;
-      iframe.className = 'cpx-iframe';
       iframe.setAttribute('allowfullscreen', '');
-      iframe.onload = function() { if (loading) loading.style.display = 'none'; };
+      iframe.onload = function() {
+        if (loading) loading.classList.add('hidden');
+      };
       wrap.appendChild(iframe);
     }
 
-    function loadCPXWall(user) {
-      if (cpxLoaded || typeof md5 === 'undefined') return;
-      cpxLoaded = true;
-      var hash  = md5(user.uid + CPX_HASH_KEY);
-      var uname = encodeURIComponent(user.displayName || 'User');
-      var email = encodeURIComponent(user.email || '');
-      var uid   = encodeURIComponent(user.uid);
-      var url   = 'https://offers.cpx-research.com/index.php'
-                + '?app_id='      + CPX_APP_ID
-                + '&ext_user_id=' + uid
-                + '&username='    + uname
-                + '&email='       + email
-                + '&secure_hash=' + hash;
-      var wrap    = document.getElementById('cpxWrap');
-      var loading = document.getElementById('cpxLoading');
-      if (!wrap) return;
-      var iframe = document.createElement('iframe');
-      iframe.src = url;
-      iframe.className = 'cpx-iframe';
-      iframe.setAttribute('allowfullscreen', '');
-      iframe.onload = function() { if (loading) loading.style.display = 'none'; };
-      wrap.appendChild(iframe);
-    }
-
-    function showToast(msg, duration) {
-      duration = duration || 2800;
-      var t = document.getElementById('toast');
+    // ── Toast ─────────────────────────────────────────────────────────────────
+    function showToast(msg) {
+      var t = document.getElementById('ofToast');
       t.textContent = msg;
       t.classList.add('show');
-      setTimeout(function(){ t.classList.remove('show'); }, duration);
+      setTimeout(function(){ t.classList.remove('show'); }, 2800);
     }
 
-    function switchMain(id, el) {
-      document.querySelectorAll('.main-section').forEach(function(s){ s.classList.remove('active'); });
-      document.querySelectorAll('.main-tab').forEach(function(t){ t.classList.remove('active'); });
-      var sec = document.getElementById('sec-' + id);
-      if (sec) sec.classList.add('active');
-      if (el) el.classList.add('active');
-      if (id === 'historial') loadHistory();
-    }
-
-    function buildCheckinUI(streak, alreadyDone) {
-      var days  = document.getElementById('checkinDays');
-      var btn   = document.getElementById('checkinBtn');
-      var badge = document.getElementById('streakBadge');
-      if (!days || !btn || !badge) return;
-      badge.innerHTML = '<i data-lucide="flame"></i> ' + streak + ' dia' + (streak !== 1 ? 's' : ''); if(window.lucide)lucide.createIcons({parentNode:badge});
-      var html = '';
-      CHECKIN_REWARDS.forEach(function(coins, i) {
-        var done    = i < (streak % 7);
-        var isToday = i === (streak % 7) && !alreadyDone;
-        var cls = 'checkin-day' + (done ? ' done' : '') + (isToday ? ' today' : '');
-        html += '<div class="' + cls + '"><div class="checkin-day-label">Dia ' + (i+1) + '</div><div class="checkin-day-coins"><i data-lucide="coins" style="width:.85em;height:.85em"></i>' + coins + '</div></div>';
-      });
-      days.innerHTML = html;
-      if (alreadyDone) {
-        btn.textContent = 'Ya hiciste check-in hoy';
-        btn.disabled = true;
-      } else {
-        btn.textContent = 'Reclamar +' + CHECKIN_REWARDS[streak % 7] + ' coins';
-        btn.disabled = false;
-      }
-    }
-
-    async function loadCheckin(user) {
-      try {
-        var snap = await window.db.collection('users').doc(user.uid).get();
-        var data = snap.data() || {};
-        var streak = data.checkinStreak || 0;
-        var lastCheckin = data.lastCheckin && data.lastCheckin.toDate ? data.lastCheckin.toDate() : null;
-        var alreadyDone = lastCheckin && lastCheckin.toDateString() === new Date().toDateString();
-        buildCheckinUI(streak, alreadyDone);
-      } catch(e) {
-        console.error(e);
-      }
-    }
-
-    async function doCheckin() {
-      if (!currentUser) return;
-      var btn = document.getElementById('checkinBtn');
-      btn.disabled = true; btn.textContent = 'Procesando...';
-      try {
-        var userRef = window.db.collection('users').doc(currentUser.uid);
-        var snap = await userRef.get();
-        var data = snap.data() || {};
-        var streak = data.checkinStreak || 0;
-        var lastCheckin = data.lastCheckin && data.lastCheckin.toDate ? data.lastCheckin.toDate() : null;
-        var now = new Date();
-        if (lastCheckin && lastCheckin.toDateString() === now.toDateString()) {
-          showToast('Ya hiciste check-in hoy');
-          buildCheckinUI(streak, true);
-          return;
-        }
-        var yesterday = new Date(now - 86400000);
-        var consecutive = lastCheckin && lastCheckin.toDateString() === yesterday.toDateString();
-        var newStreak = consecutive ? streak + 1 : 1;
-        var reward = CHECKIN_REWARDS[(newStreak - 1) % 7];
-        var newPts = (data.points || 0) + reward;
-        await userRef.set({ checkinStreak: newStreak, lastCheckin: firebase.firestore.Timestamp.now(), points: newPts }, { merge: true });
-        await window.db.collection('pointsHistory').add({ userId: currentUser.uid, type: 'daily_checkin', points: reward, streak: newStreak, createdAt: firebase.firestore.Timestamp.now() });
-        document.getElementById('headerCoins').textContent = newPts.toLocaleString();
-        showToast('+' + reward + ' coins! Racha: ' + newStreak + ' dias');
-        buildCheckinUI(newStreak, true);
-      } catch(e) {
-        console.error(e);
-        showToast('Error al hacer check-in');
-        btn.disabled = false; btn.textContent = 'Intentar de nuevo';
-      }
-    }
-
-    var TYPE_LABELS = {
-      daily_checkin: { icon: '<i data-lucide="calendar"></i>',  label: 'Check-in diario' },
-      minigame:      { icon: '<i data-lucide="joystick"></i>',  label: 'Minijuego'       },
-      redeem:        { icon: '<i data-lucide="gift"></i>',      label: 'Canje'           },
-      raffle_entry:  { icon: '<i data-lucide="ticket"></i>',         label: 'Entrada a sorteo'         },
-      referral_bonus:{ icon: '<i data-lucide="users"></i>',          label: 'Bono de referido'         },
-      ad_reward:     { icon: '<i data-lucide="tv-2"></i>',           label: 'Recompensa por anuncio'   },
-      cpx_survey:    { icon: '<i data-lucide="clipboard-list"></i>', label: 'Encuesta CPX Research'    },
-      bitlabs_survey:{ icon: '<i data-lucide="target"></i>',         label: 'Encuesta BitLabs'           }
-    };
-
-    function formatDate(ts) {
-      if (!ts) return '';
-      var d = ts.toDate ? ts.toDate() : new Date(ts);
-      return d.toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
-    }
-
-    async function loadHistory() {
-      if (!currentUser) return;
-      var list = document.getElementById('historyList');
-      list.innerHTML = '<div class="history-empty">Cargando...</div>';
-      try {
-        var snap = await window.db.collection('pointsHistory').where('userId', '==', currentUser.uid).orderBy('createdAt', 'desc').limit(30).get();
-        if (snap.empty) { list.innerHTML = '<div class="history-empty">Sin transacciones aun</div>'; return; }
-        var html = '';
-        snap.forEach(function(doc) {
-          var d = doc.data();
-          var info = TYPE_LABELS[d.type] || { icon: '<i data-lucide="coins"></i>', label: d.type || 'Transaccion' };
-          var isEarn = d.points > 0;
-          html += '<div class="history-item"><div class="history-icon ' + (isEarn?'earn':'spend') + '">' + info.icon + '</div><div class="history-info"><div class="history-title">' + info.label + '</div><div class="history-date">' + formatDate(d.createdAt) + '</div></div><div class="history-pts ' + (isEarn?'earn':'spend') + '">' + (isEarn?'+':'') + d.points + ' <i data-lucide="coins" style="width:.9em;height:.9em"></i></div></div>';
-        });
-        list.innerHTML = html;
-        if(window.lucide) lucide.createIcons();
-      } catch(e) {
-        console.error(e);
-        list.innerHTML = '<div class="history-empty">Error cargando historial</div>';
-      }
-    }
-
+    // ── Init ──────────────────────────────────────────────────────────────────
     function waitForFirebase(cb, max) {
       max = max || 80; var i = 0;
       var t = setInterval(function() {
         i++;
-        if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function' && window.db) { clearInterval(t); cb(); }
-        else if (i >= max) clearInterval(t);
+        if (typeof firebase !== 'undefined' && typeof firebase.auth === 'function' && window.db) {
+          clearInterval(t); cb();
+        } else if (i >= max) clearInterval(t);
       }, 100);
     }
 
@@ -519,11 +370,15 @@
             window.location.href = withAppFlag('verify-pending.html'); return;
           }
           currentUser = user;
+
+          // Cargar balance
           try {
             var snap = await window.db.collection('users').doc(user.uid).get();
-            document.getElementById('headerCoins').textContent = ((snap.data() && snap.data().points) || 0).toLocaleString();
+            document.getElementById('ofCoins').textContent =
+              ((snap.data() && snap.data().points) || 0).toLocaleString();
           } catch(e) {}
-          loadCheckin(user);
+
+          // Abrir tab según hash de URL
           if (location.hash === '#bitlabs') {
             switchWall('bitlabs', document.getElementById('tab-bitlabs'));
           } else {
@@ -533,8 +388,5 @@
       });
     });
   </script>
-<script>document.addEventListener('DOMContentLoaded', function() { if(window.lucide)lucide.createIcons(); });</script>
-  <script defer src="js/bottom-nav.js"></script>
-  <script src="js/splash.js"></script>
 </body>
 </html>
