@@ -415,6 +415,7 @@ body {
 .offer-bg-purple { background: linear-gradient(160deg, #0d0520, #1a0840, #0a0318); }
 .offer-bg-blue   { background: linear-gradient(135deg, #00234b, #003d80); }
 .offer-bg-green  { background: linear-gradient(135deg, #1a2a00, #2d4a00); }
+.offer-emoji-icon { font-size: 52px; }
 .game-image::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(to bottom, transparent 40%, rgba(6,1,28,0.75) 100%);

@@ -524,7 +524,11 @@
             document.getElementById('headerCoins').textContent = ((snap.data() && snap.data().points) || 0).toLocaleString();
           } catch(e) {}
           loadCheckin(user);
-          loadCPXWall(user);
+          if (location.hash === '#bitlabs') {
+            switchWall('bitlabs', document.getElementById('tab-bitlabs'));
+          } else {
+            loadCPXWall(user);
+          }
         });
       });
     });
