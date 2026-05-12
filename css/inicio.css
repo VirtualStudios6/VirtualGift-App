@@ -416,6 +416,22 @@ body {
 .offer-bg-blue   { background: linear-gradient(135deg, #00234b, #003d80); }
 .offer-bg-green  { background: linear-gradient(135deg, #1a2a00, #2d4a00); }
 .offer-emoji-icon { font-size: 52px; }
+.mrec-slot {
+  display: none; width: 300px; height: 250px;
+  margin: 16px auto; border-radius: 10px; overflow: hidden;
+  background: rgba(141,23,251,0.04); border: 1px solid rgba(141,23,251,0.08);
+}
+.offer-card { border-color: rgba(0,212,255,0.18); }
+.offer-card .game-image { height: 150px; }
+.offer-card .game-info  { padding: 10px 12px 14px; }
+.offer-card .game-name  { font-size: 14px; font-weight: 800; margin-bottom: 5px; }
+.offer-card-desc { font-size: 11px; color: rgba(255,255,255,0.42); line-height: 1.4; margin-bottom: 9px; }
+.offer-reward-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(255,200,55,0.1); border: 1px solid rgba(255,200,55,0.25);
+  border-radius: 8px; padding: 3px 9px;
+  font-size: 11px; font-weight: 800; color: #ffc837;
+}
 .game-image::after {
   content: ''; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(to bottom, transparent 40%, rgba(6,1,28,0.75) 100%);

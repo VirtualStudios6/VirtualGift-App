@@ -184,26 +184,24 @@
         </div>
         <p class="section-subtitle">Gana VirtualCoins completando ofertas</p>
         <div class="games-grid">
-            <div class="game-card" onclick="window.location.href=withAppFlag('ofertas.html')">
+            <div class="game-card offer-card" onclick="window.location.href=withAppFlag('ofertas.html')">
                 <div class="game-image offer-game-image offer-bg-purple">
                     <img src="images/ofertas/logo1-cpx-reserach.png" alt="CPX Research" loading="lazy">
                 </div>
                 <span class="playing-badge"><span class="dot-live"></span>ENCUESTAS</span>
                 <div class="game-info">
                     <p class="game-name">CPX Research</p>
-                    <div class="game-meta">
-                        <span class="game-coins">🪙 Gana Coins</span>
-                    </div>
+                    <p class="offer-card-desc">Encuestas rápidas y cortas</p>
+                    <span class="offer-reward-chip">🪙 Hasta 500</span>
                 </div>
             </div>
-            <div class="game-card" onclick="window.location.href=withAppFlag('ofertas.html#bitlabs')">
+            <div class="game-card offer-card" onclick="window.location.href=withAppFlag('ofertas.html#bitlabs')">
                 <div class="game-image offer-game-image offer-bg-blue offer-emoji-icon">🎯</div>
                 <span class="playing-badge"><span class="dot-live"></span>ENCUESTAS</span>
                 <div class="game-info">
                     <p class="game-name">BitLabs</p>
-                    <div class="game-meta">
-                        <span class="game-coins">🪙 Gana Coins</span>
-                    </div>
+                    <p class="offer-card-desc">Encuestas y ofertas premium</p>
+                    <span class="offer-reward-chip">🪙 Hasta 1000</span>
                 </div>
             </div>
         </div>
@@ -259,7 +257,7 @@
     </section>
 
     <!-- MREC slot nativo (300×250) — visible solo en app -->
-    <div id="mrec-inline-slot" style="display:none;width:300px;height:250px;margin:16px auto;border-radius:10px;overflow:hidden;background:rgba(141,23,251,0.04);border:1px solid rgba(141,23,251,0.08);"></div>
+    <div id="mrec-inline-slot" class="mrec-slot"></div>
 
     <!-- AdSense Feed — visible solo en web (oculto en app por app-mode.js) -->
     <div class="ads-container">
