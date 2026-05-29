@@ -1,13 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <style>.adsbygoogle{display:block}.ads-container{margin:16px 0;overflow:hidden;text-align:center}</style>
-  <script>(function(){if(window.Capacitor?.isNativePlatform?.())return;if(location.hostname!=='virtualgift.pro')return;var s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1930529129644930';document.head.appendChild(s)})();</script>
-
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#06011c">
-  <title>Comunidad — VirtualGift</title>
+  <title>Comunidad - VirtualGift</title>
   <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,7 +43,7 @@
       padding: 0 16px 16px;
     }
 
-    /* ── HERO ── */
+    /* -- HERO -- */
     .community-hero {
       text-align: center;
       padding: 24px 0 20px;
@@ -81,7 +78,7 @@
     }
     .stat-chip-val { color: #a78bfa; font-weight: 900; }
 
-    /* ── SECTION ── */
+    /* -- SECTION -- */
     .c-section { margin: 22px 0; }
     .c-section-head {
       display: flex; align-items: center; justify-content: space-between;
@@ -115,7 +112,7 @@
     }
     .refresh-btn:active { background: rgba(139,92,246,.12); color: #a78bfa; }
 
-    /* ── PODIUM ── */
+    /* -- PODIUM -- */
     .podium {
       display: grid; grid-template-columns: 1fr 1.15fr 1fr;
       gap: 8px; margin-bottom: 10px; align-items: flex-end;
@@ -164,7 +161,7 @@
     }
     .podium-rank-num { font-size: .62rem; font-weight: 900; color: rgba(220,239,255,.28); }
 
-    /* ── RANK LIST ── */
+    /* -- RANK LIST -- */
     .rank-list { display: flex; flex-direction: column; gap: 7px; }
     .rank-row {
       display: flex; align-items: center; gap: 10px;
@@ -197,7 +194,7 @@
       margin-top: 8px;
     }
 
-    /* ── ACTIVITY ── */
+    /* -- ACTIVITY -- */
     .activity-list { display: flex; flex-direction: column; gap: 8px; }
     .activity-item {
       display: flex; align-items: center; gap: 10px;
@@ -221,7 +218,7 @@
     .activity-time { font-size: .67rem; color: rgba(220,239,255,.32); margin-top: 3px; }
     .activity-icon { font-size: 1.1rem; flex-shrink: 0; }
 
-    /* ── SKELETON ── */
+    /* -- SKELETON -- */
     .skel {
       background: linear-gradient(90deg, rgba(255,255,255,.04) 0%, rgba(255,255,255,.085) 50%, rgba(255,255,255,.04) 100%);
       background-size: 200% 100%;
@@ -230,13 +227,13 @@
     }
     @keyframes skelShimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
-    /* ── EMPTY ── */
+    /* -- EMPTY -- */
     .empty-state {
       text-align: center; padding: 28px 16px;
       color: rgba(220,239,255,.28); font-size: .82rem; font-weight: 600;
     }
 
-    /* ── DIVIDER ── */
+    /* -- DIVIDER -- */
     .c-divider {
       height: 1px; background: rgba(255,255,255,.06);
       margin: 22px 0;
@@ -281,13 +278,13 @@
 
     <!-- HERO -->
     <div class="community-hero">
-      <span class="hero-emoji">🌟</span>
+      <span class="hero-emoji">&#x1F31F;</span>
       <h1 class="hero-title">Comunidad</h1>
-      <p class="hero-sub">Ve quién lidera y qué está pasando</p>
+      <p class="hero-sub">Ve qui&eacute;n lidera y qu&eacute; est&aacute; pasando</p>
       <div class="stats-chips">
-        <div class="stat-chip">👥 <span class="stat-chip-val" id="statUsers">—</span> usuarios</div>
-        <div class="stat-chip">🎁 <span class="stat-chip-val" id="statSorteos">—</span> sorteos activos</div>
-        <div class="stat-chip">🎡 <span class="stat-chip-val" id="statGiros">—</span> giros hoy</div>
+        <div class="stat-chip">&#x1F465; <span class="stat-chip-val" id="statUsers">--</span> usuarios</div>
+        <div class="stat-chip">&#x1F381; <span class="stat-chip-val" id="statSorteos">--</span> sorteos activos</div>
+        <div class="stat-chip">&#x1F3B0; <span class="stat-chip-val" id="statGiros">--</span> giros hoy</div>
       </div>
     </div>
 
@@ -296,8 +293,8 @@
     <!-- RANKING -->
     <div class="c-section">
       <div class="c-section-head">
-        <span class="c-section-title">📊 Ranking de Coins</span>
-        <button class="refresh-btn" onclick="loadRanking()">↻ Actualizar</button>
+        <span class="c-section-title">&#x1F4CA; Ranking de Coins</span>
+        <button class="refresh-btn" onclick="loadRanking()">&#x21BB; Actualizar</button>
       </div>
 
       <div class="podium" id="rankingPodium">
@@ -321,7 +318,7 @@
     <!-- ACTIVIDAD -->
     <div class="c-section">
       <div class="c-section-head">
-        <span class="c-section-title">🎡 Actividad Reciente</span>
+        <span class="c-section-title">&#x1F3A1; Actividad Reciente</span>
         <span class="c-badge-live">EN VIVO</span>
       </div>
       <div class="activity-list" id="activityList">
@@ -331,23 +328,8 @@
         <div class="skel" style="height:62px;border-radius:14px;"></div>
       </div>
     </div>
-
-    <!-- AdSense -->
-    <div class="ads-container">
-      <ins class="adsbygoogle"
-           data-ad-client="ca-pub-1930529129644930"
-           data-ad-slot="6388933118"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </div>
-
-  </div>
-  <script defer src="js/admob.js"></script>
-  <script defer src="js/unity-ads.js"></script>
-  <script defer src="js/ad-manager.js"></script>
-  <script defer src="js/ads-init.js"></script>
-  <script defer src="js/bottom-nav.js"></script>
+</div>
+<script defer src="js/bottom-nav.js"></script>
   <script src="js/splash.js"></script>
 </body>
 </html>

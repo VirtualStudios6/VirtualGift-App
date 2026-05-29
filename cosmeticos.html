@@ -1,14 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-      <style>.adsbygoogle{display:block}.ads-container{margin:16px 0;overflow:hidden;text-align:center}</style>
-  <script>(function(){if(window.Capacitor?.isNativePlatform?.())return;if(location.hostname!=='virtualgift.pro')return;var s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1930529129644930';document.head.appendChild(s)})();</script>
-
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#06011c">
   <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
-  <title>Cosméticos — VirtualGift</title>
+  <title>cosmeticos � VirtualGift</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
@@ -23,7 +20,7 @@
   <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js" defer></script>
   <style>.lucide{width:1em;height:1em;vertical-align:-0.125em;display:inline-block}.icon-lg{width:2rem !important;height:2rem !important}.icon-xl{width:3rem !important;height:3rem !important}</style>
   <style>
-    /* ✅ Reset padding del body que viene de inicio.css/header.css */
+    /* ? Reset padding del body que viene de inicio.css/header.css */
     body {
       padding-top: 0 !important;
     }
@@ -202,7 +199,7 @@
 
   <div class="cosm-header">
     <div class="cosm-header-info">
-      <div class="cosm-title"><i data-lucide="palette" style="width:1.1em;height:1.1em"></i> Cosméticos Fortnite</div>
+      <div class="cosm-title"><i data-lucide="palette" style="width:1.1em;height:1.1em"></i> cosmeticos Fortnite</div>
       <div class="cosm-subtitle" id="cosmSubtitle">Cargando...</div>
     </div>
   </div>
@@ -210,7 +207,7 @@
   <div class="search-section">
     <div class="search-bar">
       <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-      <input class="search-input" id="searchInput" type="text" placeholder="Buscar cosméticos..." autocomplete="off">
+      <input class="search-input" id="searchInput" type="text" placeholder="Buscar cosmeticos..." autocomplete="off">
       <button class="clear-btn" id="clearBtn" onclick="clearSearch()">
         <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
       </button>
@@ -218,9 +215,9 @@
   </div>
 
   <div class="filter-section">
-    <div class="filter-label">Categoría</div>
+    <div class="filter-label">Categor�a</div>
     <div class="cat-chips">
-      <div class="cat-chip active" data-type="" onclick="setCat(this)">🏪 Todo</div>
+      <div class="cat-chip active" data-type="" onclick="setCat(this)">Todo</div>
       <div class="cat-chip" data-type="outfit" onclick="setCat(this)"><i data-lucide="shirt"></i> Skins</div>
       <div class="cat-chip" data-type="emote" onclick="setCat(this)"><i data-lucide="music-2"></i> Emotes</div>
       <div class="cat-chip" data-type="backpack" onclick="setCat(this)"><i data-lucide="backpack"></i> Mochilas</div>
@@ -230,39 +227,28 @@
       <div class="cat-chip" data-type="contrail" onclick="setCat(this)"><i data-lucide="sparkles"></i> Estelas</div>
       <div class="cat-chip" data-type="spray" onclick="setCat(this)"><i data-lucide="paintbrush"></i> Sprays</div>
       <div class="cat-chip" data-type="toy" onclick="setCat(this)"><i data-lucide="toy-brick"></i> Juguetes</div>
-      <div class="cat-chip" data-type="music" onclick="setCat(this)"><i data-lucide="music"></i> Música</div>
+      <div class="cat-chip" data-type="music" onclick="setCat(this)"><i data-lucide="music"></i> M�sica</div>
       <div class="cat-chip" data-type="loadingscreen" onclick="setCat(this)"><i data-lucide="image"></i> Pantallas</div>
       <div class="cat-chip" data-type="banner" onclick="setCat(this)"><i data-lucide="flag"></i> Banners</div>
     </div>
     <div class="filter-label" style="margin-top:4px">Rareza</div>
     <div class="rarity-chips">
       <div class="rarity-chip active" data-rarity="" onclick="setRarity(this)"><i data-lucide="gem"></i> Todas</div>
-      <div class="rarity-chip" data-rarity="mythic" onclick="setRarity(this)"><i data-lucide="star"></i> Mítico</div>
+      <div class="rarity-chip" data-rarity="mythic" onclick="setRarity(this)"><i data-lucide="star"></i> M�tico</div>
       <div class="rarity-chip" data-rarity="legendary" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#f59e0b;margin-right:3px;vertical-align:middle"></span>Legendario</div>
-      <div class="rarity-chip" data-rarity="epic" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#8b5cf6;margin-right:3px;vertical-align:middle"></span>Épico</div>
+      <div class="rarity-chip" data-rarity="epic" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#8b5cf6;margin-right:3px;vertical-align:middle"></span>�pico</div>
       <div class="rarity-chip" data-rarity="rare" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#3b82f6;margin-right:3px;vertical-align:middle"></span>Raro</div>
       <div class="rarity-chip" data-rarity="uncommon" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#22c55e;margin-right:3px;vertical-align:middle"></span>Infrecuente</div>
-      <div class="rarity-chip" data-rarity="common" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#9ca3af;margin-right:3px;vertical-align:middle"></span>Común</div>
+      <div class="rarity-chip" data-rarity="common" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#9ca3af;margin-right:3px;vertical-align:middle"></span>Com�n</div>
       <div class="rarity-chip" data-rarity="icon" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#67e8f9;margin-right:3px;vertical-align:middle"></span>Icon</div>
       <div class="rarity-chip" data-rarity="marvel" onclick="setRarity(this)"><span style="display:inline-block;width:.6em;height:.6em;border-radius:50%;background:#ef4444;margin-right:3px;vertical-align:middle"></span>Marvel</div>
     </div>
   </div>
-
-  <!-- AdSense Display -->
-  <div class="ads-container">
-    <ins class="adsbygoogle"
-         data-ad-client="ca-pub-1930529129644930"
-         data-ad-slot="6388933118"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-  </div>
-
-  <div class="results-info" id="resultsInfo"></div>
+<div class="results-info" id="resultsInfo"></div>
   <div id="cosmGridWrapper">
-    <div class="cosm-loading"><div class="cosm-spinner"></div><p>Cargando cosméticos...</p></div>
+    <div class="cosm-loading"><div class="cosm-spinner"></div><p>Cargando cosmeticos...</p></div>
   </div>
-  <button class="load-more-btn" id="loadMoreBtn" style="display:none" onclick="loadMore()">Cargar más cosméticos</button>
+  <button class="load-more-btn" id="loadMoreBtn" style="display:none" onclick="loadMore()">Cargar m�s cosmeticos</button>
 
   <div class="cosm-overlay" id="cosmOverlay" onclick="closeModal(event)">
     <div class="cosm-modal" id="cosmModal">
@@ -300,8 +286,8 @@
       "icon":"r-icon","marvel":"r-marvel",
     };
     const RARITY_LABEL = {
-      "common":"Común","uncommon":"Infrecuente","rare":"Raro",
-      "epic":"Épico","legendary":"Legendario","mythic":"Mítico",
+      "common":"Com�n","uncommon":"Infrecuente","rare":"Raro",
+      "epic":"�pico","legendary":"Legendario","mythic":"M�tico",
       "icon":"Serie Icon","marvel":"Serie Marvel",
     };
 
@@ -309,12 +295,12 @@
       const r = String(rarity || "").toLowerCase();
       if (r.includes("icon")) return "icon";
       if (r.includes("marvel")) return "marvel";
-      if (r.includes("mythic")||r.includes("mítico")||r.includes("mitico")) return "mythic";
+      if (r.includes("mythic")||r.includes("m�tico")||r.includes("mitico")) return "mythic";
       if (r.includes("legendary")||r.includes("legendario")) return "legendary";
-      if (r.includes("epic")||r.includes("épico")||r.includes("epico")) return "epic";
+      if (r.includes("epic")||r.includes("�pico")||r.includes("epico")) return "epic";
       if (r.includes("rare")||r.includes("raro")) return "rare";
       if (r.includes("uncommon")||r.includes("infrecuente")) return "uncommon";
-      if (r.includes("common")||r.includes("común")||r.includes("comun")) return "common";
+      if (r.includes("common")||r.includes("com�n")||r.includes("comun")) return "common";
       return null;
     }
 
@@ -342,10 +328,10 @@
           const rb = RARITY_ORDER.indexOf(getRarityKey(b?.rarity?.value||""));
           return (ra===-1?99:ra)-(rb===-1?99:rb);
         });
-        document.getElementById('cosmSubtitle').textContent = `${allItems.length.toLocaleString()} cosméticos`;
+        document.getElementById('cosmSubtitle').textContent = `${allItems.length.toLocaleString()} cosmeticos`;
         applyFilters();
       } catch(e) {
-        document.getElementById('cosmGridWrapper').innerHTML = `<div class="cosm-loading"><p style="color:#ef4444">Error cargando cosméticos.</p></div>`;
+        document.getElementById('cosmGridWrapper').innerHTML = `<div class="cosm-loading"><p style="color:#ef4444">Error cargando cosmeticos.</p></div>`;
       }
     }
 
@@ -388,7 +374,7 @@
 
       if (reset) {
         if (!filteredItems.length) {
-          wrapper.innerHTML = `<div class="cosm-empty"><div class="cosm-empty-icon">🔍</div><p>No se encontraron cosméticos</p></div>`;
+          wrapper.innerHTML = `<div class="cosm-empty"><div class="cosm-empty-icon">COS</div><p>No se encontraron cosmeticos</p></div>`;
           document.getElementById('loadMoreBtn').style.display = 'none';
           document.getElementById('resultsInfo').innerHTML = '';
           return;
@@ -448,7 +434,7 @@
       document.getElementById('modalInfo').innerHTML = `
         <div class="modal-rarity-bar" style="background:${getSolid(rarity)}"></div>
         <div class="modal-name">${escHtml(it?.name||"Item")}</div>
-        <div class="modal-type">${escHtml(getRarityLabel(rarity))} · ${escHtml(typeLabel)}</div>
+        <div class="modal-type">${escHtml(getRarityLabel(rarity))} � ${escHtml(typeLabel)}</div>
         ${it?.description?`<div class="modal-desc">${escHtml(it.description)}</div>`:''}
         ${tags?`<div class="modal-tags">${tags}</div>`:''}
         ${isMusic(it)?`<div id="audioSection"><div class="modal-audio-player"><span class="audio-loading"><i data-lucide="music" style="width:1em;height:1em"></i> Cargando audio...</span></div></div>`:''}`;

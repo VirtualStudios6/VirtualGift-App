@@ -1,7 +1,5 @@
-/* ═══════════════════════════════════════════════
-   COMUNIDAD.JS — VirtualGift
-   Ranking de Coins + Actividad Reciente + Stats
-═══════════════════════════════════════════════ */
+/* COMUNIDAD.JS - VirtualGift
+   Ranking de Coins + Actividad Reciente + Stats */
 'use strict';
 
 let currentUid = null;
@@ -80,13 +78,13 @@ async function loadStats() {
       const count = statsDoc.exists ? (statsDoc.data().userCount || null) : null;
       document.getElementById('statUsers').textContent = count ? count.toLocaleString() : '500+';
     } catch (_) {
-      document.getElementById('statUsers').textContent = '500+';
+      document.getElementById('statUsers').textContent   = '--';
     }
   } catch (e) {
     console.warn('[comunidad] loadStats', e);
-    document.getElementById('statSorteos').textContent = '—';
-    document.getElementById('statGiros').textContent   = '—';
-    document.getElementById('statUsers').textContent   = '—';
+    document.getElementById('statSorteos').textContent = '--';
+    document.getElementById('statGiros').textContent   = '--';
+    document.getElementById('statUsers').textContent   = '--';
   }
 }
 
@@ -112,7 +110,7 @@ window.loadRanking = async function () {
       .get();
 
     if (snap.empty) {
-      podium.innerHTML = '<div class="empty-state" style="grid-column:1/-1">Sin datos de ranking aún.</div>';
+      podium.innerHTML = '<div class="empty-state" style="grid-column:1/-1">Sin datos de ranking aun.</div>';
       list.innerHTML = '';
       return;
     }
@@ -123,7 +121,7 @@ window.loadRanking = async function () {
 
     // Podium visual order: #2 (left), #1 (center, taller), #3 (right)
     const ORDER  = [top3[1], top3[0], top3[2]];
-    const MEDALS = ['🥈', '🥇', '🥉'];
+    const MEDALS = ['&#x1F948;', '&#x1F947;', '&#x1F949;'];
     const CLASSES = ['podium-item--2', 'podium-item--1', 'podium-item--3'];
     const HEIGHTS = ['120px', '146px', '108px'];
 
@@ -134,13 +132,13 @@ window.loadRanking = async function () {
       const isMe   = u.id === currentUid;
       const color  = avatarColor(u.id);
       const initls = initials(u.displayName || u.email || 'U');
-      const youTag = isMe ? ' <span class="rank-you">Tú</span>' : '';
+      const youTag = isMe ? ' <span class="rank-you">Tu</span>' : '';
       return `
         <div class="podium-item ${CLASSES[i]}" style="min-height:${HEIGHTS[i]}">
           <span class="podium-medal">${MEDALS[i]}</span>
           <div class="podium-avatar" style="background:${color}">${initls}</div>
           <span class="podium-name">${name}${youTag}</span>
-          <span class="podium-coins">🪙 ${coins}</span>
+          <span class="podium-coins">&#x1FA99; ${coins}</span>
           <span class="podium-rank-num">#${u.rank}</span>
         </div>`;
     }).join('');
@@ -151,13 +149,13 @@ window.loadRanking = async function () {
       const isMe   = u.id === currentUid;
       const color  = avatarColor(u.id);
       const initls = initials(u.displayName || u.email || 'U');
-      const youTag = isMe ? ' <span class="rank-you">Tú</span>' : '';
+      const youTag = isMe ? ' <span class="rank-you">Tu</span>' : '';
       return `
         <div class="rank-row">
           <span class="rank-num">#${u.rank}</span>
           <div class="rank-avatar" style="background:${color}">${initls}</div>
           <span class="rank-name">${name}${youTag}</span>
-          <span class="rank-coins">🪙 ${coins}</span>
+          <span class="rank-coins">&#x1FA99; ${coins}</span>
         </div>`;
     }).join('') || '';
 
@@ -167,17 +165,18 @@ window.loadRanking = async function () {
       try {
         const myDoc  = await window.db.collection('users').doc(currentUid).get();
         const myData = myDoc.data() || {};
-        const myName = esc(anonymize(myData.displayName || myData.email || 'Tú'));
+        const myName = esc(anonymize(myData.displayName || myData.email || 'Tu'));
         const myInitls = initials(myData.displayName || myData.email || 'U');
         myCard.style.display = 'block';
         myCard.innerHTML = `
           <div class="my-rank-card">
-            <span class="rank-num" style="color:#a78bfa;width:auto;">Tú</span>
+            <span class="rank-num" style="color:#a78bfa;width:auto;">Tu</span>
             <div class="rank-avatar" style="background:${avatarColor(currentUid)}">${myInitls}</div>
-            <span class="rank-name">${myName} <span class="rank-you">Tú</span></span>
-            <span class="rank-coins">🪙 ${(myData.points || 0).toLocaleString()}</span>
+            <span class="rank-name">${myName} <span class="rank-you">Tu</span></span>
+            <span class="rank-coins">&#x1FA99; ${(myData.points || 0).toLocaleString()}</span>
           </div>`;
-      } catch (_) { /* ignore */ }
+      } catch (_) { /* COMUNIDAD.JS - VirtualGift
+   Ranking de Coins + Actividad Reciente + Stats */ }
     }
 
   } catch (e) {
@@ -199,7 +198,7 @@ async function loadActivity() {
       .get();
 
     if (snap.empty) {
-      actList.innerHTML = '<div class="empty-state">Nadie ha participado aún. ¡Sé el primero!</div>';
+      actList.innerHTML = '<div class="empty-state">Nadie ha participado aun. Se el primero!</div>';
       return;
     }
 
@@ -234,7 +233,7 @@ async function loadActivity() {
       const raffleName = esc(raffleMap[d.raffleId] || 'un sorteo');
       const rawName    = userMap[d.userId] || null;
       const isMe       = d.userId === currentUid;
-      const displayName = isMe ? 'Tú' : anonymize(rawName || `Usuario #${(d.userId || '').slice(0, 5)}`);
+      const displayName = isMe ? 'Tu' : anonymize(rawName || `Usuario #${(d.userId || '').slice(0, 5)}`);
       const color      = avatarColor(d.userId || doc.id);
       const initls     = initials(rawName || 'U');
       const timeStr    = timeAgo(d.enteredAt);
@@ -244,11 +243,11 @@ async function loadActivity() {
           <div class="activity-avatar" style="background:${color}">${initls}</div>
           <div class="activity-body">
             <div class="activity-text">
-              <strong>${esc(displayName)}</strong> participó en <strong>${raffleName}</strong>
+              <strong>${esc(displayName)}</strong> participo en <strong>${raffleName}</strong>
             </div>
             <div class="activity-time">${timeStr}</div>
           </div>
-          <span class="activity-icon">🎫</span>
+          <span class="activity-icon">&#x1F3AB;</span>
         </div>`;
     }).join('');
 

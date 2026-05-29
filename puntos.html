@@ -1,10 +1,7 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-      <style>.adsbygoogle{display:block}.ads-container{margin:16px 0;overflow:hidden;text-align:center}</style>
-  <script>if(!window.Capacitor?.isNativePlatform?.())(function(){var s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1930529129644930';document.head.appendChild(s)})();</script>
-
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#06011c">
     <title>Mis Puntos - VirtualGift</title>
@@ -67,7 +64,7 @@
         .checkin-day-label   { font-size: 9px; color: rgba(220,239,255,0.45); font-weight: 600; font-family: var(--font); }
         .checkin-day.today .checkin-day-label { color: rgba(192,132,252,0.85); }
         .checkin-day-coins   { font-size: 11px; font-weight: 800; color: #ffc837; margin-top: 3px; font-family: var(--font); }
-        .checkin-day.done .checkin-day-coins::before { content: '✓ '; }
+        .checkin-day.done .checkin-day-coins::before { content: '? '; }
         .checkin-btn {
             width: 100%; padding: 13px; border-radius: 12px;
             background: linear-gradient(90deg, #8d17fb, #70189b);
@@ -254,56 +251,31 @@
                     </svg>
                 </div>
                 <div class="points-label">Tus VirtualCoins</div>
-                <div class="points-balance" id="totalPoints">—</div>
-                <div class="points-conversion">≈ $<span id="dollarValue">0.00</span> USD</div>
+                <div class="points-balance" id="totalPoints">�</div>
+                <div class="points-conversion">� $<span id="dollarValue">0.00</span> USD</div>
             </div>
 
             <!-- COLUMNA DERECHA: check-in + canje -->
             <div id="points-right">
-
-                <!-- VER ANUNCIOS -->
-                <div class="checkin-card ads-promo-card" onclick="window.location.href=withAppFlag('anuncios.html')">
-                    <div class="checkin-top">
-                        <div class="checkin-title">🎬 Ver Anuncios</div>
-                        <div class="checkin-streak ads-promo-streak">+50 por anuncio</div>
-                    </div>
-                    <p class="ads-promo-desc">Gana hasta 500 coins diarios viendo anuncios cortos</p>
-                    <button class="checkin-btn ads-promo-btn" onclick="event.stopPropagation(); window.location.href=withAppFlag('anuncios.html')">
-                        Ir a ver anuncios →
-                    </button>
-                </div>
-
-                <!-- CHECK-IN RACHA -->
+<!-- CHECK-IN RACHA -->
                 <div class="checkin-card">
                     <div class="checkin-top">
                         <div class="checkin-title"><i data-lucide="flame"></i> Recompensa Diaria</div>
-                        <div class="checkin-streak" id="streakBadge"><i data-lucide="flame"></i> 0 días</div>
+                        <div class="checkin-streak" id="streakBadge"><i data-lucide="flame"></i> 0 d�as</div>
                     </div>
                     <div class="checkin-days" id="checkinDays"></div>
                     <button class="checkin-btn" id="checkinBtn" onclick="doCheckin()" disabled>
                         Cargando...
                     </button>
                 </div>
-
-                <!-- AdSense Article -->
-                <div class="ads-container">
-                  <ins class="adsbygoogle"
-                       data-ad-client="ca-pub-1930529129644930"
-                       data-ad-slot="4852490161"
-                       data-ad-format="fluid"
-                       data-ad-layout="in-article"
-                       data-full-width-responsive="true"></ins>
-                  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-                </div>
-
-                <!-- CANJE -->
+<!-- CANJE -->
                 <div class="redeem-section">
                     <div class="section-header">
                         <h2 class="section-title"><i data-lucide="target"></i> Canjear VirtualCoins</h2>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 16px;">
-                        <label class="form-label">¿Cuántos VirtualCoins quieres canjear?</label>
+                        <label class="form-label">�Cu�ntos VirtualCoins quieres canjear?</label>
                         <div class="redeem-input-wrap">
                             <span class="coin-prefix"><i data-lucide="coins" style="width:1.1em;height:1.1em"></i></span>
                             <input
@@ -318,11 +290,11 @@
                         </div>
                         <div class="redeem-usd-preview" id="redeemUsdPreview">$0.00 USD</div>
                         <div class="redeem-error" id="redeemError"></div>
-                        <div class="redeem-hint">Mínimo 20.000 · Múltiplo de 1.000 · 1.000 puntos = $1 USD</div>
+                        <div class="redeem-hint">M�nimo 20.000 � M�ltiplo de 1.000 � 1.000 puntos = $1 USD</div>
                     </div>
 
                     <label class="form-label" style="display:block; margin-bottom: 10px;">
-                        ¿Dónde quieres recibir el dinero?
+                        �D�nde quieres recibir el dinero?
                     </label>
 
                     <div class="platforms-grid">
@@ -364,7 +336,7 @@
                         </div>
                         <button type="button" class="hist-more" id="historyLoadMore"
                             onclick="loadHistory(window._historyUserId, true)">
-                            Ver más
+                            Ver m�s
                         </button>
                     </div>
                 </div>
@@ -381,28 +353,28 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title" id="modalPlatformName">Canjear</h3>
-                <button class="modal-close" id="closeRedeemModal">✕</button>
+                <button class="modal-close" id="closeRedeemModal">?</button>
             </div>
             <div class="modal-body">
                 <div class="modal-summary">
                     <div class="summary-row">
                         <span class="summary-label">VirtualCoins a canjear</span>
-                        <span class="summary-value" id="modalRedeemPoints">—</span>
+                        <span class="summary-value" id="modalRedeemPoints">�</span>
                     </div>
                     <div class="summary-row">
-                        <span class="summary-label">Recibirás</span>
-                        <span class="summary-value" id="modalRedeemUSD">—</span>
+                        <span class="summary-label">Recibir�s</span>
+                        <span class="summary-value" id="modalRedeemUSD">�</span>
                     </div>
                     <div class="summary-row">
                         <span class="summary-label">Tiempo estimado</span>
-                        <span class="summary-value">24 – 48 horas</span>
+                        <span class="summary-value">24 � 48 horas</span>
                     </div>
                 </div>
                 <form id="redeemForm" class="redeem-form">
                     <div class="form-group">
                         <label class="form-label">Nombre completo</label>
                         <input type="text" id="redeemFullName" class="form-input"
-                            placeholder="Ej: Juan Pérez" autocomplete="name" required />
+                            placeholder="Ej: Juan P�rez" autocomplete="name" required />
                     </div>
                     <div class="form-group">
                         <label class="form-label" id="redeemAccountLabel">Cuenta</label>
@@ -417,7 +389,7 @@
         </div>
     </div>
 
-    <!-- PANTALLA ÉXITO CANJE -->
+    <!-- PANTALLA �XITO CANJE -->
     <div id="redeemSuccess" class="rs-screen">
       <div class="rs-inner">
         <div class="rs-rings">
@@ -425,9 +397,9 @@
           <div class="rs-ring r2"></div>
           <div class="rs-ring r3"></div>
         </div>
-        <div class="rs-icon">🎁</div>
-        <h2 class="rs-title">¡Solicitud enviada!</h2>
-        <p class="rs-sub">Tu canje está en proceso</p>
+        <div class="rs-icon">OK</div>
+        <h2 class="rs-title">�Solicitud enviada!</h2>
+        <p class="rs-sub">Tu canje est� en proceso</p>
         <div class="rs-chip" id="rsChip"></div>
         <div class="rs-stats">
           <div class="rs-stat">
@@ -437,15 +409,15 @@
           <div class="rs-stat-div"></div>
           <div class="rs-stat">
             <span class="rs-stat-val" id="rsUsd"></span>
-            <span class="rs-stat-label">Recibirás</span>
+            <span class="rs-stat-label">Recibir�s</span>
           </div>
         </div>
         <p class="rs-note">
           Enviaremos tu <strong id="rsPlatform"></strong> al correo<br>
           <strong id="rsAccount"></strong><br>
-          en un máximo de 24–48 horas ⏱
+          en un m�ximo de 24�48 horas ?
         </p>
-        <button type="button" class="rs-btn" onclick="closeRedeemSuccess()">Entendido 👍</button>
+        <button type="button" class="rs-btn" onclick="closeRedeemSuccess()">Entendido</button>
       </div>
     </div>
 
@@ -463,11 +435,7 @@
     <script defer src="js/notification-badge.js"></script>
     <script defer src="js/puntos.js"></script>
 <script>document.addEventListener('DOMContentLoaded', function() { if(window.lucide)lucide.createIcons(); });</script>
-  <script defer src="js/admob.js"></script>
-  <script defer src="js/unity-ads.js"></script>
-  <script defer src="js/ad-manager.js"></script>
-  <script defer src="js/ads-init.js"></script>
-  <script defer src="js/bottom-nav.js"></script>
+<script defer src="js/bottom-nav.js"></script>
   <script src="js/splash.js"></script>
 </body>
 </html>

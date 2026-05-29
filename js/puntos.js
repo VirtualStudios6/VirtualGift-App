@@ -1,4 +1,4 @@
-﻿/* ============================================ */
+/* ============================================ */
 /* CONSTANTES */
 /* ============================================ */
 const POINTS_CACHE_KEY      = "vg_points_cache";
@@ -65,7 +65,7 @@ function showModal(title, message, buttons = [{ label: 'OK', primary: true }]) {
 }
 
 /* ============================================ */
-/* CACHÉ DE PUNTOS */
+/* CACH� DE PUNTOS */
 /* ============================================ */
 function getCachedPoints() {
   try {
@@ -147,7 +147,7 @@ function buildCheckinUI(streak, alreadyDone) {
   const badge = document.getElementById('streakBadge');
   if (!days || !btn || !badge) return;
 
-  badge.textContent = `🔥 ${streak} día${streak !== 1 ? 's' : ''}`;
+  badge.textContent = `?? ${streak} d�a${streak !== 1 ? 's' : ''}`;
 
   let html = '';
   CHECKIN_REWARDS.forEach((coins, i) => {
@@ -157,18 +157,18 @@ function buildCheckinUI(streak, alreadyDone) {
     if (done)    cls += ' done';
     if (isToday) cls += ' today';
     html += `<div class="${cls}">
-      <div class="checkin-day-label">Día ${i + 1}</div>
-      <div class="checkin-day-coins">🪙${coins}</div>
+      <div class="checkin-day-label">D�a ${i + 1}</div>
+      <div class="checkin-day-coins">${coins} VC</div>
     </div>`;
   });
   days.innerHTML = html;
 
   if (alreadyDone) {
-    btn.textContent = '✅ Ya reclamaste hoy';
+    btn.textContent = 'Ya reclamaste hoy';
     btn.disabled = true;
   } else {
     const reward = CHECKIN_REWARDS[streak % 7];
-    btn.textContent = `🎁 Reclamar +${reward} coins`;
+    btn.textContent = `Reclamar +${reward} coins`;
     btn.disabled = false;
   }
 }
@@ -211,7 +211,7 @@ window.doCheckin = async function() {
     const yesterdayStr = yesterday.toDateString();
 
     if (lastCheckin && lastCheckin.toDateString() === todayStr) {
-      showVcToast('✅ Ya reclamaste hoy');
+      showVcToast('Ya reclamaste hoy');
       buildCheckinUI(streak, true);
       return;
     }
@@ -223,10 +223,10 @@ window.doCheckin = async function() {
     await userRef.set({
       checkinStreak: newStreak,
       lastCheckin: firebase.firestore.Timestamp.now(),
-      points: firebase.firestore.FieldValue.increment(reward), // atómico — nunca sobreescribe
+      points: firebase.firestore.FieldValue.increment(reward), // at�mico � nunca sobreescribe
     }, { merge: true });
 
-    const newPts = (data.points || 0) + reward; // actualizar variable local después del write
+    const newPts = (data.points || 0) + reward; // actualizar variable local despu�s del write
 
     await window.db.collection('pointsHistory').add({
       userId: user.uid,
@@ -236,17 +236,17 @@ window.doCheckin = async function() {
       createdAt: firebase.firestore.Timestamp.now(),
     });
 
-    // ✅ FIX: sincronizar global + caché después del check-in
+    // ? FIX: sincronizar global + cach� despu�s del check-in
     currentUserPoints = newPts;
     updateBalanceUI(newPts);
     setCachedPoints(newPts);
 
-    showVcToast(`🎉 +${reward} coins! Racha: ${newStreak} días 🔥`);
+    showVcToast(`?? +${reward} coins! Racha: ${newStreak} d�as ??`);
     buildCheckinUI(newStreak, true);
 
   } catch(e) {
     console.error('doCheckin error:', e);
-    showVcToast('❌ Error al reclamar');
+    showVcToast('Error al reclamar');
     btn.disabled = false;
     btn.textContent = 'Intentar de nuevo';
   }
@@ -257,10 +257,10 @@ window.doCheckin = async function() {
 /* ============================================ */
 const PLATFORM_LABELS = {
   paypal:     { name: 'PayPal',           field: 'Correo de PayPal',   placeholder: 'ejemplo@paypal.com' },
-  amazon:     { name: 'Amazon Gift Card', field: 'Correo electrónico', placeholder: 'ejemplo@email.com'  },
-  steam:      { name: 'Steam Wallet',     field: 'Correo electrónico', placeholder: 'ejemplo@email.com'  },
-  googleplay: { name: 'Google Play',      field: 'Correo electrónico', placeholder: 'ejemplo@gmail.com'  },
-  psn:        { name: 'PlayStation',      field: 'Correo electrónico', placeholder: 'ejemplo@email.com'  },
+  amazon:     { name: 'Amazon Gift Card', field: 'Correo electr�nico', placeholder: 'ejemplo@email.com'  },
+  steam:      { name: 'Steam Wallet',     field: 'Correo electr�nico', placeholder: 'ejemplo@email.com'  },
+  googleplay: { name: 'Google Play',      field: 'Correo electr�nico', placeholder: 'ejemplo@gmail.com'  },
+  psn:        { name: 'PlayStation',      field: 'Correo electr�nico', placeholder: 'ejemplo@email.com'  },
 };
 
 function setupPlatformCards() {
@@ -304,8 +304,8 @@ function validateRedeemForm() {
   const val = parseInt(input?.value, 10) || 0;
 
   let error = '';
-  if (val > 0 && val < MIN_REDEEM_POINTS) error = `Mínimo ${MIN_REDEEM_POINTS.toLocaleString()} coins`;
-  else if (val > 0 && val % 1000 !== 0)  error = 'Debe ser múltiplo de 1.000';
+  if (val > 0 && val < MIN_REDEEM_POINTS) error = `M�nimo ${MIN_REDEEM_POINTS.toLocaleString()} coins`;
+  else if (val > 0 && val % 1000 !== 0)  error = 'Debe ser m�ltiplo de 1.000';
   else if (val > currentUserPoints)       error = 'No tienes suficientes coins';
 
   if (errorEl) {
@@ -336,8 +336,8 @@ function openRedeemModal() {
 
   if (!modal) return;
 
-  if (modalPlatName) modalPlatName.textContent = `Canjear — ${platform.name || ''}`;
-  if (modalPts)      modalPts.textContent      = points.toLocaleString() + ' 🪙';
+  if (modalPlatName) modalPlatName.textContent = `Canjear � ${platform.name || ''}`;
+  if (modalPts)      modalPts.textContent      = points.toLocaleString() + ' VC';
   if (modalUSD)      modalUSD.textContent      = `$${pointsToUSD(points)} USD`;
 
   const label = document.getElementById('redeemAccountLabel');
@@ -377,8 +377,8 @@ async function processRedeem(e) {
   }
 
   const confirmed = await showModal(
-    '¿Confirmar canje?',
-    `VirtualCoins: ${points.toLocaleString()} 🪙\nRecibirás: $${usdAmt} USD\nPlataforma: ${platform.name}\nCuenta: ${account}\n\nTiempo estimado: 24–48 horas.`,
+    '�Confirmar canje?',
+    `VirtualCoins: ${points.toLocaleString()} VC\nRecibir�s: $${usdAmt} USD\nPlataforma: ${platform.name}\nCuenta: ${account}\n\nTiempo estimado: 24�48 horas.`,
     [
       { label: 'Cancelar', primary: false, value: false },
       { label: 'Confirmar', primary: true,  value: true  },
@@ -413,7 +413,7 @@ async function processRedeem(e) {
       createdAt: firebase.firestore.Timestamp.now(),
     });
 
-    // ✅ FIX: sincronizar global + caché después del canje
+    // ? FIX: sincronizar global + cach� despu�s del canje
     currentUserPoints = newPoints;
     updateBalanceUI(newPoints);
     setCachedPoints(newPoints);
@@ -424,19 +424,19 @@ async function processRedeem(e) {
 
   } catch(err) {
     console.error('processRedeem:', err);
-    await showModal('❌ Error', 'No se pudo procesar el canje. Intenta de nuevo.');
+    await showModal('Error', 'No se pudo procesar el canje. Intenta de nuevo.');
     if (btn) { btn.textContent = 'Confirmar'; btn.disabled = false; }
   }
 }
 
 /* ============================================ */
-/* PANTALLA ÉXITO CANJE                        */
+/* PANTALLA �XITO CANJE                        */
 /* ============================================ */
 function openRedeemSuccess(points, usdAmt, platform, account) {
   const screen = document.getElementById('redeemSuccess');
   if (!screen) return;
   document.getElementById('rsChip').textContent     = platform.name || 'Canje exitoso';
-  document.getElementById('rsCoins').textContent    = points.toLocaleString() + ' 🪙';
+  document.getElementById('rsCoins').textContent    = points.toLocaleString() + ' VC';
   document.getElementById('rsUsd').textContent      = '$' + usdAmt + ' USD';
   document.getElementById('rsPlatform').textContent = platform.name || '';
   document.getElementById('rsAccount').textContent  = account;
@@ -464,11 +464,10 @@ const HIST_PAGE = 20;
 let _histLastDoc = null;
 
 const HIST_META = {
-  daily_checkin:  { icon: '🔥', label: 'Check-in diario' },
-  raffle_entry:   { icon: '🎁', label: 'Entrada a sorteo' },
-  redeem:         { icon: '💳', label: 'Canje' },
-  ad_reward:      { icon: '🎬', label: 'Recompensa por anuncio' },
-  referral_bonus: { icon: '👥', label: 'Bono de referido' },
+  daily_checkin:  { icon: 'VC', label: 'Check-in diario' },
+  raffle_entry:   { icon: 'S', label: 'Entrada a sorteo' },
+  redeem:         { icon: 'USD', label: 'Canje' },
+  referral_bonus: { icon: 'REF', label: 'Bono de referido' },
 };
 
 function _histEsc(s) {
@@ -476,7 +475,7 @@ function _histEsc(s) {
 }
 
 function buildHistItem(d) {
-  const meta  = HIST_META[d.type] || { icon: '🪙', label: d.type || 'Movimiento' };
+  const meta  = HIST_META[d.type] || { icon: 'VC', label: d.type || 'Movimiento' };
   const pts   = typeof d.points === 'number' ? d.points : 0;
   const sign  = pts >= 0 ? '+' : '';
   const color = pts >= 0 ? '#22c55e' : '#f43f5e';
@@ -520,7 +519,7 @@ async function loadHistory(userId, append = false) {
     if (!append) container.innerHTML = '';
 
     if (snap.empty && !append) {
-      container.innerHTML = '<p class="hist-empty">Sin movimientos aún</p>';
+      container.innerHTML = '<p class="hist-empty">Sin movimientos a�n</p>';
       if (loadMoreEl) loadMoreEl.style.display = 'none';
       return;
     }
@@ -533,7 +532,7 @@ async function loadHistory(userId, append = false) {
     if (loadMoreEl) loadMoreEl.style.display = snap.size < HIST_PAGE ? 'none' : 'block';
 
   } catch(e) {
-    // Si falta índice compuesto Firebase mostrará en consola el link para crearlo
+    // Si falta �ndice compuesto Firebase mostrar� en consola el link para crearlo
     console.warn('[historial]', e.code, e.message);
     if (!append) container.innerHTML = '<p class="hist-empty">No se pudo cargar el historial</p>';
   }

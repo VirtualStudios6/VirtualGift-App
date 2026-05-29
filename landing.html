@@ -1,30 +1,27 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <script>if(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform()){window.location.replace('splash.html')}</script>
-      <style>.adsbygoogle{display:block}.ads-container{margin:16px 0;overflow:hidden;text-align:center}</style>
-  <script>(function(){if(window.Capacitor?.isNativePlatform?.())return;if(location.hostname!=='virtualgift.pro')return;var s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1930529129644930';document.head.appendChild(s)})();</script>
-
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
   <!-- SEO -->
-  <meta name="description" content="VirtualGift — Participa en sorteos gratuitos con Coins virtuales y gana Gift Cards reales de Amazon, PlayStation, Netflix y más. ¡Sin dinero real, pura diversión!">
+  <meta name="description" content="VirtualGift - Participa en sorteos gratuitos con Coins virtuales y gana Gift Cards reales de Amazon, PlayStation, Netflix y mas. Sin dinero real, pura diversion!">
   <meta name="keywords" content="sorteos gratis, gift cards, premios, coins virtuales, rifas online, amazon gift card, playstation, netflix gratis">
   <meta name="author" content="VirtualStudios">
   <meta name="robots" content="index, follow">
 
   <!-- Open Graph -->
   <meta property="og:type"        content="website">
-  <meta property="og:title"       content="VirtualGift — Gana Gift Cards Jugando Gratis">
+  <meta property="og:title"       content="VirtualGift - Gana Gift Cards Jugando Gratis">
   <meta property="og:description" content="Participa en sorteos con Coins virtuales y gana gift cards reales. Completamente gratis.">
   <meta property="og:image"       content="images/logo-virtual-login.png">
   <meta property="og:locale"      content="es_ES">
 
   <!-- Twitter Card -->
   <meta name="twitter:card"        content="summary_large_image">
-  <meta name="twitter:title"       content="VirtualGift — Gana Gift Cards Jugando Gratis">
-  <meta name="twitter:description" content="Sorteos gratuitos con premios reales. ¡Regístrate y recibe 175 Coins de bienvenida!">
+  <meta name="twitter:title"       content="VirtualGift - Gana Gift Cards Jugando Gratis">
+  <meta name="twitter:description" content="Sorteos gratuitos con premios reales. Registrate y recibe 175 Coins de bienvenida!">
   <meta name="twitter:image"       content="https://virtualgift.pro/images/logo-virtual-login.png">
 
   <!-- Canonical & Web App -->
@@ -37,7 +34,7 @@
   <meta name="theme-color" content="#06011c">
   <link rel="icon" href="images/logo-virtual-login.png">
   <link rel="apple-touch-icon" href="images/logo-virtual-login.png">
-  <title>VirtualGift — Gana Gift Cards Jugando Gratis</title>
+  <title>VirtualGift - Gana Gift Cards Jugando Gratis</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1043,6 +1040,88 @@
       }
       .winners-track { animation: none; }
     }
+
+    /* ===================== DESKTOP WEB HOME ===================== */
+    .desktop-home { display: none; }
+
+    @media (min-width: 960px) {
+      html { scroll-behavior: smooth; }
+      body { background: #060713; color: #f7f5ff; }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(180deg, rgba(125, 62, 255, 0.12), transparent 300px), radial-gradient(circle at 50% 0%, rgba(255, 196, 67, 0.12), transparent 340px);
+        z-index: -2;
+      }
+      main > :not(.desktop-home) { display: none !important; }
+      .desktop-home { display: block; padding: 92px 0 86px; min-height: 100vh; }
+      .dg-shell { width: min(1320px, calc(100% - 56px)); margin: 0 auto; }
+      .dg-bonus { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 16px; min-height: 58px; padding: 10px 14px; border: 1px solid rgba(255,255,255,.12); border-radius: 8px; background: rgba(13,14,31,.86); box-shadow: 0 16px 50px rgba(0,0,0,.32); }
+      .dg-bonus strong, .dg-section h2, .dg-hero-copy h1, .dg-card-title, .dg-step strong { letter-spacing: 0; }
+      .dg-badge { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border: 1px solid rgba(76,241,152,.35); border-radius: 999px; color: #58f0a2; background: rgba(4,112,66,.18); font-weight: 900; font-size: 12px; text-transform: uppercase; }
+      .dg-badge::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #28f28f; box-shadow: 0 0 14px rgba(40,242,143,.75); }
+      .dg-bonus-copy { display: flex; align-items: center; gap: 10px; min-width: 0; color: #c9c2f5; font-weight: 700; }
+      .dg-bonus-copy strong { color: #fff; font-size: 15px; }
+      .dg-chip { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 0 12px; border: 1px solid rgba(255,255,255,.12); border-radius: 8px; color: #efeaff; background: rgba(255,255,255,.06); font-size: 12px; font-weight: 900; white-space: nowrap; }
+      .dg-primary, .dg-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; padding: 0 18px; border-radius: 8px; font-weight: 1000; text-decoration: none; }
+      .dg-primary { border: 0; color: #170827; background: linear-gradient(135deg, #ffd64a, #ff9d2f); box-shadow: 0 12px 28px rgba(255,170,43,.28); }
+      .dg-secondary { border: 1px solid rgba(168,124,255,.38); color: #f4eeff; background: rgba(122,58,255,.16); }
+      .dg-hero { display: grid; grid-template-columns: minmax(0, .82fr) minmax(620px, 1.18fr); gap: 22px; align-items: stretch; margin-top: 18px; }
+      .dg-hero-copy { min-height: 510px; padding: 42px; border: 1px solid rgba(255,255,255,.12); border-radius: 8px; background: linear-gradient(145deg, rgba(120,52,255,.26), rgba(13,14,31,.92) 48%, rgba(9,10,22,.96)), url('images/banner-sorteos/1.png') center/cover; background-blend-mode: overlay; box-shadow: 0 24px 70px rgba(0,0,0,.38); overflow: hidden; }
+      .dg-kicker { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border-radius: 999px; color: #ffc94b; background: rgba(255,200,73,.12); border: 1px solid rgba(255,200,73,.28); font-size: 12px; font-weight: 1000; text-transform: uppercase; }
+      .dg-hero-copy h1 { margin: 22px 0 16px; max-width: 650px; color: #fff; font-size: clamp(46px, 4.9vw, 76px); line-height: .94; font-weight: 1000; }
+      .dg-hero-copy h1 span { display: block; color: #b590ff; }
+      .dg-hero-copy p { max-width: 560px; margin: 0 0 26px; color: #cfc7f6; font-size: 17px; line-height: 1.7; }
+      .dg-hero-actions { display: flex; gap: 12px; margin-bottom: 30px; }
+      .dg-mini-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; max-width: 570px; }
+      .dg-mini-stats div { padding: 14px; border-radius: 8px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); }
+      .dg-mini-stats b { display: block; color: #fff; font-size: 21px; }
+      .dg-mini-stats span { color: #a89fd2; font-size: 12px; font-weight: 800; }
+      .dg-hero-board { display: grid; grid-template-rows: auto 1fr; gap: 14px; }
+      .dg-board-top { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+      .dg-mode-card { min-height: 138px; padding: 16px; border-radius: 8px; border: 1px solid rgba(255,255,255,.12); background: rgba(12,13,29,.92); overflow: hidden; position: relative; text-decoration: none; color: inherit; }
+      .dg-mode-card img { position: absolute; right: -24px; bottom: -28px; width: 130px; height: 130px; object-fit: cover; border-radius: 8px; opacity: .72; }
+      .dg-mode-card strong { position: relative; display: block; font-size: 18px; color: #fff; z-index: 1; }
+      .dg-mode-card span { position: relative; display: block; margin-top: 6px; color: #9f96c8; font-size: 12px; font-weight: 800; z-index: 1; }
+      .dg-board-main { display: grid; grid-template-columns: 1fr .88fr; gap: 14px; min-height: 358px; }
+      .dg-live-panel, .dg-race-panel { border: 1px solid rgba(255,255,255,.12); border-radius: 8px; background: rgba(10,11,25,.94); overflow: hidden; }
+      .dg-panel-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,.09); }
+      .dg-panel-head strong { color: #fff; font-size: 16px; }
+      .dg-panel-head span { color: #ffc94b; font-size: 12px; font-weight: 1000; }
+      .dg-prize-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; padding: 14px; }
+      .dg-prize-tile { min-height: 128px; padding: 12px; border-radius: 8px; background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03)); border: 1px solid rgba(255,255,255,.10); text-decoration: none; }
+      .dg-prize-tile img { width: 76px; height: 52px; object-fit: contain; display: block; margin-bottom: 12px; }
+      .dg-prize-tile strong { display: block; color: #fff; font-size: 14px; }
+      .dg-prize-tile span { color: #ffc94b; font-size: 12px; font-weight: 900; }
+      .dg-race-panel { padding-bottom: 12px; }
+      .dg-racer { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 10px; margin: 12px 14px 0; padding: 10px; border-radius: 8px; background: rgba(255,255,255,.055); border: 1px solid rgba(255,255,255,.08); }
+      .dg-racer i { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 8px; color: #12051f; background: #ffc94b; font-style: normal; font-weight: 1000; }
+      .dg-racer strong { color: #fff; font-size: 13px; }
+      .dg-racer span { color: #9f96c8; font-size: 12px; font-weight: 800; }
+      .dg-section { margin-top: 38px; }
+      .dg-section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+      .dg-section h2 { margin: 0; color: #fff; font-size: 28px; font-weight: 1000; }
+      .dg-section-head p { margin: 5px 0 0; color: #948abf; font-weight: 700; }
+      .dg-card-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+      .dg-card { min-height: 250px; padding: 14px; border: 1px solid rgba(255,255,255,.11); border-radius: 8px; background: rgba(11,12,27,.94); text-decoration: none; color: inherit; transition: transform 180ms ease, border-color 180ms ease, background 180ms ease; }
+      .dg-card:hover { transform: translateY(-3px); border-color: rgba(255,201,75,.45); background: rgba(16,17,36,.98); }
+      .dg-card-media { display: grid; place-items: center; height: 134px; margin-bottom: 13px; border-radius: 8px; background: linear-gradient(135deg, rgba(126,72,255,.24), rgba(255,201,75,.08)); border: 1px solid rgba(255,255,255,.08); overflow: hidden; }
+      .dg-card-media img { max-width: 82%; max-height: 92px; object-fit: contain; }
+      .dg-game .dg-card-media img { width: 100%; height: 100%; max-width: none; max-height: none; object-fit: cover; }
+      .dg-card-title { display: block; color: #fff; font-size: 16px; font-weight: 1000; }
+      .dg-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; color: #a99fce; font-size: 12px; font-weight: 800; }
+      .dg-price { color: #ffc94b; font-weight: 1000; }
+      .dg-brand-row { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
+      .dg-brand { display: grid; place-items: center; height: 86px; border: 1px solid rgba(255,255,255,.1); border-radius: 8px; background: rgba(12,13,29,.82); }
+      .dg-brand img { max-width: 104px; max-height: 54px; object-fit: contain; }
+      .dg-how { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+      .dg-step { min-height: 150px; padding: 18px; border: 1px solid rgba(255,255,255,.11); border-radius: 8px; background: rgba(11,12,27,.94); }
+      .dg-step span { display: grid; place-items: center; width: 38px; height: 38px; margin-bottom: 16px; border-radius: 8px; background: #7c4dff; color: #fff; font-weight: 1000; }
+      .dg-step strong { display: block; margin-bottom: 8px; color: #fff; font-size: 17px; }
+      .dg-step p { margin: 0; color: #a99fce; line-height: 1.55; font-weight: 700; }
+    }
   </style>
 </head>
 
@@ -1058,7 +1137,7 @@
   <canvas id="particles" aria-hidden="true"></canvas>
 
   <!-- ===================== NAV ===================== -->
-  <nav class="nav" role="navigation" aria-label="Navegación principal">
+  <nav class="nav" role="navigation" aria-label="Navegacion principal">
     <div class="nav-inner">
       <a class="nav-logo" href="landing.html" aria-label="VirtualGift inicio">
         <img src="images/logo-virtual-login.png" alt="VirtualGift Logo" width="34" height="34">
@@ -1066,15 +1145,15 @@
       </a>
 
       <ul class="nav-links" role="list">
-        <li><a href="#features">Características</a></li>
-        <li><a href="#how-it-works">Cómo funciona</a></li>
+        <li><a href="#features">Caracteristicas</a></li>
+        <li><a href="#how-it-works">Como funciona</a></li>
         <li><a href="#prizes">Premios</a></li>
         <li><a href="#faq">FAQ</a></li>
       </ul>
 
       <div class="nav-cta">
         <a href="login.html" class="btn-nav">Empezar Gratis</a>
-        <button class="nav-hamburger" id="hamburger" aria-label="Abrir menú" aria-expanded="false">
+        <button class="nav-hamburger" id="hamburger" aria-label="Abrir menu" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
       </div>
@@ -1082,26 +1161,106 @@
   </nav>
 
   <!-- Mobile menu -->
-  <div class="nav-mobile" id="navMobile" role="dialog" aria-label="Menú de navegación">
-    <a href="#features" class="nav-mobile-link">Características</a>
-    <a href="#how-it-works" class="nav-mobile-link">Cómo funciona</a>
+  <div class="nav-mobile" id="navMobile" role="dialog" aria-label="Menu de navegacion">
+    <a href="#features" class="nav-mobile-link">Caracteristicas</a>
+    <a href="#how-it-works" class="nav-mobile-link">Como funciona</a>
     <a href="#prizes" class="nav-mobile-link">Premios</a>
     <a href="#faq" class="nav-mobile-link">FAQ</a>
     <a href="login.html" class="btn-nav">Empezar Gratis</a>
   </div>
+<main>
 
-  <!-- ── AdSense Display — arriba del hero ── -->
-  <div class="ads-container" style="max-width:100%;padding:8px 16px 0;">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-1930529129644930"
-         data-ad-slot="6388933118"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-  </div>
+    <!-- ===================== DESKTOP WEB HOME ===================== -->
+    <section class="desktop-home" aria-label="VirtualGift web escritorio">
+      <div class="dg-shell">
+        <div class="dg-bonus" role="region" aria-label="Bonus diario">
+          <span class="dg-badge">En vivo</span>
+          <div class="dg-bonus-copy">
+            <strong>Bonus diario de VirtualGift</strong>
+            <span>Reclama coins, participa en sorteos y desbloquea premios destacados.</span>
+          </div>
+          <span class="dg-chip">+500 coins gratis</span>
+          <a class="dg-primary" href="login.html">Entrar gratis</a>
+        </div>
 
-  <main>
+        <section class="dg-hero" aria-labelledby="dg-hero-title">
+          <div class="dg-hero-copy">
+            <span class="dg-kicker">Sorteos y rewards</span>
+            <h1 id="dg-hero-title">Gana gift cards <span>jugando gratis</span></h1>
+            <p>Una experiencia web de escritorio para entrar rapido, ver premios activos, jugar por coins y participar por gift cards reales sin anuncios.</p>
+            <div class="dg-hero-actions">
+              <a class="dg-primary" href="login.html">Crear cuenta</a>
+              <a class="dg-secondary" href="sorteos.html">Ver sorteos</a>
+            </div>
+            <div class="dg-mini-stats" aria-label="Metricas de VirtualGift">
+              <div><b>39K+</b><span>coins ganadas</span></div>
+              <div><b>24/7</b><span>sorteos visibles</span></div>
+              <div><b>0 ads</b><span>sin anuncios</span></div>
+            </div>
+          </div>
+
+          <div class="dg-hero-board" aria-label="Premios y actividad destacada">
+            <div class="dg-board-top">
+              <a class="dg-mode-card" href="sorteos.html"><strong>Sorteos</strong><span>Participa con coins</span><img src="images/banner-sorteos/2.png" alt="Sorteos VirtualGift"></a>
+              <a class="dg-mode-card" href="tragamonedas.html"><strong>Slots</strong><span>Juega y suma puntos</span><img src="images/tragamonedas.jpg" alt="Tragamonedas VirtualGift"></a>
+              <a class="dg-mode-card" href="ruleta.html"><strong>Ruleta</strong><span>Giros con recompensa</span><img src="images/ruleta.jpg" alt="Ruleta VirtualGift"></a>
+            </div>
+
+            <div class="dg-board-main">
+              <div class="dg-live-panel">
+                <div class="dg-panel-head"><strong>Premios activos</strong><span>Live drops</span></div>
+                <div class="dg-prize-grid">
+                  <a class="dg-prize-tile" href="sorteos.html"><img src="images/giftcards/amazon.png" alt="Amazon gift card"><strong>Amazon $50</strong><span>Desde 250 coins</span></a>
+                  <a class="dg-prize-tile" href="sorteos.html"><img src="images/giftcards/psn.png" alt="PlayStation gift card"><strong>PlayStation $25</strong><span>Desde 180 coins</span></a>
+                  <a class="dg-prize-tile" href="sorteos.html"><img src="images/giftcards/steam.png" alt="Steam gift card"><strong>Steam $20</strong><span>Desde 150 coins</span></a>
+                  <a class="dg-prize-tile" href="sorteos.html"><img src="images/giftcards/paypal.png" alt="PayPal reward"><strong>PayPal $10</strong><span>Desde 120 coins</span></a>
+                </div>
+              </div>
+
+              <div class="dg-race-panel">
+                <div class="dg-panel-head"><strong>Ranking diario</strong><span>Top coins</span></div>
+                <div class="dg-racer"><i>1</i><strong>Yeison G.</strong><span>49,318</span></div>
+                <div class="dg-racer"><i>2</i><strong>VirtualStu</strong><span>39,025</span></div>
+                <div class="dg-racer"><i>3</i><strong>MY G.</strong><span>252</span></div>
+                <div class="dg-racer"><i>4</i><strong>sepuh888</strong><span>175</span></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="dg-section" id="desktop-prizes">
+          <div class="dg-section-head"><div><h2>Gift cards populares</h2><p>Tarjetas listas para tus sorteos favoritos.</p></div><a class="dg-secondary" href="sorteos.html">Explorar premios</a></div>
+          <div class="dg-card-grid">
+            <a class="dg-card" href="sorteos.html"><span class="dg-card-media"><img src="images/giftcards/amazon.png" alt="Amazon"></span><strong class="dg-card-title">Amazon Gift Card</strong><span class="dg-card-meta"><span>Reward destacado</span><span class="dg-price">500 coins</span></span></a>
+            <a class="dg-card" href="sorteos.html"><span class="dg-card-media"><img src="images/giftcards/google.png" alt="Google Play"></span><strong class="dg-card-title">Google Play</strong><span class="dg-card-meta"><span>Para apps y juegos</span><span class="dg-price">300 coins</span></span></a>
+            <a class="dg-card" href="sorteos.html"><span class="dg-card-media"><img src="images/giftcards/xbox.png" alt="Xbox"></span><strong class="dg-card-title">Xbox</strong><span class="dg-card-meta"><span>Gaming reward</span><span class="dg-price">350 coins</span></span></a>
+            <a class="dg-card" href="sorteos.html"><span class="dg-card-media"><img src="images/giftcards/netflix.png" alt="Netflix"></span><strong class="dg-card-title">Netflix</strong><span class="dg-card-meta"><span>Entretenimiento</span><span class="dg-price">280 coins</span></span></a>
+          </div>
+        </section>
+
+        <section class="dg-section" id="desktop-games">
+          <div class="dg-section-head"><div><h2>Juega y gana coins</h2><p>Accesos directos para escritorio, sin banners de anuncios.</p></div><a class="dg-secondary" href="inicio.html">Ir a la app</a></div>
+          <div class="dg-card-grid">
+            <a class="dg-card dg-game" href="tragamonedas.html"><span class="dg-card-media"><img src="images/tragamonedas.jpg" alt="Tragamonedas"></span><strong class="dg-card-title">Tragamonedas</strong><span class="dg-card-meta"><span>Giros rapidos</span><span class="dg-price">+50</span></span></a>
+            <a class="dg-card dg-game" href="ruleta.html"><span class="dg-card-media"><img src="images/ruleta.jpg" alt="Ruleta de coins"></span><strong class="dg-card-title">Ruleta de Coins</strong><span class="dg-card-meta"><span>Premios al instante</span><span class="dg-price">+100</span></span></a>
+            <a class="dg-card" href="ofertas.html"><span class="dg-card-media"><img src="images/ofertas/logo3-cpx-reserach.png" alt="CPX Research"></span><strong class="dg-card-title">Encuestas</strong><span class="dg-card-meta"><span>Misiones cortas</span><span class="dg-price">Hasta 500</span></span></a>
+            <a class="dg-card" href="comunidad.html"><span class="dg-card-media"><img src="images/logo-virtual-login.png" alt="Comunidad"></span><strong class="dg-card-title">Comunidad</strong><span class="dg-card-meta"><span>Ranking y actividad</span><span class="dg-price">En vivo</span></span></a>
+          </div>
+        </section>
+
+        <section class="dg-section" id="desktop-brands">
+          <div class="dg-section-head"><div><h2>Marcas disponibles</h2><p>Rewards reconocibles y faciles de entender en escritorio.</p></div></div>
+          <div class="dg-brand-row" aria-label="Marcas de gift cards">
+            <span class="dg-brand"><img src="images/giftcards/amazon.png" alt="Amazon"></span><span class="dg-brand"><img src="images/giftcards/psn.png" alt="PlayStation"></span><span class="dg-brand"><img src="images/giftcards/steam.png" alt="Steam"></span><span class="dg-brand"><img src="images/giftcards/paypal.png" alt="PayPal"></span><span class="dg-brand"><img src="images/giftcards/spotify.png" alt="Spotify"></span><span class="dg-brand"><img src="images/giftcards/google.png" alt="Google Play"></span>
+          </div>
+        </section>
+
+        <section class="dg-section" id="desktop-how">
+          <div class="dg-section-head"><div><h2>Como funciona</h2><p>Un flujo simple pensado para usuarios de escritorio.</p></div></div>
+          <div class="dg-how"><div class="dg-step"><span>1</span><strong>Crea tu cuenta</strong><p>Entra gratis y recibe acceso a coins, sorteos y juegos de VirtualGift.</p></div><div class="dg-step"><span>2</span><strong>Gana coins</strong><p>Juega, completa ofertas disponibles y sube en el ranking diario.</p></div><div class="dg-step"><span>3</span><strong>Participa</strong><p>Usa tus coins en sorteos por gift cards y revisa tus participaciones.</p></div></div>
+        </section>
+      </div>
+    </section>
 
     <!-- ===================== HERO ===================== -->
     <section class="hero" aria-labelledby="hero-title">
@@ -1111,7 +1270,7 @@
           <div class="hero-content">
             <div class="hero-tag reveal">
               <span class="tag">
-                <span class="tag-dot">●</span> &nbsp;Sorteos activos ahora · Completamente gratis
+                <span class="tag-dot">?</span> &nbsp;Sorteos activos ahora � Completamente gratis
               </span>
             </div>
 
@@ -1122,7 +1281,7 @@
 
             <p class="hero-subtitle reveal reveal-delay-2">
               Participa en sorteos con <strong>Coins virtuales</strong>, completa misiones y gana
-              gift cards reales de Amazon, PlayStation, Netflix y más.
+              gift cards reales de Amazon, PlayStation, Netflix y m�s.
               Sin dinero real. Sin trampa.
             </p>
 
@@ -1133,13 +1292,13 @@
               </a>
               <a href="#how-it-works" class="btn-hero-secondary">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-                Ver cómo funciona
+                Ver c�mo funciona
               </a>
             </div>
 
             <div class="hero-trust reveal reveal-delay-4">
               <div class="trust-item">
-                <span class="trust-stars" aria-label="4.8 estrellas">★★★★★</span>
+                <span class="trust-stars" aria-label="4.8 estrellas">5/5</span>
                 <span>4.8 / 5</span>
               </div>
               <div class="trust-sep" aria-hidden="true"></div>
@@ -1157,12 +1316,12 @@
 
           <!-- PHONE MOCKUP -->
           <div class="hero-visual reveal reveal-delay-2">
-            <div class="phone-wrap" role="img" aria-label="Vista previa de la aplicación VirtualGift">
+            <div class="phone-wrap" role="img" aria-label="Vista previa de la aplicaci�n VirtualGift">
               <div class="phone">
                 <div class="phone-notch" aria-hidden="true"></div>
                 <div class="phone-status" aria-hidden="true">
                   <span>9:41</span>
-                  <span>▲▲▲ ▮▮▮▮</span>
+                  <span>VirtualGift</span>
                 </div>
 
                 <!-- Header igual al de la app real -->
@@ -1191,18 +1350,18 @@
                 <div class="phone-body" aria-hidden="true">
                   <!-- Top Sorteos -->
                   <div class="ph-sec-hdr">
-                    <span class="ph-sec-title">Top Sorteos 🏆</span>
+                    <span class="ph-sec-title">Top Sorteos</span>
                     <span class="ph-sec-link">Ver todo</span>
                   </div>
                   <div class="ph-sorteo-card">
-                    <div class="ph-sorteo-tag">🔥 POPULAR</div>
+                    <div class="ph-sorteo-tag">POPULAR</div>
                     <div class="ph-sorteo-name">Amazon Gift Card</div>
-                    <div class="ph-sorteo-prize">$50 USD · 800 Coins</div>
+                    <div class="ph-sorteo-prize">$50 USD � 800 Coins</div>
                     <div class="ph-progress-bar"><div class="ph-progress-fill"></div></div>
                     <div class="ph-progress-info">
                       <span>1,247 participantes</span><span>72%</span>
                     </div>
-                    <div class="ph-sorteo-btn">Participar · 800 C</div>
+                    <div class="ph-sorteo-btn">Participar � 800 C</div>
                   </div>
 
                   <!-- Popular Games -->
@@ -1211,19 +1370,19 @@
                   </div>
                   <div class="ph-games-row">
                     <div class="ph-game-card">
-                      <div class="ph-game-badge">● JUGAR</div>
-                      <div class="ph-game-icon">🎰</div>
+                      <div class="ph-game-badge">? JUGAR</div>
+                      <div class="ph-game-icon">VG</div>
                       <div class="ph-game-name">Tragamonedas</div>
                     </div>
                     <div class="ph-game-card">
-                      <div class="ph-game-badge">● JUGAR</div>
-                      <div class="ph-game-icon">🎡</div>
+                      <div class="ph-game-badge">? JUGAR</div>
+                      <div class="ph-game-icon">VG</div>
                       <div class="ph-game-name">Ruleta</div>
                     </div>
                     <div class="ph-game-card" style="opacity:.45">
-                      <div class="ph-game-badge" style="color:#6b7280">● PRONTO</div>
-                      <div class="ph-game-icon">🃏</div>
-                      <div class="ph-game-name">Más…</div>
+                      <div class="ph-game-badge" style="color:#6b7280">? PRONTO</div>
+                      <div class="ph-game-icon">VG</div>
+                      <div class="ph-game-name">M�s�</div>
                     </div>
                   </div>
                 </div>
@@ -1253,7 +1412,7 @@
               <div class="float-badge fb-winner" aria-hidden="true">
                 <span class="fb-dot fb-dot-green"></span>
                 <strong class="fb-name">Alex_47</strong>
-                <span class="fb-sub">ganó PSN $25</span>
+                <span class="fb-sub">gan� PSN $25</span>
               </div>
               <div class="float-badge fb-coins" aria-hidden="true">
                 <span class="fb-dot fb-dot-gold"></span>
@@ -1271,7 +1430,7 @@
     </section>
 
     <!-- ===================== STATS BAR ===================== -->
-    <div class="stats-bar" aria-label="Estadísticas de VirtualGift">
+    <div class="stats-bar" aria-label="Estad�sticas de VirtualGift">
       <div class="container">
         <div class="stats-inner">
           <div class="stat-item reveal">
@@ -1288,9 +1447,9 @@
           </div>
           <div class="stat-item reveal reveal-delay-3">
             <div class="stat-number">
-              <span class="counter" data-target="48" data-prefix="4." data-suffix="★">0</span>
+              <span class="counter" data-target="48" data-prefix="4." data-suffix="?">0</span>
             </div>
-            <div class="stat-label">Valoración media</div>
+            <div class="stat-label">Valoraci�n media</div>
           </div>
         </div>
       </div>
@@ -1300,12 +1459,12 @@
     <section class="section features" id="features" aria-labelledby="features-title">
       <div class="container">
         <header class="features-header">
-          <div class="section-label">✦ Características</div>
+          <div class="section-label">? Caracter�sticas</div>
           <h2 class="section-title reveal" id="features-title">
             Todo lo que necesitas<br><span>para ganar</span>
           </h2>
           <p class="section-sub reveal reveal-delay-1">
-            VirtualGift combina gamificación, sorteos y premios reales en una sola plataforma,
+            VirtualGift combina gamificaci�n, sorteos y premios reales en una sola plataforma,
             completamente gratuita y disponible en web, Android e iOS.
           </p>
         </header>
@@ -1338,15 +1497,15 @@
               Sube de nivel participando y completando logros. A mayor nivel,
               desbloqueas acceso a sorteos exclusivos con mejores premios.
             </p>
-            <span class="feature-badge">+XP por cada acción</span>
+            <span class="feature-badge">+XP por cada acci�n</span>
           </article>
 
           <article class="feature-card reveal reveal-delay-1">
             <div class="feature-icon fi-pink" aria-hidden="true"><i class="fas fa-trophy"></i></div>
             <h3 class="feature-title">Logros y Badges</h3>
             <p class="feature-desc">
-              Colecciona insignias únicas por hitos como "Primer sorteo" o "Primera victoria".
-              Muéstralos en tu perfil público.
+              Colecciona insignias �nicas por hitos como "Primer sorteo" o "Primera victoria".
+              Mu�stralos en tu perfil p�blico.
             </p>
             <span class="feature-badge">Insignias coleccionables</span>
           </article>
@@ -1358,12 +1517,12 @@
     <section class="section hiw" id="how-it-works" aria-labelledby="hiw-title">
       <div class="container">
         <header class="hiw-header">
-          <div class="section-label">✦ Proceso</div>
+          <div class="section-label">? Proceso</div>
           <h2 class="section-title reveal" id="hiw-title">
-            ¿Cómo funciona? <span>Es muy fácil</span>
+            �C�mo funciona? <span>Es muy f�cil</span>
           </h2>
           <p class="section-sub reveal reveal-delay-1">
-            En menos de 2 minutos estás dentro y ya puedes ganar tu primera gift card.
+            En menos de 2 minutos est�s dentro y ya puedes ganar tu primera gift card.
           </p>
         </header>
 
@@ -1372,7 +1531,7 @@
             <div class="hiw-step-num" aria-hidden="true">
               <span class="hiw-step-icon"><i class="fas fa-door-open"></i></span>
             </div>
-            <h3 class="hiw-step-title">Regístrate gratis</h3>
+            <h3 class="hiw-step-title">Reg�strate gratis</h3>
             <p class="hiw-step-desc">
               Crea tu cuenta con email o Google. Verifica tu correo
               y recibe tus primeros Coins de bienvenida al instante.
@@ -1386,8 +1545,8 @@
             </div>
             <h3 class="hiw-step-title">Acumula Coins</h3>
             <p class="hiw-step-desc">
-              Acumula Coins participando en la plataforma y viendo anuncios opcionales.
-              Cuantos más tengas, más sorteos puedes jugar.
+              Acumula Coins participando en la plataforma con check-ins, juegos y sorteos.
+              Cuantos m�s tengas, m�s sorteos puedes jugar.
             </p>
             <span class="hiw-step-highlight"><i class="fas fa-bolt"></i> Coins al instante</span>
           </div>
@@ -1396,7 +1555,7 @@
             <div class="hiw-step-num" aria-hidden="true">
               <span class="hiw-step-icon"><i class="fas fa-trophy"></i></span>
             </div>
-            <h3 class="hiw-step-title">¡Gana premios!</h3>
+            <h3 class="hiw-step-title">�Gana premios!</h3>
             <p class="hiw-step-desc">
               Usa tus Coins para participar en sorteos. Si eres seleccionado,
               recibes la gift card directamente en tu correo. Simple y real.
@@ -1407,7 +1566,7 @@
 
         <div class="hiw-cta reveal">
           <a href="login.html" class="btn-primary-shared">
-            Comenzar ahora · Es gratis
+            Comenzar ahora � Es gratis
             <svg viewBox="0 0 24 24" width="16" height="16" fill="white" aria-hidden="true"><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/></svg>
           </a>
         </div>
@@ -1418,12 +1577,12 @@
     <section class="section prizes" id="prizes" aria-labelledby="prizes-title">
       <div class="container">
         <header class="prizes-header">
-          <div class="section-label">✦ Premios</div>
+          <div class="section-label">? Premios</div>
           <h2 class="section-title reveal" id="prizes-title">
             Canjea Coins por<br><span>premios reales</span>
           </h2>
           <p class="section-sub reveal reveal-delay-1">
-            Sorteos activos con las gift cards de las plataformas más usadas del mundo.
+            Sorteos activos con las gift cards de las plataformas m�s usadas del mundo.
             Nuevos sorteos cada semana.
           </p>
         </header>
@@ -1473,7 +1632,7 @@
 
         <div class="prizes-footer reveal">
           <p class="prizes-note">
-            Nuevos sorteos añadidos <span>cada semana</span>. Sorteos especiales en fechas señaladas con premios mayores.
+            Nuevos sorteos a�adidos <span>cada semana</span>. Sorteos especiales en fechas se�aladas con premios mayores.
           </p>
           <a href="login.html" class="btn-primary-shared">Ver sorteos activos</a>
         </div>
@@ -1484,7 +1643,7 @@
     <section class="section--sm winners" aria-label="Ganadores recientes">
       <div class="container">
         <header class="winners-header">
-          <div class="section-label">✦ Ganadores recientes</div>
+          <div class="section-label">? Ganadores recientes</div>
           <h2 class="section-title reveal winners-title">
             Gente real, premios <span>reales</span>
           </h2>
@@ -1503,13 +1662,13 @@
       <div class="container">
         <div class="app-inner">
           <div class="app-content">
-            <div class="section-label">✦ App Móvil</div>
+            <div class="section-label">? App M�vil</div>
             <h2 class="section-title reveal" id="app-title">
               Disponible en<br><span>Android e iOS</span>
             </h2>
             <p class="section-sub reveal reveal-delay-1">
               Lleva tus sorteos a cualquier parte. La app nativa ofrece notificaciones push
-              para que nunca te pierdas un sorteo y acceso más rápido a tu cuenta.
+              para que nunca te pierdas un sorteo y acceso m�s r�pido a tu cuenta.
             </p>
             <div class="app-features reveal reveal-delay-2">
               <div class="app-feat">
@@ -1518,7 +1677,7 @@
               </div>
               <div class="app-feat">
                 <div class="app-feat-icon" aria-hidden="true"><i class="fas fa-bolt"></i></div>
-                Acceso ultrarrápido con login biométrico
+                Acceso ultrarr�pido con login biom�trico
               </div>
               <div class="app-feat">
                 <div class="app-feat-icon" aria-hidden="true"><i class="fas fa-gamepad"></i></div>
@@ -1537,12 +1696,12 @@
                   <div class="store-btn-name">Google Play</div>
                 </div>
               </a>
-              <div class="store-btn coming-soon" role="note" aria-label="iOS: Próximamente">
+              <div class="store-btn coming-soon" role="note" aria-label="iOS: Pr�ximamente">
                 <div class="store-btn-icon" aria-hidden="true"><i class="fab fa-apple"></i></div>
                 <div class="store-btn-text">
                   <div class="store-btn-sub">DISPONIBLE EN</div>
                   <div class="store-btn-name">App Store</div>
-                  <span class="store-soon-badge">PRÓXIMAMENTE</span>
+                  <span class="store-soon-badge">PR�XIMAMENTE</span>
                 </div>
               </div>
             </div>
@@ -1593,7 +1752,7 @@
     <section class="section faq" id="faq" aria-labelledby="faq-title">
       <div class="container">
         <header class="faq-header">
-          <div class="section-label">✦ Preguntas Frecuentes</div>
+          <div class="section-label">? Preguntas Frecuentes</div>
           <h2 class="section-title reveal" id="faq-title">
             Resolvemos tus <span>dudas</span>
           </h2>
@@ -1603,49 +1762,48 @@
 
           <div class="faq-item reveal" role="listitem">
             <button class="faq-q" aria-expanded="false">
-              <span class="faq-q-text">¿VirtualGift es completamente gratuito?</span>
+              <span class="faq-q-text">�VirtualGift es completamente gratuito?</span>
               <span class="faq-arrow" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
               </span>
             </button>
             <div class="faq-a" role="region">
               <div class="faq-a-inner">
-                Sí, 100% gratuito. Nunca necesitarás introducir datos de pago ni gastar dinero real.
-                Los Coins se obtienen gratuitamente a través de check-ins, misiones y referidos.
-                Los anuncios son opcionales y solo para ganar Coins adicionales.
+                S�, 100% gratuito. Nunca necesitar�s introducir datos de pago ni gastar dinero real.
+                Los Coins se obtienen gratuitamente a trav�s de check-ins, misiones, juegos y referidos.
               </div>
             </div>
           </div>
 
           <div class="faq-item reveal reveal-delay-1" role="listitem">
             <button class="faq-q" aria-expanded="false">
-              <span class="faq-q-text">¿Cómo recibo mi premio si gano?</span>
+              <span class="faq-q-text">�C�mo recibo mi premio si gano?</span>
               <span class="faq-arrow" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
               </span>
             </button>
             <div class="faq-a" role="region">
               <div class="faq-a-inner">
-                Los premios se entregan como códigos de gift card digitales enviados al correo
-                electrónico verificado de tu cuenta, normalmente en menos de 24 horas tras
-                finalizar el sorteo. Recibirás también una notificación en la app.
+                Los premios se entregan como c�digos de gift card digitales enviados al correo
+                electr�nico verificado de tu cuenta, normalmente en menos de 24 horas tras
+                finalizar el sorteo. Recibir�s tambi�n una notificaci�n en la app.
               </div>
             </div>
           </div>
 
           <div class="faq-item reveal reveal-delay-2" role="listitem">
             <button class="faq-q" aria-expanded="false">
-              <span class="faq-q-text">¿Cuántos Coins necesito para participar?</span>
+              <span class="faq-q-text">�Cu�ntos Coins necesito para participar?</span>
               <span class="faq-arrow" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
               </span>
             </button>
             <div class="faq-a" role="region">
               <div class="faq-a-inner">
-                Depende del sorteo. Los más accesibles desde <strong>150 Coins</strong>
-                (Google Play $10) y los más exclusivos hasta <strong>800 Coins</strong>
+                Depende del sorteo. Los m�s accesibles desde <strong>150 Coins</strong>
+                (Google Play $10) y los m�s exclusivos hasta <strong>800 Coins</strong>
                 (Amazon $50). Con el check-in diario durante una semana ya puedes
-                participar en los sorteos más pequeños. Al registrarte recibes 175 Coins
+                participar en los sorteos m�s peque�os. Al registrarte recibes 175 Coins
                 de bienvenida para empezar ya.
               </div>
             </div>
@@ -1653,48 +1811,48 @@
 
           <div class="faq-item reveal" role="listitem">
             <button class="faq-q" aria-expanded="false">
-              <span class="faq-q-text">¿Cómo funciona el programa de referidos?</span>
+              <span class="faq-q-text">�C�mo funciona el programa de referidos?</span>
               <span class="faq-arrow" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
               </span>
             </button>
             <div class="faq-a" role="region">
               <div class="faq-a-inner">
-                Cada usuario tiene un código único (formato VG + 6 caracteres). Si un amigo
-                se registra con tu código, ambos recibís <strong>500 Coins de bonus</strong>
-                una vez que él/ella verifique su correo. No hay límite de referidos.
+                Cada usuario tiene un c�digo �nico (formato VG + 6 caracteres). Si un amigo
+                se registra con tu c�digo, ambos recib�s <strong>500 Coins de bonus</strong>
+                una vez que �l/ella verifique su correo. No hay l�mite de referidos.
               </div>
             </div>
           </div>
 
           <div class="faq-item reveal reveal-delay-1" role="listitem">
             <button class="faq-q" aria-expanded="false">
-              <span class="faq-q-text">¿Está disponible en todos los países?</span>
+              <span class="faq-q-text">�Est� disponible en todos los pa�ses?</span>
               <span class="faq-arrow" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
               </span>
             </button>
             <div class="faq-a" role="region">
               <div class="faq-a-inner">
-                La plataforma está disponible globalmente para registro y participación.
-                La disponibilidad de ciertos premios puede variar según la región. Consulta
-                los detalles de cada sorteo para ver las restricciones geográficas específicas.
+                La plataforma est� disponible globalmente para registro y participaci�n.
+                La disponibilidad de ciertos premios puede variar seg�n la regi�n. Consulta
+                los detalles de cada sorteo para ver las restricciones geogr�ficas espec�ficas.
               </div>
             </div>
           </div>
 
           <div class="faq-item reveal reveal-delay-2" role="listitem">
             <button class="faq-q" aria-expanded="false">
-              <span class="faq-q-text">¿Los sorteos son transparentes y justos?</span>
+              <span class="faq-q-text">�Los sorteos son transparentes y justos?</span>
               <span class="faq-arrow" aria-hidden="true">
                 <svg viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
               </span>
             </button>
             <div class="faq-a" role="region">
               <div class="faq-a-inner">
-                Sí. El ganador se selecciona de forma aleatoria entre todos los participantes
-                cuando se alcanza el número máximo de entradas o finaliza el tiempo del sorteo.
-                El resultado se notifica públicamente a todos los participantes y se registra
+                S�. El ganador se selecciona de forma aleatoria entre todos los participantes
+                cuando se alcanza el n�mero m�ximo de entradas o finaliza el tiempo del sorteo.
+                El resultado se notifica p�blicamente a todos los participantes y se registra
                 en nuestros sistemas auditables.
               </div>
             </div>
@@ -1709,12 +1867,12 @@
       <div class="final-cta-bg" aria-hidden="true"></div>
       <div class="container">
         <div class="final-cta-card reveal">
-          <div class="section-label section-label--center">✦ Empieza hoy</div>
+          <div class="section-label section-label--center">? Empieza hoy</div>
           <h2 class="cta-title gradient-text" id="cta-title">
-            ¿Listo para tu primera<br>gift card?
+            �Listo para tu primera<br>gift card?
           </h2>
           <p class="cta-sub">
-            Únete a más de 50,000 jugadores. Regístrate en segundos,
+            �nete a m�s de 50,000 jugadores. Reg�strate en segundos,
             recibe 175 Coins de bienvenida y participa en tu primer sorteo hoy.
           </p>
           <div class="cta-buttons">
@@ -1724,7 +1882,7 @@
             </a>
           </div>
           <p class="cta-note">
-            ¿Ya tienes cuenta? <a href="login.html" class="cta-login-link">Iniciar sesión →</a>
+            �Ya tienes cuenta? <a href="login.html" class="cta-login-link">Iniciar sesi�n ?</a>
           </p>
         </div>
       </div>
@@ -1755,9 +1913,9 @@
         <div class="footer-col">
           <div class="footer-col-title">Plataforma</div>
           <ul class="footer-links-list">
-            <li><a href="login.html">Iniciar sesión</a></li>
+            <li><a href="login.html">Iniciar sesi�n</a></li>
             <li><a href="login.html">Registrarse</a></li>
-            <li><a href="#how-it-works">Cómo funciona</a></li>
+            <li><a href="#how-it-works">Como funciona</a></li>
             <li><a href="#faq">Preguntas frecuentes</a></li>
           </ul>
         </div>
@@ -1765,7 +1923,7 @@
         <div class="footer-col">
           <div class="footer-col-title">Legal</div>
           <ul class="footer-links-list">
-            <li><a href="legal/terminos.html">Términos de uso</a></li>
+            <li><a href="legal/terminos.html">T�rminos de uso</a></li>
             <li><a href="legal/Politicas.html">Privacidad</a></li>
             <li><a href="legal/pautas.html">Pautas de la comunidad</a></li>
           </ul>
@@ -1774,11 +1932,11 @@
 
       <div class="footer-bottom">
         <p class="footer-copy">
-          © 2026 <span>VirtualStudios</span> · Todos los derechos reservados
+          � 2026 <span>VirtualStudios</span> � Todos los derechos reservados
         </p>
         <div class="footer-bottom-links">
           <a href="legal/Politicas.html">Privacidad</a>
-          <a href="legal/terminos.html">Términos</a>
+          <a href="legal/terminos.html">T�rminos</a>
           <a href="legal/pautas.html">Pautas</a>
         </div>
       </div>
@@ -1792,7 +1950,7 @@
     background:linear-gradient(135deg,#a010d0,#d020e8,#e030c0);
     color:white; font-size:18px; display:none; align-items:center; justify-content:center;
     box-shadow:0 0 14px rgba(208,32,232,0.5); transition:all 0.2s;
-    -webkit-tap-highlight-color:transparent;">▲</button>
+    -webkit-tap-highlight-color:transparent;">?</button>
 
   <script>
     // =============================================
@@ -1811,7 +1969,7 @@
       resize();
       window.addEventListener('resize', resize, { passive: true });
 
-      const SYMBOLS = ['✦', '·', '✧', '◦'];
+      const SYMBOLS = ['?', '�', '?', '?'];
       function Particle() {
         this.reset = function () {
           this.x    = Math.random() * W;

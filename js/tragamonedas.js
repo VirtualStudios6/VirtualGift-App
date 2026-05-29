@@ -1,25 +1,24 @@
-﻿/* ═══════════════════════════════════════════════
-   TRAGAMONEDAS.JS — VirtualGift
-   5 tiradas gratis/día · +1 por anuncio (máx 3)
-═══════════════════════════════════════════════ */
+/* -----------------------------------------------
+   TRAGAMONEDAS.JS � VirtualGift
+   5 tiradas gratis diarias
+----------------------------------------------- */
 'use strict';
 
-// ── Constantes ──
-const SYMBOLS          = ['🍒','💎','🍇','🔔','🍋','🍊'];
-const PAYOUTS          = { '🍒':150, '💎':100, '🍇':75, '🔔':50, '🍋':30, '🍊':20 };
+// -- Constantes --
+const SYMBOLS          = ['CH','DI','GR','BE','LE','OR'];
+const PAYOUTS          = { CH:150, DI:100, GR:75, BE:50, LE:30, OR:20 };
 const FREE_PLAYS       = 5;
 const MAX_EXTRA        = 3;
 const SPIN_MS          = [900, 1150, 1400];
-const REWARDED_UNIT_ID = '7d073f1e-bb56-4a59-90d0-ea9dd0285f13';
 
-// ── Estado ──
+// -- Estado --
 let currentUser  = null;
 let userCoins    = 0;
 let playsUsed    = 0;
 let extraUsed    = 0;
 let isSpinning   = false;
 
-// ── Helpers ──
+// -- Helpers --
 function today() {
   return new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
 }
@@ -33,7 +32,7 @@ function toast(msg) {
 }
 function rand(n) { return Math.floor(Math.random() * n); }
 
-// ── UI ──
+// -- UI --
 function updateBalanceUI() {
   const el = document.getElementById('balanceVal');
   if (el) el.textContent = userCoins.toLocaleString('en-US');
@@ -72,7 +71,7 @@ function setResult(html) {
   if (el) el.innerHTML = html;
 }
 
-// ── Carga de datos ──
+// -- Carga de datos --
 async function loadUserData() {
   if (!currentUser) return;
   try {
@@ -81,7 +80,7 @@ async function loadUserData() {
 
     userCoins = data.points || 0;
 
-    // Plays del día
+    // Plays del d�a
     if (data.slotDate === today()) {
       playsUsed  = data.slotPlays  || 0;
       extraUsed  = data.slotExtra  || 0;
@@ -97,7 +96,7 @@ async function loadUserData() {
   }
 }
 
-// ── Lógica de juego ──
+// -- L�gica de juego --
 function calcWin(s0, s1, s2) {
   if (s0 === s1 && s1 === s2) return PAYOUTS[SYMBOLS[s0]] || 20;
   if (s0 === s1 || s1 === s2 || s0 === s2) return 8;
@@ -129,7 +128,7 @@ window.doSpin = async function() {
   isSpinning = true;
   const spinBtn = document.getElementById('spinBtn');
   if (spinBtn) spinBtn.disabled = true;
-  setResult('<span class="result-miss">Girando…</span>');
+  setResult('<span class="result-miss">Girando�</span>');
 
   // Determinar resultado
   const r0 = rand(SYMBOLS.length);
@@ -162,10 +161,10 @@ window.doSpin = async function() {
 
   // Mostrar resultado
   if (win > 0) {
-    setResult(`<span class="result-win">+${win} 🪙</span>`);
+    setResult(`<span class="result-win">+${win} VC</span>`);
     if (window.VGSounds) VGSounds.prize();
   } else {
-    setResult('<span class="result-miss">Sin suerte esta vez 😅</span>');
+    setResult('<span class="result-miss">Sin suerte esta vez</span>');
   }
 
   // Guardar en Firestore
@@ -199,29 +198,7 @@ window.doSpin = async function() {
 
   isSpinning = false;
   updatePlaysUI();
-};
-
-// ── Anuncio para tirada extra (Wortise Rewarded) ──
-window.watchAd = async function() {
-  const btn = document.getElementById('adPlayBtn');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Cargando anuncio…'; }
-
-  try {
-    const result = await WortiseAds.showRewarded(REWARDED_UNIT_ID);
-    if (result.rewarded) {
-      await grantExtraSlotPlay();
-    } else {
-      toast('El anuncio no se completó — inténtalo de nuevo');
-    }
-  } catch (e) {
-    console.error('[slot] watchAd error', e);
-    toast('No se pudo cargar el anuncio');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '▶ Ver anuncio para +1 tirada'; }
-  }
-};
-
-async function grantExtraSlotPlay() {
+};async function grantExtraSlotPlay() {
   extraUsed++;
   try {
     await window.db.collection('users').doc(currentUser.uid).update({
@@ -229,11 +206,11 @@ async function grantExtraSlotPlay() {
       slotExtra: extraUsed,
     });
   } catch(e) { console.error('[slot] grantExtraPlay save', e); }
-  toast('✅ +1 tirada desbloqueada');
+  toast('+1 tirada desbloqueada');
   updatePlaysUI();
 }
 
-// ── Auth + Init ──
+// -- Auth + Init --
 window.addEventListener('load', () => {
   window.waitForFirebase(() => {
     firebase.auth().onAuthStateChanged(async user => {

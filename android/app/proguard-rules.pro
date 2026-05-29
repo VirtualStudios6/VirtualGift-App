@@ -34,26 +34,14 @@
 -keep class kotlin.** { *; }
 -keep class kotlinx.coroutines.** { *; }
 
-# ── Unity Ads SDK ─────────────────────────────────────────────────────────────
--keep class com.unity3d.ads.** { *; }
--keep class com.unity3d.services.** { *; }
--dontwarn com.unity3d.ads.**
--dontwarn com.unity3d.services.**
-
-# ── Google Mobile Ads SDK (AdMob) ─────────────────────────────────────────────
--keep class com.google.android.gms.ads.** { *; }
--keep class com.google.ads.** { *; }
--dontwarn com.google.android.gms.ads.**
--keepattributes *Annotation*
-
-# ── OkHttp / Retrofit (usado por SDKs de anuncios para llamadas de red) ───────
+# ── OkHttp / Retrofit ─────────────────────────────────────────────────────────
 -dontwarn okhttp3.**
 -dontwarn okio.**
 -dontwarn retrofit2.**
 -keep class okhttp3.** { *; }
 -keep class okio.** { *; }
 
-# ── Gson (serialización de respuestas de red en SDKs de anuncios) ─────────────
+# ── Gson ──────────────────────────────────────────────────────────────────────
 -keep class com.google.gson.** { *; }
 -keepclassmembers class * {
     @com.google.gson.annotations.SerializedName <fields>;

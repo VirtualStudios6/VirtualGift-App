@@ -1024,8 +1024,4 @@ body {
   .offer-game-image img { object-fit: contain; padding: 24px; width: 60%; height: 60%; }
   .offer-bg-purple { background: linear-gradient(135deg, #1a0040, #4b0082); }
   .offer-bg-blue   { background: linear-gradient(135deg, #00234b, #003d80); }
-  .offer-bg-green  { background: linear-gradient(135deg, #1a2a00, #2d4a00); }
-
-  /* Ads no intrusivos en desktop — centrar con max-width */
-  .ads-container { max-width: 1440px; margin: 0 auto; padding: 0 80px; }
-}
+  .offer-bg-green  { background: linear-gradient(135deg, #1a2a00, #2d4a00); }}

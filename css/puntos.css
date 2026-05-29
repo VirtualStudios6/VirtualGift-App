@@ -2,27 +2,6 @@
 /* PUNTOS.CSS                                  */
 /* ============================================ */
 
-/* ---- Ver Anuncios card ---- */
-.ads-promo-card {
-  margin-bottom: 14px;
-  cursor: pointer;
-}
-.ads-promo-streak {
-  background: rgba(141,23,251,0.15);
-  border-color: rgba(141,23,251,0.3);
-  color: #a855f7;
-}
-.ads-promo-desc {
-  font-size: 13px;
-  color: rgba(255,255,255,0.6);
-  font-family: var(--font);
-  margin-bottom: 14px;
-  font-weight: 500;
-}
-.ads-promo-btn {
-  background: linear-gradient(135deg, #6d28d9, #8d17fb);
-}
-
 :root {
   --primary: #8d17fb;
   --secondary: #70189b;

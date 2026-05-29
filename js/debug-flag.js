@@ -9,7 +9,6 @@ window.vgLog = (function () {
 
 // ── Detección de entorno ────────────────────────────────────────────────────
 // VG_IS_DEV = true cuando NO estamos en el dominio de producción.
-// Usado por admob.js para activar TEST_MODE automáticamente.
 // NUNCA confiar en este flag para lógica de seguridad crítica.
 window.VG_IS_DEV = (function () {
   if (typeof location === 'undefined') return false;

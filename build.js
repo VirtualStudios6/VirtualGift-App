@@ -30,9 +30,6 @@ for (const dir of ['css', 'js', 'images', 'legal']) {
 
 // Archivos individuales
 copyFile(path.join(ROOT, 'firebase-messaging-sw.js'), path.join(WWW, 'firebase-messaging-sw.js'));
-copyFile(path.join(ROOT, 'ads.txt'),                  path.join(WWW, 'ads.txt'));
-copyFile(path.join(ROOT, 'app-ads.txt'),              path.join(WWW, 'app-ads.txt'));
-
 // Todos los .html de la raíz
 for (const f of fs.readdirSync(ROOT)) {
   if (f.endsWith('.html')) {

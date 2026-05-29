@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#03010f" />
-  <title>Verifica tu correo · VirtualGift</title>
+  <title>Verifica tu correo � VirtualGift</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -55,7 +55,7 @@
       position: relative;
     }
 
-    /* ── Orbs ── */
+    /* -- Orbs -- */
     .orb {
       position: fixed;
       border-radius: 50%;
@@ -100,7 +100,7 @@
       50%       { transform: translate(-20px, 30px); }
     }
 
-    /* ── Card ── */
+    /* -- Card -- */
     .card {
       position: relative;
       z-index: 1;
@@ -122,7 +122,7 @@
       to   { opacity: 1; transform: translateY(0)    scale(1); }
     }
 
-    /* ── Logo ── */
+    /* -- Logo -- */
     .logo {
       text-align: center;
       margin-bottom: 28px;
@@ -146,7 +146,7 @@
       -webkit-text-fill-color: transparent;
     }
 
-    /* ── Icon ── */
+    /* -- Icon -- */
     .icon-wrap {
       width: 72px;
       height: 72px;
@@ -187,7 +187,7 @@
       100% { opacity: 0;   transform: scale(1.2); }
     }
 
-    /* ── Texts ── */
+    /* -- Texts -- */
     h1 {
       font-size: 22px;
       font-weight: 700;
@@ -222,7 +222,7 @@
       margin-bottom: 24px;
     }
 
-    /* ── Alerts ── */
+    /* -- Alerts -- */
     .alert {
       padding: 12px 14px;
       border-radius: 10px;
@@ -255,7 +255,7 @@
       margin-top: 1px;
     }
 
-    /* ── Buttons ── */
+    /* -- Buttons -- */
     .btn {
       width: 100%;
       padding: 14px 20px;
@@ -327,7 +327,7 @@
 
     .btn-link:hover { color: var(--text); }
 
-    /* ── Spinner ── */
+    /* -- Spinner -- */
     .spinner {
       width: 18px;
       height: 18px;
@@ -339,7 +339,7 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ── Footer ── */
+    /* -- Footer -- */
     .footer {
       text-align: center;
       margin-top: 24px;
@@ -375,9 +375,9 @@
     </div>
 
     <h1>Verifica tu correo</h1>
-    <p class="subtitle">Te enviamos un enlace de verificación a:</p>
-    <span class="email-display" id="userEmail">—</span>
-    <p class="hint-text">Revisa tu bandeja de entrada y la carpeta de spam. Una vez verificado, vuelve aquí y refresca.</p>
+    <p class="subtitle">Te enviamos un enlace de verificaci�n a:</p>
+    <span class="email-display" id="userEmail">�</span>
+    <p class="hint-text">Revisa tu bandeja de entrada y la carpeta de spam. Una vez verificado, vuelve aqu� y refresca.</p>
 
     <div class="alert alert-error" id="alert-error">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -396,16 +396,16 @@
     </div>
 
     <button class="btn btn-primary" id="btn-verified">
-      <span id="btn-verified-text">Ya verifiqué mi correo</span>
+      <span id="btn-verified-text">Ya verifiqu� mi correo</span>
     </button>
 
     <button class="btn btn-secondary" id="btn-resend">
-      <span id="btn-resend-text">Reenviar correo de verificación</span>
+      <span id="btn-resend-text">Reenviar correo de verificaci�n</span>
     </button>
 
-    <button class="btn-link" id="btn-signout">Cerrar sesión</button>
+    <button class="btn-link" id="btn-signout">Cerrar sesi�n</button>
 
-    <div class="footer">© VirtualGift · VirtualStudios</div>
+    <div class="footer">� VirtualGift � VirtualStudios</div>
 
   </div>
 
@@ -416,7 +416,7 @@
 
       const $ = (id) => document.getElementById(id);
 
-      // ── Alerts ─────────────────────────────────────────────────────
+      // -- Alerts -----------------------------------------------------
       function showAlert(type, msg) {
         $('alert-error').classList.remove('show');
         $('alert-success').classList.remove('show');
@@ -434,7 +434,7 @@
         $('alert-success').classList.remove('show');
       }
 
-      // ── Cooldown de reenvío ─────────────────────────────────────────
+      // -- Cooldown de reenv�o -----------------------------------------
       let resendTimer = null;
 
       function startCooldown() {
@@ -449,19 +449,19 @@
             clearInterval(resendTimer);
             resendTimer = null;
             btn.disabled = false;
-            txt.textContent = 'Reenviar correo de verificación';
+            txt.textContent = 'Reenviar correo de verificaci�n';
           } else {
             txt.textContent = `Reenviar en ${secs}s`;
           }
         }, 1000);
       }
 
-      // ── Setup tras obtener auth ─────────────────────────────────────
+      // -- Setup tras obtener auth -------------------------------------
       function init() {
         const auth = window.auth || firebase.auth();
 
         // onAuthStateChanged en vez de currentUser: Firebase restaura
-        // la sesión de forma asíncrona, currentUser es null en el primer load.
+        // la sesi�n de forma as�ncrona, currentUser es null en el primer load.
         const unsubscribe = auth.onAuthStateChanged((user) => {
           unsubscribe();
 
@@ -470,7 +470,7 @@
 
           $('userEmail').textContent = user.email || '';
 
-          // "Ya verifiqué mi correo"
+          // "Ya verifiqu� mi correo"
           $('btn-verified').addEventListener('click', async () => {
             const btn = $('btn-verified');
             const txt = $('btn-verified-text');
@@ -483,15 +483,15 @@
               if (auth.currentUser && auth.currentUser.emailVerified) {
                 go('inicio.html');
               } else {
-                showAlert('error', 'Aún no detectamos la verificación. Revisa tu correo e inténtalo de nuevo.');
+                showAlert('error', 'A�n no detectamos la verificaci�n. Revisa tu correo e int�ntalo de nuevo.');
                 btn.disabled = false;
-                txt.textContent = 'Ya verifiqué mi correo';
+                txt.textContent = 'Ya verifiqu� mi correo';
               }
             } catch (e) {
               console.error('reload error:', e);
-              showAlert('error', 'No se pudo verificar. Comprueba tu conexión e inténtalo de nuevo.');
+              showAlert('error', 'No se pudo verificar. Comprueba tu conexi�n e int�ntalo de nuevo.');
               btn.disabled = false;
-              txt.textContent = 'Ya verifiqué mi correo';
+              txt.textContent = 'Ya verifiqu� mi correo';
             }
           });
 
@@ -507,12 +507,12 @@
               if (e.code === 'auth/too-many-requests') {
                 showAlert('error', 'Demasiados intentos. Espera unos minutos antes de reenviar.');
               } else {
-                showAlert('error', 'No se pudo enviar el correo. Inténtalo de nuevo.');
+                showAlert('error', 'No se pudo enviar el correo. Int�ntalo de nuevo.');
               }
             }
           });
 
-          // "Cerrar sesión"
+          // "Cerrar sesi�n"
           $('btn-signout').addEventListener('click', async () => {
             try { await auth.signOut(); } catch (e) { console.error('signOut error:', e); }
             go('login.html');
@@ -520,7 +520,7 @@
         });
       }
 
-      // ── Esperar Firebase ────────────────────────────────────────────
+      // -- Esperar Firebase --------------------------------------------
       if (typeof window.waitForFirebase === 'function') {
         window.waitForFirebase(init);
       } else {

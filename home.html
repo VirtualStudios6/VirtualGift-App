@@ -1,10 +1,7 @@
-Ôªø<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-      <style>.adsbygoogle{display:block}.ads-container{margin:16px 0;overflow:hidden;text-align:center}</style>
-  <script>(function(){if(window.Capacitor?.isNativePlatform?.())return;if(location.hostname!=='virtualgift.pro')return;var s=document.createElement('script');s.async=true;s.crossOrigin='anonymous';s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1930529129644930';document.head.appendChild(s)})();</script>
-
-  <meta charset="UTF-8" />
+<meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <meta name="theme-color" content="#06011c" />
   <title>Mi Perfil - VirtualGift</title>
@@ -82,14 +79,14 @@
     <div class="error-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
     <div class="error-message">
       <p>No se pudo cargar tu perfil</p>
-      <p style="font-size:0.9em;margin-top:6px;">Verifica tu conexi√≥n e intenta de nuevo</p>
+      <p style="font-size:0.9em;margin-top:6px;">Verifica tu conexiÛn e intenta de nuevo</p>
     </div>
     <button class="btn btn-primary" onclick="location.reload()"><i data-lucide="refresh-cw"></i> Reintentar</button>
-    <button class="btn" onclick="window.location.href=withAppFlag('inicio.html')" style="margin-top:10px;">‚Üê Volver al inicio</button>
+    <button class="btn" onclick="window.location.href=withAppFlag('inicio.html')" style="margin-top:10px;">? Volver al inicio</button>
   </div>
 
   <!-- CONTENIDO PRINCIPAL -->
-  <!-- ‚úÖ FIX: clase "hidden" en vez de style="display:none" para que el CSS desktop pueda aplicar display:flex -->
+  <!-- ? FIX: clase "hidden" en vez de style="display:none" para que el CSS desktop pueda aplicar display:flex -->
   <div id="content" class="container page-content hidden">
 
     <!-- SIDEBAR: tarjeta de perfil -->
@@ -108,7 +105,7 @@
         <div class="profile-meta">
           <div class="user-name" id="userName">Usuario</div>
           <div class="email-row">
-            <div class="user-email" id="userEmail" title="Correo electr√≥nico"></div>
+            <div class="user-email" id="userEmail" title="Correo electrÛnico"></div>
             <button id="btnToggleEmail" class="icon-btn" title="Mostrar/Ocultar correo" aria-label="Mostrar u ocultar correo">
               <svg id="eyeOpen" viewBox="0 0 24 24" fill="none">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -139,8 +136,8 @@
         <h2 class="section-title"><i data-lucide="zap"></i> Acciones</h2>
         <div class="action-buttons">
           <button class="btn" id="btnEditName"><i data-lucide="pencil"></i> Cambiar nombre</button>
-          <button class="btn btn-warning" id="btnResetPassword"><i data-lucide="key-round"></i> Cambiar contrase√±a</button>
-          <button class="btn btn-danger" id="btnLogout"><i data-lucide="log-out"></i> Cerrar Sesi√≥n</button>
+          <button class="btn btn-warning" id="btnResetPassword"><i data-lucide="key-round"></i> Cambiar contraseÒa</button>
+          <button class="btn btn-danger" id="btnLogout"><i data-lucide="log-out"></i> Cerrar SesiÛn</button>
         </div>
       </div>
 
@@ -148,12 +145,12 @@
       <div class="section ref-section ref-section--hidden" id="referralSection">
         <h2 class="section-title"><i data-lucide="users"></i> Invita amigos</h2>
 
-        <!-- Tarjeta del c√≥digo -->
+        <!-- Tarjeta del cÛdigo -->
         <div class="ref-code-card">
-          <div class="ref-code-label">Tu c√≥digo de invitaci√≥n</div>
+          <div class="ref-code-label">Tu cÛdigo de invitaciÛn</div>
           <div class="ref-code-inner">
-            <span class="ref-code-value" id="referralCode">‚Äî</span>
-            <button class="ref-copy-icon-btn" id="btnCopyCode" aria-label="Copiar c√≥digo">
+            <span class="ref-code-value" id="referralCode">ó</span>
+            <button class="ref-copy-icon-btn" id="btnCopyCode" aria-label="Copiar cÛdigo">
               <i data-lucide="copy"></i>
             </button>
           </div>
@@ -163,7 +160,7 @@
           </div>
         </div>
 
-        <!-- Botones de acci√≥n -->
+        <!-- Botones de acciÛn -->
         <div class="ref-btn-row">
           <button class="btn btn-primary ref-btn" id="btnShareReferral">
             <i data-lucide="share-2"></i> Compartir
@@ -175,35 +172,24 @@
 
         <!-- Feedback -->
         <p class="referral-copied" id="referralCopied">
-          <i data-lucide="check-circle" class="ref-check-icon"></i> ¬°Enlace copiado!
+          <i data-lucide="check-circle" class="ref-check-icon"></i> °Enlace copiado!
         </p>
         <p class="referral-stats" id="referralStats"></p>
 
-        <!-- Ingresar c√≥digo de otro usuario (si no ha sido referido a√∫n) -->
+        <!-- Ingresar cÛdigo de otro usuario (si no ha sido referido a˙n) -->
         <div class="ref-enter-wrap ref-enter-wrap--hidden" id="refEnterWrap">
-          <div class="ref-enter-divider"><span>¬øTe invit√≥ alguien?</span></div>
+          <div class="ref-enter-divider"><span>øTe invitÛ alguien?</span></div>
           <div class="ref-enter-row">
             <input type="text" id="refCodeInput" class="ref-enter-input"
-                   placeholder="VG¬∑¬∑¬∑¬∑¬∑¬∑" maxlength="8" autocomplete="off">
-            <button type="button" class="btn btn-primary ref-enter-btn" id="btnApplyRef" aria-label="Aplicar c√≥digo">
+                   placeholder="VG∑∑∑∑∑∑" maxlength="8" autocomplete="off">
+            <button type="button" class="btn btn-primary ref-enter-btn" id="btnApplyRef" aria-label="Aplicar cÛdigo">
               <i data-lucide="check"></i>
             </button>
           </div>
           <p class="ref-enter-msg" id="refEnterMsg"></p>
         </div>
       </div>
-
-      <!-- AdSense Display -->
-      <div class="ads-container">
-        <ins class="adsbygoogle"
-             data-ad-client="ca-pub-1930529129644930"
-             data-ad-slot="6388933118"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-      </div>
-
-      <!-- Notificaciones push -->
+<!-- Notificaciones push -->
       <div class="section">
         <h2 class="section-title"><i data-lucide="bell"></i> Notificaciones push</h2>
         <div class="action-buttons">
@@ -238,11 +224,7 @@
   <script defer src="js/push-notifications.js"></script>
   <script defer src="js/profile.js"></script>
 <script>document.addEventListener('DOMContentLoaded', function() { if(window.lucide)lucide.createIcons(); });</script>
-  <script defer src="js/admob.js"></script>
-  <script defer src="js/unity-ads.js"></script>
-  <script defer src="js/ad-manager.js"></script>
-  <script defer src="js/ads-init.js"></script>
-  <script defer src="js/bottom-nav.js"></script>
+<script defer src="js/bottom-nav.js"></script>
   <script src="js/splash.js"></script>
 </body>
 </html>

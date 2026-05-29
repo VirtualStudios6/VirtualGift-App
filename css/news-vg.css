@@ -260,12 +260,7 @@ body {
   animation: shimmer 1.4s infinite;
 }
 .skeleton-line--short   { width: 72%; }
-.skeleton-line--shorter { width: 48%; }
-
-/* ---- Ads ---- */
-.ads-container { margin: 22px 0; }
-
-/* Utility — JS visibility toggle */
+.skeleton-line--shorter { width: 48%; }/* Utility — JS visibility toggle */
 .news-hidden { display: none !important; }
 
 /* ============================================ */

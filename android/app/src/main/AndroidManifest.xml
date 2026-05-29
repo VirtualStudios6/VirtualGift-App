@@ -22,11 +22,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Google Mobile Ads: APP ID de AdMob para VirtualGift -->
-        <meta-data
-            android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-1930529129644930~4611784141" />
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -38,18 +33,14 @@
 
     <!-- ─── PERMISOS ─────────────────────────────────── -->
 
-    <!-- Internet (Firestore, Firebase Auth, Wortise Ads) -->
+    <!-- Internet (Firestore, Firebase Auth) -->
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <!-- Estado de red (necesario para Wortise/ads y Firebase offline) -->
+    <!-- Estado de red (necesario para Firebase offline) -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
     <!-- Notificaciones push — obligatorio en Android 13+ (API 33+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-    <!-- Advertising ID — requerido por Google Play si la app muestra anuncios -->
-    <!-- Sin esto, las ads fallan en Android 13+ y Google Play puede rechazar la app -->
-    <uses-permission android:name="com.google.android.gms.permission.AD_ID" />
 
 </manifest>

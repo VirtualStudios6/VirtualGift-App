@@ -1,41 +1,39 @@
-﻿/* ═══════════════════════════════════════════════
-   RULETA.JS — VirtualGift
-   3 giros gratis/día · +1 por anuncio (máx 3)
-   Canvas wheel con animación suave ease-out
-═══════════════════════════════════════════════ */
+/* -----------------------------------------------
+   RULETA.JS � VirtualGift
+   3 giros gratis diarios
+   Canvas wheel con animaci�n suave ease-out
+----------------------------------------------- */
 'use strict';
 
-// ── Segmentos ──
+// -- Segmentos --
 const SEGMENTS = [
-  { label: 'MISS', icon: '💀', coins: 0,   color: '#4a0010', weight: 22 },
-  { label: '+5',   icon: '🪙',  coins: 5,   color: '#3b0075', weight: 20 },
-  { label: '+10',  icon: '💰',  coins: 10,  color: '#00267a', weight: 16 },
-  { label: 'MISS', icon: '💀',  coins: 0,   color: '#1a1a30', weight: 14 },
-  { label: '+5',   icon: '🪙',  coins: 5,   color: '#220065', weight: 12 },
-  { label: '+20',  icon: '⭐',  coins: 20,  color: '#004020', weight: 10 },
-  { label: '+50',  icon: '💎',  coins: 50,  color: '#4d2000', weight:  5 },
-  { label: '+100', icon: '🔥',  coins: 100, color: '#660033', weight:  1 },
+  { label: 'MISS', icon: 'X', coins: 0,   color: '#4a0010', weight: 22 },
+  { label: '+5',   icon: '5',  coins: 5,   color: '#3b0075', weight: 20 },
+  { label: '+10',  icon: '10',  coins: 10,  color: '#00267a', weight: 16 },
+  { label: 'MISS', icon: 'X',  coins: 0,   color: '#1a1a30', weight: 14 },
+  { label: '+5',   icon: '5',  coins: 5,   color: '#220065', weight: 12 },
+  { label: '+20',  icon: '20',  coins: 20,  color: '#004020', weight: 10 },
+  { label: '+50',  icon: '50',  coins: 50,  color: '#4d2000', weight:  5 },
+  { label: '+100', icon: '100',  coins: 100, color: '#660033', weight:  1 },
 ];
 
 const TOTAL_WEIGHT = SEGMENTS.reduce((s, g) => s + g.weight, 0);
 
 const FREE_PLAYS       = 3;
 const MAX_EXTRA        = 3;
-const REWARDED_UNIT_ID = '7d073f1e-bb56-4a59-90d0-ea9dd0285f13';
 
-// ── Estado ──
+// -- Estado --
 let currentUser   = null;
 let userCoins     = 0;
 let playsUsed     = 0;
 let extraUsed     = 0;
 let isSpinning    = false;
-let spinsSinceAd  = 0; // interstitial cada 3 giros
-let displayedRot  = 0; // ángulo actual en canvas (grados, acumulado)
+let displayedRot  = 0; // �ngulo actual en canvas (grados, acumulado)
 
-// ── Canvas ──
+// -- Canvas --
 let canvas, ctx;
 
-// ── Helpers ──
+// -- Helpers --
 function today() { return new Date().toISOString().slice(0, 10); }
 function toast(msg) {
   const el = document.getElementById('gameToast');
@@ -46,7 +44,7 @@ function toast(msg) {
   el._t = setTimeout(() => el.classList.remove('show'), 2800);
 }
 
-// ── Wheel drawing ──
+// -- Wheel drawing --
 function drawWheel(rotDeg) {
   const W  = canvas.width;
   const H  = canvas.height;
@@ -200,7 +198,7 @@ function drawWheel(rotDeg) {
   ctx.stroke();
 }
 
-// ── Weighted random ──
+// -- Weighted random --
 function getResult() {
   let r = Math.random() * TOTAL_WEIGHT;
   for (const seg of SEGMENTS) {
@@ -210,32 +208,32 @@ function getResult() {
   return SEGMENTS[0];
 }
 
-// ── Calculate target rotation ──
+// -- Calculate target rotation --
 function calcTargetRotation(targetSeg) {
   const idx = SEGMENTS.indexOf(targetSeg);
 
-  // Ángulo del centro del segmento desde el inicio del dibujo (degrees, clockwise from top)
+  // �ngulo del centro del segmento desde el inicio del dibujo (degrees, clockwise from top)
   let start = 0;
   for (let i = 0; i < idx; i++) {
     start += (SEGMENTS[i].weight / TOTAL_WEIGHT) * 360;
   }
   const center = start + (SEGMENTS[idx].weight / TOTAL_WEIGHT) * 180;
 
-  // Para que el segmento quede bajo el puntero (top), la rotación total debe ser (360 - center) mod 360.
-  // Fórmula: cuando canvas rota +rot, el punto originalmente en ángulo 'a' aparece en 'a + rot'.
-  // Queremos a + rot ≡ 0° (top) → rot ≡ -center ≡ 360 - center (mod 360).
+  // Para que el segmento quede bajo el puntero (top), la rotaci�n total debe ser (360 - center) mod 360.
+  // F�rmula: cuando canvas rota +rot, el punto originalmente en �ngulo 'a' aparece en 'a + rot'.
+  // Queremos a + rot = 0� (top) ? rot = -center = 360 - center (mod 360).
   const currentNorm = ((displayedRot % 360) + 360) % 360;
   let target = (360 - center) % 360;
   let needed  = target - currentNorm;
   if (needed <= 0) needed += 360;
 
-  // 6–8 vueltas completas para efecto visual
+  // 6�8 vueltas completas para efecto visual
   const extraSpins = (6 + Math.floor(Math.random() * 3)) * 360;
 
   return displayedRot + needed + extraSpins;
 }
 
-// ── Animation ──
+// -- Animation --
 function easeOut(t) { return 1 - Math.pow(1 - t, 4); }
 
 function animateTo(target, onDone) {
@@ -260,7 +258,7 @@ function animateTo(target, onDone) {
   requestAnimationFrame(frame);
 }
 
-// ── UI ──
+// -- UI --
 function updateBalanceUI() {
   const el = document.getElementById('balanceVal');
   if (el) el.textContent = userCoins.toLocaleString('en-US');
@@ -303,7 +301,7 @@ function buildLegend() {
       <div class="legend-dot" style="background:${s.color};box-shadow:0 0 7px ${glow}"></div>
       <span class="legend-icon">${s.icon}</span>
       <span class="legend-label">${s.label === 'MISS' ? 'Sin suerte' : s.label}</span>
-      <span class="legend-coins">${s.coins > 0 ? '+' + s.coins + ' 🪙' : '—'}</span>
+      <span class="legend-coins">${s.coins > 0 ? '+' + s.coins + ' VC' : '�'}</span>
     </div>`;
   }).join('');
 }
@@ -313,7 +311,7 @@ function setResult(html) {
   if (el) el.innerHTML = html;
 }
 
-// ── Load data ──
+// -- Load data --
 async function loadUserData() {
   if (!currentUser) return;
   try {
@@ -336,14 +334,14 @@ async function loadUserData() {
   }
 }
 
-// ── Spin ──
+// -- Spin --
 window.doSpin = async function() {
   const total = FREE_PLAYS + extraUsed;
   if (playsUsed >= total || isSpinning) return;
 
   isSpinning = true;
   document.getElementById('spinBtn').disabled = true;
-  setResult('<span class="result-hint">⏳ Girando…</span>');
+  setResult('<span class="result-hint">? Girando�</span>');
 
   const result = getResult();
   const target = calcTargetRotation(result);
@@ -351,10 +349,10 @@ window.doSpin = async function() {
   animateTo(target, async () => {
     // Show result
     if (result.coins > 0) {
-      setResult(`<span class="result-win">+${result.coins} 🪙</span>`);
+      setResult(`<span class="result-win">+${result.coins} VC</span>`);
       if (window.VGSounds) VGSounds.prize();
     } else {
-      setResult('<span class="result-miss">💀 Sin suerte esta vez</span>');
+      setResult('<span class="result-miss">Sin suerte esta vez</span>');
     }
 
     // Save to Firestore
@@ -386,39 +384,8 @@ window.doSpin = async function() {
     }
 
     isSpinning = false;
-    updatePlaysUI();
-
-    spinsSinceAd++;
-    if (spinsSinceAd >= 3) {
-      spinsSinceAd = 0;
-      window.showInterstitialIfReady?.();
-    }
-  });
-};
-
-// ── Giro extra (Wortise Rewarded) ──
-window.watchAd = async function() {
-  const btn = document.getElementById('adPlayBtn');
-  if (btn) { btn.disabled = true; btn.textContent = '⏳ Cargando anuncio…'; }
-
-  try {
-    const result = await AdManager.showRewarded();
-    if (result.rewarded) {
-      await grantExtraRoulettePlay();
-    } else if (!result.skipped) {
-      toast('No hay anuncios disponibles en este momento');
-    } else {
-      toast('El anuncio no se completó — inténtalo de nuevo');
-    }
-  } catch (e) {
-    console.error('[ruleta] watchAd error', e);
-    toast('No se pudo cargar el anuncio');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '▶ Ver anuncio para +1 giro'; }
-  }
-};
-
-async function grantExtraRoulettePlay() {
+    updatePlaysUI();});
+};async function grantExtraRoulettePlay() {
   extraUsed++;
   try {
     await window.db.collection('users').doc(currentUser.uid).update({
@@ -426,11 +393,11 @@ async function grantExtraRoulettePlay() {
       rouletteExtra: extraUsed,
     });
   } catch(e) { console.error('[ruleta] grantExtraPlay save', e); }
-  toast('✅ +1 giro desbloqueado');
+  toast('+1 giro desbloqueado');
   updatePlaysUI();
 }
 
-// ── Init ──
+// -- Init --
 window.addEventListener('load', () => {
   canvas = document.getElementById('wheelCanvas');
   ctx    = canvas.getContext('2d');

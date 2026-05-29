@@ -1,10 +1,10 @@
-﻿// ═══════════════════════════════════════════════════════
-//  VIRTUALGIFT — SORTEOS.JS
+// -------------------------------------------------------
+//  VIRTUALGIFT � SORTEOS.JS
 //  Usa window.db / window.auth / window.waitForFirebase
 //  Campo de coins: data.points (igual que puntos.js)
-// ═══════════════════════════════════════════════════════
+// -------------------------------------------------------
 
-// ── MOCK (fallback si Firestore no tiene sorteos aún) ──
+// -- MOCK (fallback si Firestore no tiene sorteos a�n) --
 const MOCK_RAFFLES = [
   {
     id: "raffle_amazon_50",
@@ -12,7 +12,7 @@ const MOCK_RAFFLES = [
     cost: 800, participants: 1247, maxParticipants: 2000,
     endDate: new Date(Date.now() + 2 * 86400000),
     color: "#FF9900", colorDark: "#7a4800",
-    tag: "🔥 Popular", tagColor: "#f43f8c", active: true,
+    tag: "Popular", tagColor: "#f43f8c", active: true,
   },
   {
     id: "raffle_ps_25",
@@ -20,7 +20,7 @@ const MOCK_RAFFLES = [
     cost: 400, participants: 683, maxParticipants: 1000,
     endDate: new Date(Date.now() + 5 * 86400000),
     color: "#0070d1", colorDark: "#003566",
-    tag: "⚡ Fácil de ganar", tagColor: "#8b5cf6", active: true,
+    tag: "? F�cil de ganar", tagColor: "#8b5cf6", active: true,
   },
   {
     id: "raffle_gplay_10",
@@ -28,7 +28,7 @@ const MOCK_RAFFLES = [
     cost: 150, participants: 312, maxParticipants: 500,
     endDate: new Date(Date.now() + 1 * 86400000 + 3 * 3600000),
     color: "#34A853", colorDark: "#0d5c26",
-    tag: "⏳ Termina pronto", tagColor: "#f5c842", active: true,
+    tag: "Termina pronto", tagColor: "#f5c842", active: true,
   },
 
   {
@@ -54,27 +54,26 @@ const MOCK_RAFFLES = [
     cost: 300, participants: 600, maxParticipants: 900,
     endDate: new Date(Date.now() + 3 * 86400000),
     color: "#003087", colorDark: "#001240",
-    tag: "💳 Efectivo", tagColor: "#34d399", active: true,
+    tag: "Efectivo", tagColor: "#34d399", active: true,
   },
 ];
 
 const REQUIREMENTS = [
-  { id: "req_follow", icon: "📲", title: "Seguir en Instagram", desc: "@VirtualGift.app — Activa notificaciones", cta: "Seguir ahora", link: "https://instagram.com/", points: 50 },
-  { id: "req_ad",     icon: "📺", title: "Ver anuncio",         desc: "Mira el video completo (30 seg)",            cta: "Ver anuncio", link: null, points: 30, waitSeconds: 5 },
-  { id: "req_share",  icon: "🔗", title: "Compartir sorteo",    desc: "Comparte en tus redes sociales",             cta: "Compartir",   link: null, points: 20 },
+  { id: "req_follow", icon: "IG", title: "Seguir en Instagram", desc: "@VirtualGift.app � Activa notificaciones", cta: "Seguir ahora", link: "https://instagram.com/", points: 50 },
+  { id: "req_share",  icon: "SH", title: "Compartir sorteo",    desc: "Comparte en tus redes sociales",             cta: "Compartir",   link: null, points: 20 },
 ];
 
-// ── ESTADO ──
+// -- ESTADO --
 let currentUser          = null;
 let userCoins            = 0;
 let allRaffles           = [];
 let selectedRaffle       = null;
 let reqCompleted         = {};
-let adTimers             = {};
+let reqTimers             = {};
 let currentEntryNumber   = 1;
 let currentParticipantId = null;
 
-// ── UTILIDADES ──
+// -- UTILIDADES --
 function formatTimeLeft(endDate) {
   const diff = endDate - Date.now();
   if (diff <= 0) return "Terminado";
@@ -102,13 +101,13 @@ function guessImage(title = "") {
   return null;
 }
 
-// ── UPDATE UI ──
+// -- UPDATE UI --
 function updateBalanceUI() {
   const el = document.getElementById("balAmount");
   if (el) el.textContent = userCoins.toLocaleString('en-US');
 }
 
-// ── INIT (usando window.waitForFirebase igual que puntos.js) ──
+// -- INIT (usando window.waitForFirebase igual que puntos.js) --
 window.addEventListener("load", () => {
   window.waitForFirebase(() => {
     window.auth.onAuthStateChanged(async (fbUser) => {
@@ -130,7 +129,7 @@ window.addEventListener("load", () => {
         currentUser = {
           uid:   fbUser.uid,
           name:  data.user || data.displayName || fbUser.displayName || "Usuario",
-          // ✅ campo correcto igual que puntos.js
+          // Campo correcto igual que puntos.js
           coins: typeof data.points === "number" ? data.points : 0,
         };
         userCoins = currentUser.coins;
@@ -145,7 +144,7 @@ window.addEventListener("load", () => {
   });
 });
 
-// ── CARGAR SORTEOS ──
+// -- CARGAR SORTEOS --
 async function loadRaffles() {
   try {
     const snap = await window.db.collection("raffles")
@@ -162,7 +161,7 @@ async function loadRaffles() {
         };
       });
     } else {
-      // No hay sorteos en Firestore aún → usar mock
+      // No hay sorteos en Firestore a�n ? usar mock
       allRaffles = MOCK_RAFFLES;
     }
   } catch (e) {
@@ -173,8 +172,8 @@ async function loadRaffles() {
   renderRaffles();
 }
 
-// ── MIS PARTICIPACIONES ──
-// ── YA AL MÁXIMO SCREEN ──
+// -- MIS PARTICIPACIONES --
+// -- YA AL M�XIMO SCREEN --
 function openAlreadyScreen(raffle) {
   const screen = document.getElementById("sgAlreadyScreen");
   if (!screen) return;
@@ -213,7 +212,7 @@ function goToParticipaciones() {
     ? withAppFlag("participaciones.html") : "participaciones.html";
 }
 
-// ── RENDER CARDS ──
+// -- RENDER CARDS --
 function renderRaffles() {
   const list    = document.getElementById("sgList");
   const countEl = document.getElementById("sgCount");
@@ -222,7 +221,7 @@ function renderRaffles() {
     `${allRaffles.length} sorteo${allRaffles.length !== 1 ? "s" : ""} disponible${allRaffles.length !== 1 ? "s" : ""}`;
 
   if (!allRaffles.length) {
-    list.innerHTML = `<div class="sg-loading"><span style="font-size:2.5rem">😔</span><p>No hay sorteos disponibles</p></div>`;
+    list.innerHTML = `<div class="sg-loading"><span style="font-size:2.5rem">--</span><p>No hay sorteos disponibles</p></div>`;
     return;
   }
 
@@ -261,7 +260,7 @@ function buildCard(r, i) {
 
   const imgHTML = r.image
     ? `<div class="sg-card-img-wrap"><img src="${imgPath(r.image)}" alt="${escapeHTML(r.title)}"></div>`
-    : `<div class="sg-card-img-wrap" style="font-size:1.8rem;text-align:center">🎁</div>`;
+    : `<div class="sg-card-img-wrap" style="font-size:1.8rem;text-align:center">Gift</div>`;
 
   return `
   <div class="sg-card" data-id="${r.id}" style="animation-delay:${i * 0.07}s">
@@ -304,7 +303,7 @@ function buildCard(r, i) {
   </div>`;
 }
 
-// ── MODAL ──
+// -- MODAL --
 function openModal(raffle) {
   selectedRaffle = raffle;
   const canAfford = userCoins >= raffle.cost;
@@ -345,7 +344,7 @@ document.getElementById("mRowBalance").textContent  = userCoins.toLocaleString('
   const warnEl = document.getElementById("mNoticeWarn");
   if (!canAfford) {
     document.getElementById("mWarnText").innerHTML =
-      `No tienes suficientes coins. Necesitas <strong>${(raffle.cost - userCoins).toLocaleString()}</strong> más.`;
+      `No tienes suficientes coins. Necesitas <strong>${(raffle.cost - userCoins).toLocaleString()}</strong> m�s.`;
     warnEl.style.display = "flex";
   } else {
     warnEl.style.display = "none";
@@ -377,7 +376,7 @@ async function _updateModalEntryCount(raffle) {
     const infoP = document.querySelector("#mNoticeInfo p");
     if (infoP) {
       infoP.innerHTML = count >= 5
-        ? `Ya tienes <strong>5/5 entradas</strong> — máximo alcanzado.`
+        ? `Ya tienes <strong>5/5 entradas</strong> � m�ximo alcanzado.`
         : `Tienes <strong>${count}/5 entradas</strong> en este sorteo. Los coins se descuentan al confirmar.`;
     }
 
@@ -386,7 +385,7 @@ async function _updateModalEntryCount(raffle) {
       document.getElementById("mConfirmBtn").style.background = "";
       document.getElementById("mNoticeInfo").style.display = "none";
       document.getElementById("mNoticeWarn").style.display = "flex";
-      document.getElementById("mWarnText").textContent = "Alcanzaste el máximo de 5 entradas para este sorteo.";
+      document.getElementById("mWarnText").textContent = "Alcanzaste el m�ximo de 5 entradas para este sorteo.";
     }
   } catch {}
 }
@@ -398,7 +397,7 @@ function closeModal(clearRaffle = true) {
   if (clearRaffle) selectedRaffle = null;
 }
 
-// ── CONFIRMAR PARTICIPACIÓN ──
+// -- CONFIRMAR PARTICIPACI�N --
 async function confirmParticipation() {
   if (!selectedRaffle || !currentUser) return;
 
@@ -410,7 +409,7 @@ async function confirmParticipation() {
   btn.disabled          = true;
   spinner.style.display = "inline-block";
   arrow.style.display   = "none";
-  text.textContent      = "Procesando…";
+  text.textContent      = "Procesando�";
 
   try {
     const fn     = firebase.functions().httpsCallable("participateInRaffle");
@@ -430,7 +429,7 @@ async function confirmParticipation() {
     let userMsg;
 
     if (code === "failed-precondition") {
-      userMsg = err.message || "No se puede completar la participación";
+      userMsg = err.message || "No se puede completar la participaci�n";
     } else if (code === "already-exists") {
       btn.disabled          = false;
       spinner.style.display = "none";
@@ -441,21 +440,21 @@ async function confirmParticipation() {
       openAlreadyScreen(alreadyRaffle);
       return;
     } else if (code === "resource-exhausted") {
-      userMsg = err.message || "El sorteo ya alcanzó el máximo de participantes";
+      userMsg = err.message || "El sorteo ya alcanz� el m�ximo de participantes";
     } else if (code === "not-found") {
-      userMsg = "Sorteo no encontrado. Recarga la página.";
+      userMsg = "Sorteo no encontrado. Recarga la p�gina.";
     } else if (code === "unauthenticated") {
-      userMsg = "Sesión expirada. Recarga la página.";
+      userMsg = "Sesi�n expirada. Recarga la p�gina.";
     } else if (code === "invalid-argument") {
-      userMsg = "Datos inválidos. Recarga la página.";
+      userMsg = "Datos inv�lidos. Recarga la p�gina.";
     } else if (code === "permission-denied") {
-      userMsg = "Sin permisos. Recarga la página.";
+      userMsg = "Sin permisos. Recarga la p�gina.";
     } else if (code === "internal") {
       userMsg = "Error en el servidor. Intenta de nuevo en unos minutos.";
     } else if (code === "unavailable" || code === "deadline-exceeded") {
-      userMsg = "Servicio no disponible. Comprueba tu conexión e intenta de nuevo.";
+      userMsg = "Servicio no disponible. Comprueba tu conexi�n e intenta de nuevo.";
     } else {
-      userMsg = `Error inesperado (${code || "sin código"}). Intenta de nuevo.`;
+      userMsg = `Error inesperado (${code || "sin c�digo"}). Intenta de nuevo.`;
     }
 
     document.getElementById("mNoticeWarn").style.display = "flex";
@@ -467,7 +466,7 @@ async function confirmParticipation() {
   }
 }
 
-// ── REQUISITOS ──
+// -- REQUISITOS --
 function openRequirements(raffle, entryNumber = 1) {
   reqCompleted       = {};
   selectedRaffle     = raffle;
@@ -502,7 +501,7 @@ function renderReqList() {
       </div>
       <div class="sg-req-card-action" id="reqAction_${req.id}">
         ${reqCompleted[req.id]
-          ? `<span class="sg-req-done-badge">✓ Listo</span>`
+          ? `<span class="sg-req-done-badge">Listo</span>`
           : `<button class="sg-req-action-btn" onclick="handleReq('${req.id}')">${req.cta}</button>`}
       </div>
     </div>`
@@ -517,11 +516,11 @@ function handleReq(reqId) {
     const actionDiv = document.getElementById(`reqAction_${reqId}`);
     let t = req.waitSeconds;
     actionDiv.innerHTML = `<div class="sg-req-countdown" id="countdown_${reqId}">${t}s</div>`;
-    adTimers[reqId] = setInterval(() => {
+    reqTimers[reqId] = setInterval(() => {
       t--;
       const el = document.getElementById(`countdown_${reqId}`);
       if (el) el.textContent = `${t}s`;
-      if (t <= 0) { clearInterval(adTimers[reqId]); markReqDone(reqId); }
+      if (t <= 0) { clearInterval(reqTimers[reqId]); markReqDone(reqId); }
     }, 1000);
     return;
   }
@@ -547,7 +546,7 @@ function updateReqProgress() {
   document.getElementById("reqFill").style.width          = `${pct}%`;
 
   const btn = document.getElementById("reqFinishBtn");
-  btn.textContent = allDone ? "🎉 Confirmar participación" : `Continuar sin completar todo (${done}/${total})`;
+  btn.textContent = allDone ? "?? Confirmar participaci�n" : `Continuar sin completar todo (${done}/${total})`;
   btn.classList.toggle("ready", allDone);
 }
 
@@ -556,7 +555,7 @@ async function finishRequirements() {
 
   const btn = document.getElementById("reqFinishBtn");
   const originalText = btn?.textContent || "";
-  if (btn) { btn.disabled = true; btn.textContent = "Procesando…"; }
+  if (btn) { btn.disabled = true; btn.textContent = "Procesando�"; }
 
   const done = Object.values(reqCompleted).filter(Boolean).length;
 
@@ -569,15 +568,15 @@ async function finishRequirements() {
     } catch (err) {
       const code = err.code || "";
 
-      // Idempotent — already completed is not an error, continue to success
+      // Idempotent � already completed is not an error, continue to success
       if (code !== "functions/already-exists") {
         let userMsg;
-        if (code === "functions/failed-precondition") userMsg = err.message || "El sorteo ya finalizó";
-        else if (code === "functions/not-found")      userMsg = "Participación no encontrada. Recarga la página.";
-        else if (code === "functions/unauthenticated")userMsg = "Sesión expirada. Recarga la página.";
+        if (code === "functions/failed-precondition") userMsg = err.message || "El sorteo ya finaliz�";
+        else if (code === "functions/not-found")      userMsg = "Participaci�n no encontrada. Recarga la p�gina.";
+        else if (code === "functions/unauthenticated")userMsg = "Sesi�n expirada. Recarga la p�gina.";
         else                                          userMsg = "Error al guardar requisitos. Intenta de nuevo.";
 
-        // Show error inside requirements screen — do NOT proceed to success
+        // Show error inside requirements screen � do NOT proceed to success
         const errEl = document.getElementById("reqErrorMsg");
         if (errEl) {
           errEl.textContent    = userMsg;
@@ -593,7 +592,7 @@ async function finishRequirements() {
   openSuccess(selectedRaffle, currentEntryNumber);
 }
 
-// ── ÉXITO ──
+// -- �XITO --
 function openSuccess(raffle, entryNumber = 1) {
   const chip = document.getElementById("successChip");
   if (raffle.image) {

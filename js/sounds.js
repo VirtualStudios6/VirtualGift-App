@@ -36,7 +36,7 @@
 
   var VGSounds = {
 
-    // ── Ganar coins (anuncios) ──────────────────────────────
+    // ── Ganar coins ──────────────────────────────
     // Arpegio ascendente C5 → E5 → G5
     coin: function () {
       var c = ctx(); if (!c || !enabled()) return;
