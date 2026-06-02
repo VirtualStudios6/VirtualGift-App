@@ -17,8 +17,10 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-functions.js"></script>
   <script defer src="js/firebase-config.js"></script>
   <script defer src="js/sounds.js"></script>
+  <script defer src="js/unity-ads.js"></script>
 <script defer src="js/tragamonedas.js"></script>
 </head>
 <body>
@@ -76,6 +78,11 @@
       <button type="button" class="spin-btn" id="spinBtn" onclick="doSpin()">
         🎰 &nbsp;GIRAR
       </button>
+      <div class="ad-extra-row" id="adPlayRow" style="display:none;">
+        <button type="button" class="ad-extra-btn" id="adPlayBtn">
+          Ver anuncio y ganar +1 tirada
+        </button>
+      </div>
 
       <div class="slots-lights slots-lights--bottom" aria-hidden="true">
         <span></span><span></span><span></span><span></span><span></span>

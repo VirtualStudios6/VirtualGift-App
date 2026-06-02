@@ -245,33 +245,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const myReferralCode = 'VG' + user.uid.slice(0, 6).toUpperCase();
 
         if (isFirstTime) {
-          const REFERRAL_BONUS = 500;
-          let initialPoints = prevData.points ?? 175;
-          let referredBy    = null;
-
-          // Procesar referido pendiente si existe y no ha sido procesado
-          if (prevData.pendingReferral && !prevData.referralProcessed) {
-            try {
-              const refSnap = await db.collection('users')
-                .where('referralCode', '==', prevData.pendingReferral)
-                .limit(1).get();
-
-              if (!refSnap.empty) {
-                referredBy      = refSnap.docs[0].id;
-                initialPoints  += REFERRAL_BONUS;
-
-                // Referral bonus is handled by the applyReferral Cloud Function
-                await db.collection('pointsHistory').add({
-                  userId: user.uid, type: 'referral_bonus',
-                  points: REFERRAL_BONUS, fromCode: prevData.pendingReferral,
-                  createdAt: firebase.firestore.Timestamp.now(),
-                });
-              }
-            } catch(refErr) {
-              console.warn('[referral] Error procesando referido:', refErr.code);
-            }
-          }
-
           await userRef.set({
             uid:                 user.uid,
             displayName:         user.displayName || "Usuario",
@@ -280,18 +253,7 @@ document.addEventListener("DOMContentLoaded", () => {
             provider,
             photoURL:            user.photoURL || "",
             referralCode:        myReferralCode,
-            referralProcessed:   true,
-            ...(referredBy && { referredBy }),
-            pendingReferral:     firebase.firestore.FieldValue.delete(),
-            points:              initialPoints,
-            level:               prevData.level  ?? 1,
-            experience:          prevData.experience ?? 0,
-            nextLevel:           prevData.nextLevel  ?? 200,
-            gamesPlayed:         prevData.gamesPlayed ?? 0,
-            achievements:        prevData.achievements ?? 0,
-            sorteosParticipados: prevData.sorteosParticipados ?? 0,
             loginCount:          1,
-            createdAt:           prevData.createdAt || firebase.firestore.FieldValue.serverTimestamp(),
             lastLogin:           firebase.firestore.FieldValue.serverTimestamp(),
           }, { merge: true });
 
@@ -301,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } else {
           await userRef.set({
+            uid:          user.uid,
             referralCode: myReferralCode,
             lastLogin:    firebase.firestore.FieldValue.serverTimestamp(),
             loginCount:   loginCount + 1,

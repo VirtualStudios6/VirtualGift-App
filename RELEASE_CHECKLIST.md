@@ -1,47 +1,64 @@
-# Checklist de Release - VirtualGift sin anuncios
+# Checklist de Release - VirtualGift con Unity Ads
 
-Completar antes de publicar en Google Play Store o lanzar en produccion web.
+Completar antes de publicar en Google Play Store, App Store o lanzar web.
 
 ---
 
-## 1. Confirmar que no hay SDKs de anuncios
+## 1. Unity Ads
 
-- [ ] Android no registra plugins de anuncios en `MainActivity.java`
-- [ ] Android no incluye `play-services-ads`, Unity Ads ni SDKs publicitarios
-- [ ] `AndroidManifest.xml` no declara App ID de AdMob ni permiso `com.google.android.gms.permission.AD_ID`
-- [ ] No existen cargas de AdSense (`pagead2.googlesyndication.com`) en HTML
-- [ ] No existen archivos `ads.txt` ni `app-ads.txt` en el build web
+- [ ] Confirmar Game ID Android `6127955`
+- [ ] Confirmar Game ID iOS `6127954`
+- [ ] Confirmar placements en Unity Dashboard:
+  - `Interstitial_Android`
+  - `Interstitial_iOS`
+  - `Rewarded_Android`
+  - `Rewarded_iOS`
+  - `Banner_Android`
+  - `Banner_iOS`
+- [ ] Probar Rewarded Ads en ruleta y tragamonedas con usuario real
+- [ ] Confirmar que `js/unity-ads.js` tiene `testMode: false` solo cuando Unity Ads ya este listo para produccion
+- [ ] Mantener la Monetization Stats API Key fuera del cliente/app
 
-## 2. Sin recompensas por anuncios
+## 2. Recompensas
 
-- [ ] `puntos.html` no muestra tarjeta para ver anuncios
-- [ ] `anuncios.html` muestra que la funcion esta desactivada
-- [ ] Ruleta y tragamonedas no ofrecen giros/tiradas extra por anuncios
-- [ ] No se escriben nuevas recompensas `ad_reward` desde el cliente
+- [ ] Desplegar `grantUnityAdReward` antes de publicar la app
+- [ ] Verificar que ruleta desbloquea maximo 3 giros extra por dia
+- [ ] Verificar que tragamonedas desbloquea maximo 3 tiradas extra por dia
+- [ ] Revisar en Firestore la coleccion `adRewards`
+- [ ] Configurar Server-to-Server callbacks de Unity Ads cuando Unity lo habilite para endurecer antifraude
 
-## 3. Build Android
+## 3. Android
 
 - [ ] Ejecutar `npm run cap:sync:android`
 - [ ] Ejecutar `cd android && .\gradlew.bat assembleRelease`
-- [ ] Abrir Android Studio y hacer Clean + Rebuild si vas a firmar desde la UI
-- [ ] Firmar el APK/AAB con la keystore de produccion
+- [ ] Ejecutar `cd android && .\gradlew.bat bundleRelease`
+- [ ] Revisar Data Safety en Google Play: ads, Advertising ID y datos usados por Unity Ads
+- [ ] Probar en dispositivo fisico Android
 
-## 4. Verificacion manual
+## 4. iOS
 
-- [ ] Instalar el build en un dispositivo fisico
-- [ ] Navegar por home, puntos, ruleta, tragamonedas, tienda y soporte
-- [ ] Verificar que no aparece ningun banner, interstitial, rewarded ad ni espacio vacio de anuncio
-- [ ] Verificar en logcat que no aparecen logs de AdMob, UnityAds o Google Mobile Ads
-- [ ] Verificar en DevTools/Network web que no hay requests a `pagead2.googlesyndication.com`
+- [ ] En Mac: ejecutar `npm run cap:sync:ios`
+- [ ] En `ios/App`: ejecutar `pod install`
+- [ ] Abrir Xcode y compilar en dispositivo fisico
+- [ ] Copiar desde Unity Dashboard la lista completa de SKAdNetwork IDs al `Info.plist`
+- [ ] Revisar App Privacy en App Store Connect: anuncios, tracking y datos usados por Unity Ads
 
-## 5. Google Play
+## 5. Firebase
 
-- [ ] En Data Safety, declarar que la app no usa Advertising ID si no hay otro SDK que lo requiera
-- [ ] En la ficha de Play Console, no marcar monetizacion por anuncios
-- [ ] Publicar una version nueva para que la app instalada deje de usar SDKs publicitarios
+- [ ] Activar `compute.googleapis.com` en Google Cloud si sigue apareciendo el warning de Functions Gen 2
+- [ ] Deploy ordenado:
+  1. `firebase deploy --only functions`
+  2. `firebase deploy --only firestore:rules,storage`
+  3. `npm run build && firebase deploy --only hosting`
 
 ---
 
-## Rollback
+## QA minimo
 
-Si en el futuro decides volver a monetizar con anuncios, hacerlo en una rama separada y revisar politicas de Google antes de reintroducir cualquier SDK publicitario.
+- [ ] Registro/login
+- [ ] Check-in diario
+- [ ] Ruleta normal y rewarded
+- [ ] Tragamonedas normal y rewarded
+- [ ] Canjes
+- [ ] Admin
+- [ ] Borrado de cuenta

@@ -287,6 +287,33 @@ function updatePlaysUI() {
   if (adRow) adRow.style.display = (remaining === 0 && extraUsed < MAX_EXTRA) ? 'flex' : 'none';
 }
 
+async function grantExtraPlayFromAd() {
+  if (!currentUser || isSpinning) return;
+  const adBtn = document.getElementById('adPlayBtn');
+  if (adBtn) adBtn.disabled = true;
+
+  try {
+    if (!window.VGUnityAds) throw new Error('Unity Ads no esta cargado');
+    await window.VGUnityAds.showRewarded({ serverId: currentUser.uid });
+
+    const fn = firebase.functions().httpsCallable('grantUnityAdReward');
+    const res = await fn({
+      rewardType: 'roulette_extra',
+      placementId: window.VGUnityAds.config.placements[window.VGUnityAds.getPlatform() === 'ios' ? 'ios' : 'android'].rewarded,
+    });
+
+    const data = res.data || {};
+    extraUsed = data.extraUsed ?? (extraUsed + 1);
+    toast(data.message || '+1 giro desbloqueado');
+    updatePlaysUI();
+  } catch (e) {
+    console.error('[ruleta] unity rewarded error', e);
+    toast(e.message || 'No se pudo completar el anuncio');
+  } finally {
+    if (adBtn) adBtn.disabled = false;
+  }
+}
+
 function buildLegend() {
   const el = document.getElementById('rouletteLegend');
   if (!el) return;
@@ -340,62 +367,37 @@ window.doSpin = async function() {
   if (playsUsed >= total || isSpinning) return;
 
   isSpinning = true;
-  document.getElementById('spinBtn').disabled = true;
-  setResult('<span class="result-hint">? Girando�</span>');
+  const spinBtn = document.getElementById('spinBtn');
+  if (spinBtn) spinBtn.disabled = true;
+  setResult('<span class="result-hint">Girando...</span>');
 
-  const result = getResult();
-  const target = calcTargetRotation(result);
-
-  animateTo(target, async () => {
-    // Show result
-    if (result.coins > 0) {
-      setResult(`<span class="result-win">+${result.coins} VC</span>`);
-      if (window.VGSounds) VGSounds.prize();
-    } else {
-      setResult('<span class="result-miss">Sin suerte esta vez</span>');
-    }
-
-    // Save to Firestore
-    playsUsed++;
-    try {
-      const upd = {
-        rouletteDate:  today(),
-        roulettePlays: playsUsed,
-        rouletteExtra: extraUsed,
-      };
-      if (result.coins > 0) {
-        upd.points = firebase.firestore.FieldValue.increment(result.coins);
-      }
-      await window.db.collection('users').doc(currentUser.uid).update(upd);
-
-      if (result.coins > 0) {
-        userCoins += result.coins;
-        updateBalanceUI();
-        await window.db.collection('pointsHistory').add({
-          userId:    currentUser.uid,
-          type:      'roulette_win',
-          points:    result.coins,
-          createdAt: firebase.firestore.Timestamp.now(),
-        });
-      }
-    } catch(e) {
-      console.error('[ruleta] save error', e);
-      toast('Error al guardar resultado');
-    }
-
-    isSpinning = false;
-    updatePlaysUI();});
-};async function grantExtraRoulettePlay() {
-  extraUsed++;
   try {
-    await window.db.collection('users').doc(currentUser.uid).update({
-      rouletteDate:  today(),
-      rouletteExtra: extraUsed,
+    const fn = firebase.functions().httpsCallable('spinRoulette');
+    const serverResult = await fn();
+    const data = serverResult.data || {};
+    const result = SEGMENTS[data.segmentIndex] || data.segment || SEGMENTS[0];
+    const target = calcTargetRotation(result);
+
+    animateTo(target, () => {
+      playsUsed = data.playsUsed ?? (playsUsed + 1);
+      if (data.coins > 0) {
+        setResult('<span class="result-win">+' + data.coins + ' VC</span>');
+        if (window.VGSounds) VGSounds.prize();
+      } else {
+        setResult('<span class="result-miss">Sin suerte esta vez</span>');
+      }
+      userCoins = data.points ?? (userCoins + (data.coins || 0));
+      updateBalanceUI();
+      isSpinning = false;
+      updatePlaysUI();
     });
-  } catch(e) { console.error('[ruleta] grantExtraPlay save', e); }
-  toast('+1 giro desbloqueado');
-  updatePlaysUI();
-}
+  } catch(e) {
+    console.error('[ruleta] spin error', e);
+    toast(e.message || 'No se pudo guardar el giro');
+    isSpinning = false;
+    updatePlaysUI();
+  }
+};
 
 // -- Init --
 window.addEventListener('load', () => {
@@ -424,6 +426,7 @@ window.addEventListener('load', () => {
       }
       currentUser = user;
       await loadUserData();
+      document.getElementById('adPlayBtn')?.addEventListener('click', grantExtraPlayFromAd);
     });
   });
 });

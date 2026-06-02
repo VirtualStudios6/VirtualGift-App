@@ -66,6 +66,33 @@ function updatePlaysUI() {
   if (adBtn) adBtn.disabled = false;
 }
 
+async function grantExtraPlayFromAd() {
+  if (!currentUser || isSpinning) return;
+  const adBtn = document.getElementById('adPlayBtn');
+  if (adBtn) adBtn.disabled = true;
+
+  try {
+    if (!window.VGUnityAds) throw new Error('Unity Ads no esta cargado');
+    await window.VGUnityAds.showRewarded({ serverId: currentUser.uid });
+
+    const fn = firebase.functions().httpsCallable('grantUnityAdReward');
+    const res = await fn({
+      rewardType: 'slot_extra',
+      placementId: window.VGUnityAds.config.placements[window.VGUnityAds.getPlatform() === 'ios' ? 'ios' : 'android'].rewarded,
+    });
+
+    const data = res.data || {};
+    extraUsed = data.extraUsed ?? (extraUsed + 1);
+    toast(data.message || '+1 tirada desbloqueada');
+    updatePlaysUI();
+  } catch (e) {
+    console.error('[slot] unity rewarded error', e);
+    toast(e.message || 'No se pudo completar el anuncio');
+  } finally {
+    if (adBtn) adBtn.disabled = false;
+  }
+}
+
 function setResult(html) {
   const el = document.getElementById('resultDisplay');
   if (el) el.innerHTML = html;
@@ -128,30 +155,37 @@ window.doSpin = async function() {
   isSpinning = true;
   const spinBtn = document.getElementById('spinBtn');
   if (spinBtn) spinBtn.disabled = true;
-  setResult('<span class="result-miss">Girando�</span>');
+  setResult('<span class="result-miss">Girando...</span>');
 
-  // Determinar resultado
-  const r0 = rand(SYMBOLS.length);
-  const r1 = rand(SYMBOLS.length);
-  const r2 = rand(SYMBOLS.length);
-  const win = calcWin(r0, r1, r2);
+  let data;
+  try {
+    const fn = firebase.functions().httpsCallable('spinSlot');
+    const serverResult = await fn();
+    data = serverResult.data || {};
+  } catch(e) {
+    console.error('[slot] spin error', e);
+    toast(e.message || 'No se pudo guardar la tirada');
+    isSpinning = false;
+    updatePlaysUI();
+    return;
+  }
 
-  // Animar carretes (parada escalonada)
   const reels = [
     document.getElementById('reel0'),
     document.getElementById('reel1'),
     document.getElementById('reel2'),
   ];
+  const resultReels = Array.isArray(data.reels) ? data.reels : [0, 0, 0];
 
   await Promise.all([
-    spinReel(reels[0], r0, SPIN_MS[0]),
-    spinReel(reels[1], r1, SPIN_MS[1]),
-    spinReel(reels[2], r2, SPIN_MS[2]),
+    spinReel(reels[0], resultReels[0], SPIN_MS[0]),
+    spinReel(reels[1], resultReels[1], SPIN_MS[1]),
+    spinReel(reels[2], resultReels[2], SPIN_MS[2]),
   ]);
 
-  // Highlight ganancias
-  const s = [r0, r1, r2];
-  if (r0 === r1 && r1 === r2) {
+  const s = resultReels;
+  reels.forEach(r => r.classList.remove('win'));
+  if (s[0] === s[1] && s[1] === s[2]) {
     reels.forEach(r => r.classList.add('win'));
   } else {
     [[0,1],[1,2],[0,2]].forEach(([a,b]) => {
@@ -159,56 +193,20 @@ window.doSpin = async function() {
     });
   }
 
-  // Mostrar resultado
+  const win = data.win || 0;
   if (win > 0) {
-    setResult(`<span class="result-win">+${win} VC</span>`);
+    setResult('<span class="result-win">+' + win + ' VC</span>');
     if (window.VGSounds) VGSounds.prize();
   } else {
     setResult('<span class="result-miss">Sin suerte esta vez</span>');
   }
 
-  // Guardar en Firestore
-  playsUsed++;
-  const newCoins = userCoins + win;
-  try {
-    const updateData = {
-      slotDate:  today(),
-      slotPlays: playsUsed,
-      slotExtra: extraUsed,
-    };
-    if (win > 0) {
-      updateData.points = firebase.firestore.FieldValue.increment(win);
-    }
-    await window.db.collection('users').doc(currentUser.uid).update(updateData);
-
-    if (win > 0) {
-      userCoins = newCoins;
-      updateBalanceUI();
-      await window.db.collection('pointsHistory').add({
-        userId:    currentUser.uid,
-        type:      'slot_win',
-        points:    win,
-        createdAt: firebase.firestore.Timestamp.now(),
-      });
-    }
-  } catch(e) {
-    console.error('[slot] save error', e);
-    toast('Error al guardar resultado');
-  }
-
+  playsUsed = data.playsUsed ?? (playsUsed + 1);
+  userCoins = data.points ?? (userCoins + win);
+  updateBalanceUI();
   isSpinning = false;
   updatePlaysUI();
-};async function grantExtraSlotPlay() {
-  extraUsed++;
-  try {
-    await window.db.collection('users').doc(currentUser.uid).update({
-      slotDate:  today(),
-      slotExtra: extraUsed,
-    });
-  } catch(e) { console.error('[slot] grantExtraPlay save', e); }
-  toast('+1 tirada desbloqueada');
-  updatePlaysUI();
-}
+};
 
 // -- Auth + Init --
 window.addEventListener('load', () => {
@@ -226,6 +224,7 @@ window.addEventListener('load', () => {
       }
       currentUser = user;
       await loadUserData();
+      document.getElementById('adPlayBtn')?.addEventListener('click', grantExtraPlayFromAd);
     });
   });
 });

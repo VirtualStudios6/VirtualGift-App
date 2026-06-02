@@ -1,6 +1,13 @@
-self.options = {
-    "domain": "3nbf4.com",
-    "zoneId": 10842288
-}
-self.lary = ""
-importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
+// Neutral service worker used to replace and unregister the old ad worker.
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    self.registration.unregister().then(() =>
+      self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+        .then((clients) => clients.forEach((client) => client.navigate(client.url)))
+    )
+  );
+});

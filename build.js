@@ -5,6 +5,9 @@ const path = require('path');
 const ROOT = __dirname;
 const WWW  = path.join(ROOT, 'www');
 
+fs.rmSync(WWW, { recursive: true, force: true });
+fs.mkdirSync(WWW, { recursive: true });
+
 function copyDir(src, dest) {
   if (!fs.existsSync(src)) return;
   fs.mkdirSync(dest, { recursive: true });
@@ -24,12 +27,14 @@ function copyFile(src, dest) {
 }
 
 // Directorios
-for (const dir of ['css', 'js', 'images', 'legal']) {
+for (const dir of ['css', 'js', 'images', 'icons', 'legal']) {
   copyDir(path.join(ROOT, dir), path.join(WWW, dir));
 }
 
 // Archivos individuales
 copyFile(path.join(ROOT, 'firebase-messaging-sw.js'), path.join(WWW, 'firebase-messaging-sw.js'));
+copyFile(path.join(ROOT, 'sw.js'), path.join(WWW, 'sw.js'));
+copyFile(path.join(ROOT, 'manifest.json'), path.join(WWW, 'manifest.json'));
 // Todos los .html de la raíz
 for (const f of fs.readdirSync(ROOT)) {
   if (f.endsWith('.html')) {

@@ -277,3 +277,28 @@
 .legend-icon  { font-size: .9rem; flex-shrink: 0; }
 .legend-label { font-size: .72rem; font-weight: 700; color: rgba(220,239,255,.8); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .legend-coins { font-size: .72rem; font-weight: 900; color: #ffc837; flex-shrink: 0; }
+
+.ad-extra-row {
+  align-items: center;
+  justify-content: center;
+  margin: 12px auto 2px;
+  width: min(100%, 340px);
+}
+
+.ad-extra-btn {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid rgba(255, 216, 112, .36);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #123c69, #6d2f92 58%, #9b4d14);
+  color: #fff7d6;
+  font: 900 .86rem/1.1 Inter, system-ui, sans-serif;
+  letter-spacing: 0;
+  box-shadow: 0 12px 30px rgba(0,0,0,.28), 0 0 18px rgba(255, 184, 58, .14);
+  cursor: pointer;
+}
+
+.ad-extra-btn:disabled {
+  cursor: wait;
+  opacity: .62;
+}

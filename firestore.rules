@@ -8,19 +8,59 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
+    }
+
+    function allowedUserCreateFields() {
+      return [
+        "uid", "username", "displayName", "email", "provider", "photoURL",
+        "points", "level", "experience", "nextLevel", "gamesPlayed",
+        "achievements", "sorteosParticipados", "createdAt", "lastLogin",
+        "pendingReferral", "referralCode", "loginCount", "fcmToken",
+        "fcmTokenUpdated", "notificationsEnabled"
+      ];
+    }
+
+    function allowedUserUpdateFields() {
+      return [
+        "uid", "username", "displayName", "email", "provider", "photoURL",
+        "lastLogin", "loginCount", "pendingReferral", "referralCode",
+        "fcmToken", "fcmTokenUpdated", "notificationsEnabled", "updatedAt"
+      ];
+    }
+
+    function validUserCreate(userId) {
+      return isOwner(userId)
+        && request.resource.data.keys().hasOnly(allowedUserCreateFields())
+        && request.resource.data.uid == userId
+        && request.resource.data.points == 175
+        && request.resource.data.level == 1
+        && request.resource.data.experience == 0
+        && request.resource.data.nextLevel == 200
+        && !request.resource.data.keys().hasAny(["isAdmin"]);
+    }
+
+    function validUserUpdate() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedUserUpdateFields());
+    }
+
     // ─── USERS ───────────────────────────────────────────────
     // Read any user (needed for referral code lookup).
-    // Write only own document.
+    // Users can only create their initial profile and update non-sensitive fields.
+    // Points, admin flags, game state and counters are server-side only.
     match /users/{userId} {
       allow read:  if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow create: if validUserCreate(userId);
+      allow update: if isOwner(userId) && validUserUpdate();
+      allow delete: if false;
     }
 
     // ─── POINTS HISTORY ──────────────────────────────────────
     // Own records only.
     match /pointsHistory/{docId} {
       allow read:   if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow create, update, delete: if false;
     }
 
     // ─── NOTIFICATIONS ───────────────────────────────────────
@@ -64,8 +104,7 @@ service cloud.firestore {
     match /redeemRequests/{requestId} {
       allow read:   if request.auth != null
                     && (resource.data.userId == request.auth.uid || isAdmin());
-      allow create: if request.auth != null
-                    && request.resource.data.userId == request.auth.uid;
+      allow create: if false;
       allow update: if isAdmin();
       allow delete: if false;
     }

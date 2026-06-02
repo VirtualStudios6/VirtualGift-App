@@ -17,8 +17,10 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-functions.js"></script>
   <script defer src="js/firebase-config.js"></script>
   <script defer src="js/sounds.js"></script>
+  <script defer src="js/unity-ads.js"></script>
 <script defer src="js/ruleta.js"></script>
 </head>
 <body>
@@ -69,6 +71,11 @@
     <button type="button" class="spin-btn" id="spinBtn" onclick="doSpin()">
       GIRAR
     </button>
+    <div class="ad-extra-row" id="adPlayRow" style="display:none;">
+      <button type="button" class="ad-extra-btn" id="adPlayBtn">
+        Ver anuncio y ganar +1 giro
+      </button>
+    </div>
 <!-- LEYENDA -->
     <div class="roulette-legend" id="rouletteLegend"></div>
 </div>

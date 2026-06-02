@@ -575,10 +575,7 @@ async function deleteAccount(user) {
     // 2. Limpiar caché local
     try { localStorage.removeItem(CACHE_KEY); } catch {}
 
-    // 3. Eliminar cuenta de Authentication
-    await user.delete();
-
-    // 4. Redirigir
+    // 3. Redirigir. La Cloud Function elimina tambien la cuenta de Authentication.
     window.location.href = withAppFlag('login.html');
 
   } catch (e) {

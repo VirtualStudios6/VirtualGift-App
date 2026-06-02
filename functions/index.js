@@ -1,6 +1,7 @@
 const admin  = require("firebase-admin");
 const { onCall, onRequest, HttpsError } = require("firebase-functions/v2/https");
 const { onSchedule }  = require("firebase-functions/v2/scheduler");
+const { onDocumentWritten } = require("firebase-functions/v2/firestore");
 const { defineSecret } = require("firebase-functions/params");
 const { createHash, createHmac } = require("crypto");
 
@@ -22,6 +23,521 @@ const BITLABS_API_SECRET      = defineSecret("BITLABS_API_SECRET");
 function safeStr(v) {
   return typeof v === "string" ? v : (v != null ? String(v) : "");
 }
+
+function safeNum(v, fallback = 0) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function normalizeDisplayName(value, fallback = "Usuario") {
+  const clean = safeStr(value).trim().replace(/\s+/g, " ");
+  return clean ? clean.slice(0, 40) : fallback;
+}
+
+function normalizeEmail(value) {
+  return safeStr(value).trim().toLowerCase().slice(0, 160);
+}
+
+function normalizePhotoURL(value) {
+  return safeStr(value).trim().slice(0, 2048);
+}
+
+function normalizeProvider(value) {
+  const clean = safeStr(value).trim().toLowerCase();
+  return clean || "email";
+}
+
+const APP_TIME_ZONE = "America/Santo_Domingo";
+const dayKeyFormatter = new Intl.DateTimeFormat("en-CA", {
+  timeZone: APP_TIME_ZONE,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+function getDayKey(date = new Date()) {
+  return dayKeyFormatter.format(date);
+}
+
+function referralCodeForUid(uid) {
+  return `VG${safeStr(uid).slice(0, 6).toUpperCase()}`;
+}
+
+function normalizeReferralCode(code, uid) {
+  const normalized = safeStr(code).trim().toUpperCase();
+  if (!/^VG[A-Z0-9]{6}$/.test(normalized)) return "";
+  if (uid && normalized === referralCodeForUid(uid)) return "";
+  return normalized;
+}
+
+const INITIAL_USER_POINTS = 175;
+const INITIAL_USER_LEVEL = 1;
+const INITIAL_USER_EXPERIENCE = 0;
+const NEXT_LEVEL_THRESHOLD = 200;
+const REFERRAL_BONUS = 500;
+const CHECKIN_REWARDS = [10, 15, 20, 25, 30, 40, 75];
+const REDEEM_MIN_POINTS = 20000;
+const DELETE_ACCOUNT_MAX_AGE_MS = 15 * 60 * 1000;
+const ALLOWED_REDEEM_PLATFORMS = new Set([
+  "paypal",
+  "amazon",
+  "steam",
+  "googleplay",
+  "psn",
+]);
+
+const ROULETTE_SEGMENTS = [
+  { label: "MISS", coins: 0, weight: 22 },
+  { label: "+5", coins: 5, weight: 20 },
+  { label: "+10", coins: 10, weight: 16 },
+  { label: "MISS", coins: 0, weight: 14 },
+  { label: "+5", coins: 5, weight: 12 },
+  { label: "+20", coins: 20, weight: 10 },
+  { label: "+50", coins: 50, weight: 5 },
+  { label: "+100", coins: 100, weight: 1 },
+];
+const ROULETTE_TOTAL_WEIGHT = ROULETTE_SEGMENTS.reduce((sum, seg) => sum + seg.weight, 0);
+const ROULETTE_FREE_PLAYS = 3;
+const ROULETTE_MAX_EXTRA_PLAYS = 3;
+
+const SLOT_SYMBOLS = ["CH", "DI", "GR", "BE", "LE", "OR"];
+const SLOT_PAYOUTS = { CH: 150, DI: 100, GR: 75, BE: 50, LE: 30, OR: 20 };
+const SLOT_FREE_PLAYS = 5;
+const SLOT_MAX_EXTRA_PLAYS = 3;
+
+function pickRouletteSegment() {
+  let cursor = Math.random() * ROULETTE_TOTAL_WEIGHT;
+  for (const segment of ROULETTE_SEGMENTS) {
+    cursor -= segment.weight;
+    if (cursor <= 0) return segment;
+  }
+  return ROULETTE_SEGMENTS[0];
+}
+
+function pickRouletteSegmentWithIndex() {
+  let cursor = Math.random() * ROULETTE_TOTAL_WEIGHT;
+  for (let i = 0; i < ROULETTE_SEGMENTS.length; i++) {
+    cursor -= ROULETTE_SEGMENTS[i].weight;
+    if (cursor <= 0) return { index: i, segment: ROULETTE_SEGMENTS[i] };
+  }
+  return { index: 0, segment: ROULETTE_SEGMENTS[0] };
+}
+
+function buildSlotResult() {
+  const reels = [
+    Math.floor(Math.random() * SLOT_SYMBOLS.length),
+    Math.floor(Math.random() * SLOT_SYMBOLS.length),
+    Math.floor(Math.random() * SLOT_SYMBOLS.length),
+  ];
+
+  let win = 0;
+  if (reels[0] === reels[1] && reels[1] === reels[2]) {
+    win = SLOT_PAYOUTS[SLOT_SYMBOLS[reels[0]]] || 20;
+  } else if (
+    reels[0] === reels[1] ||
+    reels[1] === reels[2] ||
+    reels[0] === reels[2]
+  ) {
+    win = 8;
+  }
+
+  return {
+    reels,
+    symbols: reels.map((idx) => SLOT_SYMBOLS[idx]),
+    win,
+  };
+}
+
+async function deleteQueryInBatches(query, batchSize = 400) {
+  let snap = await query.limit(batchSize).get();
+  while (!snap.empty) {
+    const batch = db.batch();
+    snap.docs.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+    if (snap.size < batchSize) break;
+    snap = await query.limit(batchSize).get();
+  }
+}
+
+async function deleteKnownUserStorage(uid) {
+  try {
+    const bucket = admin.storage().bucket();
+    const paths = [
+      `avatars/${uid}.jpg`,
+      `avatars/${uid}.png`,
+      `avatars/${uid}.webp`,
+      `users/${uid}/avatar.jpg`,
+      `users/${uid}/avatar.png`,
+    ];
+
+    await Promise.all(paths.map(async (path) => {
+      try {
+        await bucket.file(path).delete({ ignoreNotFound: true });
+      } catch (err) {
+        console.warn(`[deleteOwnAccount] No se pudo borrar ${path}:`, err.message);
+      }
+    }));
+  } catch (err) {
+    console.warn("[deleteOwnAccount] Storage no disponible:", err.message);
+  }
+}
+
+function assertAuthed(request) {
+  const uid = request.auth?.uid;
+  if (!uid) throw new HttpsError("unauthenticated", "Debes iniciar sesion");
+  return uid;
+}
+
+function yesterdayDayKey(now = new Date()) {
+  return getDayKey(new Date(now.getTime() - 24 * 60 * 60 * 1000));
+}
+
+// =====================
+// DAILY CHECK-IN
+// =====================
+
+exports.claimDailyCheckin = onCall({ region: "us-central1" }, async (request) => {
+  const uid = assertAuthed(request);
+  const userRef = db.collection("users").doc(uid);
+  const historyRef = db.collection("pointsHistory").doc();
+  const now = new Date();
+  const todayKey = getDayKey(now);
+  const yesterdayKey = yesterdayDayKey(now);
+  const ts = admin.firestore.Timestamp.now();
+
+  let response;
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    if (!snap.exists) throw new HttpsError("not-found", "Usuario no encontrado");
+
+    const data = snap.data() || {};
+    const lastKey = safeStr(data.lastCheckinDate)
+      || (data.lastCheckin?.toDate ? getDayKey(data.lastCheckin.toDate()) : "");
+
+    if (lastKey === todayKey) {
+      response = {
+        success: true,
+        alreadyDone: true,
+        reward: 0,
+        streak: safeNum(data.checkinStreak, 0),
+        points: safeNum(data.points, 0),
+      };
+      return;
+    }
+
+    const prevStreak = safeNum(data.checkinStreak, 0);
+    const newStreak = lastKey === yesterdayKey ? prevStreak + 1 : 1;
+    const reward = CHECKIN_REWARDS[(newStreak - 1) % CHECKIN_REWARDS.length];
+    const newPoints = safeNum(data.points, 0) + reward;
+
+    tx.update(userRef, {
+      points: admin.firestore.FieldValue.increment(reward),
+      checkinStreak: newStreak,
+      lastCheckin: ts,
+      lastCheckinDate: todayKey,
+    });
+    tx.set(historyRef, {
+      userId: uid,
+      type: "daily_checkin",
+      points: reward,
+      streak: newStreak,
+      createdAt: ts,
+    });
+
+    response = {
+      success: true,
+      alreadyDone: false,
+      reward,
+      streak: newStreak,
+      points: newPoints,
+    };
+  });
+
+  return response;
+});
+
+// =====================
+// REDEEM POINTS
+// =====================
+
+exports.requestRedeem = onCall({ region: "us-central1" }, async (request) => {
+  const uid = assertAuthed(request);
+  const platform = safeStr(request.data?.platform).trim().toLowerCase();
+  const fullName = normalizeDisplayName(request.data?.fullName, "").slice(0, 80);
+  const account = safeStr(request.data?.account).trim().slice(0, 160);
+  const points = safeNum(request.data?.points, 0);
+
+  if (!ALLOWED_REDEEM_PLATFORMS.has(platform)) {
+    throw new HttpsError("invalid-argument", "Plataforma invalida");
+  }
+  if (fullName.length < 3) {
+    throw new HttpsError("invalid-argument", "Nombre requerido");
+  }
+  if (!account) {
+    throw new HttpsError("invalid-argument", "Cuenta requerida");
+  }
+  if (points < REDEEM_MIN_POINTS || points % 1000 !== 0) {
+    throw new HttpsError("invalid-argument", "Monto de coins invalido");
+  }
+
+  const userRef = db.collection("users").doc(uid);
+  const historyRef = db.collection("pointsHistory").doc();
+  const requestRef = db.collection("redeemRequests").doc();
+  const now = admin.firestore.Timestamp.now();
+  const usdAmount = Number((points / 1000).toFixed(2));
+  let newPoints;
+
+  await db.runTransaction(async (tx) => {
+    const userSnap = await tx.get(userRef);
+    if (!userSnap.exists) throw new HttpsError("not-found", "Usuario no encontrado");
+
+    const currentPoints = safeNum(userSnap.data()?.points, 0);
+    if (currentPoints < points) {
+      throw new HttpsError("failed-precondition", "No tienes suficientes coins");
+    }
+
+    newPoints = currentPoints - points;
+
+    tx.update(userRef, { points: newPoints });
+    tx.set(historyRef, {
+      userId: uid,
+      type: "redeem",
+      points: -points,
+      platform,
+      redeemRequestId: requestRef.id,
+      createdAt: now,
+    });
+    tx.set(requestRef, {
+      userId: uid,
+      platform,
+      fullName,
+      account,
+      pointsAmount: points,
+      usdAmount,
+      status: "pending",
+      createdAt: now,
+    });
+  });
+
+  return {
+    success: true,
+    requestId: requestRef.id,
+    points,
+    usdAmount,
+    platform,
+    account,
+    newPoints,
+  };
+});
+
+// =====================
+// SERVER-SIDE GAMES
+// =====================
+
+exports.spinRoulette = onCall({ region: "us-central1" }, async (request) => {
+  const uid = assertAuthed(request);
+  const userRef = db.collection("users").doc(uid);
+  const historyRef = db.collection("pointsHistory").doc();
+  const todayKey = getDayKey();
+  const now = admin.firestore.Timestamp.now();
+  const picked = pickRouletteSegmentWithIndex();
+  const coins = safeNum(picked.segment.coins, 0);
+  let response;
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    if (!snap.exists) throw new HttpsError("not-found", "Usuario no encontrado");
+
+    const data = snap.data() || {};
+    const playsUsed = data.rouletteDate === todayKey ? safeNum(data.roulettePlays, 0) : 0;
+    const extraUsed = data.rouletteDate === todayKey ? safeNum(data.rouletteExtra, 0) : 0;
+    const total = ROULETTE_FREE_PLAYS + extraUsed;
+    if (playsUsed >= total) {
+      throw new HttpsError("resource-exhausted", "No tienes giros disponibles hoy");
+    }
+
+    const newPlays = playsUsed + 1;
+    const update = {
+      rouletteDate: todayKey,
+      roulettePlays: newPlays,
+      rouletteExtra: extraUsed,
+      updatedAt: now,
+    };
+    if (coins > 0) update.points = admin.firestore.FieldValue.increment(coins);
+
+    tx.update(userRef, update);
+    if (coins > 0) {
+      tx.set(historyRef, {
+        userId: uid,
+        type: "roulette_win",
+        points: coins,
+        createdAt: now,
+      });
+    }
+
+    response = {
+      success: true,
+      segmentIndex: picked.index,
+      segment: picked.segment,
+      coins,
+      playsUsed: newPlays,
+      playsRemaining: Math.max(total - newPlays, 0),
+      points: safeNum(data.points, 0) + coins,
+    };
+  });
+
+  return response;
+});
+
+exports.spinSlot = onCall({ region: "us-central1" }, async (request) => {
+  const uid = assertAuthed(request);
+  const userRef = db.collection("users").doc(uid);
+  const historyRef = db.collection("pointsHistory").doc();
+  const todayKey = getDayKey();
+  const now = admin.firestore.Timestamp.now();
+  const result = buildSlotResult();
+  let response;
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    if (!snap.exists) throw new HttpsError("not-found", "Usuario no encontrado");
+
+    const data = snap.data() || {};
+    const playsUsed = data.slotDate === todayKey ? safeNum(data.slotPlays, 0) : 0;
+    const extraUsed = data.slotDate === todayKey ? safeNum(data.slotExtra, 0) : 0;
+    const total = SLOT_FREE_PLAYS + extraUsed;
+    if (playsUsed >= total) {
+      throw new HttpsError("resource-exhausted", "No tienes tiradas disponibles hoy");
+    }
+
+    const newPlays = playsUsed + 1;
+    const update = {
+      slotDate: todayKey,
+      slotPlays: newPlays,
+      slotExtra: extraUsed,
+      updatedAt: now,
+    };
+    if (result.win > 0) update.points = admin.firestore.FieldValue.increment(result.win);
+
+    tx.update(userRef, update);
+    if (result.win > 0) {
+      tx.set(historyRef, {
+        userId: uid,
+        type: "slot_win",
+        points: result.win,
+        createdAt: now,
+      });
+    }
+
+    response = {
+      success: true,
+      ...result,
+      playsUsed: newPlays,
+      playsRemaining: Math.max(total - newPlays, 0),
+      points: safeNum(data.points, 0) + result.win,
+    };
+  });
+
+  return response;
+});
+
+// =====================
+// UNITY ADS REWARDS
+// =====================
+
+exports.grantUnityAdReward = onCall({ region: "us-central1" }, async (request) => {
+  const uid = assertAuthed(request);
+  const rewardType = safeStr(request.data?.rewardType).trim();
+  const placementId = safeStr(request.data?.placementId).trim().slice(0, 80);
+
+  const config = {
+    roulette_extra: {
+      dateField: "rouletteDate",
+      extraField: "rouletteExtra",
+      playsField: "roulettePlays",
+      maxExtra: ROULETTE_MAX_EXTRA_PLAYS,
+      label: "giro",
+    },
+    slot_extra: {
+      dateField: "slotDate",
+      extraField: "slotExtra",
+      playsField: "slotPlays",
+      maxExtra: SLOT_MAX_EXTRA_PLAYS,
+      label: "tirada",
+    },
+  }[rewardType];
+
+  if (!config) throw new HttpsError("invalid-argument", "Tipo de recompensa invalido");
+
+  const userRef = db.collection("users").doc(uid);
+  const rewardRef = db.collection("adRewards").doc();
+  const todayKey = getDayKey();
+  const now = admin.firestore.Timestamp.now();
+  let response;
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    if (!snap.exists) throw new HttpsError("not-found", "Usuario no encontrado");
+
+    const data = snap.data() || {};
+    const isToday = data[config.dateField] === todayKey;
+    const currentExtra = isToday ? safeNum(data[config.extraField], 0) : 0;
+    const currentPlays = isToday ? safeNum(data[config.playsField], 0) : 0;
+
+    if (currentExtra >= config.maxExtra) {
+      throw new HttpsError("resource-exhausted", "Limite diario de anuncios alcanzado");
+    }
+
+    const nextExtra = currentExtra + 1;
+    tx.update(userRef, {
+      [config.dateField]: todayKey,
+      [config.playsField]: currentPlays,
+      [config.extraField]: nextExtra,
+      updatedAt: now,
+    });
+
+    tx.set(rewardRef, {
+      userId: uid,
+      type: rewardType,
+      provider: "unity_ads",
+      placementId,
+      dayKey: todayKey,
+      createdAt: now,
+    });
+
+    response = {
+      success: true,
+      rewardType,
+      extraUsed: nextExtra,
+      maxExtra: config.maxExtra,
+      message: `+1 ${config.label} desbloqueado`,
+    };
+  });
+
+  return response;
+});
+
+// =====================
+// DELETE OWN ACCOUNT
+// =====================
+
+exports.deleteOwnAccount = onCall({ region: "us-central1" }, async (request) => {
+  const uid = assertAuthed(request);
+
+  await Promise.all([
+    deleteQueryInBatches(db.collection("notifications").where("userId", "==", uid)),
+    deleteQueryInBatches(db.collection("pointsHistory").where("userId", "==", uid)),
+    deleteQueryInBatches(db.collection("raffleParticipants").where("userId", "==", uid)),
+    deleteQueryInBatches(db.collection("redeemRequests").where("userId", "==", uid)),
+  ]);
+
+  await deleteKnownUserStorage(uid);
+  await db.collection("users").doc(uid).delete();
+  await admin.auth().deleteUser(uid);
+
+  return { success: true };
+});
 
 // =====================
 // FORTNITE SHOP SYNC
@@ -48,9 +564,18 @@ async function syncShopNow() {
 
   const oldSnap = await db.collection("shopDailyItems").get();
   if (!oldSnap.empty) {
-    const delBatch = db.batch();
-    oldSnap.forEach((doc) => delBatch.delete(doc.ref));
-    await delBatch.commit();
+    let delBatch = db.batch();
+    let delOps = 0;
+    for (const doc of oldSnap.docs) {
+      delBatch.delete(doc.ref);
+      delOps++;
+      if (delOps >= 450) {
+        await delBatch.commit();
+        delBatch = db.batch();
+        delOps = 0;
+      }
+    }
+    if (delOps > 0) await delBatch.commit();
     console.log(`Deleted ${oldSnap.size} old items`);
   }
 

@@ -177,11 +177,12 @@ async function loadCheckin(user) {
   try {
     const snap = await window.db.collection('users').doc(user.uid).get();
     const data = snap.data() || {};
-    const streak      = data.checkinStreak || 0;
-    const lastCheckin = data.lastCheckin?.toDate?.() || null;
-    const alreadyDone = lastCheckin &&
-      lastCheckin.toDateString() === new Date().toDateString();
-    buildCheckinUI(streak, alreadyDone);
+    const streak = data.checkinStreak || 0;
+    const todayKey = new Date().toLocaleDateString('en-CA', { timeZone: 'America/Santo_Domingo' });
+    const lastCheckin = data.lastCheckinDate || (data.lastCheckin?.toDate
+      ? data.lastCheckin.toDate().toLocaleDateString('en-CA', { timeZone: 'America/Santo_Domingo' })
+      : null);
+    buildCheckinUI(streak, lastCheckin === todayKey);
   } catch(e) {
     console.error('loadCheckin error:', e);
     const btn = document.getElementById('checkinBtn');
@@ -198,55 +199,26 @@ window.doCheckin = async function() {
   btn.textContent = 'Procesando...';
 
   try {
-    const userRef = window.db.collection('users').doc(user.uid);
-    const snap    = await userRef.get();
-    const data    = snap.data() || {};
+    const fn = firebase.functions().httpsCallable('claimDailyCheckin');
+    const result = await fn();
+    const data = result.data || {};
 
-    const streak       = data.checkinStreak || 0;
-    const lastCheckin  = data.lastCheckin?.toDate?.() || null;
-    const now          = new Date();
-    const todayStr     = now.toDateString();
-    // Calcular "ayer" por componentes de fecha local para evitar errores de timezone cerca de medianoche
-    const yesterday    = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
-    const yesterdayStr = yesterday.toDateString();
-
-    if (lastCheckin && lastCheckin.toDateString() === todayStr) {
+    if (data.alreadyDone) {
       showVcToast('Ya reclamaste hoy');
-      buildCheckinUI(streak, true);
+      buildCheckinUI(data.streak || 0, true);
       return;
     }
 
-    const consecutive = lastCheckin && lastCheckin.toDateString() === yesterdayStr;
-    const newStreak   = consecutive ? streak + 1 : 1;
-    const reward      = CHECKIN_REWARDS[(newStreak - 1) % 7];
+    currentUserPoints = data.points || currentUserPoints;
+    updateBalanceUI(currentUserPoints);
+    setCachedPoints(currentUserPoints);
 
-    await userRef.set({
-      checkinStreak: newStreak,
-      lastCheckin: firebase.firestore.Timestamp.now(),
-      points: firebase.firestore.FieldValue.increment(reward), // at�mico � nunca sobreescribe
-    }, { merge: true });
-
-    const newPts = (data.points || 0) + reward; // actualizar variable local despu�s del write
-
-    await window.db.collection('pointsHistory').add({
-      userId: user.uid,
-      type: 'daily_checkin',
-      points: reward,
-      streak: newStreak,
-      createdAt: firebase.firestore.Timestamp.now(),
-    });
-
-    // ? FIX: sincronizar global + cach� despu�s del check-in
-    currentUserPoints = newPts;
-    updateBalanceUI(newPts);
-    setCachedPoints(newPts);
-
-    showVcToast(`?? +${reward} coins! Racha: ${newStreak} d�as ??`);
-    buildCheckinUI(newStreak, true);
+    showVcToast('+' + (data.reward || 0) + ' coins! Racha: ' + (data.streak || 0) + ' dias');
+    buildCheckinUI(data.streak || 0, true);
 
   } catch(e) {
     console.error('doCheckin error:', e);
-    showVcToast('Error al reclamar');
+    showVcToast(e.message || 'Error al reclamar');
     btn.disabled = false;
     btn.textContent = 'Intentar de nuevo';
   }
@@ -372,13 +344,13 @@ async function processRedeem(e) {
     return;
   }
   if (!account) {
-    await showModal('Campo requerido', `Ingresa tu ${platform.field || 'cuenta'}.`);
+    await showModal('Campo requerido', 'Ingresa tu ' + (platform.field || 'cuenta') + '.');
     return;
   }
 
   const confirmed = await showModal(
-    '�Confirmar canje?',
-    `VirtualCoins: ${points.toLocaleString()} VC\nRecibir�s: $${usdAmt} USD\nPlataforma: ${platform.name}\nCuenta: ${account}\n\nTiempo estimado: 24�48 horas.`,
+    'Confirmar canje?',
+    'VirtualCoins: ' + points.toLocaleString() + ' VC\nRecibiras: $' + usdAmt + ' USD\nPlataforma: ' + platform.name + '\nCuenta: ' + account + '\n\nTiempo estimado: 24-48 horas.',
     [
       { label: 'Cancelar', primary: false, value: false },
       { label: 'Confirmar', primary: true,  value: true  },
@@ -390,33 +362,13 @@ async function processRedeem(e) {
   if (btn) { btn.textContent = 'Procesando...'; btn.disabled = true; }
 
   try {
-    const newPoints = currentUserPoints - points;
+    const fn = firebase.functions().httpsCallable('requestRedeem');
+    const result = await fn({ platform: selectedPlatform, fullName, account, points });
+    const data = result.data || {};
 
-    await window.db.collection('users').doc(currentUserId).update({ points: newPoints });
-
-    await window.db.collection('pointsHistory').add({
-      userId: currentUserId,
-      type: 'redeem',
-      points: -points,
-      platform: selectedPlatform,
-      createdAt: firebase.firestore.Timestamp.now(),
-    });
-
-    await window.db.collection('redeemRequests').add({
-      userId: currentUserId,
-      platform: selectedPlatform,
-      fullName,
-      account,
-      pointsAmount: points,
-      usdAmount: parseFloat(usdAmt),
-      status: 'pending',
-      createdAt: firebase.firestore.Timestamp.now(),
-    });
-
-    // ? FIX: sincronizar global + cach� despu�s del canje
-    currentUserPoints = newPoints;
-    updateBalanceUI(newPoints);
-    setCachedPoints(newPoints);
+    currentUserPoints = data.newPoints ?? (currentUserPoints - points);
+    updateBalanceUI(currentUserPoints);
+    setCachedPoints(currentUserPoints);
 
     closeRedeemModal();
     if (window.VGSounds) VGSounds.prize();
@@ -424,7 +376,7 @@ async function processRedeem(e) {
 
   } catch(err) {
     console.error('processRedeem:', err);
-    await showModal('Error', 'No se pudo procesar el canje. Intenta de nuevo.');
+    await showModal('Error', err.message || 'No se pudo procesar el canje. Intenta de nuevo.');
     if (btn) { btn.textContent = 'Confirmar'; btn.disabled = false; }
   }
 }
