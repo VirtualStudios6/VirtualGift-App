@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.util.Log;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -22,6 +23,7 @@ import com.unity3d.services.banners.UnityBannerSize;
 
 @CapacitorPlugin(name = "UnityAds")
 public class UnityAdsPlugin extends Plugin {
+    private static final String TAG = "VGUnityAds";
     private static final String DEFAULT_ANDROID_GAME_ID = "6127955";
     private static final String DEFAULT_INTERSTITIAL = "Interstitial_Android";
     private static final String DEFAULT_REWARDED = "Rewarded_Android";
@@ -46,22 +48,38 @@ public class UnityAdsPlugin extends Plugin {
             return;
         }
 
-        UnityAds.setDebugMode(testMode);
-        UnityAds.initialize(getContext(), gameId, testMode, new IUnityAdsInitializationListener() {
-            @Override
-            public void onInitializationComplete() {
-                initialized = true;
-                JSObject ret = new JSObject();
-                ret.put("initialized", true);
-                call.resolve(ret);
-            }
+        getActivity().runOnUiThread(() -> {
+            Log.d(TAG, "initialize gameId=" + gameId + " testMode=" + testMode);
+            UnityAds.setDebugMode(testMode);
+            UnityAds.initialize(getContext(), gameId, testMode, new IUnityAdsInitializationListener() {
+                @Override
+                public void onInitializationComplete() {
+                    initialized = true;
+                    Log.d(TAG, "initialization complete");
+                    JSObject ret = new JSObject();
+                    ret.put("initialized", true);
+                    call.resolve(ret);
+                }
 
-            @Override
-            public void onInitializationFailed(UnityAds.UnityAdsInitializationError error, String message) {
-                initialized = false;
-                call.reject("Unity Ads init failed: " + error + " " + message);
-            }
+                @Override
+                public void onInitializationFailed(UnityAds.UnityAdsInitializationError error, String message) {
+                    initialized = false;
+                    Log.e(TAG, "initialization failed " + error + " " + message);
+                    call.reject("Unity Ads init failed: " + error + " " + message);
+                }
+            });
         });
+    }
+
+    @PluginMethod
+    public void getStatus(PluginCall call) {
+        JSObject ret = new JSObject();
+        ret.put("initialized", initialized);
+        ret.put("unityInitialized", UnityAds.isInitialized());
+        ret.put("gameId", gameId);
+        ret.put("testMode", testMode);
+        ret.put("sdkVersion", UnityAds.getVersion());
+        call.resolve(ret);
     }
 
     @PluginMethod
@@ -116,16 +134,21 @@ public class UnityAdsPlugin extends Plugin {
             }
         };
 
-        UnityAds.load(placementId, new IUnityAdsLoadListener() {
-            @Override
-            public void onUnityAdsAdLoaded(String placement) {
-                UnityAds.show(activity, placement, new UnityAdsShowOptions(), showListener);
-            }
+        activity.runOnUiThread(() -> {
+            Log.d(TAG, "load fullscreen placement=" + placementId + " rewarded=" + rewarded);
+            UnityAds.load(placementId, new IUnityAdsLoadListener() {
+                @Override
+                public void onUnityAdsAdLoaded(String placement) {
+                    Log.d(TAG, "loaded " + placement);
+                    UnityAds.show(activity, placement, new UnityAdsShowOptions(), showListener);
+                }
 
-            @Override
-            public void onUnityAdsFailedToLoad(String placement, UnityAds.UnityAdsLoadError error, String message) {
-                call.reject("Unity Ads load failed: " + error + " " + message);
-            }
+                @Override
+                public void onUnityAdsFailedToLoad(String placement, UnityAds.UnityAdsLoadError error, String message) {
+                    Log.e(TAG, "load failed " + placement + " " + error + " " + message);
+                    call.reject("Unity Ads load failed: " + error + " " + message);
+                }
+            });
         });
     }
 
@@ -147,6 +170,7 @@ public class UnityAdsPlugin extends Plugin {
 
         activity.runOnUiThread(() -> {
             hideBannerInternal();
+            Log.d(TAG, "load banner placement=" + placementId + " position=" + position);
 
             ViewGroup root = activity.findViewById(android.R.id.content);
             bannerContainer = new FrameLayout(activity);
@@ -163,6 +187,7 @@ public class UnityAdsPlugin extends Plugin {
             bannerView.setListener(new BannerView.IListener() {
                 @Override
                 public void onBannerLoaded(BannerView bannerAdView) {
+                    Log.d(TAG, "banner loaded " + placementId);
                     JSObject ret = new JSObject();
                     ret.put("loaded", true);
                     ret.put("placementId", placementId);
@@ -171,6 +196,7 @@ public class UnityAdsPlugin extends Plugin {
 
                 @Override
                 public void onBannerFailedToLoad(BannerView bannerAdView, BannerErrorInfo errorInfo) {
+                    Log.e(TAG, "banner failed " + errorInfo.errorCode + " " + errorInfo.errorMessage);
                     call.reject("Unity Ads banner failed: " + errorInfo.errorCode + " " + errorInfo.errorMessage);
                 }
 

@@ -100,6 +100,25 @@
     return plugin().hideBanner();
   }
 
+  async function diagnostics() {
+    const unityAds = plugin();
+    const base = {
+      platform: getPlatform(),
+      isNative: isNative(),
+      hasCapacitor: Boolean(getCapacitor()),
+      hasPlugin: Boolean(unityAds),
+      gameId: gameId(),
+      testMode: CONFIG.testMode,
+      placements: CONFIG.placements[getPlatform() === 'ios' ? 'ios' : 'android'],
+    };
+    if (!unityAds?.getStatus) return base;
+    try {
+      return { ...base, native: await unityAds.getStatus() };
+    } catch (error) {
+      return { ...base, nativeStatusError: String(error?.message || error) };
+    }
+  }
+
   function userMessage(error) {
     const raw = String(error?.message || error || '');
     if (/NETWORK_ERROR|Network error|NO_FILL|NO_FILL_ERROR|No fill/i.test(raw)) {
@@ -122,6 +141,7 @@
     showInterstitial,
     showBanner,
     hideBanner,
+    diagnostics,
     isNative,
     getPlatform,
   };
