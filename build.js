@@ -26,6 +26,15 @@ function copyFile(src, dest) {
   if (fs.existsSync(src)) fs.copyFileSync(src, dest);
 }
 
+function copyHtmlWithCapacitor(src, dest) {
+  if (!fs.existsSync(src)) return;
+  let html = fs.readFileSync(src, 'utf8');
+  if (!html.includes('src="capacitor.js"') && !html.includes("src='capacitor.js'")) {
+    html = html.replace(/<head>/i, '<head>\n  <script src="capacitor.js"></script>');
+  }
+  fs.writeFileSync(dest, html);
+}
+
 // Directorios
 for (const dir of ['css', 'js', 'images', 'icons', 'legal']) {
   copyDir(path.join(ROOT, dir), path.join(WWW, dir));
@@ -35,15 +44,16 @@ for (const dir of ['css', 'js', 'images', 'icons', 'legal']) {
 copyFile(path.join(ROOT, 'firebase-messaging-sw.js'), path.join(WWW, 'firebase-messaging-sw.js'));
 copyFile(path.join(ROOT, 'sw.js'), path.join(WWW, 'sw.js'));
 copyFile(path.join(ROOT, 'manifest.json'), path.join(WWW, 'manifest.json'));
+copyFile(path.join(ROOT, 'node_modules', '@capacitor', 'core', 'dist', 'capacitor.js'), path.join(WWW, 'capacitor.js'));
 // Todos los .html de la raíz
 for (const f of fs.readdirSync(ROOT)) {
   if (f.endsWith('.html')) {
-    copyFile(path.join(ROOT, f), path.join(WWW, f));
+    copyHtmlWithCapacitor(path.join(ROOT, f), path.join(WWW, f));
   }
 }
 
 // Landing page como root: www/index.html = landing, www/login.html = login
-copyFile(path.join(ROOT, 'landing.html'), path.join(WWW, 'index.html'));
-copyFile(path.join(ROOT, 'index.html'),   path.join(WWW, 'login.html'));
+copyHtmlWithCapacitor(path.join(ROOT, 'landing.html'), path.join(WWW, 'index.html'));
+copyHtmlWithCapacitor(path.join(ROOT, 'index.html'),   path.join(WWW, 'login.html'));
 
 console.log('✅ Build completado: archivos copiados a www/');

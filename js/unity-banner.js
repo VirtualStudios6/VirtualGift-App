@@ -23,8 +23,7 @@
 
   function debugEnabled() {
     return new URLSearchParams(location.search).get('adsdebug') === '1'
-      || localStorage.getItem('vg_ads_debug') === '1'
-      || window.VGUnityAds?.config?.testMode === true;
+      || localStorage.getItem('vg_ads_debug') === '1';
   }
 
   function debug(message, data) {
