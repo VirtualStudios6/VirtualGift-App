@@ -6,6 +6,7 @@
 
 // -- Constantes --
 const SYMBOLS          = ['CH','DI','GR','BE','LE','OR'];
+const SYMBOL_DISPLAY   = { CH:'🍒', DI:'💎', GR:'🍇', BE:'🔔', LE:'🍋', OR:'🍊' };
 const PAYOUTS          = { CH:150, DI:100, GR:75, BE:50, LE:30, OR:20 };
 const FREE_PLAYS       = 5;
 const MAX_EXTRA        = 3;
@@ -31,6 +32,10 @@ function toast(msg) {
   el._t = setTimeout(() => el.classList.remove('show'), 2800);
 }
 function rand(n) { return Math.floor(Math.random() * n); }
+function symbolText(index) {
+  const code = SYMBOLS[index] || SYMBOLS[0];
+  return SYMBOL_DISPLAY[code] || code;
+}
 
 // -- UI --
 function updateBalanceUI() {
@@ -136,12 +141,12 @@ function spinReel(reelEl, finalIdx, delayMs) {
     reelEl.classList.remove('win');
 
     const iv = setInterval(() => {
-      reelEl.textContent = SYMBOLS[rand(SYMBOLS.length)];
+      reelEl.textContent = symbolText(rand(SYMBOLS.length));
     }, 80);
 
     setTimeout(() => {
       clearInterval(iv);
-      reelEl.textContent = SYMBOLS[finalIdx];
+      reelEl.textContent = symbolText(finalIdx);
       reelEl.classList.remove('spinning');
       resolve();
     }, delayMs);

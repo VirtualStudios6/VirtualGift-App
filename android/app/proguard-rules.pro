@@ -46,3 +46,9 @@
 -keepclassmembers class * {
     @com.google.gson.annotations.SerializedName <fields>;
 }
+
+# Unity Ads
+-keep class com.unity3d.** { *; }
+-keep class com.unity3d.services.** { *; }
+-dontwarn com.unity3d.**
+-dontwarn com.unity3d.services.**

@@ -6,8 +6,8 @@ Completar antes de publicar en Google Play Store, App Store o lanzar web.
 
 ## 1. Unity Ads
 
-- [ ] Confirmar Game ID Android `6127955`
-- [ ] Confirmar Game ID iOS `6127954`
+- [x] Confirmar Game ID Android `6127955`
+- [x] Confirmar Game ID iOS `6127954`
 - [ ] Confirmar placements en Unity Dashboard:
   - `Interstitial_Android`
   - `Interstitial_iOS`
@@ -17,11 +17,11 @@ Completar antes de publicar en Google Play Store, App Store o lanzar web.
   - `Banner_iOS`
 - [ ] Probar Rewarded Ads en ruleta y tragamonedas con usuario real
 - [ ] Confirmar que `js/unity-ads.js` tiene `testMode: false` solo cuando Unity Ads ya este listo para produccion
-- [ ] Mantener la Monetization Stats API Key fuera del cliente/app
+- [x] Mantener la Monetization Stats API Key fuera del cliente/app
 
 ## 2. Recompensas
 
-- [ ] Desplegar `grantUnityAdReward` antes de publicar la app
+- [x] Desplegar `grantUnityAdReward` antes de publicar la app
 - [ ] Verificar que ruleta desbloquea maximo 3 giros extra por dia
 - [ ] Verificar que tragamonedas desbloquea maximo 3 tiradas extra por dia
 - [ ] Revisar en Firestore la coleccion `adRewards`
@@ -29,9 +29,9 @@ Completar antes de publicar en Google Play Store, App Store o lanzar web.
 
 ## 3. Android
 
-- [ ] Ejecutar `npm run cap:sync:android`
-- [ ] Ejecutar `cd android && .\gradlew.bat assembleRelease`
-- [ ] Ejecutar `cd android && .\gradlew.bat bundleRelease`
+- [x] Ejecutar `npm run cap:sync:android`
+- [x] Ejecutar `cd android && .\gradlew.bat assembleRelease`
+- [x] Ejecutar `cd android && .\gradlew.bat bundleRelease`
 - [ ] Revisar Data Safety en Google Play: ads, Advertising ID y datos usados por Unity Ads
 - [ ] Probar en dispositivo fisico Android
 
@@ -40,12 +40,12 @@ Completar antes de publicar en Google Play Store, App Store o lanzar web.
 - [ ] En Mac: ejecutar `npm run cap:sync:ios`
 - [ ] En `ios/App`: ejecutar `pod install`
 - [ ] Abrir Xcode y compilar en dispositivo fisico
-- [ ] Copiar desde Unity Dashboard la lista completa de SKAdNetwork IDs al `Info.plist`
+- [x] Copiar desde Unity Dashboard la lista completa de SKAdNetwork IDs al `Info.plist`
 - [ ] Revisar App Privacy en App Store Connect: anuncios, tracking y datos usados por Unity Ads
 
 ## 5. Firebase
 
-- [ ] Activar `compute.googleapis.com` en Google Cloud si sigue apareciendo el warning de Functions Gen 2
+- [x] Activar `compute.googleapis.com` en Google Cloud si sigue apareciendo el warning de Functions Gen 2
 - [ ] Deploy ordenado:
   1. `firebase deploy --only functions`
   2. `firebase deploy --only firestore:rules,storage`

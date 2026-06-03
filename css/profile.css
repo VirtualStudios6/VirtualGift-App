@@ -42,6 +42,15 @@ body {
   overflow-x: hidden;
 }
 
+html,
+body {
+  max-width: 100%;
+}
+
+body.android-app {
+  padding-bottom: calc(104px + env(safe-area-inset-bottom));
+}
+
 .container { max-width: 900px; margin: 0 auto; }
 
 /* ============================================ */
@@ -75,6 +84,7 @@ body {
   border-radius: 20px; padding: 18px;
   box-shadow: 0 8px 28px rgba(0,0,0,0.25);
   overflow: hidden; margin-bottom: 14px;
+  max-width: 100%;
 }
 .profile-card::after {
   content: ""; position: absolute;
@@ -86,6 +96,7 @@ body {
 .profile-row {
   position: relative; display: flex; align-items: center;
   gap: 14px; z-index: 1;
+  max-width: 100%;
 }
 
 /* ============================================ */
@@ -125,6 +136,7 @@ body {
 .profile-meta {
   flex: 1 1 auto; min-width: 0;
   display: flex; flex-direction: column; gap: 6px;
+  max-width: 100%;
 }
 .user-name {
   font-family: var(--font); font-size: 1.35em; font-weight: 900;
@@ -322,21 +334,30 @@ body {
     padding-right: calc(12px + env(safe-area-inset-right));
   }
   .container { width: 100%; }
-  .profile-card { border-radius: 16px; padding: 16px; }
-  .avatar-wrap, .avatar { width: 80px; height: 80px; }
+  .profile-card { border-radius: 16px; padding: 14px; }
+  .profile-row { gap: 12px; }
+  .avatar-wrap, .avatar { width: 72px; height: 72px; }
   .edit-avatar-btn { width: 30px; height: 30px; }
-  .user-name { font-size: 1.2em; }
-  .user-email { font-size: 0.82em; }
+  .user-name { font-size: 1.12em; }
+  .user-email { font-size: 0.78em; }
   .section { border-radius: 16px; padding: 16px; margin-bottom: 12px; }
   .action-buttons { gap: 10px; }
   .btn { padding: 13px 14px; font-size: 0.9em; border-radius: 12px; }
   .hint { gap: 8px; margin-top: 12px; }
-  .chip { font-size: 11px; padding: 6px 10px; }
+  .chip { font-size: 10px; padding: 6px 9px; max-width: 100%; }
+  .ref-btn-row { display: grid; grid-template-columns: 1fr; }
+  .ref-code-value {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: .14em;
+  }
 }
 
 @media (max-width: 360px) {
   .user-name { font-size: 1.05em; }
-  .avatar-wrap, .avatar { width: 72px; height: 72px; }
+  .avatar-wrap, .avatar { width: 64px; height: 64px; }
+  .profile-card { padding: 12px; }
 }
 
 /* ============================================ */

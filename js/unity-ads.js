@@ -4,7 +4,7 @@
   const CONFIG = {
     androidGameId: '6127955',
     iosGameId: '6127954',
-    testMode: false,
+    testMode: true,
     placements: {
       android: {
         interstitial: 'Interstitial_Android',
@@ -68,12 +68,16 @@
 
   async function showRewarded(options = {}) {
     await ensureReady();
-    const res = await plugin().showRewarded({
-      placementId: options.placementId || placement('rewarded'),
-      serverId: options.serverId || '',
-    });
-    if (!res?.completed && !res?.rewarded) throw new Error('Anuncio no completado');
-    return res;
+    try {
+      const res = await plugin().showRewarded({
+        placementId: options.placementId || placement('rewarded'),
+        serverId: options.serverId || '',
+      });
+      if (!res?.completed && !res?.rewarded) throw new Error('Anuncio no completado');
+      return res;
+    } catch (error) {
+      throw new Error(userMessage(error));
+    }
   }
 
   async function showInterstitial(options = {}) {
@@ -94,6 +98,21 @@
   async function hideBanner() {
     if (!isNative() || !plugin()) return;
     return plugin().hideBanner();
+  }
+
+  function userMessage(error) {
+    const raw = String(error?.message || error || '');
+    if (/NETWORK_ERROR|Network error|NO_FILL|NO_FILL_ERROR|No fill/i.test(raw)) {
+      return 'Anuncio no disponible ahora. Revisa internet e intenta de nuevo.';
+    }
+    if (/not initialized|no esta inicializado|init failed/i.test(raw)) {
+      initPromise = null;
+      return 'Unity Ads aun no esta listo. Intenta de nuevo en unos segundos.';
+    }
+    if (/not completed|no completado/i.test(raw)) {
+      return 'Debes completar el anuncio para recibir la recompensa.';
+    }
+    return raw || 'No se pudo completar el anuncio.';
   }
 
   window.VGUnityAds = {

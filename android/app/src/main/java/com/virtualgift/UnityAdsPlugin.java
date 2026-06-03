@@ -46,6 +46,7 @@ public class UnityAdsPlugin extends Plugin {
             return;
         }
 
+        UnityAds.setDebugMode(testMode);
         UnityAds.initialize(getContext(), gameId, testMode, new IUnityAdsInitializationListener() {
             @Override
             public void onInitializationComplete() {

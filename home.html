@@ -27,6 +27,8 @@
 
   <link rel="stylesheet" href="css/bottom-nav.css">
   <script defer src="js/sounds.js"></script>
+  <script defer src="js/unity-ads.js"></script>
+  <script defer src="js/unity-banner.js"></script>
 </head>
 
 <body>
@@ -79,7 +81,7 @@
     <div class="error-icon"><i data-lucide="alert-triangle" class="icon-lg"></i></div>
     <div class="error-message">
       <p>No se pudo cargar tu perfil</p>
-      <p style="font-size:0.9em;margin-top:6px;">Verifica tu conexión e intenta de nuevo</p>
+      <p style="font-size:0.9em;margin-top:6px;">Verifica tu conexiï¿½n e intenta de nuevo</p>
     </div>
     <button class="btn btn-primary" onclick="location.reload()"><i data-lucide="refresh-cw"></i> Reintentar</button>
     <button class="btn" onclick="window.location.href=withAppFlag('inicio.html')" style="margin-top:10px;">? Volver al inicio</button>
@@ -105,7 +107,7 @@
         <div class="profile-meta">
           <div class="user-name" id="userName">Usuario</div>
           <div class="email-row">
-            <div class="user-email" id="userEmail" title="Correo electrónico"></div>
+            <div class="user-email" id="userEmail" title="Correo electrï¿½nico"></div>
             <button id="btnToggleEmail" class="icon-btn" title="Mostrar/Ocultar correo" aria-label="Mostrar u ocultar correo">
               <svg id="eyeOpen" viewBox="0 0 24 24" fill="none">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -136,8 +138,8 @@
         <h2 class="section-title"><i data-lucide="zap"></i> Acciones</h2>
         <div class="action-buttons">
           <button class="btn" id="btnEditName"><i data-lucide="pencil"></i> Cambiar nombre</button>
-          <button class="btn btn-warning" id="btnResetPassword"><i data-lucide="key-round"></i> Cambiar contraseña</button>
-          <button class="btn btn-danger" id="btnLogout"><i data-lucide="log-out"></i> Cerrar Sesión</button>
+          <button class="btn btn-warning" id="btnResetPassword"><i data-lucide="key-round"></i> Cambiar contraseï¿½a</button>
+          <button class="btn btn-danger" id="btnLogout"><i data-lucide="log-out"></i> Cerrar Sesiï¿½n</button>
         </div>
       </div>
 
@@ -145,12 +147,12 @@
       <div class="section ref-section ref-section--hidden" id="referralSection">
         <h2 class="section-title"><i data-lucide="users"></i> Invita amigos</h2>
 
-        <!-- Tarjeta del código -->
+        <!-- Tarjeta del cï¿½digo -->
         <div class="ref-code-card">
-          <div class="ref-code-label">Tu código de invitación</div>
+          <div class="ref-code-label">Tu cï¿½digo de invitaciï¿½n</div>
           <div class="ref-code-inner">
-            <span class="ref-code-value" id="referralCode">—</span>
-            <button class="ref-copy-icon-btn" id="btnCopyCode" aria-label="Copiar código">
+            <span class="ref-code-value" id="referralCode">ï¿½</span>
+            <button class="ref-copy-icon-btn" id="btnCopyCode" aria-label="Copiar cï¿½digo">
               <i data-lucide="copy"></i>
             </button>
           </div>
@@ -160,7 +162,7 @@
           </div>
         </div>
 
-        <!-- Botones de acción -->
+        <!-- Botones de acciï¿½n -->
         <div class="ref-btn-row">
           <button class="btn btn-primary ref-btn" id="btnShareReferral">
             <i data-lucide="share-2"></i> Compartir
@@ -172,17 +174,17 @@
 
         <!-- Feedback -->
         <p class="referral-copied" id="referralCopied">
-          <i data-lucide="check-circle" class="ref-check-icon"></i> ¡Enlace copiado!
+          <i data-lucide="check-circle" class="ref-check-icon"></i> ï¿½Enlace copiado!
         </p>
         <p class="referral-stats" id="referralStats"></p>
 
-        <!-- Ingresar código de otro usuario (si no ha sido referido aún) -->
+        <!-- Ingresar cï¿½digo de otro usuario (si no ha sido referido aï¿½n) -->
         <div class="ref-enter-wrap ref-enter-wrap--hidden" id="refEnterWrap">
-          <div class="ref-enter-divider"><span>¿Te invitó alguien?</span></div>
+          <div class="ref-enter-divider"><span>ï¿½Te invitï¿½ alguien?</span></div>
           <div class="ref-enter-row">
             <input type="text" id="refCodeInput" class="ref-enter-input"
-                   placeholder="VG······" maxlength="8" autocomplete="off">
-            <button type="button" class="btn btn-primary ref-enter-btn" id="btnApplyRef" aria-label="Aplicar código">
+                   placeholder="VGï¿½ï¿½ï¿½ï¿½ï¿½ï¿½" maxlength="8" autocomplete="off">
+            <button type="button" class="btn btn-primary ref-enter-btn" id="btnApplyRef" aria-label="Aplicar cï¿½digo">
               <i data-lucide="check"></i>
             </button>
           </div>
