@@ -444,9 +444,9 @@ body {
 }
 .offer-card { border-color: rgba(0,212,255,0.18); }
 .offer-card .game-image { height: 150px; }
-.offer-card .game-info  { padding: 10px 12px 14px; display: flex; flex-direction: column; }
+.offer-card .game-info  { padding: 10px 12px 14px; display: flex; flex-direction: column; height: 88px; }
 .offer-card .game-name  { font-size: 14px; font-weight: 800; margin-bottom: 5px; }
-.offer-card-desc { font-size: 11px; color: rgba(255,255,255,0.42); line-height: 1.4; margin-bottom: 9px; flex: 1; }
+.offer-card-desc { font-size: 11px; color: rgba(255,255,255,0.42); line-height: 1.4; margin-bottom: 0; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .offer-card .offer-reward-chip { margin-top: auto; align-self: flex-start; }
 .offer-reward-chip {
   display: inline-flex; align-items: center; gap: 4px;
