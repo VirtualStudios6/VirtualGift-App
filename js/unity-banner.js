@@ -83,7 +83,16 @@
     const tick = async () => {
       attempts += 1;
       const loaded = await showNativeBanner();
-      if (!loaded && attempts < 10) setTimeout(tick, 700);
+      if (!loaded) {
+        if (attempts < 10) {
+          // Reintentos rápidos los primeros 7 segundos
+          setTimeout(tick, 700);
+        } else {
+          // Si no hay fill, reintentar cada 2 minutos de fondo
+          setTimeout(tick, 2 * 60 * 1000);
+          attempts = 0;
+        }
+      }
     };
     setTimeout(tick, 700);
   });
@@ -95,10 +104,12 @@
 })();
 
 // ── Intersticial entre pantallas ──────────────────────────────────────────────
-// Se muestra al cargar las páginas principales, con cooldown de 3 minutos.
+// Cooldown: 8 minutos entre intersticiales.
+// Delay inicial: 8 segundos (para no golpear al usuario al abrir la app).
 (function () {
-  const COOLDOWN_KEY = 'vg_last_interstitial';
-  const COOLDOWN_MS  = 3 * 60 * 1000;
+  const COOLDOWN_KEY  = 'vg_last_interstitial';
+  const COOLDOWN_MS   = 8 * 60 * 1000;  // 8 minutos
+  const STARTUP_DELAY = 8000;           // 8 segundos al abrir cada página
 
   const SKIP_PAGES = new Set([
     '', 'index.html', 'landing.html', 'login.html', 'splash.html',
@@ -120,11 +131,13 @@
     if (!window.VGUnityAds?.isNative?.() && !window.VGIronSource?.isNative?.()) return;
     if (!cooldownExpired()) return;
 
+    // Marcar cooldown al inicio para que ninguna red dispare dos veces
+    localStorage.setItem(COOLDOWN_KEY, String(Date.now()));
+
     // ── Intento 1: Unity Ads ─────────────────────────────────────────────
     if (window.VGUnityAds?.isNative?.()) {
       try {
         await window.VGUnityAds.showInterstitial();
-        localStorage.setItem(COOLDOWN_KEY, String(Date.now()));
         return;
       } catch (_) {
         // Unity falló, probar IronSource
@@ -135,15 +148,13 @@
     if (window.VGIronSource?.isNative?.()) {
       try {
         await window.VGIronSource.showInterstitial();
-        localStorage.setItem(COOLDOWN_KEY, String(Date.now()));
       } catch (_) {
-        // Silencioso: no interrumpir navegación
+        // Silencioso
       }
     }
   }
 
   window.addEventListener('DOMContentLoaded', () => {
-    // Espera 2 s para que la página renderice antes de mostrar el intersticial
-    setTimeout(maybeShowInterstitial, 2000);
+    setTimeout(maybeShowInterstitial, STARTUP_DELAY);
   });
 })();
