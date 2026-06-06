@@ -4,7 +4,7 @@
   const CONFIG = {
     androidGameId: '6127955',
     iosGameId: '6127954',
-    testMode: true,
+    testMode: false,
     placements: {
       android: {
         interstitial: 'Interstitial_Android',

@@ -79,13 +79,13 @@
 html.android-app .bottom-nav,
 body.android-app .bottom-nav { display: flex; }
 
-body.android-app.unity-banner-active,
-body.cap-native.unity-banner-active {
+/* Banner activo: aplica siempre que unity-banner-active esté en el body,
+   sin depender de que cap-native/android-app hayan sido añadidas a tiempo */
+body.unity-banner-active {
   padding-bottom: calc(120px + env(safe-area-inset-bottom)) !important;
 }
 
-body.android-app.unity-banner-active .bottom-nav,
-body.cap-native.unity-banner-active .bottom-nav {
+body.unity-banner-active .bottom-nav {
   bottom: 50px;
 }
 
