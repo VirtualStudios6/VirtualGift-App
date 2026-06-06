@@ -212,14 +212,11 @@ body {
 }
 
 .carousel-slide {
-  min-width: 100%; height: 200px;
+  min-width: 100%; height: 180px; background-color: #4b5563;
   border-radius: 16px; overflow: hidden;
-  background-color: #07031a; flex-shrink: 0;
 }
 @media (min-width: 769px) { .carousel-slide { height: 420px; border-radius: 20px; } }
-
-/* contain: imagen completa sin recorte, centrada dentro del slide */
-.carousel-slide img { width: 100%; height: 100%; object-fit: contain; object-position: center; display: block; }
+.carousel-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 .carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
 @media (min-width: 769px) { .carousel-dots { gap: 10px; margin-top: 16px; } }
@@ -951,9 +948,8 @@ body {
   .news-card:hover .news-image img { transform: scale(1.06); }
   .news-label { font-size: 14px; padding: 12px 14px 14px; line-height: 1.45; }
 
-  /* CAROUSEL — desktop grande */
+  /* CAROUSEL — más alto y con sombra */
   .carousel-slide { height: 480px; border-radius: 22px; }
-  .carousel-slide img { height: 100%; object-fit: contain; }
   .carousel-container { border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.4); }
   .carousel-dots { margin-top: 18px; gap: 10px; }
   .carousel-dot { width: 10px; height: 10px; }
