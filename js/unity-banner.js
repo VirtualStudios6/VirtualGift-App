@@ -18,7 +18,7 @@
 
   function shouldShowBanner() {
     if (HIDDEN_PAGES.has(pageName())) return false;
-    return Boolean(window.VGUnityAds?.isNative?.());
+    return Boolean(window.VGUnityAds?.isNative?.() || window.VGIronSource?.isNative?.());
   }
 
   function debugEnabled() {
@@ -44,21 +44,38 @@
     if (!shouldShowBanner()) {
       if (debugEnabled()) {
         const diag = await window.VGUnityAds?.diagnostics?.();
-        debug('Unity Ads no esta listo para banner', diag || { hasVGUnityAds: Boolean(window.VGUnityAds) });
+        debug('No hay red de anuncios lista para banner', diag || {});
       }
       return false;
     }
-    try {
-      await window.VGUnityAds.showBanner({ position: 'bottom' });
-      document.body.classList.add('unity-banner-active');
-      if (debugEnabled()) debug('Unity Ads banner cargado');
-      return true;
-    } catch (error) {
-      const diag = await window.VGUnityAds?.diagnostics?.();
-      debug(String(error?.message || error || 'Unity Ads banner unavailable'), diag);
-      document.body.classList.remove('unity-banner-active');
-      return false;
+
+    // ── Intento 1: Unity Ads ───────────────────────────────────────────────
+    if (window.VGUnityAds?.isNative?.()) {
+      try {
+        await window.VGUnityAds.showBanner({ position: 'bottom' });
+        document.body.classList.add('unity-banner-active');
+        if (debugEnabled()) debug('Banner: Unity Ads OK');
+        return true;
+      } catch (unityErr) {
+        debug('Unity banner falló, probando IronSource...', String(unityErr?.message || unityErr));
+      }
     }
+
+    // ── Intento 2: IronSource (fallback) ───────────────────────────────────
+    if (window.VGIronSource?.isNative?.()) {
+      try {
+        await window.VGIronSource.ensureReady();
+        await window.VGIronSource.showBanner({ position: 'bottom' });
+        document.body.classList.add('unity-banner-active');
+        if (debugEnabled()) debug('Banner: IronSource OK (fallback)');
+        return true;
+      } catch (isErr) {
+        debug('IronSource banner también falló', String(isErr?.message || isErr));
+      }
+    }
+
+    document.body.classList.remove('unity-banner-active');
+    return false;
   }
 
   window.addEventListener('DOMContentLoaded', () => {
@@ -73,6 +90,7 @@
 
   window.addEventListener('pagehide', () => {
     window.VGUnityAds?.hideBanner?.().catch(() => {});
+    window.VGIronSource?.hideBanner?.().catch(() => {});
   });
 })();
 
@@ -99,13 +117,28 @@
 
   async function maybeShowInterstitial() {
     if (SKIP_PAGES.has(pageName())) return;
-    if (!window.VGUnityAds?.isNative?.()) return;
+    if (!window.VGUnityAds?.isNative?.() && !window.VGIronSource?.isNative?.()) return;
     if (!cooldownExpired()) return;
-    try {
-      await window.VGUnityAds.showInterstitial();
-      localStorage.setItem(COOLDOWN_KEY, String(Date.now()));
-    } catch (_) {
-      // Silencioso: no interrumpir navegación si el anuncio falla
+
+    // ── Intento 1: Unity Ads ─────────────────────────────────────────────
+    if (window.VGUnityAds?.isNative?.()) {
+      try {
+        await window.VGUnityAds.showInterstitial();
+        localStorage.setItem(COOLDOWN_KEY, String(Date.now()));
+        return;
+      } catch (_) {
+        // Unity falló, probar IronSource
+      }
+    }
+
+    // ── Intento 2: IronSource (fallback) ────────────────────────────────
+    if (window.VGIronSource?.isNative?.()) {
+      try {
+        await window.VGIronSource.showInterstitial();
+        localStorage.setItem(COOLDOWN_KEY, String(Date.now()));
+      } catch (_) {
+        // Silencioso: no interrumpir navegación
+      }
     }
   }
 

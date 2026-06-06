@@ -96,6 +96,14 @@ function copyHtmlWithCapacitor(src, dest) {
     );
   }
 
+  // Inyectar ironsource-ads.js después de unity-banner.js (fallback de anuncios)
+  if (html.includes('unity-banner.js') && !html.includes('ironsource-ads.js')) {
+    html = html.replace(
+      /(<script[^>]+src=["'][^"']*unity-banner\.js["'][^>]*><\/script>)/,
+      '$1\n  <script defer src="js/ironsource-ads.js"></script>'
+    );
+  }
+
   writeText(dest, html);
 }
 
