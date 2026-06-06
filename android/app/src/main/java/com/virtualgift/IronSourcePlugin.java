@@ -245,7 +245,7 @@ public class IronSourcePlugin extends Plugin {
             });
 
             container.addView(bannerLayout);
-            IronSource.loadBanner(activity, bannerLayout, BANNER_ID);
+            IronSource.loadBanner(bannerLayout, BANNER_ID);
         });
     }
 
