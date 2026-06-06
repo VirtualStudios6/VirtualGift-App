@@ -209,14 +209,32 @@ body {
 .carousel-wrapper {
   display: flex; transition: transform 0.5s ease-in-out;
   touch-action: pan-y; cursor: grab;
+  align-items: stretch;
 }
 
+/* La altura la define la imagen — no más recorte en mobile */
 .carousel-slide {
-  min-width: 100%; height: 180px; background-color: #4b5563;
-  border-radius: 16px; overflow: hidden;
+  min-width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: #0a0618;
+  flex-shrink: 0;
 }
-@media (min-width: 769px) { .carousel-slide { height: 420px; border-radius: 20px; } }
-.carousel-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (min-width: 769px) { .carousel-slide { border-radius: 20px; } }
+
+/* Imagen ocupa todo el ancho, altura automática → imagen completa sin recorte */
+.carousel-slide img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: unset;
+}
+
+/* En desktop donde hay espacio se puede fijar altura y usar cover */
+@media (min-width: 769px) {
+  .carousel-slide { height: 420px; }
+  .carousel-slide img { height: 100%; object-fit: cover; }
+}
 
 .carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
 @media (min-width: 769px) { .carousel-dots { gap: 10px; margin-top: 16px; } }
@@ -948,8 +966,9 @@ body {
   .news-card:hover .news-image img { transform: scale(1.06); }
   .news-label { font-size: 14px; padding: 12px 14px 14px; line-height: 1.45; }
 
-  /* CAROUSEL — más alto y con sombra */
+  /* CAROUSEL — desktop grande */
   .carousel-slide { height: 480px; border-radius: 22px; }
+  .carousel-slide img { height: 100%; object-fit: cover; }
   .carousel-container { border-radius: 22px; box-shadow: 0 24px 60px rgba(0,0,0,0.4); }
   .carousel-dots { margin-top: 18px; gap: 10px; }
   .carousel-dot { width: 10px; height: 10px; }
