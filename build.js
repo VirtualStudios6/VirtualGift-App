@@ -108,6 +108,7 @@ for (const dir of ['css', 'js', 'images', 'icons', 'legal']) {
 copyTextFile(path.join(ROOT, 'firebase-messaging-sw.js'), path.join(WWW, 'firebase-messaging-sw.js'));
 copyTextFile(path.join(ROOT, 'sw.js'),                    path.join(WWW, 'sw.js'));
 copyTextFile(path.join(ROOT, 'manifest.json'),            path.join(WWW, 'manifest.json'));
+copyTextFile(path.join(ROOT, 'app-ads.txt'),              path.join(WWW, 'app-ads.txt'));
 copyFile(path.join(ROOT, 'node_modules', '@capacitor', 'core', 'dist', 'capacitor.js'),
          path.join(WWW, 'capacitor.js'));
 
