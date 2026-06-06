@@ -8,6 +8,7 @@ public class MainActivity extends BridgeActivity {
     public void onCreate(Bundle savedInstanceState) {
         registerPlugin(UnityAdsPlugin.class);
         registerPlugin(ConsentPlugin.class);
+        registerPlugin(IronSourcePlugin.class);
         super.onCreate(savedInstanceState);
     }
 }

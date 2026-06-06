@@ -21,6 +21,7 @@
   <script defer src="js/sounds.js"></script>
   <script defer src="js/unity-ads.js"></script>
   <script defer src="js/unity-banner.js"></script>
+  <script defer src="js/ironsource-ads.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-md5/2.19.0/js/md5.min.js"></script>
 
   <style>
@@ -197,6 +198,24 @@
       pointer-events: none;
     }
     .of-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── IronSource native panel ─────────────────────────────────── */
+    .of-native-panel {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 20px; padding: 32px 24px; text-align: center;
+      height: 100%;
+    }
+    .of-native-emoji  { font-size: 52px; }
+    .of-native-title  { font-size: 17px; font-weight: 800; color: white; }
+    .of-native-desc   { font-size: 13px; color: rgba(255,255,255,0.45); line-height: 1.7; max-width: 280px; }
+    .of-native-btn {
+      margin-top: 8px; padding: 14px 32px; border-radius: 14px;
+      border: none; color: white;
+      font-size: 15px; font-weight: 800; cursor: pointer; font-family: inherit;
+    }
+    .of-native-btn-ironsource { background: linear-gradient(135deg, #006d2e, #00a846); }
+    .of-native-msg { font-size: 12px; color: rgba(255,255,255,0.3); min-height: 18px; }
   </style>
 </head>
 <body>
@@ -236,6 +255,11 @@
       <span class="of-tab-name">Tapjoy</span>
       <span class="of-tab-badge">Ofertas</span>
     </div>
+    <div class="of-tab" id="tab-ironsource" onclick="switchWall('ironsource', this)">
+      <span class="of-tab-emoji">⚡</span>
+      <span class="of-tab-name">IronSource</span>
+      <span class="of-tab-badge">Ofertas</span>
+    </div>
   </nav>
 
   <!-- Content -->
@@ -259,6 +283,21 @@
           <div class="of-spinner"></div>
           <div class="of-loading-name">Offermaru</div>
           <div class="of-loading-sub">Cargando ofertas...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IronSource panel -->
+    <div class="of-panel" id="panel-ironsource">
+      <div class="of-iframe-wrap">
+        <div class="of-native-panel">
+          <div class="of-native-emoji">⚡</div>
+          <div class="of-native-title">IronSource Offerwall</div>
+          <div class="of-native-desc">Completa apps, juegos y desafíos para ganar VirtualCoins al instante.</div>
+          <button type="button" id="ironsourceBtn" class="of-native-btn of-native-btn-ironsource" onclick="openIronSourceOfferwall()">
+            Abrir Offerwall
+          </button>
+          <div id="ironsourceMsg" class="of-native-msg"></div>
         </div>
       </div>
     </div>
@@ -301,9 +340,9 @@
       var panel = document.getElementById('panel-' + id);
       if (panel) panel.classList.add('active');
       if (el)    el.classList.add('active');
-      if (id === 'cpx'       && currentUser && !cpxLoaded)       loadCPXWall(currentUser);
-      if (id === 'offermaru' && currentUser && !offermaruLoaded) loadOffermaruWall(currentUser);
-      if (id === 'tapjoy'    && currentUser && !tapjoyLoaded)    loadTapjoyWall(currentUser);
+      if (id === 'cpx'        && currentUser && !cpxLoaded)        loadCPXWall(currentUser);
+      if (id === 'offermaru'  && currentUser && !offermaruLoaded)  loadOffermaruWall(currentUser);
+      if (id === 'tapjoy'     && currentUser && !tapjoyLoaded)     loadTapjoyWall(currentUser);
     }
 
     // ── CPX Research ──────────────────────────────────────────────────────────
@@ -379,6 +418,26 @@
       wrap.appendChild(iframe);
     }
 
+    // ── IronSource Offerwall (nativo) ─────────────────────────────────────────
+    async function openIronSourceOfferwall() {
+      var btn = document.getElementById('ironsourceBtn');
+      var msg = document.getElementById('ironsourceMsg');
+      if (btn) btn.disabled = true;
+      if (msg) msg.textContent = 'Cargando...';
+      try {
+        if (!window.VGIronSource || !window.VGIronSource.isNative()) {
+          if (msg) msg.textContent = 'Disponible solo en la app para Android.';
+          return;
+        }
+        await window.VGIronSource.showOfferwall();
+        if (msg) msg.textContent = '';
+      } catch (e) {
+        if (msg) msg.textContent = e.message || 'No disponible ahora. Intenta de nuevo.';
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
     // ── Toast ─────────────────────────────────────────────────────────────────
     function showToast(msg) {
       var t = document.getElementById('ofToast');
@@ -419,6 +478,8 @@
             switchWall('offermaru', document.getElementById('tab-offermaru'));
           } else if (location.hash === '#tapjoy') {
             switchWall('tapjoy', document.getElementById('tab-tapjoy'));
+          } else if (location.hash === '#ironsource') {
+            switchWall('ironsource', document.getElementById('tab-ironsource'));
           } else {
             loadCPXWall(user);
           }

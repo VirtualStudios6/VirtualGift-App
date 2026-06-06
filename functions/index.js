@@ -16,6 +16,7 @@ const FORTNITE_API_KEY_SECRET  = defineSecret("FORTNITE_API_KEY");
 const CPX_HASH_KEY_SECRET      = defineSecret("CPX_HASH_KEY");
 const OFFERMARU_API_SECRET     = defineSecret("OFFERMARU_API_SECRET");
 const TAPJOY_SECRET            = defineSecret("TAPJOY_SECRET");
+const IRONSOURCE_SECRET        = defineSecret("IRONSOURCE_SECRET");
 
 // =====================
 // HELPERS
@@ -1333,6 +1334,151 @@ exports.tapjoyPostback = onRequest(
         return res.status(429).send("Daily limit exceeded");
       }
       console.error("[tapjoyPostback] Error interno:", err);
+      return res.status(500).send("Error");
+    }
+  }
+);
+
+// ========================
+// IRONSOURCE POSTBACK
+// ========================
+// IronSource llama a esta URL cuando un usuario completa una oferta en el Offerwall.
+//
+// Configurar en IronSource Dashboard → Offerwall → Settings → S2S Postback URL:
+//   https://us-central1-virtualgift-login.cloudfunctions.net/ironSourcePostback
+//   ?userId={userId}&rewards={rewards}&timestamp={timestamp}&signature={signature}
+//
+// Parámetros que envía IronSource:
+//   userId    → Firebase UID (el que pasaste al SDK como userId)
+//   rewards   → VirtualCoins a acreditar
+//   timestamp → Unix timestamp de la transacción
+//   signature → MD5(userId + rewards + timestamp + privateKey)
+//
+// En IronSource Dashboard → Offerwall → Settings → "Private Key":
+//   pon la misma clave guardada en Firebase Secret Manager como "IRONSOURCE_SECRET".
+//
+// Protecciones: mismas que Offermaru/Tapjoy (hash MD5, dedup, caps diarios).
+
+exports.ironSourcePostback = onRequest(
+  { region: "us-central1", cors: false, secrets: [IRONSOURCE_SECRET] },
+  async (req, res) => {
+    const p = { ...req.query, ...req.body };
+    const userId    = p.userId;
+    const rewards   = p.rewards;
+    const timestamp = p.timestamp;
+    const signature = p.signature;
+
+    // ── 1. Validar parámetros ─────────────────────────────────────────────
+    if (!userId || !rewards || !timestamp || !signature) {
+      console.warn("[ironSourcePostback] Parámetros incompletos:", {
+        userId: !!userId, rewards: !!rewards,
+        timestamp: !!timestamp, signature: !!signature,
+      });
+      return res.status(400).send("Missing parameters");
+    }
+
+    // ── 2. Verificar signature: MD5(userId + rewards + timestamp + privateKey) ─
+    const secret   = IRONSOURCE_SECRET.value().trim();
+    const expected = createHash("md5")
+      .update(String(userId) + String(rewards) + String(timestamp) + secret)
+      .digest("hex");
+
+    if (signature !== expected) {
+      console.warn("[ironSourcePostback] Signature inválida para userId:", userId);
+      await db.collection("suspiciousActivity").add({
+        userId, type: "ironsource_invalid_signature",
+        timestamp, ip: req.ip, createdAt: admin.firestore.Timestamp.now(),
+      }).catch(() => {});
+      return res.status(403).send("Invalid signature");
+    }
+
+    // ── 3. Parsear y validar coins ────────────────────────────────────────
+    const coins = Math.round(parseFloat(rewards));
+    if (!Number.isFinite(coins) || coins <= 0) {
+      console.warn("[ironSourcePostback] rewards inválido:", rewards);
+      return res.status(400).send("Invalid rewards");
+    }
+
+    // ── 4. Cap por transacción ────────────────────────────────────────────
+    if (coins > OW_MAX_COINS_PER_TX) {
+      console.warn(`[ironSourcePostback] Amount ${coins} excede cap. uid: ${userId}`);
+      await db.collection("suspiciousActivity").add({
+        userId, type: "ironsource_tx_cap_exceeded",
+        coins, timestamp, createdAt: admin.firestore.Timestamp.now(),
+      }).catch(() => {});
+      return res.status(400).send("Amount exceeds maximum");
+    }
+
+    // ── 5. Deduplicación por userId+timestamp ─────────────────────────────
+    const transactionId = `is_${userId}_${timestamp}`;
+
+    try {
+      const userRef  = db.collection("users").doc(String(userId));
+      const userSnap = await userRef.get();
+      if (!userSnap.exists) {
+        console.warn(`[ironSourcePostback] Usuario no encontrado: ${userId}`);
+        return res.status(404).send("User not found");
+      }
+
+      const dupSnap = await db.collection("pointsHistory")
+        .where("transactionId", "==", transactionId)
+        .where("provider",      "==", "ironsource")
+        .limit(1).get();
+
+      if (!dupSnap.empty) {
+        console.log("[ironSourcePostback] Transacción duplicada:", transactionId);
+        return res.status(200).send("OK");
+      }
+
+      // ── 6. Cap diario + acreditación atómica ─────────────────────────
+      const today  = new Date().toISOString().slice(0, 10);
+      const capRef = db.collection("offerwallDailyCaps").doc(`${userId}_${today}_ironsource`);
+
+      await db.runTransaction(async (tx) => {
+        const capSnap    = await tx.get(capRef);
+        const todayTotal = capSnap.exists ? (capSnap.data().total || 0) : 0;
+
+        if (todayTotal + coins > OW_MAX_COINS_PER_DAY) {
+          const err = new Error("DAILY_CAP_EXCEEDED");
+          err.todayTotal = todayTotal;
+          throw err;
+        }
+
+        tx.update(userRef, { points: admin.firestore.FieldValue.increment(coins) });
+
+        tx.set(db.collection("pointsHistory").doc(), {
+          userId:        String(userId),
+          type:          "ironsource_offer",
+          points:        coins,
+          transactionId,
+          provider:      "ironsource",
+          reversed:      false,
+          createdAt:     admin.firestore.Timestamp.now(),
+        });
+
+        tx.set(capRef, {
+          total:     admin.firestore.FieldValue.increment(coins),
+          userId:    String(userId),
+          provider:  "ironsource",
+          date:      today,
+          updatedAt: admin.firestore.Timestamp.now(),
+        }, { merge: true });
+      });
+
+      console.log(`[ironSourcePostback] ✓ +${coins} coins → ${userId} (${transactionId})`);
+      return res.status(200).send("OK");
+
+    } catch (err) {
+      if (err.message === "DAILY_CAP_EXCEEDED") {
+        console.warn(`[ironSourcePostback] Límite diario uid: ${userId}. Hoy: ${err.todayTotal}`);
+        await db.collection("suspiciousActivity").add({
+          userId, type: "ironsource_daily_cap_exceeded",
+          todayTotal: err.todayTotal, coins,
+          createdAt: admin.firestore.Timestamp.now(),
+        }).catch(() => {});
+        return res.status(429).send("Daily limit exceeded");
+      }
+      console.error("[ironSourcePostback] Error interno:", err);
       return res.status(500).send("Error");
     }
   }
