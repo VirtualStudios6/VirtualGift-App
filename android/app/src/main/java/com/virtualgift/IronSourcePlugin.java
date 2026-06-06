@@ -26,9 +26,9 @@ import com.ironsource.mediationsdk.sdk.RewardedVideoListener;
 public class IronSourcePlugin extends Plugin {
     private static final String TAG              = "VGIronSource";
     private static final String APP_KEY          = "26a0d0ced";
-    private static final String REWARDED_ID      = "DefaultRewardedVideo";
-    private static final String INTERSTITIAL_ID  = "DefaultInterstitial";
-    private static final String BANNER_ID        = "DefaultBanner";
+    private static final String REWARDED_ID      = "vb7wz3vee0vmdsvn";
+    private static final String INTERSTITIAL_ID  = "jerdwoa8lqgkjdfq";
+    private static final String BANNER_ID        = "p0pog2qe8o0nsd49";
 
     private boolean initialized      = false;
     private IronSourceBannerLayout bannerLayout;
