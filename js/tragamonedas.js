@@ -1,5 +1,5 @@
 /* -----------------------------------------------
-   TRAGAMONEDAS.JS � VirtualGift
+   TRAGAMONEDAS.JS — VirtualGift
    5 tiradas gratis diarias
 ----------------------------------------------- */
 'use strict';
@@ -112,7 +112,7 @@ async function loadUserData() {
 
     userCoins = data.points || 0;
 
-    // Plays del d�a
+    // Plays del día
     if (data.slotDate === today()) {
       playsUsed  = data.slotPlays  || 0;
       extraUsed  = data.slotExtra  || 0;
@@ -128,7 +128,7 @@ async function loadUserData() {
   }
 }
 
-// -- L�gica de juego --
+// -- Lógica de juego --
 function calcWin(s0, s1, s2) {
   if (s0 === s1 && s1 === s2) return PAYOUTS[SYMBOLS[s0]] || 20;
   if (s0 === s1 || s1 === s2 || s0 === s2) return 8;

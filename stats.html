@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#06011c">
   <link rel="icon" type="image/png" href="images/logo-virtual-login.png">
-  <title>Stats Fortnite � VirtualGift</title>
+  <title>Stats Fortnite — VirtualGift</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900&display=swap" rel="stylesheet">
@@ -260,7 +260,7 @@
     <div class="state-box">
       <div class="state-icon"><i data-lucide="target" class="icon-lg"></i></div>
       <div class="state-title">BUSCA UN JUGADOR</div>
-      <div class="state-sub">Ingresa el nombre de usuario para ver estad�sticas detalladas</div>
+      <div class="state-sub">Ingresa el nombre de usuario para ver estadísticas detalladas</div>
     </div>
   </div>
 
@@ -379,11 +379,11 @@
         ${['overall','solo','duo','squad'].map(m => `
           <div class="mode-btn ${mode===m?'active':''}" onclick="renderStats(globalData,'${m}')">
             <span class="mode-icon"><i data-lucide="${{overall:'globe',solo:'user',duo:'users',squad:'users-2'}[m]}" style="width:1em;height:1em"></i></span>
-            ${{overall:'Global',solo:'Solo',duo:'D�o',squad:'Squad'}[m]}
+            ${{overall:'Global',solo:'Solo',duo:'Dúo',squad:'Squad'}[m]}
           </div>`).join('')}
       </div>
 
-      <div class="sec-label">Estad�sticas ${escHtml({overall:'Globales',solo:'Solo',duo:'D�o',squad:'Squad'}[mode]||'')}</div>
+      <div class="sec-label">Estadísticas ${escHtml({overall:'Globales',solo:'Solo',duo:'Dúo',squad:'Squad'}[mode]||'')}</div>
       ${renderTable(s, winBarWidth)}
 
       <div class="sec-label">Mejores Partidas</div>
@@ -447,7 +447,7 @@
 
   function renderTopPlay(p, i) {
     const rankClass = ['r1','r2','r3','rn','rn'][i] || 'rn';
-    const modeLabel = {solo:'Solo',duo:'D�o',squad:'Squad',ltm:'LTM'}[p.mode] || p.mode;
+    const modeLabel = {solo:'Solo',duo:'Dúo',squad:'Squad',ltm:'LTM'}[p.mode] || p.mode;
     const winClass = p.wins > 0 ? 'win' : (p.matches > 0 && (p.wins/p.matches) > 0.2 ? 'top' : 'other');
     return `
       <div class="top-play fade-up" style="animation-delay:${i*0.06}s">
@@ -458,7 +458,7 @@
         </div>
         <div class="tp-right">
           <div class="tp-placed ${winClass}">${fmt(p.wins)} victorias</div>
-          <div class="tp-matches">${fmt(p.matches)} partidas � ${fmtRatio(p.kd)} K/D</div>
+          <div class="tp-matches">${fmt(p.matches)} partidas · ${fmtRatio(p.kd)} K/D</div>
         </div>
       </div>`;
   }

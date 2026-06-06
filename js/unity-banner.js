@@ -75,3 +75,42 @@
     window.VGUnityAds?.hideBanner?.().catch(() => {});
   });
 })();
+
+// ── Intersticial entre pantallas ──────────────────────────────────────────────
+// Se muestra al cargar las páginas principales, con cooldown de 3 minutos.
+(function () {
+  const COOLDOWN_KEY = 'vg_last_interstitial';
+  const COOLDOWN_MS  = 3 * 60 * 1000;
+
+  const SKIP_PAGES = new Set([
+    '', 'index.html', 'landing.html', 'login.html', 'splash.html',
+    'welcome.html', 'verify-pending.html', 'action.html',
+    'admin.html', 'admin-news.html', 'admin-notificaciones.html',
+  ]);
+
+  function pageName() {
+    return (location.pathname.split('/').pop() || '').toLowerCase();
+  }
+
+  function cooldownExpired() {
+    const last = Number(localStorage.getItem(COOLDOWN_KEY) || 0);
+    return Date.now() - last >= COOLDOWN_MS;
+  }
+
+  async function maybeShowInterstitial() {
+    if (SKIP_PAGES.has(pageName())) return;
+    if (!window.VGUnityAds?.isNative?.()) return;
+    if (!cooldownExpired()) return;
+    try {
+      await window.VGUnityAds.showInterstitial();
+      localStorage.setItem(COOLDOWN_KEY, String(Date.now()));
+    } catch (_) {
+      // Silencioso: no interrumpir navegación si el anuncio falla
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    // Espera 2 s para que la página renderice antes de mostrar el intersticial
+    setTimeout(maybeShowInterstitial, 2000);
+  });
+})();

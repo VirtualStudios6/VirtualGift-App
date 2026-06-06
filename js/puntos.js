@@ -65,7 +65,7 @@ function showModal(title, message, buttons = [{ label: 'OK', primary: true }]) {
 }
 
 /* ============================================ */
-/* CACH� DE PUNTOS */
+/* CACHÉ DE PUNTOS */
 /* ============================================ */
 function getCachedPoints() {
   try {
@@ -147,7 +147,7 @@ function buildCheckinUI(streak, alreadyDone) {
   const badge = document.getElementById('streakBadge');
   if (!days || !btn || !badge) return;
 
-  badge.textContent = `?? ${streak} d�a${streak !== 1 ? 's' : ''}`;
+  badge.textContent = `?? ${streak} día${streak !== 1 ? 's' : ''}`;
 
   let html = '';
   CHECKIN_REWARDS.forEach((coins, i) => {
@@ -157,7 +157,7 @@ function buildCheckinUI(streak, alreadyDone) {
     if (done)    cls += ' done';
     if (isToday) cls += ' today';
     html += `<div class="${cls}">
-      <div class="checkin-day-label">D�a ${i + 1}</div>
+      <div class="checkin-day-label">Día ${i + 1}</div>
       <div class="checkin-day-coins">${coins} VC</div>
     </div>`;
   });
@@ -229,10 +229,10 @@ window.doCheckin = async function() {
 /* ============================================ */
 const PLATFORM_LABELS = {
   paypal:     { name: 'PayPal',           field: 'Correo de PayPal',   placeholder: 'ejemplo@paypal.com' },
-  amazon:     { name: 'Amazon Gift Card', field: 'Correo electr�nico', placeholder: 'ejemplo@email.com'  },
-  steam:      { name: 'Steam Wallet',     field: 'Correo electr�nico', placeholder: 'ejemplo@email.com'  },
-  googleplay: { name: 'Google Play',      field: 'Correo electr�nico', placeholder: 'ejemplo@gmail.com'  },
-  psn:        { name: 'PlayStation',      field: 'Correo electr�nico', placeholder: 'ejemplo@email.com'  },
+  amazon:     { name: 'Amazon Gift Card', field: 'Correo electrónico', placeholder: 'ejemplo@email.com'  },
+  steam:      { name: 'Steam Wallet',     field: 'Correo electrónico', placeholder: 'ejemplo@email.com'  },
+  googleplay: { name: 'Google Play',      field: 'Correo electrónico', placeholder: 'ejemplo@gmail.com'  },
+  psn:        { name: 'PlayStation',      field: 'Correo electrónico', placeholder: 'ejemplo@email.com'  },
 };
 
 function setupPlatformCards() {
@@ -276,8 +276,8 @@ function validateRedeemForm() {
   const val = parseInt(input?.value, 10) || 0;
 
   let error = '';
-  if (val > 0 && val < MIN_REDEEM_POINTS) error = `M�nimo ${MIN_REDEEM_POINTS.toLocaleString()} coins`;
-  else if (val > 0 && val % 1000 !== 0)  error = 'Debe ser m�ltiplo de 1.000';
+  if (val > 0 && val < MIN_REDEEM_POINTS) error = `Mínimo ${MIN_REDEEM_POINTS.toLocaleString()} coins`;
+  else if (val > 0 && val % 1000 !== 0)  error = 'Debe ser múltiplo de 1.000';
   else if (val > currentUserPoints)       error = 'No tienes suficientes coins';
 
   if (errorEl) {
@@ -308,7 +308,7 @@ function openRedeemModal() {
 
   if (!modal) return;
 
-  if (modalPlatName) modalPlatName.textContent = `Canjear � ${platform.name || ''}`;
+  if (modalPlatName) modalPlatName.textContent = `Canjear · ${platform.name || ''}`;
   if (modalPts)      modalPts.textContent      = points.toLocaleString() + ' VC';
   if (modalUSD)      modalUSD.textContent      = `$${pointsToUSD(points)} USD`;
 
@@ -382,7 +382,7 @@ async function processRedeem(e) {
 }
 
 /* ============================================ */
-/* PANTALLA �XITO CANJE                        */
+/* PANTALLA ÉXITO CANJE                        */
 /* ============================================ */
 function openRedeemSuccess(points, usdAmt, platform, account) {
   const screen = document.getElementById('redeemSuccess');
@@ -471,7 +471,7 @@ async function loadHistory(userId, append = false) {
     if (!append) container.innerHTML = '';
 
     if (snap.empty && !append) {
-      container.innerHTML = '<p class="hist-empty">Sin movimientos a�n</p>';
+      container.innerHTML = '<p class="hist-empty">Sin movimientos aún</p>';
       if (loadMoreEl) loadMoreEl.style.display = 'none';
       return;
     }
@@ -484,7 +484,7 @@ async function loadHistory(userId, append = false) {
     if (loadMoreEl) loadMoreEl.style.display = snap.size < HIST_PAGE ? 'none' : 'block';
 
   } catch(e) {
-    // Si falta �ndice compuesto Firebase mostrar� en consola el link para crearlo
+    // Si falta índice compuesto Firebase mostrará en consola el link para crearlo
     console.warn('[historial]', e.code, e.message);
     if (!append) container.innerHTML = '<p class="hist-empty">No se pudo cargar el historial</p>';
   }

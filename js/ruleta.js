@@ -1,7 +1,7 @@
 /* -----------------------------------------------
-   RULETA.JS � VirtualGift
+   RULETA.JS — VirtualGift
    3 giros gratis diarios
-   Canvas wheel con animaci�n suave ease-out
+   Canvas wheel con animación suave ease-out
 ----------------------------------------------- */
 'use strict';
 
@@ -28,7 +28,7 @@ let userCoins     = 0;
 let playsUsed     = 0;
 let extraUsed     = 0;
 let isSpinning    = false;
-let displayedRot  = 0; // �ngulo actual en canvas (grados, acumulado)
+let displayedRot  = 0; // ángulo actual en canvas (grados, acumulado)
 
 // -- Canvas --
 let canvas, ctx;
@@ -212,22 +212,22 @@ function getResult() {
 function calcTargetRotation(targetSeg) {
   const idx = SEGMENTS.indexOf(targetSeg);
 
-  // �ngulo del centro del segmento desde el inicio del dibujo (degrees, clockwise from top)
+  // ángulo del centro del segmento desde el inicio del dibujo (degrees, clockwise from top)
   let start = 0;
   for (let i = 0; i < idx; i++) {
     start += (SEGMENTS[i].weight / TOTAL_WEIGHT) * 360;
   }
   const center = start + (SEGMENTS[idx].weight / TOTAL_WEIGHT) * 180;
 
-  // Para que el segmento quede bajo el puntero (top), la rotaci�n total debe ser (360 - center) mod 360.
-  // F�rmula: cuando canvas rota +rot, el punto originalmente en �ngulo 'a' aparece en 'a + rot'.
-  // Queremos a + rot = 0� (top) ? rot = -center = 360 - center (mod 360).
+  // Para que el segmento quede bajo el puntero (top), la rotación total debe ser (360 - center) mod 360.
+  // Fórmula: cuando canvas rota +rot, el punto originalmente en ángulo 'a' aparece en 'a + rot'.
+  // Queremos a + rot = 0° (top) ? rot = -center = 360 - center (mod 360).
   const currentNorm = ((displayedRot % 360) + 360) % 360;
   let target = (360 - center) % 360;
   let needed  = target - currentNorm;
   if (needed <= 0) needed += 360;
 
-  // 6�8 vueltas completas para efecto visual
+  // 6-8 vueltas completas para efecto visual
   const extraSpins = (6 + Math.floor(Math.random() * 3)) * 360;
 
   return displayedRot + needed + extraSpins;
@@ -328,7 +328,7 @@ function buildLegend() {
       <div class="legend-dot" style="background:${s.color};box-shadow:0 0 7px ${glow}"></div>
       <span class="legend-icon">${s.icon}</span>
       <span class="legend-label">${s.label === 'MISS' ? 'Sin suerte' : s.label}</span>
-      <span class="legend-coins">${s.coins > 0 ? '+' + s.coins + ' VC' : '�'}</span>
+      <span class="legend-coins">${s.coins > 0 ? '+' + s.coins + ' VC' : '—'}</span>
     </div>`;
   }).join('');
 }

@@ -420,7 +420,8 @@ body {
 /* ── Provider brand cards ─────────────────────────────────────────────────── */
 .offer-brand-bg      { display: flex; align-items: center; justify-content: center; }
 .offer-brand-cpx     { background: linear-gradient(155deg, #07111f 0%, #0d2040 60%, #102a50 100%); }
-.offer-brand-bitlabs { background: linear-gradient(155deg, #0047c8 0%, #006eff 60%, #1a7fff 100%); }
+.offer-brand-bitlabs   { background: linear-gradient(155deg, #0047c8 0%, #006eff 60%, #1a7fff 100%); }
+.offer-brand-offermaru { background: linear-gradient(155deg, #6200ea 0%, #9c27b0 60%, #e040fb 100%); }
 .offer-brand-wrap    { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; }
 .offer-brand-icon    { width: 52px; height: 52px; }
 .offer-brand-label   { font-size: 11px; font-weight: 900; color: white; letter-spacing: 1.8px; text-transform: uppercase; text-align: center; opacity: 0.92; }

@@ -254,8 +254,8 @@
                     </svg>
                 </div>
                 <div class="points-label">Tus VirtualCoins</div>
-                <div class="points-balance" id="totalPoints">�</div>
-                <div class="points-conversion">� $<span id="dollarValue">0.00</span> USD</div>
+                <div class="points-balance" id="totalPoints">···</div>
+                <div class="points-conversion">🪙 $<span id="dollarValue">0.00</span> USD</div>
             </div>
 
             <!-- COLUMNA DERECHA: check-in + canje -->
@@ -264,7 +264,7 @@
                 <div class="checkin-card">
                     <div class="checkin-top">
                         <div class="checkin-title"><i data-lucide="flame"></i> Recompensa Diaria</div>
-                        <div class="checkin-streak" id="streakBadge"><i data-lucide="flame"></i> 0 d�as</div>
+                        <div class="checkin-streak" id="streakBadge"><i data-lucide="flame"></i> 0 días</div>
                     </div>
                     <div class="checkin-days" id="checkinDays"></div>
                     <button class="checkin-btn" id="checkinBtn" onclick="doCheckin()" disabled>
@@ -278,7 +278,7 @@
                     </div>
 
                     <div class="form-group" style="margin-bottom: 16px;">
-                        <label class="form-label">�Cu�ntos VirtualCoins quieres canjear?</label>
+                        <label class="form-label">¿Cuántos VirtualCoins quieres canjear?</label>
                         <div class="redeem-input-wrap">
                             <span class="coin-prefix"><i data-lucide="coins" style="width:1.1em;height:1.1em"></i></span>
                             <input
@@ -293,11 +293,11 @@
                         </div>
                         <div class="redeem-usd-preview" id="redeemUsdPreview">$0.00 USD</div>
                         <div class="redeem-error" id="redeemError"></div>
-                        <div class="redeem-hint">M�nimo 20.000 � M�ltiplo de 1.000 � 1.000 puntos = $1 USD</div>
+                        <div class="redeem-hint">Mínimo 20.000 · Múltiplo de 1.000 · 1.000 puntos = $1 USD</div>
                     </div>
 
                     <label class="form-label" style="display:block; margin-bottom: 10px;">
-                        �D�nde quieres recibir el dinero?
+                        ¿Dónde quieres recibir el dinero?
                     </label>
 
                     <div class="platforms-grid">
@@ -339,7 +339,7 @@
                         </div>
                         <button type="button" class="hist-more" id="historyLoadMore"
                             onclick="loadHistory(window._historyUserId, true)">
-                            Ver m�s
+                            Ver más
                         </button>
                     </div>
                 </div>
@@ -362,22 +362,22 @@
                 <div class="modal-summary">
                     <div class="summary-row">
                         <span class="summary-label">VirtualCoins a canjear</span>
-                        <span class="summary-value" id="modalRedeemPoints">�</span>
+                        <span class="summary-value" id="modalRedeemPoints">···</span>
                     </div>
                     <div class="summary-row">
-                        <span class="summary-label">Recibir�s</span>
-                        <span class="summary-value" id="modalRedeemUSD">�</span>
+                        <span class="summary-label">Recibirás</span>
+                        <span class="summary-value" id="modalRedeemUSD">···</span>
                     </div>
                     <div class="summary-row">
                         <span class="summary-label">Tiempo estimado</span>
-                        <span class="summary-value">24 � 48 horas</span>
+                        <span class="summary-value">24 – 48 horas</span>
                     </div>
                 </div>
                 <form id="redeemForm" class="redeem-form">
                     <div class="form-group">
                         <label class="form-label">Nombre completo</label>
                         <input type="text" id="redeemFullName" class="form-input"
-                            placeholder="Ej: Juan P�rez" autocomplete="name" required />
+                            placeholder="Ej: Juan Pérez" autocomplete="name" required />
                     </div>
                     <div class="form-group">
                         <label class="form-label" id="redeemAccountLabel">Cuenta</label>
@@ -392,7 +392,7 @@
         </div>
     </div>
 
-    <!-- PANTALLA �XITO CANJE -->
+    <!-- PANTALLA ¡ÉXITO CANJE -->
     <div id="redeemSuccess" class="rs-screen">
       <div class="rs-inner">
         <div class="rs-rings">
@@ -401,8 +401,8 @@
           <div class="rs-ring r3"></div>
         </div>
         <div class="rs-icon">OK</div>
-        <h2 class="rs-title">�Solicitud enviada!</h2>
-        <p class="rs-sub">Tu canje est� en proceso</p>
+        <h2 class="rs-title">¡Solicitud enviada!</h2>
+        <p class="rs-sub">Tu canje está en proceso</p>
         <div class="rs-chip" id="rsChip"></div>
         <div class="rs-stats">
           <div class="rs-stat">
@@ -412,13 +412,13 @@
           <div class="rs-stat-div"></div>
           <div class="rs-stat">
             <span class="rs-stat-val" id="rsUsd"></span>
-            <span class="rs-stat-label">Recibir�s</span>
+            <span class="rs-stat-label">Recibirás</span>
           </div>
         </div>
         <p class="rs-note">
           Enviaremos tu <strong id="rsPlatform"></strong> al correo<br>
           <strong id="rsAccount"></strong><br>
-          en un m�ximo de 24�48 horas ?
+          en un máximo de 2448 horas ?
         </p>
         <button type="button" class="rs-btn" onclick="closeRedeemSuccess()">Entendido</button>
       </div>

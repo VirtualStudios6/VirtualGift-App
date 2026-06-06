@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#06011c">
-  <title>Anuncios desactivados - VirtualGift</title>
+  <title>Gana Coins - VirtualGift</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -13,10 +13,15 @@
   <link rel="stylesheet" href="css/bottom-nav.css">
   <link rel="stylesheet" href="css/anuncios.css">
   <script defer src="js/app-mode.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <script defer src="js/firebase-config.js"></script>
   <script defer src="js/unity-ads.js"></script>
   <script defer src="js/unity-banner.js"></script>
 </head>
 <body>
+
   <div id="vg-splash">
     <img id="vg-splash-logo" src="images/logo-virtual-login.png" alt="VirtualGift">
     <div id="vg-splash-name">VIRTUAL<span>GIFT</span></div>
@@ -29,24 +34,336 @@
       <span class="logo-text">VIRTUAL<span class="logo-studios">GIFT</span></span>
     </div>
     <div class="header-icons">
-      <div class="icon-users" onclick="window.location.href=withAppFlag('home.html')" style="cursor:pointer;">
+      <div class="icon-users" onclick="window.location.href=withAppFlag('home.html')">
         <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
       </div>
-      <div class="icon-coin" onclick="window.location.href=withAppFlag('puntos.html')" style="cursor:pointer;">
-        <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="#FDB813"/><circle cx="50" cy="50" r="42" fill="#FFD700"/><path d="M 30 30 L 42 65 L 58 65 L 70 30 L 62 30 L 54 57 L 46 57 L 38 30 Z" fill="#FFFACD"/></svg>
+      <div class="icon-coin" onclick="window.location.href=withAppFlag('puntos.html')">
+        <svg viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="48" fill="#FDB813"/>
+          <circle cx="50" cy="50" r="42" fill="#FFD700"/>
+          <path d="M 30 30 L 42 65 L 58 65 L 70 30 L 62 30 L 54 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
+        </svg>
       </div>
     </div>
   </header>
 
   <main class="ad-page">
-    <section class="ad-progress-card" style="text-align:center; margin-top:32px;">
-      <h1 class="ad-hero-title">Anuncios desactivados</h1>
-      <p class="ad-status">VirtualGift ya no usa AdMob, AdSense ni recompensas por anuncios.</p>
-      <button class="ad-watch-btn" type="button" onclick="window.location.href=withAppFlag('puntos.html')">Volver a mis coins</button>
-    </section>
+
+    <!-- Top bar: volver + balance -->
+    <div class="ad-topbar">
+      <button type="button" class="back-btn" onclick="history.back()">&#8592; Volver</button>
+      <div class="ad-balance-chip">
+        <svg class="chip-coin" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="48" fill="#FDB813"/>
+          <circle cx="50" cy="50" r="42" fill="#FFD700"/>
+          <path d="M 30 30 L 42 65 L 58 65 L 70 30 L 62 30 L 54 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
+        </svg>
+        <span id="adBalanceDisplay">&#8226;&#8226;&#8226;</span>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="ad-hero">
+      <div class="ad-hero-icon">&#127909;</div>
+      <h1 class="ad-hero-title">Gana VirtualCoins</h1>
+      <p class="ad-hero-sub">Mira anuncios cortos y acumula coins gratis</p>
+    </div>
+
+    <!-- Progreso -->
+    <div class="ad-progress-card">
+      <div class="ad-progress-top">
+        <span class="ad-progress-label">Progreso de hoy</span>
+        <span class="ad-progress-count" id="adProgressCount">0 / 5</span>
+      </div>
+      <div class="ad-progress-track">
+        <div class="ad-progress-bar" id="adProgressBar"></div>
+      </div>
+      <p class="ad-status" id="adProgressStatus">&#161;Cada anuncio te da +100 VirtualCoins!</p>
+    </div>
+
+    <!-- Aviso: solo app movil (se muestra si no es nativo) -->
+    <div id="adWebNotice" class="ad-progress-card ad-web-notice">
+      <div class="ad-web-notice-icon">&#128241;</div>
+      <p class="ad-status ad-web-notice-text">
+        Los anuncios Unity Ads solo est&#225;n disponibles<br>en la <strong>app m&#243;vil</strong> de Android e iOS.
+      </p>
+      <button type="button" class="ad-watch-btn ad-web-notice-btn" onclick="window.location.href=withAppFlag('puntos.html')">
+        Volver a mis coins
+      </button>
+    </div>
+
+    <!-- Grid de slots de anuncios -->
+    <div class="ad-cards-grid" id="adCardsGrid"></div>
+
+    <!-- Ganado hoy -->
+    <div class="ad-earned-section ad-hidden" id="adEarnedSection">
+      <div class="ad-earned-title">Ganado hoy con anuncios</div>
+      <div class="ad-earned-list" id="adEarnedList"></div>
+    </div>
+
   </main>
+
+  <!-- Toast -->
+  <div class="ad-toast" id="adToast"></div>
 
   <script defer src="js/bottom-nav.js"></script>
   <script src="js/splash.js"></script>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var AD_REWARD  = 100;
+    var MAX_ADS    = 5;
+
+    var AD_SLOTS = [
+      { style: 'ad-banner-gaming', tag: 'Gaming'      },
+      { style: 'ad-banner-tech',   tag: 'Tecnología' },
+      { style: 'ad-banner-ent',    tag: 'App'          },
+      { style: 'ad-banner-sports', tag: 'Deporte'      },
+      { style: 'ad-banner-gaming', tag: 'Premios'      },
+    ];
+
+    var uid          = null;
+    var watchedToday = 0;
+    var balance      = 0;
+    var adInProgress = false;
+
+    // ── Toast ─────────────────────────────────────────────────
+    function showToast(msg, ms) {
+      var el = document.getElementById('adToast');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(el._t);
+      el._t = setTimeout(function () { el.classList.remove('show'); }, ms || 3200);
+    }
+
+    // ── Balance ───────────────────────────────────────────────
+    function setBalance(n) {
+      balance = n;
+      var el = document.getElementById('adBalanceDisplay');
+      if (el) el.textContent = n.toLocaleString('en-US');
+    }
+
+    // ── Progreso ──────────────────────────────────────────────
+    function setProgress(watched) {
+      watchedToday = watched;
+      var cnt = document.getElementById('adProgressCount');
+      var bar = document.getElementById('adProgressBar');
+      var st  = document.getElementById('adProgressStatus');
+      if (cnt) cnt.textContent = watched + ' / ' + MAX_ADS;
+      if (bar) bar.style.width = ((watched / MAX_ADS) * 100) + '%';
+      if (st) {
+        if (watched >= MAX_ADS) {
+          st.textContent = '¡Límite diario alcanzado! Vuelve mañana para ganar más coins.';
+          st.classList.add('done');
+        } else {
+          var rem = MAX_ADS - watched;
+          st.textContent = 'Puedes ver ' + rem + ' anuncio' + (rem !== 1 ? 's' : '') + ' más hoy • +' + AD_REWARD + ' coins c/u';
+          st.classList.remove('done');
+        }
+      }
+      renderCards();
+    }
+
+    // ── Chip de ganado ────────────────────────────────────────
+    function addEarnedChip(coins) {
+      var sec  = document.getElementById('adEarnedSection');
+      var list = document.getElementById('adEarnedList');
+      if (!sec || !list) return;
+      sec.classList.remove('ad-hidden');
+      var chip = document.createElement('div');
+      chip.className = 'ad-earned-chip';
+      chip.innerHTML =
+        '<svg style="width:16px;height:16px" viewBox="0 0 100 100">' +
+          '<circle cx="50" cy="50" r="48" fill="#FDB813"/>' +
+          '<circle cx="50" cy="50" r="42" fill="#FFD700"/>' +
+          '<path d="M 30 30 L 42 65 L 58 65 L 70 30 L 62 30 L 54 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>' +
+        '</svg> +' + coins;
+      list.appendChild(chip);
+    }
+
+    // ── Render tarjetas ───────────────────────────────────────
+    function renderCards() {
+      var grid = document.getElementById('adCardsGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      AD_SLOTS.forEach(function (slot, i) {
+        var done    = i < watchedToday;
+        var active  = i === watchedToday && watchedToday < MAX_ADS;
+
+        var card = document.createElement('div');
+        card.className = 'ad-card' + (done ? ' watched' : '');
+
+        var btnText = done ? '&#10003; Visto' : (active ? 'Ver anuncio' : 'Bloqueado');
+        var btnDisabled = (!active || done) ? 'disabled' : '';
+
+        card.innerHTML =
+          '<div class="ad-card-banner ' + slot.style + '">' +
+            '<span class="ad-card-tag">' + slot.tag + '</span>' +
+          '</div>' +
+          '<div class="ad-card-body">' +
+            '<div class="ad-card-reward">+' + AD_REWARD + ' <span>VirtualCoins</span></div>' +
+            '<div class="ad-card-duration">Anuncio corto &bull; ~30s</div>' +
+            '<button class="ad-watch-btn" ' + btnDisabled + ' onclick="watchAd(' + i + ')">' +
+              btnText +
+            '</button>' +
+          '</div>';
+
+        grid.appendChild(card);
+      });
+    }
+
+    // ── Ver anuncio recompensado ──────────────────────────────
+    window.watchAd = function (index) {
+      if (adInProgress) return;
+      if (index !== watchedToday || watchedToday >= MAX_ADS) return;
+
+      if (!window.VGUnityAds || !window.VGUnityAds.isNative()) {
+        showToast('¡Los anuncios solo están disponibles en la app móvil!');
+        return;
+      }
+
+      adInProgress = true;
+
+      // Deshabilitar el botón mientras se carga
+      var btns = document.querySelectorAll('#adCardsGrid .ad-watch-btn');
+      btns.forEach(function (b) { b.disabled = true; });
+      var activeBtn = btns[index];
+      if (activeBtn) activeBtn.textContent = 'Cargando…';
+
+      window.VGUnityAds.showRewarded({ serverId: uid || '' })
+        .then(function (res) {
+          adInProgress = false;
+          if (!res || (!res.completed && !res.rewarded)) {
+            showToast('Completa el anuncio para recibir la recompensa.');
+            renderCards();
+            return;
+          }
+          grantReward();
+        })
+        .catch(function (err) {
+          adInProgress = false;
+          var msg = (err && err.message) ? err.message : String(err || '');
+          if (/completad|complet/i.test(msg)) {
+            showToast('Debes ver el anuncio completo para ganar coins.');
+          } else if (/fill|FILL/i.test(msg)) {
+            showToast('Anuncio no disponible ahora. Intenta en unos minutos.');
+          } else {
+            showToast(msg || 'No se pudo cargar el anuncio. Intenta de nuevo.');
+          }
+          renderCards();
+        });
+    };
+
+    // ── Otorgar recompensa en Firestore ───────────────────────
+    function grantReward() {
+      if (!uid || !window.db) {
+        showToast('Error: no se pudo guardar la recompensa.');
+        renderCards();
+        return;
+      }
+      var today = new Date().toISOString().split('T')[0];
+      var ref   = window.db.collection('users').doc(uid);
+      ref.update({
+        points:         firebase.firestore.FieldValue.increment(AD_REWARD),
+        adLastDate:     today,
+        adWatchedToday: firebase.firestore.FieldValue.increment(1),
+      }).then(function () {
+        setBalance(balance + AD_REWARD);
+        addEarnedChip(AD_REWARD);
+        setProgress(watchedToday + 1);
+        showToast('🎉 +' + AD_REWARD + ' VirtualCoins ganados!');
+      }).catch(function (e) {
+        console.error('grantReward:', e);
+        showToast('Error al guardar recompensa. Intenta de nuevo.');
+        renderCards();
+      });
+    }
+
+    // ── Inicializar página ─────────────────────────────────────
+    function initPage() {
+      var isNative = window.VGUnityAds && window.VGUnityAds.isNative();
+
+      if (!isNative) {
+        document.getElementById('adWebNotice').style.display = 'block';
+        var grid = document.getElementById('adCardsGrid');
+        if (grid) grid.classList.add('ad-hidden');
+        setProgress(0);
+        setBalance(0);
+        return;
+      }
+
+      if (typeof window.isFirebaseReady === 'function' && window.isFirebaseReady()) {
+        startWithAuth();
+      } else if (typeof window.waitForFirebase === 'function') {
+        window.waitForFirebase(startWithAuth);
+      } else {
+        // Fallback: esperar hasta que Firebase esté listo
+        var tries = 0;
+        var tick = setInterval(function () {
+          tries++;
+          if (window.isFirebaseReady && window.isFirebaseReady()) {
+            clearInterval(tick);
+            startWithAuth();
+          } else if (tries > 80) {
+            clearInterval(tick);
+            showToast('Error al conectar. Recarga la app.');
+          }
+        }, 100);
+      }
+    }
+
+    function startWithAuth() {
+      window.auth.onAuthStateChanged(function (user) {
+        if (!user) {
+          window.location.href = withAppFlag('login.html');
+          return;
+        }
+        uid = user.uid;
+        loadUserData();
+      });
+    }
+
+    function loadUserData() {
+      var today = new Date().toISOString().split('T')[0];
+      window.db.collection('users').doc(uid).get()
+        .then(function (doc) {
+          var data    = doc.exists ? doc.data() : {};
+          var pts     = data.points || 0;
+          var sameDay = data.adLastDate === today;
+          var cnt     = sameDay ? (data.adWatchedToday || 0) : 0;
+
+          setBalance(pts);
+          setProgress(cnt);
+
+          // Restaurar chips de lo ganado hoy
+          for (var i = 0; i < cnt; i++) addEarnedChip(AD_REWARD);
+        })
+        .catch(function (e) {
+          console.error('loadUserData:', e);
+          setBalance(0);
+          setProgress(0);
+        });
+    }
+
+    // ── Esperar a que VGUnityAds y Firebase estén listos ───────
+    document.addEventListener('DOMContentLoaded', function () {
+      var checks = 0;
+      var wait = setInterval(function () {
+        checks++;
+        var fbDef = typeof window.isFirebaseReady === 'function' || typeof window.waitForFirebase === 'function';
+        var uaDef = typeof window.VGUnityAds !== 'undefined';
+        if ((fbDef && uaDef) || checks > 80) {
+          clearInterval(wait);
+          initPage();
+        }
+      }, 100);
+    });
+
+  })();
+  </script>
+
 </body>
 </html>

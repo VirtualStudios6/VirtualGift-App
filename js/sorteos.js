@@ -1,10 +1,10 @@
 // -------------------------------------------------------
-//  VIRTUALGIFT � SORTEOS.JS
+//  VIRTUALGIFT — SORTEOS.JS
 //  Usa window.db / window.auth / window.waitForFirebase
 //  Campo de coins: data.points (igual que puntos.js)
 // -------------------------------------------------------
 
-// -- MOCK (fallback si Firestore no tiene sorteos a�n) --
+// -- MOCK (fallback si Firestore no tiene sorteos aún) --
 const MOCK_RAFFLES = [
   {
     id: "raffle_amazon_50",
@@ -20,7 +20,7 @@ const MOCK_RAFFLES = [
     cost: 400, participants: 683, maxParticipants: 1000,
     endDate: new Date(Date.now() + 5 * 86400000),
     color: "#0070d1", colorDark: "#003566",
-    tag: "? F�cil de ganar", tagColor: "#8b5cf6", active: true,
+    tag: "? Fácil de ganar", tagColor: "#8b5cf6", active: true,
   },
   {
     id: "raffle_gplay_10",
@@ -59,7 +59,7 @@ const MOCK_RAFFLES = [
 ];
 
 const REQUIREMENTS = [
-  { id: "req_follow", icon: "IG", title: "Seguir en Instagram", desc: "@VirtualGift.app � Activa notificaciones", cta: "Seguir ahora", link: "https://instagram.com/", points: 50 },
+  { id: "req_follow", icon: "IG", title: "Seguir en Instagram", desc: "@VirtualGift.app · Activa notificaciones", cta: "Seguir ahora", link: "https://instagram.com/", points: 50 },
   { id: "req_share",  icon: "SH", title: "Compartir sorteo",    desc: "Comparte en tus redes sociales",             cta: "Compartir",   link: null, points: 20 },
 ];
 
@@ -161,7 +161,7 @@ async function loadRaffles() {
         };
       });
     } else {
-      // No hay sorteos en Firestore a�n ? usar mock
+      // No hay sorteos en Firestore aún — usar mock
       allRaffles = MOCK_RAFFLES;
     }
   } catch (e) {
@@ -173,7 +173,7 @@ async function loadRaffles() {
 }
 
 // -- MIS PARTICIPACIONES --
-// -- YA AL M�XIMO SCREEN --
+// -- YA AL MÁXIMO SCREEN --
 function openAlreadyScreen(raffle) {
   const screen = document.getElementById("sgAlreadyScreen");
   if (!screen) return;
@@ -344,7 +344,7 @@ document.getElementById("mRowBalance").textContent  = userCoins.toLocaleString('
   const warnEl = document.getElementById("mNoticeWarn");
   if (!canAfford) {
     document.getElementById("mWarnText").innerHTML =
-      `No tienes suficientes coins. Necesitas <strong>${(raffle.cost - userCoins).toLocaleString()}</strong> m�s.`;
+      `No tienes suficientes coins. Necesitas <strong>${(raffle.cost - userCoins).toLocaleString()}</strong> más.`;
     warnEl.style.display = "flex";
   } else {
     warnEl.style.display = "none";
@@ -376,7 +376,7 @@ async function _updateModalEntryCount(raffle) {
     const infoP = document.querySelector("#mNoticeInfo p");
     if (infoP) {
       infoP.innerHTML = count >= 5
-        ? `Ya tienes <strong>5/5 entradas</strong> � m�ximo alcanzado.`
+        ? `Ya tienes <strong>5/5 entradas</strong> — máximo alcanzado.`
         : `Tienes <strong>${count}/5 entradas</strong> en este sorteo. Los coins se descuentan al confirmar.`;
     }
 
@@ -385,7 +385,7 @@ async function _updateModalEntryCount(raffle) {
       document.getElementById("mConfirmBtn").style.background = "";
       document.getElementById("mNoticeInfo").style.display = "none";
       document.getElementById("mNoticeWarn").style.display = "flex";
-      document.getElementById("mWarnText").textContent = "Alcanzaste el m�ximo de 5 entradas para este sorteo.";
+      document.getElementById("mWarnText").textContent = "Alcanzaste el máximo de 5 entradas para este sorteo.";
     }
   } catch {}
 }
@@ -397,7 +397,7 @@ function closeModal(clearRaffle = true) {
   if (clearRaffle) selectedRaffle = null;
 }
 
-// -- CONFIRMAR PARTICIPACI�N --
+// -- CONFIRMAR PARTICIPACIÓN --
 async function confirmParticipation() {
   if (!selectedRaffle || !currentUser) return;
 
@@ -409,7 +409,7 @@ async function confirmParticipation() {
   btn.disabled          = true;
   spinner.style.display = "inline-block";
   arrow.style.display   = "none";
-  text.textContent      = "Procesando�";
+  text.textContent      = "Procesando...";
 
   try {
     const fn     = firebase.functions().httpsCallable("participateInRaffle");
@@ -429,7 +429,7 @@ async function confirmParticipation() {
     let userMsg;
 
     if (code === "failed-precondition") {
-      userMsg = err.message || "No se puede completar la participaci�n";
+      userMsg = err.message || "No se puede completar la participación";
     } else if (code === "already-exists") {
       btn.disabled          = false;
       spinner.style.display = "none";
@@ -440,21 +440,21 @@ async function confirmParticipation() {
       openAlreadyScreen(alreadyRaffle);
       return;
     } else if (code === "resource-exhausted") {
-      userMsg = err.message || "El sorteo ya alcanz� el m�ximo de participantes";
+      userMsg = err.message || "El sorteo ya alcanzó el máximo de participantes";
     } else if (code === "not-found") {
-      userMsg = "Sorteo no encontrado. Recarga la p�gina.";
+      userMsg = "Sorteo no encontrado. Recarga la página.";
     } else if (code === "unauthenticated") {
-      userMsg = "Sesi�n expirada. Recarga la p�gina.";
+      userMsg = "Sesión expirada. Recarga la página.";
     } else if (code === "invalid-argument") {
-      userMsg = "Datos inv�lidos. Recarga la p�gina.";
+      userMsg = "Datos inválidos. Recarga la página.";
     } else if (code === "permission-denied") {
-      userMsg = "Sin permisos. Recarga la p�gina.";
+      userMsg = "Sin permisos. Recarga la página.";
     } else if (code === "internal") {
       userMsg = "Error en el servidor. Intenta de nuevo en unos minutos.";
     } else if (code === "unavailable" || code === "deadline-exceeded") {
-      userMsg = "Servicio no disponible. Comprueba tu conexi�n e intenta de nuevo.";
+      userMsg = "Servicio no disponible. Comprueba tu conexión e intenta de nuevo.";
     } else {
-      userMsg = `Error inesperado (${code || "sin c�digo"}). Intenta de nuevo.`;
+      userMsg = `Error inesperado (${code || "sin código"}). Intenta de nuevo.`;
     }
 
     document.getElementById("mNoticeWarn").style.display = "flex";
@@ -546,7 +546,7 @@ function updateReqProgress() {
   document.getElementById("reqFill").style.width          = `${pct}%`;
 
   const btn = document.getElementById("reqFinishBtn");
-  btn.textContent = allDone ? "?? Confirmar participaci�n" : `Continuar sin completar todo (${done}/${total})`;
+  btn.textContent = allDone ? "?? Confirmar participación" : `Continuar sin completar todo (${done}/${total})`;
   btn.classList.toggle("ready", allDone);
 }
 
@@ -555,7 +555,7 @@ async function finishRequirements() {
 
   const btn = document.getElementById("reqFinishBtn");
   const originalText = btn?.textContent || "";
-  if (btn) { btn.disabled = true; btn.textContent = "Procesando�"; }
+  if (btn) { btn.disabled = true; btn.textContent = "Procesando..."; }
 
   const done = Object.values(reqCompleted).filter(Boolean).length;
 
@@ -568,15 +568,15 @@ async function finishRequirements() {
     } catch (err) {
       const code = err.code || "";
 
-      // Idempotent � already completed is not an error, continue to success
+      // Idempotent — already completed is not an error, continue to success
       if (code !== "functions/already-exists") {
         let userMsg;
-        if (code === "functions/failed-precondition") userMsg = err.message || "El sorteo ya finaliz�";
-        else if (code === "functions/not-found")      userMsg = "Participaci�n no encontrada. Recarga la p�gina.";
-        else if (code === "functions/unauthenticated")userMsg = "Sesi�n expirada. Recarga la p�gina.";
+        if (code === "functions/failed-precondition") userMsg = err.message || "El sorteo ya finalizó";
+        else if (code === "functions/not-found")      userMsg = "Participación no encontrada. Recarga la página.";
+        else if (code === "functions/unauthenticated")userMsg = "Sesión expirada. Recarga la página.";
         else                                          userMsg = "Error al guardar requisitos. Intenta de nuevo.";
 
-        // Show error inside requirements screen � do NOT proceed to success
+        // Show error inside requirements screen — do NOT proceed to success
         const errEl = document.getElementById("reqErrorMsg");
         if (errEl) {
           errEl.textContent    = userMsg;
@@ -592,7 +592,7 @@ async function finishRequirements() {
   openSuccess(selectedRaffle, currentEntryNumber);
 }
 
-// -- �XITO --
+// -- ÉXITO --
 function openSuccess(raffle, entryNumber = 1) {
   const chip = document.getElementById("successChip");
   if (raffle.image) {

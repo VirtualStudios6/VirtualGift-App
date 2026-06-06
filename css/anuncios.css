@@ -401,6 +401,31 @@ body {
 }
 .ad-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* ---- Web notice (solo app movil) ---- */
+.ad-web-notice {
+  display: none;
+  text-align: center;
+  padding: 28px 20px;
+}
+
+.ad-web-notice-icon {
+  font-size: 40px;
+  margin-bottom: 14px;
+}
+
+.ad-web-notice-text {
+  color: #dcefff;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ad-web-notice-btn {
+  margin-top: 20px;
+}
+
+/* Estado oculto inicial (JS lo muestra cuando corresponde) */
+.ad-hidden { display: none; }
+
 /* ---- Responsive ---- */
 @media (max-width: 400px) {
   .ad-cards-grid { grid-template-columns: 1fr; }

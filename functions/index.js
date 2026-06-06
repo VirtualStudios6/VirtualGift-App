@@ -12,9 +12,9 @@ const db = admin.firestore();
 // SECRETS
 // =====================
 
-const FORTNITE_API_KEY_SECRET = defineSecret("FORTNITE_API_KEY");
-const CPX_HASH_KEY_SECRET     = defineSecret("CPX_HASH_KEY");
-const BITLABS_API_SECRET      = defineSecret("BITLABS_API_SECRET");
+const FORTNITE_API_KEY_SECRET  = defineSecret("FORTNITE_API_KEY");
+const CPX_HASH_KEY_SECRET      = defineSecret("CPX_HASH_KEY");
+const OFFERMARU_API_SECRET     = defineSecret("OFFERMARU_API_SECRET");
 
 // =====================
 // HELPERS
@@ -1032,99 +1032,106 @@ const OW_MAX_COINS_PER_TX  = 10000; // cap por transacción individual
 const OW_MAX_COINS_PER_DAY = 50000; // cap diario por usuario por proveedor
 
 // =====================
-// BITLABS POSTBACK
+// OFFERMARU POSTBACK (reemplaza BitLabs)
 // =====================
-// BitLabs llama a esta URL al completar una encuesta/oferta.
-// Configurar en el panel BitLabs → SDK → Postback URL:
-//   https://us-central1-virtualgift-login.cloudfunctions.net/bitlabsPostback
-//   ?uid={uid}&reward={reward}&currency={currency}&trans_id={trans_id}&hash={hash}
+// Offermaru llama a esta URL cuando un usuario completa una oferta.
 //
-// Hash: HMAC-SHA1(api_secret, uid + trans_id)  — hex digest
+// Configurar en Offermaru Dashboard → S2S Postback URL:
+//   https://us-central1-virtualgift-login.cloudfunctions.net/offermaruPostback
+//   ?user_id={USER_ID}&amount={AMOUNT}&transaction_id={TRANSACTION_ID}&status={STATUS}&api_key={API_KEY}
 //
-// Protecciones implementadas:
-//   1. Verificación HMAC-SHA1 (rechaza si hash no coincide)
-//   2. Verificación de existencia del usuario en Firestore
-//   3. Deduplicación por trans_id (idempotente)
-//   4. Cap por transacción (OW_MAX_COINS_PER_TX)
-//   5. Cap diario por usuario (OW_MAX_COINS_PER_DAY via offerwallDailyCaps)
-//   6. Log de actividad sospechosa en colección suspiciousActivity
-//   7. Transacción atómica — nunca se acredita sin registrar en historial
+// Parámetros que envía Offermaru:
+//   user_id        → Firebase UID del usuario (el que pasaste en el iFrame)
+//   amount         → VirtualCoins a acreditar (configúralo en Offermaru por oferta)
+//   transaction_id → ID único de la transacción (para deduplicación)
+//   status         → 1 = completado/aprobado
+//   api_key        → Tu clave secreta (configurada en Firebase Secret Manager)
+//
+// Protecciones:
+//   1. Verificación de api_key (rechaza si no coincide)
+//   2. Solo acepta status=1 (completado)
+//   3. Verifica existencia del usuario en Firestore
+//   4. Deduplicación por transaction_id (idempotente)
+//   5. Cap por transacción (OW_MAX_COINS_PER_TX)
+//   6. Cap diario por usuario (OW_MAX_COINS_PER_DAY)
+//   7. Transacción atómica
 
-exports.bitlabsPostback = onRequest(
-  { region: "us-central1", cors: false, secrets: [BITLABS_API_SECRET] },
+exports.offermaruPostback = onRequest(
+  { region: "us-central1", cors: false, secrets: [OFFERMARU_API_SECRET] },
   async (req, res) => {
-    // Solo aceptar GET/POST (BitLabs usa GET por defecto)
     const p = { ...req.query, ...req.body };
-    const { uid, reward, currency, trans_id, hash } = p;
+    // Offermaru envía: user_id, user_reward, offer_id, offer_name, transaction_id, publisher_payout, timestamp
+    const user_id        = p.user_id;
+    const user_reward    = p.user_reward || p.amount; // user_reward es el nombre real de Offermaru
+    const transaction_id = p.transaction_id;
+    const api_key        = p.api_key;
+    const offer_id       = p.offer_id   || "";
+    const offer_name     = p.offer_name || "";
 
-    // ── 1. Validar parámetros ──────────────────────────────────────────────
-    if (!uid || !reward || !trans_id || !hash) {
-      console.warn("[bitlabsPostback] Parámetros incompletos:", { uid: !!uid, reward: !!reward, trans_id: !!trans_id, hash: !!hash });
+    // ── 1. Validar parámetros ─────────────────────────────────────────────
+    if (!user_id || !user_reward || !transaction_id || !api_key) {
+      console.warn("[offermaruPostback] Parámetros incompletos:", {
+        user_id: !!user_id, user_reward: !!user_reward,
+        transaction_id: !!transaction_id, api_key: !!api_key,
+      });
       return res.status(400).send("Missing parameters");
     }
 
-    // ── 2. Verificar HMAC-SHA1 sobre la URL completa (sin el parámetro hash) ─
-    // BitLabs firma: HMAC-SHA1(key=api_secret, message=full_url_sin_hash)
-    const secret = BITLABS_API_SECRET.value().trim();
-    const FUNCTION_BASE_URL = "https://us-central1-virtualgift-login.cloudfunctions.net/bitlabsPostback";
-    const rawQuery = req.url.includes("?") ? req.url.split("?").slice(1).join("?") : "";
-    const queryWithoutHash = rawQuery.split("&").filter(function(s){ return !s.startsWith("hash="); }).join("&");
-    const urlToVerify = FUNCTION_BASE_URL + "?" + queryWithoutHash;
-    const expectedHash = createHmac("sha1", secret)
-      .update(urlToVerify)
-      .digest("hex");
-
-    if (hash !== expectedHash) {
-      console.warn("[bitlabsPostback] Hash inválido — posible solicitud falsa. trans_id:", trans_id, "uid:", uid);
+    // ── 2. Verificar api_key ──────────────────────────────────────────────
+    const secret = OFFERMARU_API_SECRET.value().trim();
+    if (api_key !== secret) {
+      console.warn("[offermaruPostback] API key inválida — posible solicitud falsa. uid:", user_id);
       await db.collection("suspiciousActivity").add({
-        userId: uid, type: "bitlabs_invalid_hash",
-        trans_id, ip: req.ip, timestamp: admin.firestore.Timestamp.now(),
+        userId: user_id, type: "offermaru_invalid_key",
+        transaction_id, ip: req.ip, timestamp: admin.firestore.Timestamp.now(),
       }).catch(() => {});
-      return res.status(403).send("Invalid hash");
+      return res.status(403).send("Invalid api_key");
     }
 
-    // ── 3. Parsear y validar recompensa ───────────────────────────────────
-    const coins = Math.round(parseFloat(reward));
+    // Nota: Offermaru solo llama este endpoint cuando la oferta está completada/aprobada,
+    // no hay parámetro status que filtrar.
+
+    // ── 3. Parsear y validar coins ────────────────────────────────────────
+    const coins = Math.round(parseFloat(user_reward));
     if (!Number.isFinite(coins) || coins <= 0) {
-      console.warn("[bitlabsPostback] Recompensa inválida:", reward);
-      return res.status(400).send("Invalid reward");
+      console.warn("[offermaruPostback] Amount inválido:", amount);
+      return res.status(400).send("Invalid amount");
     }
 
-    // ── 4. Cap por transacción ────────────────────────────────────────────
+    // ── 5. Cap por transacción ────────────────────────────────────────────
     if (coins > OW_MAX_COINS_PER_TX) {
-      console.warn(`[bitlabsPostback] Recompensa ${coins} excede cap ${OW_MAX_COINS_PER_TX}. uid: ${uid}`);
+      console.warn(`[offermaruPostback] Amount ${coins} excede cap ${OW_MAX_COINS_PER_TX}. uid: ${user_id}`);
       await db.collection("suspiciousActivity").add({
-        userId: uid, type: "bitlabs_tx_cap_exceeded",
-        coins, trans_id, timestamp: admin.firestore.Timestamp.now(),
+        userId: user_id, type: "offermaru_tx_cap_exceeded",
+        coins, transaction_id, timestamp: admin.firestore.Timestamp.now(),
       }).catch(() => {});
-      return res.status(400).send("Reward exceeds maximum");
+      return res.status(400).send("Amount exceeds maximum");
     }
 
     try {
-      // ── 5. Verificar que el usuario existe ────────────────────────────
-      const userRef  = db.collection("users").doc(String(uid));
+      // ── 6. Verificar que el usuario existe ────────────────────────────
+      const userRef  = db.collection("users").doc(String(user_id));
       const userSnap = await userRef.get();
       if (!userSnap.exists) {
-        console.warn(`[bitlabsPostback] Usuario no encontrado: ${uid}`);
+        console.warn(`[offermaruPostback] Usuario no encontrado: ${user_id}`);
         return res.status(404).send("User not found");
       }
 
-      // ── 6. Deduplicación por trans_id ─────────────────────────────────
+      // ── 7. Deduplicación por transaction_id ───────────────────────────
       const dupSnap = await db.collection("pointsHistory")
-        .where("transactionId", "==", String(trans_id))
-        .where("provider",      "==", "bitlabs")
+        .where("transactionId", "==", String(transaction_id))
+        .where("provider",      "==", "offermaru")
         .limit(1).get();
 
       if (!dupSnap.empty) {
-        console.log("[bitlabsPostback] Transacción duplicada ignorada:", trans_id);
-        return res.status(200).send("1"); // responder 1 para que BitLabs no reintente
+        console.log("[offermaruPostback] Transacción duplicada ignorada:", transaction_id);
+        return res.status(200).send("1");
       }
 
-      // ── 7. Cap diario via offerwallDailyCaps ──────────────────────────
-      const today  = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
-      const capRef = db.collection("offerwallDailyCaps").doc(`${uid}_${today}_bitlabs`);
+      // ── 8. Cap diario + acreditación atómica ─────────────────────────
+      const today  = new Date().toISOString().slice(0, 10);
+      const capRef = db.collection("offerwallDailyCaps").doc(`${user_id}_${today}_offermaru`);
 
-      // Usamos transacción para garantizar atomicidad del cap + acreditación
       await db.runTransaction(async (tx) => {
         const capSnap    = await tx.get(capRef);
         const todayTotal = capSnap.exists ? (capSnap.data().total || 0) : 0;
@@ -1135,47 +1142,45 @@ exports.bitlabsPostback = onRequest(
           throw err;
         }
 
-        // Acreditar coins al usuario
         tx.update(userRef, {
           points: admin.firestore.FieldValue.increment(coins),
         });
 
-        // Registrar en historial (fuente de verdad)
         tx.set(db.collection("pointsHistory").doc(), {
-          userId:        String(uid),
-          type:          "bitlabs_survey",
+          userId:        String(user_id),
+          type:          "offermaru_offer",
           points:        coins,
-          transactionId: String(trans_id),
-          provider:      "bitlabs",
-          currency:      String(currency || "coins"),
+          transactionId: String(transaction_id),
+          provider:      "offermaru",
+          offerId:       String(offer_id),
+          offerName:     String(offer_name),
           reversed:      false,
           createdAt:     admin.firestore.Timestamp.now(),
         });
 
-        // Actualizar cap diario
         tx.set(capRef, {
           total:     admin.firestore.FieldValue.increment(coins),
-          userId:    String(uid),
-          provider:  "bitlabs",
+          userId:    String(user_id),
+          provider:  "offermaru",
           date:      today,
           updatedAt: admin.firestore.Timestamp.now(),
         }, { merge: true });
       });
 
-      console.log(`[bitlabsPostback] ✓ +${coins} coins acreditados → usuario ${uid} (trans: ${trans_id})`);
+      console.log(`[offermaruPostback] ✓ +${coins} coins → usuario ${user_id} (trans: ${transaction_id})`);
       return res.status(200).send("1");
 
     } catch (err) {
       if (err.message === "DAILY_CAP_EXCEEDED") {
-        console.warn(`[bitlabsPostback] Límite diario alcanzado para uid: ${uid}. Ya tiene ${err.todayTotal} coins hoy.`);
+        console.warn(`[offermaruPostback] Límite diario uid: ${user_id}. Hoy: ${err.todayTotal} coins.`);
         await db.collection("suspiciousActivity").add({
-          userId: uid, type: "bitlabs_daily_cap_exceeded",
-          todayTotal: err.todayTotal, coins, trans_id,
+          userId: user_id, type: "offermaru_daily_cap_exceeded",
+          todayTotal: err.todayTotal, coins, transaction_id,
           timestamp: admin.firestore.Timestamp.now(),
         }).catch(() => {});
         return res.status(429).send("Daily limit exceeded");
       }
-      console.error("[bitlabsPostback] Error interno:", err);
+      console.error("[offermaruPostback] Error interno:", err);
       return res.status(500).send("Error");
     }
   }

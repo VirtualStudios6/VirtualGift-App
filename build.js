@@ -32,7 +32,7 @@ function copyHtmlWithCapacitor(src, dest) {
   if (!html.includes('src="capacitor.js"') && !html.includes("src='capacitor.js'")) {
     html = html.replace(/<head>/i, '<head>\n  <script src="capacitor.js"></script>');
   }
-  fs.writeFileSync(dest, html);
+  fs.writeFileSync(dest, html, 'utf8');
 }
 
 // Directorios

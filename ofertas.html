@@ -226,10 +226,10 @@
       <span class="of-tab-name">CPX Research</span>
       <span class="of-tab-badge">Encuestas</span>
     </div>
-    <div class="of-tab" id="tab-bitlabs" onclick="switchWall('bitlabs', this)">
-      <span class="of-tab-emoji">🎯</span>
-      <span class="of-tab-name">BitLabs</span>
-      <span class="of-tab-badge">Encuestas</span>
+    <div class="of-tab" id="tab-offermaru" onclick="switchWall('offermaru', this)">
+      <span class="of-tab-emoji">🏆</span>
+      <span class="of-tab-name">Offermaru</span>
+      <span class="of-tab-badge">Ofertas</span>
     </div>
   </nav>
 
@@ -247,13 +247,13 @@
       </div>
     </div>
 
-    <!-- BitLabs panel -->
-    <div class="of-panel" id="panel-bitlabs">
-      <div class="of-iframe-wrap" id="bitlabsWrap">
-        <div class="of-loading" id="bitlabsLoading">
+    <!-- Offermaru panel -->
+    <div class="of-panel" id="panel-offermaru">
+      <div class="of-iframe-wrap" id="offermaruWrap">
+        <div class="of-loading" id="offermaruLoading">
           <div class="of-spinner"></div>
-          <div class="of-loading-name">BitLabs</div>
-          <div class="of-loading-sub">Cargando encuestas...</div>
+          <div class="of-loading-name">Offermaru</div>
+          <div class="of-loading-sub">Cargando ofertas...</div>
         </div>
       </div>
     </div>
@@ -267,13 +267,13 @@
 
   <script>
     // ── Constants ─────────────────────────────────────────────────────────────
-    const CPX_APP_ID        = 32955;
-    const CPX_HASH_KEY      = 'KwYa4M02A8kLxYbzXXstl4FUGkfgxdHG';
-    const BITLABS_APP_TOKEN = '9bd3e655-255a-4250-a038-108697b7c47c';
+    const CPX_APP_ID           = 32955;
+    const CPX_HASH_KEY         = 'KwYa4M02A8kLxYbzXXstl4FUGkfgxdHG';
+    const OFFERMARU_WALL_URL   = 'https://wall.offermaru.com/19978';
 
-    let currentUser   = null;
-    let cpxLoaded     = false;
-    let bitlabsLoaded = false;
+    let currentUser      = null;
+    let cpxLoaded        = false;
+    let offermaruLoaded  = false;
 
     // ── Tab switcher ──────────────────────────────────────────────────────────
     function switchWall(id, el) {
@@ -282,8 +282,8 @@
       var panel = document.getElementById('panel-' + id);
       if (panel) panel.classList.add('active');
       if (el)    el.classList.add('active');
-      if (id === 'cpx'     && currentUser && !cpxLoaded)     loadCPXWall(currentUser);
-      if (id === 'bitlabs' && currentUser && !bitlabsLoaded) loadBitlabsWall(currentUser);
+      if (id === 'cpx'       && currentUser && !cpxLoaded)       loadCPXWall(currentUser);
+      if (id === 'offermaru' && currentUser && !offermaruLoaded) loadOffermaruWall(currentUser);
     }
 
     // ── CPX Research ──────────────────────────────────────────────────────────
@@ -312,28 +312,15 @@
       wrap.appendChild(iframe);
     }
 
-    // ── BitLabs ───────────────────────────────────────────────────────────────
-    function loadBitlabsWall(user) {
-      if (bitlabsLoaded) return;
-      bitlabsLoaded = true;
-      var wrap    = document.getElementById('bitlabsWrap');
-      var loading = document.getElementById('bitlabsLoading');
+    // ── Offermaru ─────────────────────────────────────────────────────────────
+    function loadOffermaruWall(user) {
+      if (offermaruLoaded) return;
+      offermaruLoaded = true;
+      var wrap    = document.getElementById('offermaruWrap');
+      var loading = document.getElementById('offermaruLoading');
       if (!wrap) return;
 
-      if (window.VG_IS_DEV) {
-        loading.classList.add('hidden');
-        wrap.insertAdjacentHTML('beforeend',
-          '<div class="of-notice">'
-          + '<div class="of-notice-emoji">🧪</div>'
-          + '<div class="of-notice-title">Modo desarrollo</div>'
-          + '<div class="of-notice-desc">BitLabs no carga en localhost.<br>Las encuestas se acreditan solo via postback real en producción.</div>'
-          + '</div>');
-        return;
-      }
-
-      var url = 'https://web.bitlabs.ai/'
-              + '?uid='   + encodeURIComponent(user.uid)
-              + '&token=' + encodeURIComponent(BITLABS_APP_TOKEN);
+      var url = OFFERMARU_WALL_URL + '?user_id=' + encodeURIComponent(user.uid);
       var iframe = document.createElement('iframe');
       iframe.src = url;
       iframe.setAttribute('allowfullscreen', '');
@@ -379,8 +366,8 @@
           } catch(e) {}
 
           // Abrir tab según hash de URL
-          if (location.hash === '#bitlabs') {
-            switchWall('bitlabs', document.getElementById('tab-bitlabs'));
+          if (location.hash === '#offermaru') {
+            switchWall('offermaru', document.getElementById('tab-offermaru'));
           } else {
             loadCPXWall(user);
           }
