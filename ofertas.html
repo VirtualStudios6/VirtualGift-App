@@ -255,11 +255,6 @@
       <span class="of-tab-name">Tapjoy</span>
       <span class="of-tab-badge">Ofertas</span>
     </div>
-    <div class="of-tab" id="tab-ironsource" onclick="switchWall('ironsource', this)">
-      <span class="of-tab-emoji">⚡</span>
-      <span class="of-tab-name">IronSource</span>
-      <span class="of-tab-badge">Ofertas</span>
-    </div>
   </nav>
 
   <!-- Content -->
@@ -283,21 +278,6 @@
           <div class="of-spinner"></div>
           <div class="of-loading-name">Offermaru</div>
           <div class="of-loading-sub">Cargando ofertas...</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- IronSource panel -->
-    <div class="of-panel" id="panel-ironsource">
-      <div class="of-iframe-wrap">
-        <div class="of-native-panel">
-          <div class="of-native-emoji">⚡</div>
-          <div class="of-native-title">IronSource Offerwall</div>
-          <div class="of-native-desc">Completa apps, juegos y desafíos para ganar VirtualCoins al instante.</div>
-          <button type="button" id="ironsourceBtn" class="of-native-btn of-native-btn-ironsource" onclick="openIronSourceOfferwall()">
-            Abrir Offerwall
-          </button>
-          <div id="ironsourceMsg" class="of-native-msg"></div>
         </div>
       </div>
     </div>
@@ -418,26 +398,6 @@
       wrap.appendChild(iframe);
     }
 
-    // ── IronSource Offerwall (nativo) ─────────────────────────────────────────
-    async function openIronSourceOfferwall() {
-      var btn = document.getElementById('ironsourceBtn');
-      var msg = document.getElementById('ironsourceMsg');
-      if (btn) btn.disabled = true;
-      if (msg) msg.textContent = 'Cargando...';
-      try {
-        if (!window.VGIronSource || !window.VGIronSource.isNative()) {
-          if (msg) msg.textContent = 'Disponible solo en la app para Android.';
-          return;
-        }
-        await window.VGIronSource.showOfferwall();
-        if (msg) msg.textContent = '';
-      } catch (e) {
-        if (msg) msg.textContent = e.message || 'No disponible ahora. Intenta de nuevo.';
-      } finally {
-        if (btn) btn.disabled = false;
-      }
-    }
-
     // ── Toast ─────────────────────────────────────────────────────────────────
     function showToast(msg) {
       var t = document.getElementById('ofToast');
@@ -478,8 +438,6 @@
             switchWall('offermaru', document.getElementById('tab-offermaru'));
           } else if (location.hash === '#tapjoy') {
             switchWall('tapjoy', document.getElementById('tab-tapjoy'));
-          } else if (location.hash === '#ironsource') {
-            switchWall('ironsource', document.getElementById('tab-ironsource'));
           } else {
             loadCPXWall(user);
           }
