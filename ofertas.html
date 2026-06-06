@@ -286,8 +286,7 @@
     const CPX_APP_ID           = 32955;
     const CPX_HASH_KEY         = 'KwYa4M02A8kLxYbzXXstl4FUGkfgxdHG';
     const OFFERMARU_WALL_URL   = 'https://wall.offermaru.com/19978';
-    const TAPJOY_APP_ID        = 'YOUR_TAPJOY_APP_ID';   // ← reemplaza con tu App ID de Tapjoy
-    const TAPJOY_SDK_KEY       = 'YOUR_TAPJOY_SDK_KEY';  // ← reemplaza con tu SDK Key de Tapjoy
+    const TAPJOY_SDK_KEY       = '86CtElNPRreaGQITdKssFAECcaiMFmeHY7O8teeqFsNz3Y6-_tRPzHC3qw54';
 
     let currentUser      = null;
     let cpxLoaded        = false;
@@ -366,9 +365,8 @@
 
       var uid = encodeURIComponent(user.uid);
       var url = 'https://offerwall.tapjoy.com/web/v1/'
-              + '?app_id='             + encodeURIComponent(TAPJOY_APP_ID)
-              + '&publisher_user_id='  + uid
-              + '&sdk_key='           + encodeURIComponent(TAPJOY_SDK_KEY);
+              + '?sdk_key='            + encodeURIComponent(TAPJOY_SDK_KEY)
+              + '&publisher_user_id='  + uid;
 
       var iframe = document.createElement('iframe');
       iframe.src = url;

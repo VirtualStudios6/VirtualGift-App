@@ -9,7 +9,7 @@ unity.com, 3052361, DIRECT, 96cabb5fbdde37a7
 google.com, pub-9528325052664424, RESELLER, f08c47fec0942fa0
 cpx-research.com, 32955, DIRECT
 offermaru.com, 6413, DIRECT
-tapjoy.com, YOUR_TAPJOY_APP_ID, DIRECT
+tapjoy.com, 86CtElNPRreaGQITdKssFAECcaiMFmeHY7O8teeqFsNz3Y6-_tRPzHC3qw54, DIRECT
 
 # ===== UNITY AD NETWORK RESELLERS =====
 thunder-monetize.com, 4818959194, RESELLER
