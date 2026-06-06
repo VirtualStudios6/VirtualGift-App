@@ -61,12 +61,13 @@ let _isRegistering = false;
 const State = {
   isLoading: false,
 
-  setLoading(loading) {
+  // activeButtonId: el botón que muestra el spinner; los demás solo se deshabilitan
+  setLoading(loading, activeButtonId = null) {
     this.isLoading = loading;
 
-    const buttons = ['login-btn', 'register-btn', 'send-recovery-email', 'google-login'];
+    const allButtons = ['login-btn', 'register-btn', 'send-recovery-email', 'google-login'];
 
-    buttons.forEach(btnId => {
+    allButtons.forEach(btnId => {
       const btn = document.getElementById(btnId);
       if (!btn) return;
 
@@ -76,7 +77,9 @@ const State = {
         btn.dataset.originalHtml = btn.innerHTML;
       }
 
-      if (loading) {
+      const isActive = !activeButtonId || btnId === activeButtonId;
+
+      if (loading && isActive) {
         if (btn.classList.contains('btn-primary')) {
           btn.innerHTML = `<span>Conectando...</span><svg viewBox="0 0 24 24" style="width:18px;height:18px;fill:white;animation:spin .7s linear infinite"><path d="M12 4V2A10 10 0 0 0 2 12h2a8 8 0 0 1 8-8z"/></svg>`;
         } else {
@@ -85,7 +88,7 @@ const State = {
             btn.insertAdjacentHTML('beforeend', '<span class="btn-loading-txt" style="opacity:.75;font-size:12px;margin-left:4px;">Conectando...</span>');
           }
         }
-      } else {
+      } else if (!loading) {
         btn.innerHTML = btn.dataset.originalHtml;
         delete btn.dataset.loadingActive;
       }
@@ -181,7 +184,7 @@ const FormManager = {
 
     if (!isFirebaseReady()) { NotificationManager.show('Firebase no está listo. Intenta de nuevo', 'error'); return; }
 
-    State.setLoading(true);
+    State.setLoading(true, 'send-recovery-email');
     try {
       await firebase.auth().sendPasswordResetEmail(email);
       NotificationManager.show('Enlace enviado a tu correo 📧', 'success');
@@ -207,7 +210,7 @@ const FormManager = {
 
     if (!isFirebaseReady()) { NotificationManager.show('Firebase no está listo', 'error'); return; }
 
-    State.setLoading(true);
+    State.setLoading(true, 'login-btn');
     try {
       const { user } = await firebase.auth().signInWithEmailAndPassword(email, password);
 
@@ -251,7 +254,7 @@ const FormManager = {
     if (!isFirebaseReady()) { NotificationManager.show('Firebase no está listo', 'error'); return; }
 
     _isRegistering = true;
-    State.setLoading(true);
+    State.setLoading(true, 'register-btn');
 
     try {
       const { user } = await firebase.auth().createUserWithEmailAndPassword(email, password);
@@ -395,7 +398,7 @@ const GoogleAuth = {
     if (State.isLoading) return;
     if (!isFirebaseReady()) { NotificationManager.show('Firebase no está listo', 'error'); return; }
 
-    State.setLoading(true);
+    State.setLoading(true, 'google-login');
     NotificationManager.show('Conectando con Google...', 'info');
 
     // ── MODO NATIVO (Capacitor) ─────────────────────────────
