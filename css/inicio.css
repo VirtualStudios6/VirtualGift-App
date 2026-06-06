@@ -425,7 +425,7 @@ body {
 .offer-brand-tapjoy     { background: linear-gradient(155deg, #003366 0%, #0055b3 60%, #0077e6 100%); }
 .offer-brand-ironsource { background: linear-gradient(155deg, #003d1a 0%, #006d2e 60%, #00a846 100%); }
 .offer-brand-wrap    { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 16px; }
-.offer-brand-icon    { width: 52px; height: 52px; }
+.offer-brand-icon    { width: 52px; height: 52px; object-fit: contain; }
 .offer-brand-label   { font-size: 11px; font-weight: 900; color: white; letter-spacing: 1.8px; text-transform: uppercase; text-align: center; opacity: 0.92; }
 
 .mrec-slot {
