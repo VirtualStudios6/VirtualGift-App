@@ -1483,3 +1483,126 @@ exports.ironSourcePostback = onRequest(
     }
   }
 );
+
+// =====================
+// SCRATCH CARD
+// =====================
+const SCRATCH_FREE_CARDS  = 3;
+const SCRATCH_PRIZES = [
+  { coins: 0,   weight: 40 },
+  { coins: 50,  weight: 30 },
+  { coins: 100, weight: 15 },
+  { coins: 250, weight: 10 },
+  { coins: 500, weight:  5 },
+];
+
+function pickScratchPrize() {
+  const total = SCRATCH_PRIZES.reduce((s, p) => s + p.weight, 0);
+  let r = Math.random() * total;
+  for (const p of SCRATCH_PRIZES) { r -= p.weight; if (r <= 0) return p; }
+  return SCRATCH_PRIZES[0];
+}
+
+exports.scratchCard = onCall({ region: "us-central1" }, async (request) => {
+  const uid = assertAuthed(request);
+  const userRef = db.collection("users").doc(uid);
+  const todayKey = getDayKey();
+  const now = admin.firestore.Timestamp.now();
+  const prize = pickScratchPrize();
+  let response;
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    if (!snap.exists) throw new HttpsError("not-found", "Usuario no encontrado");
+
+    const data = snap.data() || {};
+    const cardsUsed = data.scratchDate === todayKey ? safeNum(data.scratchCards, 0) : 0;
+    const extra     = data.scratchDate === todayKey ? safeNum(data.scratchExtra, 0) : 0;
+    const total     = SCRATCH_FREE_CARDS + extra;
+
+    if (cardsUsed >= total) {
+      throw new HttpsError("resource-exhausted", "No tienes raspaditos disponibles hoy");
+    }
+
+    const update = {
+      scratchDate:  todayKey,
+      scratchCards: cardsUsed + 1,
+      scratchExtra: extra,
+      updatedAt:    now,
+    };
+    if (prize.coins > 0) update.points = admin.firestore.FieldValue.increment(prize.coins);
+    tx.update(userRef, update);
+
+    if (prize.coins > 0) {
+      tx.set(db.collection("pointsHistory").doc(), {
+        userId: uid, type: "scratch_win",
+        points: prize.coins, createdAt: now,
+      });
+    }
+
+    response = {
+      coins:          prize.coins,
+      cardsUsed:      cardsUsed + 1,
+      cardsRemaining: Math.max(total - (cardsUsed + 1), 0),
+      points:         safeNum(data.points, 0) + prize.coins,
+    };
+  });
+
+  return response;
+});
+
+// =====================
+// TRIVIA GAMER
+// =====================
+const TRIVIA_FREE_PLAYS  = 5;
+const TRIVIA_COINS       = 75;
+
+exports.answerTrivia = onCall({ region: "us-central1" }, async (request) => {
+  const uid     = assertAuthed(request);
+  const correct = Boolean(request.data?.correct);
+  const userRef = db.collection("users").doc(uid);
+  const todayKey = getDayKey();
+  const now = admin.firestore.Timestamp.now();
+  let response;
+
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(userRef);
+    if (!snap.exists) throw new HttpsError("not-found", "Usuario no encontrado");
+
+    const data      = snap.data() || {};
+    const playsUsed = data.triviaDate === todayKey ? safeNum(data.triviaPlays, 0) : 0;
+    const extra     = data.triviaDate === todayKey ? safeNum(data.triviaExtra,  0) : 0;
+    const total     = TRIVIA_FREE_PLAYS + extra;
+
+    if (playsUsed >= total) {
+      throw new HttpsError("resource-exhausted", "No tienes preguntas disponibles hoy");
+    }
+
+    const coins  = correct ? TRIVIA_COINS : 0;
+    const update = {
+      triviaDate:  todayKey,
+      triviaPlays: playsUsed + 1,
+      triviaExtra: extra,
+      updatedAt:   now,
+    };
+    if (coins > 0) update.points = admin.firestore.FieldValue.increment(coins);
+    tx.update(userRef, update);
+
+    if (coins > 0) {
+      tx.set(db.collection("pointsHistory").doc(), {
+        userId: uid, type: "trivia_win",
+        points: coins, createdAt: now,
+      });
+    }
+
+    response = {
+      correct,
+      coins,
+      playsUsed:      playsUsed + 1,
+      playsRemaining: Math.max(total - (playsUsed + 1), 0),
+      points:         safeNum(data.points, 0) + coins,
+    };
+  });
+
+  return response;
+});

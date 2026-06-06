@@ -427,6 +427,8 @@ const HIST_META = {
   ironsource_offer:    { icon: '⚡', label: 'Oferta IronSource' },
   roulette_win:        { icon: '🎰', label: 'Ruleta' },
   slot_win:            { icon: '🎰', label: 'Tragamonedas' },
+  trivia_win:          { icon: '🎮', label: 'Trivia Gamer' },
+  scratch_win:         { icon: '🎴', label: 'Raspadito' },
 };
 
 function _histEsc(s) {
