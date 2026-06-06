@@ -58,9 +58,13 @@
     if (!unityAds) throw new Error('Plugin UnityAds no disponible');
 
     if (!initPromise) {
+      // Leer consentimiento GDPR — si no hay decisión aún, usar false (no personalizado)
+      const gdprConsent = window.VGConsent ? window.VGConsent.isPersonalized() : false;
+
       initPromise = unityAds.initialize({
-        gameId:   gameId(),
-        testMode: CONFIG.testMode,
+        gameId:      gameId(),
+        testMode:    CONFIG.testMode,
+        gdprConsent: gdprConsent,
       }).catch(err => {
         // Reset para que el próximo intento vuelva a intentar inicializar
         initPromise = null;
@@ -69,6 +73,12 @@
     }
     return initPromise;
   }
+
+  // Si el usuario cambia su consentimiento mientras la app está abierta,
+  // reinicializar Unity Ads con la nueva preferencia
+  window.addEventListener('vg:consent', () => {
+    initPromise = null; // forzar re-init en el próximo uso
+  });
 
   async function showRewarded(options = {}) {
     await ensureReady();

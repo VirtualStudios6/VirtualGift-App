@@ -82,9 +82,20 @@ function copyTextFile(src, dest) {
 function copyHtmlWithCapacitor(src, dest) {
   if (!fs.existsSync(src)) return;
   let html = readText(src);
+
+  // Inyectar capacitor.js al inicio del <head>
   if (!html.includes('src="capacitor.js"') && !html.includes("src='capacitor.js'")) {
     html = html.replace(/<head>/i, '<head>\n  <script src="capacitor.js"></script>');
   }
+
+  // Inyectar consent.js antes de unity-ads.js en páginas que lo usen
+  if (html.includes('unity-ads.js') && !html.includes('consent.js')) {
+    html = html.replace(
+      /(<script[^>]+src=["'][^"']*unity-ads\.js["'][^>]*><\/script>)/,
+      '<script defer src="js/consent.js"></script>\n  $1'
+    );
+  }
+
   writeText(dest, html);
 }
 

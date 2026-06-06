@@ -17,6 +17,7 @@ import com.unity3d.ads.IUnityAdsLoadListener;
 import com.unity3d.ads.IUnityAdsShowListener;
 import com.unity3d.ads.UnityAds;
 import com.unity3d.ads.UnityAdsShowOptions;
+import com.unity3d.ads.metadata.MetaData;
 import com.unity3d.ads.metadata.PlayerMetaData;
 import com.unity3d.services.banners.BannerErrorInfo;
 import com.unity3d.services.banners.BannerView;
@@ -58,9 +59,21 @@ public class UnityAdsPlugin extends Plugin {
 
         Context appContext = getContext().getApplicationContext();
 
+        boolean gdprConsent = Boolean.TRUE.equals(call.getBoolean("gdprConsent", false));
+
         getActivity().runOnUiThread(() -> {
-            Log.d(TAG, "initialize gameId=" + gameId + " testMode=" + testMode);
+            Log.d(TAG, "initialize gameId=" + gameId + " testMode=" + testMode + " gdpr=" + gdprConsent);
             UnityAds.setDebugMode(false); // nunca mostrar overlay de debug
+
+            // Aplicar consentimiento GDPR antes de inicializar
+            MetaData gdprMeta = new MetaData(appContext);
+            gdprMeta.set("gdpr.consent", gdprConsent);
+            gdprMeta.commit();
+
+            // Consentimiento de privacidad adicional (CCPA / App Tracking)
+            MetaData privacyMeta = new MetaData(appContext);
+            privacyMeta.set("privacy.consent", gdprConsent);
+            privacyMeta.commit();
             UnityAds.initialize(appContext, gameId, testMode,
                 new IUnityAdsInitializationListener() {
                     @Override
