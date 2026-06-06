@@ -212,9 +212,10 @@ body {
   align-items: stretch;
 }
 
-/* La altura la define la imagen — no más recorte en mobile */
+/* Slide: altura fija proporcional al ancho → imagen entra completa */
 .carousel-slide {
   min-width: 100%;
+  aspect-ratio: 16 / 7;
   border-radius: 16px;
   overflow: hidden;
   background-color: #0a0618;
@@ -222,18 +223,19 @@ body {
 }
 @media (min-width: 769px) { .carousel-slide { border-radius: 20px; } }
 
-/* Imagen ocupa todo el ancho, altura automática → imagen completa sin recorte */
+/* object-fit: contain → imagen completa, sin recorte, centrada */
 .carousel-slide img {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
-  object-fit: unset;
+  object-fit: contain;
+  object-position: center;
 }
 
-/* En desktop donde hay espacio se puede fijar altura y usar cover */
+/* En desktop: height fijo y cover porque hay espacio */
 @media (min-width: 769px) {
-  .carousel-slide { height: 420px; }
-  .carousel-slide img { height: 100%; object-fit: cover; }
+  .carousel-slide { aspect-ratio: unset; height: 420px; }
+  .carousel-slide img { object-fit: cover; }
 }
 
 .carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
