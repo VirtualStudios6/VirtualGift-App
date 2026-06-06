@@ -416,10 +416,17 @@ const HIST_PAGE = 20;
 let _histLastDoc = null;
 
 const HIST_META = {
-  daily_checkin:  { icon: 'VC', label: 'Check-in diario' },
-  raffle_entry:   { icon: 'S', label: 'Entrada a sorteo' },
-  redeem:         { icon: 'USD', label: 'Canje' },
-  referral_bonus: { icon: 'REF', label: 'Bono de referido' },
+  daily_checkin:       { icon: '🪙', label: 'Check-in diario' },
+  raffle_entry:        { icon: '🎟️', label: 'Entrada a sorteo' },
+  redeem:              { icon: '💸', label: 'Canje' },
+  referral_bonus:      { icon: '👥', label: 'Bono de referido' },
+  cpx_survey:          { icon: '📊', label: 'Encuesta CPX' },
+  cpx_survey_reversal: { icon: '↩️', label: 'Reversión CPX' },
+  offermaru_offer:     { icon: '🏆', label: 'Oferta Offermaru' },
+  tapjoy_offer:        { icon: '🎯', label: 'Oferta Tapjoy' },
+  ironsource_offer:    { icon: '⚡', label: 'Oferta IronSource' },
+  roulette_win:        { icon: '🎰', label: 'Ruleta' },
+  slot_win:            { icon: '🎰', label: 'Tragamonedas' },
 };
 
 function _histEsc(s) {
@@ -427,7 +434,7 @@ function _histEsc(s) {
 }
 
 function buildHistItem(d) {
-  const meta  = HIST_META[d.type] || { icon: 'VC', label: d.type || 'Movimiento' };
+  const meta  = HIST_META[d.type] || { icon: '🪙', label: d.type || 'Movimiento' };
   const pts   = typeof d.points === 'number' ? d.points : 0;
   const sign  = pts >= 0 ? '+' : '';
   const color = pts >= 0 ? '#22c55e' : '#f43f5e';
