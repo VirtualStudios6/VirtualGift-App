@@ -427,7 +427,7 @@ body {
 .offer-brand-cpx        { background: linear-gradient(155deg, #07111f 0%, #0d2040 60%, #102a50 100%); }
 .offer-brand-bitlabs    { background: linear-gradient(155deg, #0047c8 0%, #006eff 60%, #1a7fff 100%); }
 .offer-brand-offermaru  { background: linear-gradient(155deg, #07111f 0%, #0d2040 60%, #102a50 100%); }
-.offer-brand-tapjoy     { background: linear-gradient(155deg, #4a3560 0%, #6b4a8a 60%, #8a62aa 100%); }
+.offer-brand-tapjoy     { background: linear-gradient(155deg, #07111f 0%, #0d2040 60%, #102a50 100%); }
 .offer-brand-ironsource { background: linear-gradient(155deg, #003d1a 0%, #006d2e 60%, #00a846 100%); }
 .offer-brand-wrap    { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px; padding: 10px 16px 16px; }
 .offer-brand-icon    {
