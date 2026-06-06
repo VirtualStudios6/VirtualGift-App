@@ -7,6 +7,38 @@ if (typeof window.vgLog !== 'function') {
   })();
 }
 
+// ── Caché global cross-página (localStorage, TTL configurable) ────────────
+// Uso: VGCache.get('user_abc123') / VGCache.set('user_abc123', data, 120000)
+if (typeof window.VGCache === 'undefined') {
+  window.VGCache = {
+    _pfx: 'vgc_',
+    get(key) {
+      try {
+        const raw = localStorage.getItem(this._pfx + key);
+        if (!raw) return null;
+        const { v, e } = JSON.parse(raw);
+        if (e && Date.now() > e) { localStorage.removeItem(this._pfx + key); return null; }
+        return v;
+      } catch { return null; }
+    },
+    set(key, val, ttlMs) {
+      try {
+        const ttl = ttlMs !== undefined ? ttlMs : 2 * 60 * 1000; // 2 min default
+        localStorage.setItem(this._pfx + key, JSON.stringify({
+          v: val, e: ttl > 0 ? Date.now() + ttl : 0
+        }));
+      } catch {}
+    },
+    del(key) {
+      try { localStorage.removeItem(this._pfx + key); } catch {}
+    },
+    // Invalidar caché de un usuario (llamar al actualizar puntos)
+    invalidateUser(uid) {
+      if (uid) this.del('user_' + uid);
+    },
+  };
+}
+
 const firebaseConfig = {
   apiKey: "AIzaSyDFn7fJPpOzuyiBKBXh7Lm8pHN6TwY8K-g",
   authDomain: "virtualgift-login.firebaseapp.com",
