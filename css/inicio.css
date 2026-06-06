@@ -429,7 +429,7 @@ body {
 .offer-brand-offermaru  { background: linear-gradient(155deg, #6200ea 0%, #9c27b0 60%, #e040fb 100%); }
 .offer-brand-tapjoy     { background: linear-gradient(155deg, #4a3560 0%, #6b4a8a 60%, #8a62aa 100%); }
 .offer-brand-ironsource { background: linear-gradient(155deg, #003d1a 0%, #006d2e 60%, #00a846 100%); }
-.offer-brand-wrap    { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 16px; }
+.offer-brand-wrap    { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 8px; padding: 10px 16px 16px; }
 .offer-brand-icon    {
   width: 26px; height: 26px; object-fit: contain;
   animation: offerFloat 3.2s ease-in-out infinite;
