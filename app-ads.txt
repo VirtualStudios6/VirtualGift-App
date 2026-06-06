@@ -1,0 +1,18 @@
+# app-ads.txt — VirtualGift Rewards
+# Archivo requerido por Unity Ads, CPX Research y Offermaru
+# para verificar que eres el publisher autorizado.
+# Debe estar disponible en: https://tu-dominio.com/app-ads.txt
+# y en el dominio declarado en Google Play Store.
+
+# Unity Ads (Unity Technologies)
+# Seller ID: unity | Account ID: 6127955 (Android), 6127954 (iOS)
+google.com, pub-9528325052664424, RESELLER, f08c47fec0942fa0
+unity.com, 6127955, DIRECT
+
+# CPX Research
+# Verificar el seller ID exacto en: https://www.cpx-research.com/app-ads.txt
+cpx-research.com, 32955, DIRECT
+
+# Offermaru
+# Publisher ID: 6413
+offermaru.com, 6413, DIRECT
