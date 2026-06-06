@@ -218,6 +218,24 @@ document.addEventListener("DOMContentLoaded", () => {
     firebase.auth().onAuthStateChanged(async (user) => {
       if (!user) { window.location.href = withAppFlag("login.html"); return; }
 
+      // ── Aplicar nombre y foto INMEDIATAMENTE desde auth (sin esperar Firestore) ──
+      const quickName = user.displayName || "Usuario";
+      if (userNameElem) userNameElem.textContent = quickName;
+
+      if (avatarWrap) {
+        if (user.photoURL) {
+          const img = document.createElement("img");
+          img.src       = user.photoURL;
+          img.className = "user-photo";
+          img.alt       = quickName;
+          img.onerror   = () => { avatarWrap.textContent = "👋"; };
+          avatarWrap.innerHTML = "";
+          avatarWrap.appendChild(img);
+        } else {
+          avatarWrap.textContent = "👋";
+        }
+      }
+
       // Solo verificar email si es registro con email/contraseña
       if (!user.emailVerified && user.providerData?.[0]?.providerId === "password") {
         await showEmailModal();
@@ -260,6 +278,16 @@ document.addEventListener("DOMContentLoaded", () => {
           const name = user.displayName || "Usuario";
           if (userNameElem) userNameElem.textContent = name;
           applyFirstTimeUI(name);
+
+          // Mostrar foto si tiene
+          if (avatarWrap && user.photoURL) {
+            const img = document.createElement("img");
+            img.src = user.photoURL; img.className = "user-photo"; img.alt = name;
+            img.onerror = () => { avatarWrap.textContent = "🎉"; };
+            avatarWrap.innerHTML = ""; avatarWrap.appendChild(img);
+          } else if (avatarWrap) {
+            avatarWrap.textContent = "🎉";
+          }
 
         } else {
           await userRef.set({

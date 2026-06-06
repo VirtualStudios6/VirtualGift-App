@@ -200,7 +200,7 @@ window.doSpin = async function() {
 
   const win = data.win || 0;
   if (win > 0) {
-    setResult('<span class="result-win">+' + win + ' 🪙</span>');
+    setResult('<span class="result-win">+' + win + ' <img src="images/coin.png" class="coin-img" alt="coin"></span>');
     if (window.VGSounds) VGSounds.prize();
   } else {
     setResult('<span class="result-miss">Sin suerte esta vez</span>');

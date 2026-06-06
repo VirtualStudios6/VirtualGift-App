@@ -203,7 +203,7 @@ function showResult(correct, coins, remaining) {
   rs.classList.remove('hidden');
   $('resultEmoji').textContent  = correct ? '🎉' : '😞';
   $('resultTitle').textContent  = correct ? '¡Correcto!' : 'Incorrecto';
-  $('resultCoins').textContent  = correct ? `+${coins} 🪙` : '0 🪙';
+  $('resultCoins').textContent  = correct ? `+${coins} <img src="images/coin.png" class="coin-img" alt="coin">` : '0 <img src="images/coin.png" class="coin-img" alt="coin">';
   $('resultCoins').className    = 'result-coins ' + (correct ? 'win' : 'miss');
   $('resultAnswer').textContent = correct ? '' : `Respuesta: ${currentQ.opts[currentQ.a]}`;
 

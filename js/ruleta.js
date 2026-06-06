@@ -328,7 +328,7 @@ function buildLegend() {
       <div class="legend-dot" style="background:${s.color};box-shadow:0 0 7px ${glow}"></div>
       <span class="legend-icon">${s.icon}</span>
       <span class="legend-label">${s.label === 'MISS' ? 'Sin suerte' : s.label}</span>
-      <span class="legend-coins">${s.coins > 0 ? '+' + s.coins + ' 🪙' : '—'}</span>
+      <span class="legend-coins">${s.coins > 0 ? '+' + s.coins + ' <img src="images/coin.png" class="coin-img" alt="coin">' : '—'}</span>
     </div>`;
   }).join('');
 }
@@ -381,7 +381,7 @@ window.doSpin = async function() {
     animateTo(target, () => {
       playsUsed = data.playsUsed ?? (playsUsed + 1);
       if (data.coins > 0) {
-        setResult('<span class="result-win">+' + data.coins + ' 🪙</span>');
+        setResult('<span class="result-win">+' + data.coins + ' <img src="images/coin.png" class="coin-img" alt="coin"></span>');
         if (window.VGSounds) VGSounds.prize();
       } else {
         setResult('<span class="result-miss">Sin suerte esta vez</span>');

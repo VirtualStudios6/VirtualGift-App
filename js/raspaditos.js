@@ -76,7 +76,7 @@ function drawScratchLayer() {
   ctx.fillStyle = 'rgba(255,255,255,0.5)';
   ctx.font = '700 14px Inter, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText('¡Raspa aquí! 🪙', canvas.width / 2, canvas.height / 2 - 6);
+  ctx.fillText('¡Raspa aquí! <img src="images/coin.png" class="coin-img" alt="coin">', canvas.width / 2, canvas.height / 2 - 6);
   ctx.font = '600 11px Inter, sans-serif';
   ctx.fillStyle = 'rgba(255,255,255,0.28)';
   ctx.fillText('Usa el dedo para raspar', canvas.width / 2, canvas.height / 2 + 14);
@@ -144,7 +144,7 @@ function showPrizeResult(prize) {
   const win = prize.coins > 0;
   $('revealOverlay').classList.remove('hidden');
   $('revealEmoji').textContent  = win ? '🎉' : '😔';
-  $('revealTitle').textContent  = win ? `¡Ganaste ${prize.coins} 🪙!` : 'Sin suerte esta vez';
+  $('revealTitle').textContent  = win ? `¡Ganaste ${prize.coins} <img src="images/coin.png" class="coin-img" alt="coin">!` : 'Sin suerte esta vez';
   $('revealSub').textContent    = win ? 'Los coins fueron agregados a tu cuenta.' : 'Prueba con otro raspadito.';
   $('revealBtn').textContent    = cardsUsed < cardsTotal ? `Raspar otro (${cardsTotal - cardsUsed} restantes)` : '¡Volver al inicio!';
   $('revealBtn').onclick = cardsUsed < cardsTotal ? nextCard : goHome;

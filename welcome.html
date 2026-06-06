@@ -153,12 +153,21 @@
     .user-info { text-align: center; margin-bottom: 20px; }
 
     .user-avatar-wrap {
-      width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 14px;
+      width: 72px; height: 72px; border-radius: 50%; margin: 0 auto 14px;
       background: linear-gradient(135deg, rgba(141,23,251,0.3), rgba(104,227,255,0.2));
       border: 2px solid rgba(141,23,251,0.4);
       display: flex; align-items: center; justify-content: center;
-      font-size: 26px;
-      box-shadow: 0 0 20px rgba(141,23,251,0.25);
+      font-size: 30px;
+      box-shadow: 0 0 24px rgba(141,23,251,0.3);
+      overflow: hidden;
+    }
+    .user-avatar-wrap .user-photo {
+      width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
+    }
+
+    .coin-img {
+      width: 1.15em; height: 1.15em;
+      vertical-align: -0.2em; object-fit: contain;
     }
 
     #userName {
@@ -287,7 +296,7 @@
         <div class="user-avatar-wrap">👋</div>
         <div id="userName">Usuario</div>
         <div class="points-pill">
-          <span class="coin-icon">🪙</span>
+          <img src="images/coin.png" class="coin-icon coin-img" alt="coin">
           <span id="userPoints">0</span>
           <span class="points-label">Coins</span>
         </div>

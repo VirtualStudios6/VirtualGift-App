@@ -1,3 +1,11 @@
+/* ── Coin image — reemplaza el emoji 🪙 en toda la app ── */
+.coin-img {
+  width: 1.15em; height: 1.15em;
+  vertical-align: -0.2em; object-fit: contain;
+  display: inline;
+  flex-shrink: 0;
+}
+
 /* ============================================ */
 /* VARIABLES                                   */
 /* ============================================ */

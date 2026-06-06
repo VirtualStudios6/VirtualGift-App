@@ -104,6 +104,9 @@ function copyHtmlWithCapacitor(src, dest) {
     );
   }
 
+  // Reemplazar emoji 🪙 con la imagen real de VirtualCoins
+  html = html.replace(/🪙/g, '<img src="images/coin.png" class="coin-img" alt="coin">');
+
   writeText(dest, html);
 }
 

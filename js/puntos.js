@@ -158,7 +158,7 @@ function buildCheckinUI(streak, alreadyDone) {
     if (isToday) cls += ' today';
     html += `<div class="${cls}">
       <div class="checkin-day-label">Día ${i + 1}</div>
-      <div class="checkin-day-coins">${coins} 🪙</div>
+      <div class="checkin-day-coins">${coins} <img src="images/coin.png" class="coin-img" alt="coin"></div>
     </div>`;
   });
   days.innerHTML = html;
@@ -309,7 +309,7 @@ function openRedeemModal() {
   if (!modal) return;
 
   if (modalPlatName) modalPlatName.textContent = `Canjear · ${platform.name || ''}`;
-  if (modalPts)      modalPts.textContent      = points.toLocaleString() + ' 🪙';
+  if (modalPts)      modalPts.textContent      = points.toLocaleString() + ' <img src="images/coin.png" class="coin-img" alt="coin">';
   if (modalUSD)      modalUSD.textContent      = `$${pointsToUSD(points)} USD`;
 
   const label = document.getElementById('redeemAccountLabel');
@@ -350,7 +350,7 @@ async function processRedeem(e) {
 
   const confirmed = await showModal(
     'Confirmar canje?',
-    'VirtualCoins: ' + points.toLocaleString() + ' 🪙\nRecibiras: $' + usdAmt + ' USD\nPlataforma: ' + platform.name + '\nCuenta: ' + account + '\n\nTiempo estimado: 24-48 horas.',
+    'VirtualCoins: ' + points.toLocaleString() + ' <img src="images/coin.png" class="coin-img" alt="coin">\nRecibiras: $' + usdAmt + ' USD\nPlataforma: ' + platform.name + '\nCuenta: ' + account + '\n\nTiempo estimado: 24-48 horas.',
     [
       { label: 'Cancelar', primary: false, value: false },
       { label: 'Confirmar', primary: true,  value: true  },
@@ -388,7 +388,7 @@ function openRedeemSuccess(points, usdAmt, platform, account) {
   const screen = document.getElementById('redeemSuccess');
   if (!screen) return;
   document.getElementById('rsChip').textContent     = platform.name || 'Canje exitoso';
-  document.getElementById('rsCoins').textContent    = points.toLocaleString() + ' 🪙';
+  document.getElementById('rsCoins').textContent    = points.toLocaleString() + ' <img src="images/coin.png" class="coin-img" alt="coin">';
   document.getElementById('rsUsd').textContent      = '$' + usdAmt + ' USD';
   document.getElementById('rsPlatform').textContent = platform.name || '';
   document.getElementById('rsAccount').textContent  = account;
@@ -416,7 +416,7 @@ const HIST_PAGE = 20;
 let _histLastDoc = null;
 
 const HIST_META = {
-  daily_checkin:       { icon: '🪙', label: 'Check-in diario' },
+  daily_checkin:       { icon: '<img src="images/coin.png" class="coin-img" alt="coin">', label: 'Check-in diario' },
   raffle_entry:        { icon: '🎟️', label: 'Entrada a sorteo' },
   redeem:              { icon: '💸', label: 'Canje' },
   referral_bonus:      { icon: '👥', label: 'Bono de referido' },
@@ -436,7 +436,7 @@ function _histEsc(s) {
 }
 
 function buildHistItem(d) {
-  const meta  = HIST_META[d.type] || { icon: '🪙', label: d.type || 'Movimiento' };
+  const meta  = HIST_META[d.type] || { icon: '<img src="images/coin.png" class="coin-img" alt="coin">', label: d.type || 'Movimiento' };
   const pts   = typeof d.points === 'number' ? d.points : 0;
   const sign  = pts >= 0 ? '+' : '';
   const color = pts >= 0 ? '#22c55e' : '#f43f5e';
