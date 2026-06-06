@@ -287,6 +287,7 @@
     const CPX_HASH_KEY         = 'KwYa4M02A8kLxYbzXXstl4FUGkfgxdHG';
     const OFFERMARU_WALL_URL   = 'https://wall.offermaru.com/19978';
     const TAPJOY_SDK_KEY       = '86CtElNPRreaGQITdKssFAECcaiMFmeHY7O8teeqFsNz3Y6-_tRPzHC3qw54';
+    const TAPJOY_CURRENCY_ID   = 'f3a0ad12-534f-46b7-9a19-021374ab2c14';
 
     let currentUser      = null;
     let cpxLoaded        = false;
@@ -366,7 +367,8 @@
       var uid = encodeURIComponent(user.uid);
       var url = 'https://offerwall.tapjoy.com/web/v1/'
               + '?sdk_key='            + encodeURIComponent(TAPJOY_SDK_KEY)
-              + '&publisher_user_id='  + uid;
+              + '&publisher_user_id='  + uid
+              + '&currency_id='        + encodeURIComponent(TAPJOY_CURRENCY_ID);
 
       var iframe = document.createElement('iframe');
       iframe.src = url;
