@@ -15,6 +15,7 @@ const db = admin.firestore();
 const FORTNITE_API_KEY_SECRET  = defineSecret("FORTNITE_API_KEY");
 const CPX_HASH_KEY_SECRET      = defineSecret("CPX_HASH_KEY");
 const OFFERMARU_API_SECRET     = defineSecret("OFFERMARU_API_SECRET");
+const TAPJOY_SECRET            = defineSecret("TAPJOY_SECRET");
 
 // =====================
 // HELPERS
@@ -1181,6 +1182,157 @@ exports.offermaruPostback = onRequest(
         return res.status(429).send("Daily limit exceeded");
       }
       console.error("[offermaruPostback] Error interno:", err);
+      return res.status(500).send("Error");
+    }
+  }
+);
+
+// =====================
+// TAPJOY POSTBACK
+// =====================
+// Tapjoy llama a esta URL cuando un usuario completa una oferta.
+//
+// Configurar en Tapjoy Dashboard → Server-to-Server Postback URL:
+//   https://us-central1-virtualgift-login.cloudfunctions.net/tapjoyPostback
+//   ?snuid={snuid}&currency={currency}&id={id}&mac_address={mac_address}
+//
+// Parámetros que envía Tapjoy:
+//   snuid       → Firebase UID del usuario (el que pasaste como publisher_user_id)
+//   currency    → VirtualCoins a acreditar (configúralo en el dashboard de Tapjoy)
+//   id          → ID único de la transacción (para deduplicación)
+//   mac_address → SHA-256(id + ":" + secret_key) para verificar autenticidad
+//
+// En Tapjoy Dashboard → Virtual Currency → Postback Security Key:
+//   pon la misma clave que guardaste en Firebase Secret Manager como "TAPJOY_SECRET".
+//
+// Protecciones:
+//   1. Verificación de mac_address (SHA-256)
+//   2. Verifica existencia del usuario en Firestore
+//   3. Deduplicación por transaction id (idempotente)
+//   4. Cap por transacción (OW_MAX_COINS_PER_TX)
+//   5. Cap diario por usuario (OW_MAX_COINS_PER_DAY)
+//   6. Transacción atómica
+
+exports.tapjoyPostback = onRequest(
+  { region: "us-central1", cors: false, secrets: [TAPJOY_SECRET] },
+  async (req, res) => {
+    const p = { ...req.query, ...req.body };
+    const snuid       = p.snuid;         // Firebase UID
+    const currency    = p.currency;      // coins a acreditar
+    const id          = p.id;            // transaction ID
+    const mac_address = p.mac_address;   // SHA-256 verifier
+
+    // ── 1. Validar parámetros ─────────────────────────────────────────────
+    if (!snuid || !currency || !id || !mac_address) {
+      console.warn("[tapjoyPostback] Parámetros incompletos:", {
+        snuid: !!snuid, currency: !!currency, id: !!id, mac_address: !!mac_address,
+      });
+      return res.status(400).send("Missing parameters");
+    }
+
+    // ── 2. Verificar mac_address: SHA-256(id + ":" + secret_key) ─────────
+    const secret   = TAPJOY_SECRET.value().trim();
+    const expected = createHash("sha256")
+      .update(id + ":" + secret)
+      .digest("hex");
+
+    if (mac_address !== expected) {
+      console.warn("[tapjoyPostback] mac_address inválido para id:", id);
+      await db.collection("suspiciousActivity").add({
+        userId: snuid, type: "tapjoy_invalid_hash",
+        transactionId: id, ip: req.ip, timestamp: admin.firestore.Timestamp.now(),
+      }).catch(() => {});
+      return res.status(403).send("Invalid mac_address");
+    }
+
+    // ── 3. Parsear y validar coins ────────────────────────────────────────
+    const coins = Math.round(parseFloat(currency));
+    if (!Number.isFinite(coins) || coins <= 0) {
+      console.warn("[tapjoyPostback] currency inválido:", currency);
+      return res.status(400).send("Invalid currency");
+    }
+
+    // ── 4. Cap por transacción ────────────────────────────────────────────
+    if (coins > OW_MAX_COINS_PER_TX) {
+      console.warn(`[tapjoyPostback] Amount ${coins} excede cap ${OW_MAX_COINS_PER_TX}. uid: ${snuid}`);
+      await db.collection("suspiciousActivity").add({
+        userId: snuid, type: "tapjoy_tx_cap_exceeded",
+        coins, transactionId: id, timestamp: admin.firestore.Timestamp.now(),
+      }).catch(() => {});
+      return res.status(400).send("Amount exceeds maximum");
+    }
+
+    try {
+      // ── 5. Verificar que el usuario existe ────────────────────────────
+      const userRef  = db.collection("users").doc(String(snuid));
+      const userSnap = await userRef.get();
+      if (!userSnap.exists) {
+        console.warn(`[tapjoyPostback] Usuario no encontrado: ${snuid}`);
+        return res.status(404).send("User not found");
+      }
+
+      // ── 6. Deduplicación por id ───────────────────────────────────────
+      const dupSnap = await db.collection("pointsHistory")
+        .where("transactionId", "==", String(id))
+        .where("provider",      "==", "tapjoy")
+        .limit(1).get();
+
+      if (!dupSnap.empty) {
+        console.log("[tapjoyPostback] Transacción duplicada ignorada:", id);
+        return res.status(200).send("1");
+      }
+
+      // ── 7. Cap diario + acreditación atómica ─────────────────────────
+      const today  = new Date().toISOString().slice(0, 10);
+      const capRef = db.collection("offerwallDailyCaps").doc(`${snuid}_${today}_tapjoy`);
+
+      await db.runTransaction(async (tx) => {
+        const capSnap    = await tx.get(capRef);
+        const todayTotal = capSnap.exists ? (capSnap.data().total || 0) : 0;
+
+        if (todayTotal + coins > OW_MAX_COINS_PER_DAY) {
+          const err = new Error("DAILY_CAP_EXCEEDED");
+          err.todayTotal = todayTotal;
+          throw err;
+        }
+
+        tx.update(userRef, {
+          points: admin.firestore.FieldValue.increment(coins),
+        });
+
+        tx.set(db.collection("pointsHistory").doc(), {
+          userId:        String(snuid),
+          type:          "tapjoy_offer",
+          points:        coins,
+          transactionId: String(id),
+          provider:      "tapjoy",
+          reversed:      false,
+          createdAt:     admin.firestore.Timestamp.now(),
+        });
+
+        tx.set(capRef, {
+          total:     admin.firestore.FieldValue.increment(coins),
+          userId:    String(snuid),
+          provider:  "tapjoy",
+          date:      today,
+          updatedAt: admin.firestore.Timestamp.now(),
+        }, { merge: true });
+      });
+
+      console.log(`[tapjoyPostback] ✓ +${coins} coins → usuario ${snuid} (trans: ${id})`);
+      return res.status(200).send("1");
+
+    } catch (err) {
+      if (err.message === "DAILY_CAP_EXCEEDED") {
+        console.warn(`[tapjoyPostback] Límite diario uid: ${snuid}. Hoy: ${err.todayTotal} coins.`);
+        await db.collection("suspiciousActivity").add({
+          userId: snuid, type: "tapjoy_daily_cap_exceeded",
+          todayTotal: err.todayTotal, coins, transactionId: id,
+          timestamp: admin.firestore.Timestamp.now(),
+        }).catch(() => {});
+        return res.status(429).send("Daily limit exceeded");
+      }
+      console.error("[tapjoyPostback] Error interno:", err);
       return res.status(500).send("Error");
     }
   }

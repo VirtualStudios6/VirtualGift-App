@@ -231,6 +231,11 @@
       <span class="of-tab-name">Offermaru</span>
       <span class="of-tab-badge">Ofertas</span>
     </div>
+    <div class="of-tab" id="tab-tapjoy" onclick="switchWall('tapjoy', this)">
+      <span class="of-tab-emoji">🎯</span>
+      <span class="of-tab-name">Tapjoy</span>
+      <span class="of-tab-badge">Ofertas</span>
+    </div>
   </nav>
 
   <!-- Content -->
@@ -258,6 +263,17 @@
       </div>
     </div>
 
+    <!-- Tapjoy panel -->
+    <div class="of-panel" id="panel-tapjoy">
+      <div class="of-iframe-wrap" id="tapjoyWrap">
+        <div class="of-loading" id="tapjoyLoading">
+          <div class="of-spinner"></div>
+          <div class="of-loading-name">Tapjoy</div>
+          <div class="of-loading-sub">Cargando ofertas...</div>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <div class="of-toast" id="ofToast"></div>
@@ -270,10 +286,13 @@
     const CPX_APP_ID           = 32955;
     const CPX_HASH_KEY         = 'KwYa4M02A8kLxYbzXXstl4FUGkfgxdHG';
     const OFFERMARU_WALL_URL   = 'https://wall.offermaru.com/19978';
+    const TAPJOY_APP_ID        = 'YOUR_TAPJOY_APP_ID';   // ← reemplaza con tu App ID de Tapjoy
+    const TAPJOY_SDK_KEY       = 'YOUR_TAPJOY_SDK_KEY';  // ← reemplaza con tu SDK Key de Tapjoy
 
     let currentUser      = null;
     let cpxLoaded        = false;
     let offermaruLoaded  = false;
+    let tapjoyLoaded     = false;
 
     // ── Tab switcher ──────────────────────────────────────────────────────────
     function switchWall(id, el) {
@@ -284,6 +303,7 @@
       if (el)    el.classList.add('active');
       if (id === 'cpx'       && currentUser && !cpxLoaded)       loadCPXWall(currentUser);
       if (id === 'offermaru' && currentUser && !offermaruLoaded) loadOffermaruWall(currentUser);
+      if (id === 'tapjoy'    && currentUser && !tapjoyLoaded)    loadTapjoyWall(currentUser);
     }
 
     // ── CPX Research ──────────────────────────────────────────────────────────
@@ -321,6 +341,35 @@
       if (!wrap) return;
 
       var url = OFFERMARU_WALL_URL + '?user_id=' + encodeURIComponent(user.uid);
+      var iframe = document.createElement('iframe');
+      iframe.src = url;
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.onload = function() {
+        if (loading) loading.classList.add('hidden');
+      };
+      wrap.appendChild(iframe);
+    }
+
+    // ── Tapjoy ───────────────────────────────────────────────────────────────
+    // Offerwall URL: https://offerwall.tapjoy.com/web/v1/
+    //   ?app_id={APP_ID}
+    //   &publisher_user_id={user.uid}
+    //   &sdk_key={SDK_KEY}
+    // El secure_hash (SHA-256) se genera server-side si Tapjoy lo exige;
+    // con iFrame público basta app_id + publisher_user_id en muchos planes.
+    function loadTapjoyWall(user) {
+      if (tapjoyLoaded) return;
+      tapjoyLoaded = true;
+      var wrap    = document.getElementById('tapjoyWrap');
+      var loading = document.getElementById('tapjoyLoading');
+      if (!wrap) return;
+
+      var uid = encodeURIComponent(user.uid);
+      var url = 'https://offerwall.tapjoy.com/web/v1/'
+              + '?app_id='             + encodeURIComponent(TAPJOY_APP_ID)
+              + '&publisher_user_id='  + uid
+              + '&sdk_key='           + encodeURIComponent(TAPJOY_SDK_KEY);
+
       var iframe = document.createElement('iframe');
       iframe.src = url;
       iframe.setAttribute('allowfullscreen', '');
@@ -368,6 +417,8 @@
           // Abrir tab según hash de URL
           if (location.hash === '#offermaru') {
             switchWall('offermaru', document.getElementById('tab-offermaru'));
+          } else if (location.hash === '#tapjoy') {
+            switchWall('tapjoy', document.getElementById('tab-tapjoy'));
           } else {
             loadCPXWall(user);
           }

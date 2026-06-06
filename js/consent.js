@@ -157,7 +157,7 @@
         </div>
         <p class="vgc-body">
           VirtualGift usa tecnologías de seguimiento para personalizar anuncios
-          (Unity Ads), encuestas y ofertas (CPX Research, Offermaru) y análisis de uso
+          (Unity Ads), encuestas y ofertas (CPX Research, Offermaru, Tapjoy) y análisis de uso
           (Firebase). Consulta nuestra
           <a href="${privUrl}">Política de Privacidad</a> y
           <a href="${termUrl}">Términos de Uso</a>.
