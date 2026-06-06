@@ -200,7 +200,7 @@ window.doSpin = async function() {
 
   const win = data.win || 0;
   if (win > 0) {
-    setResult('<span class="result-win">+' + win + ' VC</span>');
+    setResult('<span class="result-win">+' + win + ' 🪙</span>');
     if (window.VGSounds) VGSounds.prize();
   } else {
     setResult('<span class="result-miss">Sin suerte esta vez</span>');

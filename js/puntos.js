@@ -158,7 +158,7 @@ function buildCheckinUI(streak, alreadyDone) {
     if (isToday) cls += ' today';
     html += `<div class="${cls}">
       <div class="checkin-day-label">Día ${i + 1}</div>
-      <div class="checkin-day-coins">${coins} VC</div>
+      <div class="checkin-day-coins">${coins} 🪙</div>
     </div>`;
   });
   days.innerHTML = html;
@@ -309,7 +309,7 @@ function openRedeemModal() {
   if (!modal) return;
 
   if (modalPlatName) modalPlatName.textContent = `Canjear · ${platform.name || ''}`;
-  if (modalPts)      modalPts.textContent      = points.toLocaleString() + ' VC';
+  if (modalPts)      modalPts.textContent      = points.toLocaleString() + ' 🪙';
   if (modalUSD)      modalUSD.textContent      = `$${pointsToUSD(points)} USD`;
 
   const label = document.getElementById('redeemAccountLabel');
@@ -350,7 +350,7 @@ async function processRedeem(e) {
 
   const confirmed = await showModal(
     'Confirmar canje?',
-    'VirtualCoins: ' + points.toLocaleString() + ' VC\nRecibiras: $' + usdAmt + ' USD\nPlataforma: ' + platform.name + '\nCuenta: ' + account + '\n\nTiempo estimado: 24-48 horas.',
+    'VirtualCoins: ' + points.toLocaleString() + ' 🪙\nRecibiras: $' + usdAmt + ' USD\nPlataforma: ' + platform.name + '\nCuenta: ' + account + '\n\nTiempo estimado: 24-48 horas.',
     [
       { label: 'Cancelar', primary: false, value: false },
       { label: 'Confirmar', primary: true,  value: true  },
@@ -388,7 +388,7 @@ function openRedeemSuccess(points, usdAmt, platform, account) {
   const screen = document.getElementById('redeemSuccess');
   if (!screen) return;
   document.getElementById('rsChip').textContent     = platform.name || 'Canje exitoso';
-  document.getElementById('rsCoins').textContent    = points.toLocaleString() + ' VC';
+  document.getElementById('rsCoins').textContent    = points.toLocaleString() + ' 🪙';
   document.getElementById('rsUsd').textContent      = '$' + usdAmt + ' USD';
   document.getElementById('rsPlatform').textContent = platform.name || '';
   document.getElementById('rsAccount').textContent  = account;
