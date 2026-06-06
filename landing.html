@@ -986,6 +986,30 @@
     .store-btn-icon .fab.fa-android { color: #3ddc84; }
     .store-btn-icon .fab.fa-apple   { color: #f0f0f0; }
 
+    /* Scroll to top */
+    #scrollTop {
+      position: fixed; bottom: 24px; right: 24px; z-index: 800;
+      width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer;
+      background: linear-gradient(135deg, #a010d0, #d020e8, #e030c0);
+      color: white; font-size: 18px; display: none;
+      align-items: center; justify-content: center;
+      box-shadow: 0 0 14px rgba(208,32,232,0.5); transition: all 0.2s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    #scrollTop:hover { transform: translateY(-2px); }
+
+    /* Footer brand desc */
+    .footer-brand-desc {
+      font-size: 14px; color: var(--text-3);
+      line-height: 1.6; margin-bottom: 20px; max-width: 280px;
+    }
+
+    /* AdSense below hero */
+    .ads-below-hero {
+      max-width: 100%; padding: 0 16px;
+      position: relative; z-index: 1;
+    }
+
     /* Primary buttons shared */
     .btn-primary-shared {
       display: inline-flex; align-items: center; gap: 8px;
@@ -1088,17 +1112,6 @@
     <a href="#prizes" class="nav-mobile-link">Premios</a>
     <a href="#faq" class="nav-mobile-link">FAQ</a>
     <a href="login.html" class="btn-nav">Empezar Gratis</a>
-  </div>
-
-  <!-- ── AdSense Display — arriba del hero ── -->
-  <div class="ads-container" style="max-width:100%;padding:8px 16px 0;">
-    <ins class="adsbygoogle"
-         style="display:block"
-         data-ad-client="ca-pub-1930529129644930"
-         data-ad-slot="6388933118"
-         data-ad-format="auto"
-         data-full-width-responsive="true"></ins>
-    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   </div>
 
   <main>
@@ -1213,17 +1226,17 @@
                     <div class="ph-game-card">
                       <div class="ph-game-badge">● JUGAR</div>
                       <div class="ph-game-icon">🎰</div>
-                      <div class="ph-game-name">Tragamonedas</div>
+                      <div class="ph-game-name">Tragamon.</div>
                     </div>
                     <div class="ph-game-card">
                       <div class="ph-game-badge">● JUGAR</div>
-                      <div class="ph-game-icon">🎡</div>
-                      <div class="ph-game-name">Ruleta</div>
+                      <div class="ph-game-icon">🎮</div>
+                      <div class="ph-game-name">Trivia</div>
                     </div>
-                    <div class="ph-game-card" style="opacity:.45">
-                      <div class="ph-game-badge" style="color:#6b7280">● PRONTO</div>
-                      <div class="ph-game-icon">🃏</div>
-                      <div class="ph-game-name">Más…</div>
+                    <div class="ph-game-card">
+                      <div class="ph-game-badge">● JUGAR</div>
+                      <div class="ph-game-icon">🎴</div>
+                      <div class="ph-game-name">Raspadito</div>
                     </div>
                   </div>
                 </div>
@@ -1269,6 +1282,17 @@
         </div>
       </div>
     </section>
+
+    <!-- AdSense — debajo del hero, no en el fold inicial -->
+    <div class="ads-below-hero ads-container">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-1930529129644930"
+           data-ad-slot="6388933118"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+    </div>
 
     <!-- ===================== STATS BAR ===================== -->
     <div class="stats-bar" aria-label="Estadísticas de VirtualGift">
@@ -1332,23 +1356,23 @@
           </article>
 
           <article class="feature-card reveal">
-            <div class="feature-icon fi-green" aria-hidden="true"><i class="fas fa-chart-line"></i></div>
-            <h3 class="feature-title">Sistema de Niveles</h3>
+            <div class="feature-icon fi-green" aria-hidden="true"><i class="fas fa-gamepad"></i></div>
+            <h3 class="feature-title">Mini Juegos Diarios</h3>
             <p class="feature-desc">
-              Sube de nivel participando y completando logros. A mayor nivel,
-              desbloqueas acceso a sorteos exclusivos con mejores premios.
+              Gana Coins jugando Ruleta, Tragamonedas, Trivia Gamer y Raspaditos.
+              Nuevas oportunidades cada día, completamente gratis.
             </p>
-            <span class="feature-badge">+XP por cada acción</span>
+            <span class="feature-badge">4 juegos disponibles</span>
           </article>
 
           <article class="feature-card reveal reveal-delay-1">
-            <div class="feature-icon fi-pink" aria-hidden="true"><i class="fas fa-trophy"></i></div>
-            <h3 class="feature-title">Logros y Badges</h3>
+            <div class="feature-icon fi-pink" aria-hidden="true"><i class="fas fa-list-check"></i></div>
+            <h3 class="feature-title">Ofertas y Encuestas</h3>
             <p class="feature-desc">
-              Colecciona insignias únicas por hitos como "Primer sorteo" o "Primera victoria".
-              Muéstralos en tu perfil público.
+              Multiplica tus Coins con CPX Research, Offermaru y Tapjoy.
+              Completa ofertas y encuestas cortas para ganar hasta 2,000 Coins extra.
             </p>
-            <span class="feature-badge">Insignias coleccionables</span>
+            <span class="feature-badge">3 offerwalls integrados</span>
           </article>
         </div>
       </div>
@@ -1741,7 +1765,7 @@
             <img src="images/logo-virtual-login.png" alt="VirtualGift Logo" width="32" height="32">
             <span class="footer-logo-text">VIRTUAL<span>GIFT</span></span>
           </a>
-          <p style="font-size:14px;color:var(--text-3);line-height:1.6;margin-bottom:20px;max-width:280px;">
+          <p class="footer-brand-desc">
             La plataforma de sorteos gratuitos donde ganas gift cards reales jugando. Sin dinero real. Sin trampa.
           </p>
           <div class="footer-social">
@@ -1786,13 +1810,7 @@
   </footer>
 
   <!-- Scroll to top -->
-  <button id="scrollTop" aria-label="Volver arriba" style="
-    position:fixed; bottom:24px; right:24px; z-index:800;
-    width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
-    background:linear-gradient(135deg,#a010d0,#d020e8,#e030c0);
-    color:white; font-size:18px; display:none; align-items:center; justify-content:center;
-    box-shadow:0 0 14px rgba(208,32,232,0.5); transition:all 0.2s;
-    -webkit-tap-highlight-color:transparent;">▲</button>
+  <button id="scrollTop" aria-label="Volver arriba">▲</button>
 
   <script>
     // =============================================
