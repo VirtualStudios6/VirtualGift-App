@@ -110,7 +110,7 @@ function copyHtmlWithCapacitor(src, dest) {
   writeText(dest, html);
 }
 
-// ── Directorios ───────────────────────────────────────────────────────────
+// ── Directorios de assets ─────────────────────────────────────────────────
 for (const dir of ['css', 'js', 'images', 'icons', 'legal']) {
   copyDir(path.join(ROOT, dir), path.join(WWW, dir));
 }
@@ -123,14 +123,26 @@ copyTextFile(path.join(ROOT, 'app-ads.txt'),              path.join(WWW, 'app-ad
 copyFile(path.join(ROOT, 'node_modules', '@capacitor', 'core', 'dist', 'capacitor.js'),
          path.join(WWW, 'capacitor.js'));
 
-// ── HTML de la raíz ───────────────────────────────────────────────────────
-for (const f of fs.readdirSync(ROOT)) {
-  if (f.endsWith('.html')) {
-    copyHtmlWithCapacitor(path.join(ROOT, f), path.join(WWW, f));
+// ── HTML de pages/ (organizados por sección, copiados planos a www/) ──────
+// Estructura fuente:  pages/admin/, pages/auth/, pages/games/, pages/main/
+// Resultado en www/:  plano — www/admin.html, www/inicio.html, etc.
+const PAGES_DIR = path.join(ROOT, 'pages');
+if (fs.existsSync(PAGES_DIR)) {
+  for (const section of fs.readdirSync(PAGES_DIR, { withFileTypes: true })) {
+    if (!section.isDirectory()) continue;
+    const sectionPath = path.join(PAGES_DIR, section.name);
+    for (const file of fs.readdirSync(sectionPath)) {
+      if (file.endsWith('.html')) {
+        copyHtmlWithCapacitor(path.join(sectionPath, file), path.join(WWW, file));
+      }
+    }
   }
 }
 
-// Landing page como root
+// ── HTML especiales de la raíz ────────────────────────────────────────────
+// landing.html → www/landing.html + www/index.html  (punto de entrada)
+// index.html   → www/login.html                     (pantalla de login)
+copyHtmlWithCapacitor(path.join(ROOT, 'landing.html'), path.join(WWW, 'landing.html'));
 copyHtmlWithCapacitor(path.join(ROOT, 'landing.html'), path.join(WWW, 'index.html'));
 copyHtmlWithCapacitor(path.join(ROOT, 'index.html'),   path.join(WWW, 'login.html'));
 

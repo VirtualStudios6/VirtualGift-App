@@ -71,18 +71,39 @@ function setVal(id, v) {
 // ─────────────────────────────────────────────────
 // TABS
 // ─────────────────────────────────────────────────
+const TAB_TITLES = {
+  tabDashboard:      'Dashboard',
+  tabCanjes:         'Gestión de Canjes',
+  tabNoticias:       'Noticias',
+  tabNotificaciones: 'Notificaciones',
+  tabSorteos:        'Sorteos',
+  tabUsuarios:       'Usuarios',
+  tabTrabajadores:   'Equipo de Trabajo',
+  tabConfig:         'Configuración',
+  tabHerramientas:   'Herramientas',
+};
+
 window.switchTab = function (id) {
-  document.querySelectorAll('.admin-tab-btn').forEach(b =>
+  // Actualizar tabs móvil y botones sidebar
+  document.querySelectorAll('[data-tab]').forEach(b =>
     b.classList.toggle('active', b.dataset.tab === id)
   );
+  // Actualizar paneles
   document.querySelectorAll('.admin-panel').forEach(p =>
     p.classList.toggle('active', p.id === id)
   );
-  if (id === 'tabDashboard')   loadDashboard();
-  if (id === 'tabCanjes')      loadCanjes();
-  if (id === 'tabSorteos')     loadSorteos();
-  if (id === 'tabUsuarios')    resetUsersTab();
-  if (id === 'tabConfig')      loadConfig();
+  // Actualizar título en el header
+  const titleEl = document.getElementById('headerSectionTitle');
+  if (titleEl) titleEl.textContent = TAB_TITLES[id] || '';
+
+  if (id === 'tabDashboard')      loadDashboard();
+  if (id === 'tabCanjes')         loadCanjes();
+  if (id === 'tabNoticias')       loadNoticias();
+  if (id === 'tabNotificaciones') loadNotificaciones();
+  if (id === 'tabSorteos')        loadSorteos();
+  if (id === 'tabUsuarios')       resetUsersTab();
+  if (id === 'tabTrabajadores')   loadTrabajadores();
+  if (id === 'tabConfig')         loadConfig();
 };
 
 // ─────────────────────────────────────────────────
@@ -688,6 +709,351 @@ window.saveConfig = async function () {
 };
 
 // ─────────────────────────────────────────────────
+// NOTICIAS (lista inline)
+// ─────────────────────────────────────────────────
+let noticiaFilter = 'all';
+
+window.loadNoticias = async function (filter) {
+  if (filter !== undefined) noticiaFilter = filter;
+
+  document.querySelectorAll('[data-nfilter]').forEach(b =>
+    b.classList.toggle('active', b.dataset.nfilter === noticiaFilter)
+  );
+
+  const list = document.getElementById('noticiasList');
+  if (!list) return;
+  list.innerHTML = '<div class="admin-loading">Cargando...</div>';
+
+  try {
+    const [allSnap, pubSnap] = await Promise.all([
+      window.db.collection('news').get(),
+      window.db.collection('news').where('published', '==', true).get(),
+    ]);
+    setStat('newsTotal',     allSnap.size);
+    setStat('newsPublished', pubSnap.size);
+    setStat('newsDrafts',    allSnap.size - pubSnap.size);
+
+    let q;
+    if (noticiaFilter === 'published') {
+      q = window.db.collection('news').where('published', '==', true).orderBy('date', 'desc').limit(40);
+    } else if (noticiaFilter === 'draft') {
+      q = window.db.collection('news').where('published', '==', false).orderBy('date', 'desc').limit(40);
+    } else {
+      q = window.db.collection('news').orderBy('date', 'desc').limit(40);
+    }
+
+    const snap = await q.get();
+    if (snap.empty) {
+      list.innerHTML = '<p class="admin-empty">No hay noticias en esta categoría</p>';
+      return;
+    }
+    list.innerHTML = snap.docs.map(d => buildNoticiaRow(d.id, d.data())).join('');
+  } catch (e) {
+    console.error('[admin] loadNoticias', e);
+    list.innerHTML = '<p class="admin-empty">Error al cargar noticias. Verifica índices de Firestore.</p>';
+  }
+};
+
+function buildNoticiaRow(id, d) {
+  const pub   = d.published === true;
+  const title = esc(d.feedTitle || d.title || '(sin título)');
+  const cat   = esc(d.category || 'General');
+  const date  = fmtDate(d.date || d.createdAt);
+  const idS   = esc(id);
+  const cover = d.cover ? `<img src="${esc(d.cover)}" alt="" loading="lazy">` : '📰';
+  return `<div class="noticia-row" id="nrow-${idS}">
+    <div class="noticia-thumb">${cover}</div>
+    <div class="noticia-info">
+      <span class="noticia-title">${title}</span>
+      <span class="noticia-meta">${cat} · ${date}</span>
+    </div>
+    <div class="noticia-actions">
+      <span class="admin-badge ${pub ? 'ok' : 'muted'}">${pub ? '✅ Publicada' : '📦 Borrador'}</span>
+      <button type="button" class="btn-icon" title="${pub ? 'Despublicar' : 'Publicar'}"
+        onclick="toggleNoticiaPublish('${idS}',${pub})">${pub ? '📦' : '🚀'}</button>
+      <button type="button" class="btn-icon btn-del" title="Eliminar"
+        onclick="deleteNoticia('${idS}')">🗑️</button>
+    </div>
+  </div>`;
+}
+
+window.toggleNoticiaPublish = async function (id, currentlyPublished) {
+  try {
+    const upd = { published: !currentlyPublished };
+    if (!currentlyPublished) upd.date = firebase.firestore.Timestamp.now();
+    await window.db.collection('news').doc(id).update(upd);
+    toast(currentlyPublished ? '📦 Despublicada' : '🚀 Publicada');
+    window.loadNoticias();
+  } catch (e) {
+    console.error('[admin] toggleNoticiaPublish', e);
+    toast('Error al cambiar estado', false);
+  }
+};
+
+window.deleteNoticia = async function (id) {
+  if (!confirm('¿Eliminar esta noticia permanentemente?')) return;
+  try {
+    await window.db.collection('news').doc(id).delete();
+    toast('Noticia eliminada');
+    window.loadNoticias();
+  } catch (e) {
+    toast('Error al eliminar', false);
+  }
+};
+
+// ─────────────────────────────────────────────────
+// NOTIFICACIONES (inline)
+// ─────────────────────────────────────────────────
+async function loadNotificaciones() {
+  const list = document.getElementById('notifRecentList');
+  if (!list) return;
+  list.innerHTML = '<div class="admin-loading">Cargando...</div>';
+  try {
+    const snap = await window.db.collection('globalNotifications')
+      .orderBy('sentAt', 'desc').limit(15).get();
+    if (snap.empty) {
+      list.innerHTML = '<p class="admin-empty">Sin notificaciones enviadas aún</p>';
+      return;
+    }
+    list.innerHTML = snap.docs.map(d => buildNotifRow(d.data())).join('');
+  } catch (e) {
+    console.error('[admin] loadNotificaciones', e);
+    list.innerHTML = '<p class="admin-empty">Error al cargar</p>';
+  }
+}
+
+function buildNotifRow(d) {
+  const imgHtml = d.imageUrl
+    ? `<img class="notif-img" src="${esc(d.imageUrl)}" alt="" loading="lazy">`
+    : '';
+  return `<div class="notif-recent-row">
+    ${imgHtml}
+    <div class="notif-info">
+      <div class="notif-title-txt">${esc(d.title || '—')}</div>
+      <div class="notif-body-txt">${esc(d.body || '')}</div>
+      <div class="notif-date-txt">${fmtDate(d.sentAt)}</div>
+    </div>
+  </div>`;
+}
+
+window.clearNotifForm = function () {
+  ['notifTitle', 'notifBody', 'notifImage'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  ['notifTitleCount', 'notifBodyCount'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = el.textContent.replace(/^\d+/, '0');
+  });
+};
+
+window.sendNotificacion = async function () {
+  const title    = document.getElementById('notifTitle')?.value.trim();
+  const body     = document.getElementById('notifBody')?.value.trim();
+  const imageUrl = document.getElementById('notifImage')?.value.trim();
+
+  if (!title || !body) {
+    toast('Título y mensaje son obligatorios', false);
+    return;
+  }
+
+  const btn = document.getElementById('btnSendNotif');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+
+  try {
+    const data = {
+      title, body,
+      ...(imageUrl && { imageUrl }),
+      type:   'global',
+      sentAt: firebase.firestore.Timestamp.now(),
+      sentBy: adminUser?.uid || 'admin',
+    };
+    await window.db.collection('globalNotifications').add(data);
+    toast('✅ Notificación enviada a todos los usuarios');
+    window.clearNotifForm();
+    loadNotificaciones();
+  } catch (e) {
+    console.error('[admin] sendNotificacion', e);
+    toast('Error al enviar la notificación', false);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📤 Enviar a todos los usuarios'; }
+  }
+};
+
+// Contadores de caracteres para el formulario de notificaciones
+function initNotifCounters() {
+  const pairs = [
+    ['notifTitle', 'notifTitleCount', 60],
+    ['notifBody',  'notifBodyCount',  160],
+  ];
+  pairs.forEach(([inputId, countId, max]) => {
+    const input = document.getElementById(inputId);
+    const count = document.getElementById(countId);
+    if (!input || !count) return;
+    const update = () => {
+      count.textContent = `${input.value.length}/${max}`;
+      count.style.color = input.value.length >= max ? 'var(--err)' : 'var(--text2)';
+    };
+    input.addEventListener('input', update);
+  });
+}
+
+// ─────────────────────────────────────────────────
+// TRABAJADORES
+// ─────────────────────────────────────────────────
+const ROLES = {
+  admin:      { label: 'Admin',      icon: '👑' },
+  editor:     { label: 'Editor',     icon: '✏️' },
+  soporte:    { label: 'Soporte',    icon: '🎧' },
+  moderador:  { label: 'Moderador',  icon: '🛡️' },
+};
+
+async function loadTrabajadores() {
+  const list = document.getElementById('trabajadoresList');
+  if (!list) return;
+  list.innerHTML = '<div class="admin-loading">Cargando...</div>';
+
+  try {
+    const [adminSnap, staffSnap] = await Promise.all([
+      window.db.collection('users').where('isAdmin', '==', true).limit(50).get(),
+      window.db.collection('users').where('isStaff', '==', true).limit(50).get(),
+    ]);
+
+    const seen = new Set();
+    const docs = [];
+    [...adminSnap.docs, ...staffSnap.docs].forEach(d => {
+      if (!seen.has(d.id)) { seen.add(d.id); docs.push(d); }
+    });
+
+    if (docs.length === 0) {
+      list.innerHTML = '<p class="admin-empty">No hay trabajadores asignados. Usa el buscador de arriba para añadir.</p>';
+      return;
+    }
+    list.innerHTML = docs.map(d => buildWorkerRow(d.id, d.data())).join('');
+  } catch (e) {
+    console.error('[admin] loadTrabajadores', e);
+    list.innerHTML = '<p class="admin-empty">Error al cargar trabajadores</p>';
+  }
+}
+
+function buildWorkerRow(uid, u) {
+  const role     = u.role || (u.isAdmin ? 'admin' : 'soporte');
+  const name     = u.displayName || u.username || '—';
+  const initials = name.slice(0, 2).toUpperCase();
+  const uidS     = esc(uid);
+  const isSelf   = adminUser && adminUser.uid === uid;
+
+  const roleOptions = Object.entries(ROLES).map(([k, v]) =>
+    `<option value="${k}" ${role === k ? 'selected' : ''}>${v.icon} ${v.label}</option>`
+  ).join('');
+
+  const roleCls = ROLES[role] ? role : 'soporte';
+
+  return `<div class="worker-row" id="wrow-${uidS}">
+    <div class="user-avatar-lg" style="width:40px;height:40px;font-size:.85rem">${initials}</div>
+    <div class="worker-info">
+      <div class="user-detail-name">${esc(name)}${isSelf ? ' <span style="font-size:.7rem;color:var(--text2)">(tú)</span>' : ''}</div>
+      <div class="user-detail-email">${esc(u.email || '—')}</div>
+    </div>
+    <div class="worker-actions">
+      <span class="role-badge ${roleCls}">${ROLES[role]?.icon || ''} ${ROLES[role]?.label || role}</span>
+      <select class="worker-role-select" onchange="changeWorkerRole('${uidS}', this.value)" ${isSelf ? 'disabled title="No puedes cambiar tu propio rol"' : ''}>
+        ${roleOptions}
+      </select>
+      ${!isSelf ? `<button type="button" class="btn-icon btn-del" onclick="removeWorker('${uidS}')" title="Quitar del equipo">🗑️</button>` : ''}
+    </div>
+  </div>`;
+}
+
+window.searchWorkerUser = async function () {
+  const query  = document.getElementById('workerSearchInput')?.value.trim().toLowerCase();
+  const result = document.getElementById('workerSearchResult');
+  if (!result) return;
+  if (!query) { result.innerHTML = ''; return; }
+
+  result.innerHTML = '<div class="admin-loading">Buscando...</div>';
+  try {
+    const snap = await window.db.collection('users')
+      .where('email', '>=', query)
+      .where('email', '<=', query + '\uf8ff')
+      .limit(5).get();
+
+    if (snap.empty) {
+      result.innerHTML = '<p class="admin-empty">Usuario no encontrado</p>';
+      return;
+    }
+
+    result.innerHTML = snap.docs.map(d => {
+      const u       = d.data();
+      const name    = u.displayName || u.username || '—';
+      const isStaff = u.isAdmin || u.isStaff;
+      const uidS    = esc(d.id);
+      const init    = name.slice(0, 2).toUpperCase();
+      return `<div class="worker-result-row">
+        <div class="user-avatar-lg" style="width:36px;height:36px;font-size:.78rem;flex-shrink:0">${init}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:.88rem;font-weight:700;color:#fff">${esc(name)}</div>
+          <div style="font-size:.72rem;color:var(--text2)">${esc(u.email || '—')}</div>
+        </div>
+        ${isStaff
+          ? '<span class="admin-badge ok">Ya es miembro</span>'
+          : `<button type="button" class="btn-new" style="margin:0;padding:7px 12px;font-size:.78rem" onclick="addWorker('${uidS}')">+ Agregar</button>`
+        }
+      </div>`;
+    }).join('');
+  } catch (e) {
+    console.error('[admin] searchWorkerUser', e);
+    result.innerHTML = '<p class="admin-empty">Error al buscar</p>';
+  }
+};
+
+window.addWorker = async function (uid) {
+  try {
+    await window.db.collection('users').doc(uid).update({ isStaff: true, role: 'soporte' });
+    toast('✅ Trabajador agregado al equipo');
+    const result = document.getElementById('workerSearchResult');
+    const input  = document.getElementById('workerSearchInput');
+    if (result) result.innerHTML = '';
+    if (input)  input.value = '';
+    loadTrabajadores();
+  } catch (e) {
+    console.error('[admin] addWorker', e);
+    toast('Error al agregar trabajador', false);
+  }
+};
+
+window.changeWorkerRole = async function (uid, newRole) {
+  try {
+    await window.db.collection('users').doc(uid).update({ role: newRole });
+    toast('✅ Rol actualizado');
+    // Refrescar el row
+    const doc = await window.db.collection('users').doc(uid).get();
+    if (doc.exists) {
+      const el = document.getElementById('wrow-' + uid);
+      if (el) el.outerHTML = buildWorkerRow(uid, doc.data());
+    }
+  } catch (e) {
+    console.error('[admin] changeWorkerRole', e);
+    toast('Error al cambiar rol', false);
+  }
+};
+
+window.removeWorker = async function (uid) {
+  if (!confirm('¿Quitar a este usuario del equipo de trabajo?')) return;
+  try {
+    await window.db.collection('users').doc(uid).update({
+      isStaff: false,
+      role: firebase.firestore.FieldValue.delete(),
+    });
+    toast('Trabajador eliminado del equipo');
+    loadTrabajadores();
+  } catch (e) {
+    console.error('[admin] removeWorker', e);
+    toast('Error al eliminar trabajador', false);
+  }
+};
+
+// ─────────────────────────────────────────────────
 // AUTH GUARD
 // ─────────────────────────────────────────────────
 async function checkAdmin(user) {
@@ -695,8 +1061,17 @@ async function checkAdmin(user) {
     const doc = await window.db.collection('users').doc(user.uid).get();
     if (doc.data()?.isAdmin !== true) { showDenied(); return; }
     adminUser = user;
+
+    // Mostrar nombre del admin en el header
+    const nameEl = document.getElementById('headerAdminName');
+    if (nameEl) {
+      nameEl.textContent = user.displayName || user.email?.split('@')[0] || 'Admin';
+      nameEl.style.display = 'block';
+    }
+
     showAdmin();
     window.switchTab('tabDashboard');
+    initNotifCounters();
   } catch (e) {
     console.error('[admin] checkAdmin', e);
     showDenied();

@@ -591,7 +591,7 @@ function bindUI() {
   qs("fHeaderImage")?.addEventListener("input", (e) => setImgPreview("headerPreview", e.target.value, "Vista previa del header"));
 
   qs("btnGoHome")?.addEventListener("click", () => {
-    window.location.href = withAppFlag("inicio.html");
+    window.location.href = withAppFlag("admin.html");
   });
 
   qs("btnLogout")?.addEventListener("click", async () => {

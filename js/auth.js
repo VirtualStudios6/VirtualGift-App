@@ -273,6 +273,7 @@ const FormManager = {
         vgLog('✅ Email de verificación enviado a:', email);
       } catch(e) {
         console.error('❌ Error enviando verificación:', e.code, e.message);
+        NotificationManager.show('No se pudo enviar el correo de verificación. Podrás reenviarlo desde la siguiente pantalla.', 'error');
       }
 
       // ✅ FIX: forzar refresh del token antes de escribir en Firestore
