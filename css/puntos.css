@@ -2,6 +2,23 @@
 /* PUNTOS.CSS                                  */
 /* ============================================ */
 
+/* Reset base */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; min-height: 100vh; min-height: 100svh; }
+
+/* Padding-top para el header fijo */
+body { padding-top: calc(62px + env(safe-area-inset-top)); }
+@media (min-width: 769px) { body { padding-top: calc(72px + env(safe-area-inset-top)); } }
+
+/* Modo Android App */
+html.android-app .header,
+body.android-app .header { display: none !important; }
+html.android-app body,
+body.android-app { padding-top: 0 !important; }
+
+/* Coin image — reemplaza el emoji 🪙 en el build */
+.coin-img { width: 1.15em; height: 1.15em; vertical-align: -0.2em; object-fit: contain; display: inline; flex-shrink: 0; }
+
 :root {
   --primary: #8d17fb;
   --secondary: #70189b;
