@@ -159,14 +159,6 @@
     }
     @keyframes progFill { from { width: 0%; } to { width: 100%; } }
 
-    /* ── VERSION LABEL ── */
-    .version {
-      position: fixed; bottom: max(32px, env(safe-area-inset-bottom, 24px));
-      font-size: .62rem; font-weight: 600;
-      color: rgba(139,92,246,.4); letter-spacing: .12em;
-      animation: fadeIn .5s ease 2s both;
-    }
-
     /* ── FADE OUT ── */
     body.splash-out {
       animation: splashFadeOut .55s ease forwards;
@@ -205,8 +197,6 @@
     </div>
 
   </div>
-
-  <p class="version">VirtualGift v1.0</p>
 
   <script>
     // ── Partículas flotantes ──
