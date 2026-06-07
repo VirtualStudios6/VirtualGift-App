@@ -224,7 +224,7 @@ body {
 }
 @media (min-width: 769px) { .carousel-slide { height: 420px; border-radius: 20px; } }
 .carousel-slide img,
-.carousel-slide video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.carousel-slide video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
 
 .carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
 @media (min-width: 769px) { .carousel-dots { gap: 10px; margin-top: 16px; } }
