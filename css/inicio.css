@@ -1,3 +1,10 @@
+/* ── Coin image — reemplaza el emoji 🪙 en el build ── */
+.coin-img {
+  width: 1.15em; height: 1.15em;
+  vertical-align: -0.2em; object-fit: contain;
+  display: inline; flex-shrink: 0;
+}
+
 /* ============================================ */
 /* MODO ANDROID APP */
 /* ============================================ */
