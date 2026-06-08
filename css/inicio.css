@@ -369,6 +369,7 @@ body {
 /* ============================================ */
 .games-grid {
   display: flex; gap: 12px; overflow-x: auto; padding-bottom: 10px;
+  align-items: flex-start;
   -webkit-overflow-scrolling: touch; scroll-behavior: smooth; scrollbar-width: none;
 }
 .games-grid::-webkit-scrollbar { display: none; }
