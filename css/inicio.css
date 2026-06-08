@@ -377,6 +377,7 @@ body {
   .games-grid {
     gap: 16px; display: grid;
     grid-template-columns: repeat(3, 1fr); overflow-x: visible;
+    align-items: start;
   }
 }
 
