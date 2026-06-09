@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -19,6 +19,7 @@
   <script defer src="js/firebase-config.js"></script>
   <script defer src="js/unity-ads.js"></script>
   <script defer src="js/unity-banner.js"></script>
+  <script defer src="js/header-user.js"></script>
 </head>
 <body>
 
@@ -34,16 +35,14 @@
       <span class="logo-text">VIRTUAL<span class="logo-studios">GIFT</span></span>
     </div>
     <div class="header-icons">
-      <div class="icon-users" onclick="window.location.href=withAppFlag('home.html')">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      </div>
-      <div class="icon-coin" onclick="window.location.href=withAppFlag('puntos.html')">
-        <svg viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="48" fill="#FDB813"/>
-          <circle cx="50" cy="50" r="42" fill="#FFD700"/>
-          <path d="M 30 30 L 42 65 L 58 65 L 70 30 L 62 30 L 54 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
-        </svg>
-      </div>
+      <a class="header-avatar" href="home.html" onclick="this.href=withAppFlag('home.html')">
+                <img id="headerAvatarImg" src="" alt="" style="display:none">
+                <svg id="headerAvatarFallback" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </a>
+      <a class="header-points-pill" href="puntos.html" onclick="this.href=withAppFlag('puntos.html')">
+                <img src="images/coin.png" class="coin-img" alt="coin">
+                <span id="headerPoints">–</span>
+            </a>
     </div>
   </header>
 

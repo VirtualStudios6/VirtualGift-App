@@ -38,8 +38,6 @@
   display: flex; align-items: center; gap: 8px;
 }
 
-.icon-users,
-.icon-coin,
 .icon-notification {
   width: 42px; height: 42px; border-radius: 12px;
   background: rgba(255,255,255,0.05);
@@ -49,12 +47,51 @@
   transition: border-color 0.2s, background 0.2s, transform 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
-.icon-users:active,
-.icon-coin:active,
 .icon-notification:active { transform: scale(0.93); }
-.icon-users:hover,
-.icon-coin:hover,
 .icon-notification:hover { border-color: rgba(141,23,251,0.4); background: rgba(141,23,251,0.08); }
+
+.icon-notification svg { width: 22px; height: 22px; fill: rgba(182,198,217,0.9); }
+
+/* ============================================ */
+/* AVATAR DE USUARIO EN HEADER                 */
+/* ============================================ */
+.header-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(141,23,251,0.45);
+  background: rgba(141,23,251,0.12);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; cursor: pointer; text-decoration: none;
+  transition: border-color 0.2s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.header-avatar:active  { transform: scale(0.93); }
+.header-avatar:hover   { border-color: rgba(141,23,251,0.75); }
+.header-avatar img     { width: 100%; height: 100%; object-fit: cover; display: block; }
+.header-avatar svg     { width: 22px; height: 22px; fill: rgba(182,198,217,0.9); flex-shrink: 0; }
+
+/* ============================================ */
+/* PÍLDORA DE PUNTOS EN HEADER                 */
+/* ============================================ */
+.header-points-pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 38px; padding: 0 11px;
+  border-radius: 19px;
+  background: rgba(255,200,55,0.08);
+  border: 1px solid rgba(255,200,55,0.22);
+  text-decoration: none; cursor: pointer; flex-shrink: 0;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.header-points-pill:active { transform: scale(0.95); }
+.header-points-pill:hover  { border-color: rgba(255,200,55,0.45); background: rgba(255,200,55,0.13); }
+.header-points-pill .coin-img { width: 17px; height: 17px; }
+.header-points-pill span {
+  font-size: 13px; font-weight: 800;
+  color: #ffc837; letter-spacing: 0.2px;
+  font-family: 'Inter', sans-serif;
+  min-width: 16px;
+}
 
 /* Página activa */
 .icon-active {
@@ -62,15 +99,6 @@
   background: rgba(141,23,251,0.14) !important;
   box-shadow: 0 0 0 1px rgba(141,23,251,0.25);
 }
-
-.icon-users svg,
-.icon-notification svg {
-  width: 22px; height: 22px; fill: rgba(182,198,217,0.9);
-}
-.icon-coin svg { width: 28px; height: 28px; }
-
-/* Icono notificaciones — igual que usuario */
-.icon-notification svg { fill: rgba(182,198,217,0.9); }
 
 /* Badge de notificaciones */
 .notification-badge {
@@ -162,12 +190,9 @@
 
   /* HEADER ICONS */
   .header-icons { gap: 10px; }
-  .icon-users,
-  .icon-coin,
-  .icon-notification {
-    width: 44px; height: 44px; border-radius: 13px;
-  }
-  .icon-users svg,
+  .icon-notification { width: 44px; height: 44px; border-radius: 13px; }
   .icon-notification svg { width: 22px; height: 22px; }
-  .icon-coin svg          { width: 30px; height: 30px; }
+  .header-avatar { width: 42px; height: 42px; }
+  .header-points-pill { height: 42px; padding: 0 13px; }
+  .header-points-pill span { font-size: 14px; }
 }

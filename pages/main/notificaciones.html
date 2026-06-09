@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
@@ -28,6 +28,7 @@
   <script defer src="js/sounds.js"></script>
   <script defer src="js/unity-ads.js"></script>
   <script defer src="js/unity-banner.js"></script>
+  <script defer src="js/header-user.js"></script>
 </head>
 
 <body>
@@ -46,17 +47,14 @@
       <span class="logo-text">VIRTUAL<span class="logo-studios">GIFT</span></span>
     </div>
     <div class="header-icons">
-      <div class="icon-users" onclick="window.location.href=withAppFlag('home.html')" style="cursor:pointer;">
-        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-      </div>
-      <div class="icon-coin" onclick="window.location.href=withAppFlag('puntos.html')" style="cursor:pointer;">
-        <svg viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="48" fill="#FDB813"/>
-          <defs><radialGradient id="cg"><stop offset="0%" style="stop-color:#FFD700"/><stop offset="100%" style="stop-color:#FFA500"/></radialGradient></defs>
-          <circle cx="50" cy="50" r="42" fill="url(#cg)"/>
-          <path d="M 30 30 L 42 65 L 50 65 L 58 65 L 70 30 L 62 30 L 54 57 L 50 57 L 46 57 L 38 30 Z" fill="#FFFACD"/>
-        </svg>
-      </div>
+      <a class="header-avatar" href="home.html" onclick="this.href=withAppFlag('home.html')">
+                <img id="headerAvatarImg" src="" alt="" style="display:none">
+                <svg id="headerAvatarFallback" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            </a>
+      <a class="header-points-pill" href="puntos.html" onclick="this.href=withAppFlag('puntos.html')">
+                <img src="images/coin.png" class="coin-img" alt="coin">
+                <span id="headerPoints">–</span>
+            </a>
       <div class="icon-notification icon-active" onclick="window.location.href=withAppFlag('notificaciones.html')" style="cursor:pointer;">
         <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
         <span class="notification-badge" id="badgeCount" style="display:none;">0</span>
