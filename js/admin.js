@@ -1730,6 +1730,18 @@ window.sendAdminReply = async function () {
     });
 
     await batch.commit();
+
+    // Notify user in their notification bell
+    window.db.collection('notifications').add({
+      userId:    _soporteCurrentChat,
+      title:     '💬 Soporte VirtualGift te respondió',
+      message:   text.length > 100 ? text.slice(0, 97) + '…' : text,
+      type:      'support_reply',
+      link:      'chat.html',
+      read:      false,
+      timestamp: FS.serverTimestamp(),
+    }).catch(() => {});
+
   } catch (e) {
     console.error('[admin] sendAdminReply:', e);
     toast('Error al enviar respuesta', false);
@@ -1890,6 +1902,18 @@ async function adminUploadFile(file, type) {
 
     await batch.commit();
     toast(type === 'image' ? 'Imagen enviada ✅' : 'Archivo enviado ✅');
+
+    // Notify user
+    window.db.collection('notifications').add({
+      userId:    _soporteCurrentChat,
+      title:     '💬 Soporte VirtualGift te respondió',
+      message:   type === 'image' ? 'Te enviaron una imagen' : 'Te enviaron un archivo: ' + file.name.slice(0, 50),
+      type:      'support_reply',
+      link:      'chat.html',
+      read:      false,
+      timestamp: FS.serverTimestamp(),
+    }).catch(() => {});
+
   } catch (e) {
     console.error('[admin] adminUploadFile:', e);
     toast('Error al subir archivo', false);

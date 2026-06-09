@@ -174,8 +174,10 @@
     const imgSrc   = notification.imageUrl ? String(notification.imageUrl) : "";
     const timeAgo  = getTimeAgo(notification.timestamp);
 
+    const icon = notification.type === 'support_reply' ? '💬' : '🔔';
+
     div.innerHTML = `
-      <div class="notification-icon">🔔</div>
+      <div class="notification-icon">${icon}</div>
       <div class="notification-content">
         <div class="notification-title">${title}</div>
         ${subtitle ? `<div class="notification-message">${subtitle}</div>` : ""}
@@ -239,6 +241,8 @@
       imageUrl:  n.imageUrl || null,
       read:      Boolean(n.read),
       timestamp: n.timestamp || null,
+      type:      n.type  || null,
+      link:      n.link  || null,
     }));
 
     normalized.sort((a, b) => tsToMillis(b.timestamp) - tsToMillis(a.timestamp));
@@ -304,23 +308,29 @@
   async function markAsRead(notification) {
     if (!window.db) return;
 
+    const link = notification.link;
+
     if (notification.userId === "ALL") {
       hideForThisUser(notification.id);
       updateBadgeCount();
       displayNotifications();
-      return;
+    } else if (!notification.read) {
+      try {
+        window.db.collection("notifications").doc(notification.id)
+          .update({ read: true }).catch(() => {});
+        const n = allNotifications.find(x => x.id === notification.id);
+        if (n) n.read = true;
+        updateBadgeCount();
+        displayNotifications();
+      } catch (error) {
+        console.error("Error al marcar como leída:", error);
+      }
     }
 
-    if (notification.read) return;
-
-    try {
-      await window.db.collection("notifications").doc(notification.id).update({ read: true });
-      const n = allNotifications.find(x => x.id === notification.id);
-      if (n) n.read = true;
-      updateBadgeCount();
-      displayNotifications();
-    } catch (error) {
-      console.error("Error al marcar como leída:", error);
+    if (link) {
+      window.location.href = typeof withAppFlag === "function"
+        ? withAppFlag(link)
+        : link;
     }
   }
 
