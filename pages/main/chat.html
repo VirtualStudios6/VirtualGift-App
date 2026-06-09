@@ -21,40 +21,39 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    /* html + body must both be height:100% for flex-child scroll to work */
-    html {
+    html, body {
       height: 100%;
       background: #03010f;
-      -webkit-text-size-adjust: 100%;
-    }
-    body {
       font-family: 'Inter', -apple-system, sans-serif;
-      background: #03010f;
       color: #dcefff;
-      height: 100%;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
+      -webkit-text-size-adjust: 100%;
+      overscroll-behavior: none;
     }
 
-    /* ── TOP BAR ── */
+    /* ── FIXED LAYOUT: top-bar + scrollable messages + input bar ── */
+    /* This avoids flex/min-height quirks on mobile browsers */
+
     .top-bar {
-      height: calc(60px + env(safe-area-inset-top));
-      padding-top: env(safe-area-inset-top);
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: calc(60px + env(safe-area-inset-top, 0px));
+      padding-top: env(safe-area-inset-top, 0px);
       background: rgba(3,1,15,.96);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid rgba(255,255,255,.07);
       display: flex; align-items: center; gap: 12px;
       padding-left: 12px; padding-right: 16px;
-      flex-shrink: 0;
+      z-index: 10;
     }
+
     .back-btn {
       width: 38px; height: 38px; border-radius: 50%;
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.1);
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; flex-shrink: 0; transition: background .15s;
+      -webkit-tap-highlight-color: transparent;
     }
     .back-btn:active { background: rgba(255,255,255,.12); }
     .back-btn svg { width: 20px; height: 20px; fill: rgba(220,239,255,.85); }
@@ -66,7 +65,10 @@
       border: 2px solid rgba(139,92,246,.5);
       overflow: hidden; flex-shrink: 0;
     }
-    .chat-hdr-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .chat-hdr-avatar img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block;
+    }
     .chat-hdr-text { flex: 1; min-width: 0; }
     .chat-hdr-name {
       font-size: .9rem; font-weight: 800; color: #fff;
@@ -76,16 +78,22 @@
       font-size: .67rem; font-weight: 600; color: #4ade80;
       display: flex; align-items: center; gap: 4px; margin-top: 1px;
     }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; flex-shrink: 0; }
+    .status-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #4ade80; flex-shrink: 0;
+    }
 
-    /* ── MESSAGES — the critical fix is min-height:0 ── */
+    /* ── MESSAGES AREA — fixed, scrollable ── */
     .chat-msgs {
-      flex: 1;
-      min-height: 0; /* ← without this, the div grows instead of scrolling */
+      position: fixed;
+      top: calc(60px + env(safe-area-inset-top, 0px));
+      bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+      left: 0; right: 0;
       overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
       padding: 16px 16px 8px;
       display: flex; flex-direction: column; gap: 14px;
-      -webkit-overflow-scrolling: touch;
     }
 
     .chat-loading {
@@ -116,7 +124,7 @@
     .msg-row--admin { justify-content: flex-start; }
 
     .msg-avatar { width: 28px; height: 28px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
-    .msg-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .msg-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
     .msg-bubble {
       max-width: 78%; padding: 10px 14px; border-radius: 18px;
@@ -137,14 +145,12 @@
     .msg-time { font-size: .6rem; margin-top: 5px; opacity: .5; text-align: right; }
     .bubble--admin .msg-time { text-align: left; }
 
-    /* Image messages */
     .msg-image {
       display: block; max-width: 100%; max-height: 280px;
       border-radius: 12px; cursor: zoom-in; object-fit: cover;
     }
     .msg-img-caption { font-size: .82rem; margin-top: 6px; padding: 0 2px; }
 
-    /* Upload progress */
     .msg-uploading {
       display: flex; align-items: center; gap: 8px;
       font-size: .78rem; color: rgba(220,239,255,.6);
@@ -158,12 +164,15 @@
       flex-shrink: 0;
     }
 
-    /* ── INPUT BAR ── */
+    /* ── INPUT BAR — fixed at bottom ── */
     .chat-input-bar {
-      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      padding: 10px 12px;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
       background: rgba(3,1,15,.97);
       border-top: 1px solid rgba(255,255,255,.07);
-      flex-shrink: 0;
+      z-index: 10;
     }
     .chat-input-row {
       display: flex; align-items: flex-end; gap: 8px;
@@ -183,12 +192,12 @@
     }
     .chat-input::placeholder { color: rgba(220,239,255,.3); }
 
-    /* Image attach button */
     .chat-img-label {
       width: 34px; height: 34px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       cursor: pointer; flex-shrink: 0;
       transition: background .15s;
+      -webkit-tap-highlight-color: transparent;
     }
     .chat-img-label:hover { background: rgba(255,255,255,.08); }
     .chat-img-label svg { width: 20px; height: 20px; fill: rgba(220,239,255,.4); }
@@ -201,12 +210,12 @@
       flex-shrink: 0;
       transition: opacity .15s, transform .1s;
       box-shadow: 0 2px 8px rgba(139,92,246,.35);
+      -webkit-tap-highlight-color: transparent;
     }
     .chat-send-btn:active { transform: scale(.93); }
     .chat-send-btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
     .chat-send-btn svg { width: 18px; height: 18px; fill: #fff; margin-left: 2px; }
 
-    /* ── CHAT CLOSED ── */
     .chat-closed-banner {
       background: rgba(239,68,68,.1);
       border: 1px solid rgba(239,68,68,.2);
@@ -227,12 +236,12 @@
 
   <!-- TOP BAR -->
   <div class="top-bar">
-    <button class="back-btn" id="chatBackBtn" aria-label="Volver">
+    <button class="back-btn" id="chatBackBtn" onclick="window.chatGoBack()" aria-label="Volver">
       <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
     </button>
     <div class="chat-hdr-info">
       <div class="chat-hdr-avatar">
-        <img src="images/logo-virtual-login.png" alt="Soporte">
+        <img src="images/logo-virtual-login.png" alt="Soporte" onerror="this.style.opacity='0'">
       </div>
       <div class="chat-hdr-text">
         <div class="chat-hdr-name">Soporte VirtualGift</div>
@@ -251,7 +260,6 @@
   <!-- INPUT BAR -->
   <div class="chat-input-bar" id="chatInputBar">
     <div class="chat-input-row">
-      <!-- Image attach -->
       <label class="chat-img-label" for="chatImageInput" title="Enviar imagen">
         <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
       </label>
@@ -265,7 +273,8 @@
         maxlength="1000"
       ></textarea>
 
-      <button class="chat-send-btn" id="chatSendBtn" aria-label="Enviar">
+      <!-- onclick is a fallback in case JS event binding hasn't run yet -->
+      <button class="chat-send-btn" id="chatSendBtn" onclick="window.chatSendMessage()" aria-label="Enviar">
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
     </div>

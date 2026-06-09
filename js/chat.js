@@ -9,16 +9,17 @@ let _chatEmail  = '';
 let _chatStatus = 'open';
 let _unsubMsgs  = null;
 let _unsubDoc   = null;
+let _chatInited = false;
 
 // ── NAVIGATION ─────────────────────────────────────
-function chatGoBack() {
+window.chatGoBack = function () {
   if (history.length > 1) history.back();
-  else window.location.href = typeof withAppFlag === 'function'
+  else location.href = typeof withAppFlag === 'function'
     ? withAppFlag('soporte.html') : 'soporte.html';
-}
+};
 
 // ── SEND TEXT MESSAGE ──────────────────────────────
-window.chatSendMessage = async function () {
+window.chatSendMessage = function () {
   const input = document.getElementById('chatInput');
   const text  = (input?.value || '').trim();
   if (!text || !_chatUid || _chatStatus === 'closed') return;
@@ -29,42 +30,38 @@ window.chatSendMessage = async function () {
   const sendBtn = document.getElementById('chatSendBtn');
   if (sendBtn) sendBtn.disabled = true;
 
-  try {
-    const FS  = firebase.firestore.FieldValue;
-    const now = FS.serverTimestamp();
-    const batch = window.db.batch();
+  const FS  = firebase.firestore.FieldValue;
+  const now = FS.serverTimestamp();
+  const batch = window.db.batch();
 
-    const msgRef = window.db
-      .collection('supportChats').doc(_chatUid)
-      .collection('messages').doc();
-    batch.set(msgRef, {
-      from: 'user', text, type: 'text',
-      senderName: _chatName, createdAt: now,
-    });
+  const msgRef = window.db
+    .collection('supportChats').doc(_chatUid)
+    .collection('messages').doc();
+  batch.set(msgRef, {
+    from: 'user', text, type: 'text',
+    senderName: _chatName, createdAt: now,
+  });
+  batch.set(window.db.collection('supportChats').doc(_chatUid), {
+    userId: _chatUid, userName: _chatName, userEmail: _chatEmail,
+    lastMessage: text.slice(0, 100), lastMessageAt: now,
+    unreadAdmin: FS.increment(1), status: 'open', createdAt: now,
+  }, { merge: true });
 
-    batch.set(window.db.collection('supportChats').doc(_chatUid), {
-      userId: _chatUid, userName: _chatName, userEmail: _chatEmail,
-      lastMessage: text.slice(0, 100), lastMessageAt: now,
-      unreadAdmin: FS.increment(1), status: 'open', createdAt: now,
-    }, { merge: true });
-
-    await batch.commit();
-  } catch (e) {
+  batch.commit().catch(function (e) {
     console.error('[chat] sendMessage:', e);
     if (input) input.value = text;
     chatShowErr('No se pudo enviar. Intenta de nuevo.');
-  } finally {
-    const sendBtn2 = document.getElementById('chatSendBtn');
-    if (sendBtn2) sendBtn2.disabled = false;
+  }).finally(function () {
+    const btn = document.getElementById('chatSendBtn');
+    if (btn) btn.disabled = false;
     input?.focus();
-  }
+  });
 };
 
 // ── PICK IMAGE ─────────────────────────────────────
 window.chatPickImage = function (fileInput) {
   const file = fileInput?.files?.[0];
   if (!file) return;
-  // Reset so same file can be re-selected
   fileInput.value = '';
   if (_chatStatus === 'closed') { chatShowErr('El chat está cerrado.'); return; }
   if (!file.type.startsWith('image/')) { chatShowErr('Solo se pueden enviar imágenes.'); return; }
@@ -72,20 +69,19 @@ window.chatPickImage = function (fileInput) {
   chatUploadImage(file);
 };
 
-async function chatUploadImage(file) {
+function chatUploadImage(file) {
   if (!_chatUid) return;
 
-  // Show uploading indicator in messages
   const container = document.getElementById('chatMsgs');
   const tmpId     = 'upload-tmp-' + Date.now();
   if (container) {
     container.insertAdjacentHTML('beforeend',
-      `<div id="${tmpId}" class="msg-row msg-row--user">
-        <div class="msg-uploading">
-          <div class="upload-spinner"></div>
-          <span>Subiendo imagen…</span>
-        </div>
-      </div>`
+      '<div id="' + tmpId + '" class="msg-row msg-row--user">' +
+        '<div class="msg-uploading">' +
+          '<div class="upload-spinner"></div>' +
+          '<span>Subiendo imagen…</span>' +
+        '</div>' +
+      '</div>'
     );
     container.scrollTop = container.scrollHeight;
   }
@@ -93,40 +89,37 @@ async function chatUploadImage(file) {
   const sendBtn = document.getElementById('chatSendBtn');
   if (sendBtn) sendBtn.disabled = true;
 
-  try {
-    const ext  = file.name.split('.').pop().toLowerCase() || 'jpg';
-    const path = `supportChats/${_chatUid}/${Date.now()}.${ext}`;
-    const ref  = firebase.storage().ref(path);
-    const snap = await ref.put(file);
-    const imageUrl = await snap.ref.getDownloadURL();
+  const ext  = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const path = 'supportChats/' + _chatUid + '/' + Date.now() + '.' + ext;
+  const ref  = firebase.storage().ref(path);
 
+  ref.put(file).then(function (snap) {
+    return snap.ref.getDownloadURL();
+  }).then(function (imageUrl) {
     const FS  = firebase.firestore.FieldValue;
     const now = FS.serverTimestamp();
     const batch = window.db.batch();
-
     const msgRef = window.db
       .collection('supportChats').doc(_chatUid)
       .collection('messages').doc();
     batch.set(msgRef, {
-      from: 'user', type: 'image', imageUrl, text: '',
+      from: 'user', type: 'image', imageUrl: imageUrl, text: '',
       senderName: _chatName, createdAt: now,
     });
-
     batch.set(window.db.collection('supportChats').doc(_chatUid), {
       userId: _chatUid, userName: _chatName, userEmail: _chatEmail,
       lastMessage: '📷 Imagen', lastMessageAt: now,
       unreadAdmin: FS.increment(1), status: 'open', createdAt: now,
     }, { merge: true });
-
-    await batch.commit();
-  } catch (e) {
+    return batch.commit();
+  }).catch(function (e) {
     console.error('[chat] uploadImage:', e);
     chatShowErr('Error al subir imagen. Intenta de nuevo.');
-  } finally {
+  }).finally(function () {
     document.getElementById(tmpId)?.remove();
-    const sendBtn2 = document.getElementById('chatSendBtn');
-    if (sendBtn2) sendBtn2.disabled = false;
-  }
+    const btn = document.getElementById('chatSendBtn');
+    if (btn) btn.disabled = false;
+  });
 }
 
 // ── HELPERS ────────────────────────────────────────
@@ -144,7 +137,7 @@ function chatShowErr(msg) {
   el.textContent = msg;
   el.style.display = 'block';
   clearTimeout(el._t);
-  el._t = setTimeout(() => { el.style.display = 'none'; }, 3000);
+  el._t = setTimeout(function () { el.style.display = 'none'; }, 3000);
 }
 
 function esc(s) {
@@ -162,87 +155,83 @@ function buildMsgHTML(data) {
   const isUser = data.from === 'user';
   const time   = fmtTime(data.createdAt);
 
-  // Image message
   if (data.type === 'image' && data.imageUrl) {
     const safeUrl = esc(data.imageUrl);
-    const caption = data.text ? `<div class="msg-img-caption">${esc(data.text)}</div>` : '';
+    const caption = data.text ? '<div class="msg-img-caption">' + esc(data.text) + '</div>' : '';
     if (isUser) {
-      return `<div class="msg-row msg-row--user">
-        <div class="msg-bubble bubble--user bubble--img">
-          <img src="${safeUrl}" class="msg-image" alt="Imagen"
-            onclick="window.open('${safeUrl}','_blank')" loading="lazy">
-          ${caption}
-          <div class="msg-time">${time}</div>
-        </div>
-      </div>`;
+      return '<div class="msg-row msg-row--user">'
+        + '<div class="msg-bubble bubble--user bubble--img">'
+        + '<img src="' + safeUrl + '" class="msg-image" alt="Imagen" onclick="window.open(\'' + safeUrl + '\',\'_blank\')" loading="lazy">'
+        + caption
+        + '<div class="msg-time">' + time + '</div>'
+        + '</div></div>';
     }
-    return `<div class="msg-row msg-row--admin">
-      <div class="msg-avatar">
-        <img src="images/logo-virtual-login.png" alt="Soporte" onerror="this.style.display='none'">
-      </div>
-      <div class="msg-bubble bubble--admin bubble--img">
-        <div class="msg-sender">Soporte VirtualGift</div>
-        <img src="${safeUrl}" class="msg-image" alt="Imagen"
-          onclick="window.open('${safeUrl}','_blank')" loading="lazy">
-        ${caption}
-        <div class="msg-time">${time}</div>
-      </div>
-    </div>`;
+    return '<div class="msg-row msg-row--admin">'
+      + '<div class="msg-avatar">'
+      + '<img src="images/logo-virtual-login.png" alt="Soporte" onerror="this.style.display=\'none\'">'
+      + '</div>'
+      + '<div class="msg-bubble bubble--admin bubble--img">'
+      + '<div class="msg-sender">Soporte VirtualGift</div>'
+      + '<img src="' + safeUrl + '" class="msg-image" alt="Imagen" onclick="window.open(\'' + safeUrl + '\',\'_blank\')" loading="lazy">'
+      + caption
+      + '<div class="msg-time">' + time + '</div>'
+      + '</div></div>';
   }
 
-  // Text message
   const text = esc(data.text || '').replace(/\n/g, '<br>');
   if (isUser) {
-    return `<div class="msg-row msg-row--user">
-      <div class="msg-bubble bubble--user">
-        <div class="msg-text">${text}</div>
-        <div class="msg-time">${time}</div>
-      </div>
-    </div>`;
+    return '<div class="msg-row msg-row--user">'
+      + '<div class="msg-bubble bubble--user">'
+      + '<div class="msg-text">' + text + '</div>'
+      + '<div class="msg-time">' + time + '</div>'
+      + '</div></div>';
   }
-  return `<div class="msg-row msg-row--admin">
-    <div class="msg-avatar">
-      <img src="images/logo-virtual-login.png" alt="Soporte" onerror="this.style.display='none'">
-    </div>
-    <div class="msg-bubble bubble--admin">
-      <div class="msg-sender">Soporte VirtualGift</div>
-      <div class="msg-text">${text}</div>
-      <div class="msg-time">${time}</div>
-    </div>
-  </div>`;
+  return '<div class="msg-row msg-row--admin">'
+    + '<div class="msg-avatar">'
+    + '<img src="images/logo-virtual-login.png" alt="Soporte" onerror="this.style.display=\'none\'">'
+    + '</div>'
+    + '<div class="msg-bubble bubble--admin">'
+    + '<div class="msg-sender">Soporte VirtualGift</div>'
+    + '<div class="msg-text">' + text + '</div>'
+    + '<div class="msg-time">' + time + '</div>'
+    + '</div></div>';
 }
 
 // ── SUBSCRIPTIONS ──────────────────────────────────
 function subscribeMessages() {
   if (_unsubMsgs) _unsubMsgs();
   const container = document.getElementById('chatMsgs');
+  if (!container) return;
 
   _unsubMsgs = window.db
     .collection('supportChats').doc(_chatUid)
     .collection('messages')
     .orderBy('createdAt', 'asc')
-    .onSnapshot(snap => {
+    .onSnapshot(function (snap) {
       if (!container) return;
 
       if (snap.empty) {
-        container.innerHTML = `<div class="chat-empty">
-          <div class="chat-empty-emoji">👋</div>
-          <div class="chat-empty-title">¡Hola! ¿En qué te ayudamos?</div>
-          <div class="chat-empty-sub">Escríbenos tu consulta y te<br>responderemos lo antes posible.</div>
-        </div>`;
+        container.innerHTML = '<div class="chat-empty">'
+          + '<div class="chat-empty-emoji">👋</div>'
+          + '<div class="chat-empty-title">¡Hola! ¿En qué te ayudamos?</div>'
+          + '<div class="chat-empty-sub">Escríbenos tu consulta y te<br>responderemos lo antes posible.</div>'
+          + '</div>';
         return;
       }
 
-      container.innerHTML = snap.docs.map(d => buildMsgHTML(d.data())).join('');
+      container.innerHTML = snap.docs.map(function (d) { return buildMsgHTML(d.data()); }).join('');
       container.scrollTop = container.scrollHeight;
 
       window.db.collection('supportChats').doc(_chatUid)
-        .update({ unreadUser: 0 }).catch(() => {});
-    }, err => {
-      console.error('[chat] messages snapshot:', err);
-      if (container) container.innerHTML = `<div class="chat-empty">
-        <div class="chat-empty-sub">Error al cargar mensajes</div>
-      </div>`;
+        .update({ unreadUser: 0 }).catch(function () {});
+    }, function (err) {
+      console.error('[chat] messages snapshot error:', err);
+      if (container) container.innerHTML = '<div class="chat-empty">'
+        + '<div class="chat-empty-emoji">⚠️</div>'
+        + '<div class="chat-empty-title">Error al cargar</div>'
+        + '<div class="chat-empty-sub">Código: ' + (err.code || err.message || 'desconocido') + '<br>'
+        + '<button onclick="location.reload()" style="color:#8b5cf6;background:none;border:none;cursor:pointer;font-size:inherit;text-decoration:underline;margin-top:8px">Recargar</button>'
+        + '</div></div>';
     });
 }
 
@@ -250,7 +239,7 @@ function subscribeChatDoc() {
   if (_unsubDoc) _unsubDoc();
 
   _unsubDoc = window.db.collection('supportChats').doc(_chatUid)
-    .onSnapshot(doc => {
+    .onSnapshot(function (doc) {
       if (!doc.exists) return;
       _chatStatus = doc.data().status || 'open';
 
@@ -268,47 +257,35 @@ function subscribeChatDoc() {
           banner.textContent = '🔒 Esta conversación fue cerrada por el equipo de soporte.';
           inputBar?.insertAdjacentElement('beforebegin', banner);
         }
-        if (input)    { input.disabled = true;  input.placeholder = 'Chat cerrado'; }
-        if (sendBtn)    sendBtn.disabled = true;
-        if (imgLabel)   imgLabel.style.pointerEvents = 'none';
+        if (input)  { input.disabled = true; input.placeholder = 'Chat cerrado'; }
+        if (sendBtn) sendBtn.disabled = true;
+        if (imgLabel) imgLabel.style.pointerEvents = 'none';
         if (statusEl) {
-          statusEl.innerHTML = `<span style="width:6px;height:6px;border-radius:50%;background:#ef4444;display:inline-block;flex-shrink:0"></span>&nbsp;Chat cerrado`;
+          statusEl.innerHTML = '<span style="width:6px;height:6px;border-radius:50%;background:#ef4444;display:inline-block;flex-shrink:0"></span>&nbsp;Chat cerrado';
           statusEl.style.color = '#ef4444';
         }
       } else {
         document.getElementById('chatClosedBanner')?.remove();
-        if (input)    { input.disabled = false; input.placeholder = 'Escribe un mensaje...'; }
-        if (sendBtn)    sendBtn.disabled = false;
-        if (imgLabel)   imgLabel.style.pointerEvents = '';
+        if (input)  { input.disabled = false; input.placeholder = 'Escribe un mensaje...'; }
+        if (sendBtn) sendBtn.disabled = false;
+        if (imgLabel) imgLabel.style.pointerEvents = '';
         if (statusEl) {
-          statusEl.innerHTML = `<span class="status-dot"></span>En línea`;
+          statusEl.innerHTML = '<span class="status-dot"></span>En línea';
           statusEl.style.color = '#4ade80';
         }
       }
-    }, () => {});
+    }, function () {});
 }
 
 // ── INIT ────────────────────────────────────────────
 function initChat(user) {
   _chatUid   = user.uid;
   _chatEmail = user.email || '';
-  _chatName  = user.displayName || user.email?.split('@')[0] || 'Usuario';
+  _chatName  = (user.displayName || (user.email ? user.email.split('@')[0] : '') || 'Usuario');
 
-  window.db.collection('users').doc(_chatUid).get()
-    .then(doc => {
-      if (doc.exists) _chatName = doc.data().username || doc.data().displayName || _chatName;
-    })
-    .catch(() => {})
-    .finally(() => {
-      subscribeMessages();
-      subscribeChatDoc();
-    });
-
-  document.getElementById('chatBackBtn')
-    ?.addEventListener('click', chatGoBack);
-
-  document.getElementById('chatSendBtn')
-    ?.addEventListener('click', window.chatSendMessage);
+  // Wire up buttons immediately (don't wait for profile fetch)
+  const sendBtn = document.getElementById('chatSendBtn');
+  if (sendBtn) sendBtn.addEventListener('click', window.chatSendMessage);
 
   const input = document.getElementById('chatInput');
   if (input) {
@@ -323,21 +300,63 @@ function initChat(user) {
       }
     });
   }
+
+  // Start listening immediately
+  subscribeMessages();
+  subscribeChatDoc();
+
+  // Fetch display name in background (non-blocking)
+  window.db.collection('users').doc(_chatUid).get()
+    .then(function (doc) {
+      if (doc.exists) {
+        _chatName = doc.data().username || doc.data().displayName || _chatName;
+      }
+    })
+    .catch(function () {});
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  function tryInit() {
-    if (!window.db) { setTimeout(tryInit, 100); return; }
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) {
-        window.location.href = typeof withAppFlag === 'function'
-          ? withAppFlag('login.html') : 'login.html';
-        return;
-      }
-      initChat(user);
-    });
+// ── STARTUP ─────────────────────────────────────────
+// Show error in messages container if stuck for 12 seconds
+var _chatLoadGuard = setTimeout(function () {
+  if (_chatInited) return;
+  const container = document.getElementById('chatMsgs');
+  if (container && container.querySelector('.chat-loading')) {
+    container.innerHTML = '<div class="chat-empty">'
+      + '<div class="chat-empty-emoji">⚠️</div>'
+      + '<div class="chat-empty-title">Sin conexión</div>'
+      + '<div class="chat-empty-sub">No se pudo conectar con el servidor.<br>'
+      + '<button onclick="location.reload()" style="color:#8b5cf6;background:none;border:none;cursor:pointer;font-size:inherit;text-decoration:underline;margin-top:8px">Recargar</button>'
+      + '</div></div>';
   }
+}, 12000);
 
-  if (typeof window.waitForFirebase === 'function') window.waitForFirebase(tryInit);
-  else tryInit();
-});
+function startChat() {
+  if (_chatInited) return;
+  if (!window.db || typeof firebase === 'undefined' || typeof firebase.auth !== 'function') return;
+  _chatInited = true;
+  clearTimeout(_chatLoadGuard);
+
+  firebase.auth().onAuthStateChanged(function (user) {
+    if (!user) {
+      location.href = typeof withAppFlag === 'function'
+        ? withAppFlag('login.html') : 'login.html';
+      return;
+    }
+    initChat(user);
+  });
+}
+
+// Multiple entry points to handle any timing scenario
+var _pollCount = 0;
+var _pollTimer = setInterval(function () {
+  _pollCount++;
+  if (window.db && typeof firebase !== 'undefined') {
+    clearInterval(_pollTimer);
+    startChat();
+  } else if (_pollCount >= 120) {
+    clearInterval(_pollTimer);
+  }
+}, 100);
+
+document.addEventListener('DOMContentLoaded', startChat);
+window.addEventListener('load', startChat);
