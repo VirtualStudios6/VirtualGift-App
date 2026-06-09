@@ -1116,26 +1116,10 @@ function updateChatBadges(count) {
 
 function updateSoporteMetrics(snap) {
   if (!snap) return;
-  const today = new Date(); today.setHours(0,0,0,0);
-  let total = 0, active = 0, waiting = 0, unread = 0, closedToday = 0;
-  snap.forEach(d => {
-    const data = d.data();
-    total++;
-    const st = data.status || 'waiting';
-    if (st !== 'closed') active++;
-    if (st === 'waiting') waiting++;
-    if (data.unreadAdmin > 0) unread++;
-    if (st === 'closed' && data.lastMessageAt) {
-      const t = data.lastMessageAt.toDate ? data.lastMessageAt.toDate() : new Date(data.lastMessageAt);
-      if (t >= today) closedToday++;
-    }
-  });
-  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-  set('sc2MetTotal',   total);
-  set('sc2MetOpen',    active);
-  set('sc2MetWaiting', waiting);
-  set('sc2MetUnread',  unread);
-  set('sc2MetClosed',  closedToday);
+  let total = 0;
+  snap.forEach(() => total++);
+  const el = document.getElementById('sc2MetTotal');
+  if (el) el.textContent = total;
 }
 
 function initSoporteListener() {
@@ -1496,6 +1480,16 @@ function _loadSoporteUserInfo(chatId, chatData) {
       const d = u.lastLogin.toDate ? u.lastLogin.toDate() : new Date(u.lastLogin);
       set('sc2IpLastLogin', d.toLocaleDateString('es-DO', { day: '2-digit', month: 'short', year: 'numeric' }));
     }
+
+    // Show real profile photo if available
+    if (u.photoURL) {
+      const initial = (chatData.userName || 'U').charAt(0).toUpperCase();
+      const imgHtml = `<img src="${esc(u.photoURL)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block" onerror="this.parentElement.textContent='${initial}'">`;
+      const ipAv = document.getElementById('sc2IpAvatar');
+      if (ipAv) ipAv.innerHTML = imgHtml;
+      const topAv = document.getElementById('scChatAvatar');
+      if (topAv) topAv.innerHTML = imgHtml;
+    }
   }).catch(() => {});
 
   window.db.collection('redeemRequests')
@@ -1523,17 +1517,19 @@ function _loadSoporteUserInfo(chatId, chatData) {
       }
       recEl.innerHTML = recent.map(r => {
         const statusColors = { approved: '#4ade80', rejected: '#f87171', pending: '#fbbf24' };
-        const statusLabels = { approved: 'Aprobado', rejected: 'Rechazado', pending: 'Pendiente' };
+        const statusLabels = { approved: '✓', rejected: '✗', pending: '…' };
         const color = statusColors[r.status] || '#60a5fa';
-        const label = statusLabels[r.status] || r.status || '?';
+        const label = statusLabels[r.status] || '?';
         const dateStr = r.createdAt ? fmtDate(r.createdAt) : '—';
-        return `<div class="sc2-activity-item">
-          <div class="sc2-activity-dot" style="background:${color}"></div>
-          <div class="sc2-activity-info">
-            <div class="sc2-activity-name">${esc(r.itemName || r.productName || 'Canje')}</div>
-            <div class="sc2-activity-date">${dateStr}</div>
+        return `<div class="sc2-activity-item" style="padding:4px 0;gap:6px">
+          <div class="sc2-activity-dot" style="background:${color};flex-shrink:0"></div>
+          <div class="sc2-activity-info" style="min-width:0">
+            <div class="sc2-activity-name" style="font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.itemName || r.productName || 'Canje')}</div>
           </div>
-          <div class="sc2-activity-status" style="color:${color}">${label}</div>
+          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0">
+            <span style="font-size:.68rem;color:#6b7280">${dateStr}</span>
+            <span style="font-size:.72rem;font-weight:700;color:${color}">${label}</span>
+          </div>
         </div>`;
       }).join('');
     })
@@ -1616,17 +1612,42 @@ window.toggleSoporteStatus = async function () {
     await window.db.collection('supportChats').doc(_soporteCurrentChat)
       .update({ status: newStatus });
 
-    if (btn) {
-      btn.innerHTML = newStatus === 'closed'
-        ? `<svg viewBox="0 0 24 24"><path d="M12 1C8.676 1 6 3.676 6 7v1H4c-1.103 0-2 .897-2 2v11c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V10c0-1.103-.897-2-2-2h-2V7c0-3.324-2.676-6-6-6zm4 8H8V7c0-2.206 1.794-4 4-4s4 1.794 4 4v2zm-4 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg><span>Reabrir</span>`
-        : `<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg><span>Cerrar ticket</span>`;
-      btn.dataset.closed = newStatus === 'closed' ? '1' : '0';
-      btn.className = 'sc2-tbtn ' + (newStatus === 'closed' ? 'sc2-tbtn--open' : 'sc2-tbtn--close');
-    }
     toast(newStatus === 'closed' ? '🔒 Chat cerrado' : '🔓 Chat reabierto');
+
+    if (newStatus === 'closed') {
+      window.closeSoporteChat();
+      window.setSoporteFilter('closed');
+    }
   } catch (e) {
     console.error('[admin] toggleSoporteStatus:', e);
     toast('Error al cambiar estado', false);
+  }
+};
+
+window.deleteSoporteChat = async function () {
+  if (!_soporteCurrentChat) return;
+  const nameEl = document.getElementById('sc2IpName');
+  const name   = nameEl?.textContent?.trim() || 'este usuario';
+  if (!confirm(`¿Eliminar permanentemente el chat de ${name}?\n\nEsta acción no se puede deshacer.`)) return;
+
+  const chatId = _soporteCurrentChat;
+  try {
+    const msgSnap = await window.db
+      .collection('supportChats').doc(chatId)
+      .collection('messages').limit(500).get();
+
+    if (!msgSnap.empty) {
+      const batch = window.db.batch();
+      msgSnap.docs.forEach(d => batch.delete(d.ref));
+      await batch.commit();
+    }
+
+    await window.db.collection('supportChats').doc(chatId).delete();
+    window.closeSoporteChat();
+    toast('Chat eliminado');
+  } catch (e) {
+    console.error('[admin] deleteSoporteChat:', e);
+    toast('Error al eliminar chat', false);
   }
 };
 

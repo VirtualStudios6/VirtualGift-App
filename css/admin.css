@@ -1249,6 +1249,14 @@ body {
 .sc2-tbtn--info:hover   { background: rgba(139,92,246,.17); border-color: rgba(139,92,246,.42); }
 .sc2-tbtn--info.active  { background: rgba(139,92,246,.22); border-color: rgba(139,92,246,.5); }
 
+.sc2-tbtn--danger {
+  background: rgba(239,68,68,.07);
+  border-color: rgba(239,68,68,.18);
+  color: #f87171;
+  padding: 6px 10px;
+}
+.sc2-tbtn--danger:hover { background: rgba(239,68,68,.15); border-color: rgba(239,68,68,.35); }
+
 /* Messages */
 .sc2-messages {
   flex: 1;
