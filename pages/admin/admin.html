@@ -904,5 +904,12 @@
   </div><!-- /adminWrap -->
 
   <div class="admin-toast" id="adminToast"></div>
+
+  <!-- IMAGE LIGHTBOX -->
+  <div id="adminLightbox" onclick="window.adminCloseLightbox()">
+    <button id="adminLightboxClose" onclick="window.adminCloseLightbox()" title="Cerrar">✕</button>
+    <img id="adminLightboxImg" src="" alt="Imagen" onclick="event.stopPropagation()">
+  </div>
+
 </body>
 </html>

@@ -1549,7 +1549,7 @@ function buildAdminMsgBubble(data) {
     const caption = data.text ? `<div style="margin-top:6px;font-size:.82rem">${esc(data.text)}</div>` : '';
     bodyHtml = `<div class="sc2-bubble-body" style="padding:6px">
       <img src="${safeUrl}" class="sc2-bubble-img" alt="Imagen"
-        onclick="window.open('${safeUrl}','_blank')" loading="lazy">${caption}
+        onclick="window.adminOpenLightbox('${safeUrl}')" loading="lazy">${caption}
     </div>`;
   } else if (data.type === 'file' && data.fileUrl) {
     const ext  = (data.fileName || '').split('.').pop().toUpperCase() || 'FILE';
@@ -2001,6 +2001,29 @@ window.soporteBanUser = async function () {
     toast('Error al banear usuario', false);
   }
 };
+
+// ─────────────────────────────────────────────────
+// IMAGE LIGHTBOX
+// ─────────────────────────────────────────────────
+window.adminOpenLightbox = function (url) {
+  const lb  = document.getElementById('adminLightbox');
+  const img = document.getElementById('adminLightboxImg');
+  if (!lb || !img) return;
+  img.src = url;
+  lb.classList.add('visible');
+};
+
+window.adminCloseLightbox = function () {
+  const lb  = document.getElementById('adminLightbox');
+  const img = document.getElementById('adminLightboxImg');
+  if (!lb) return;
+  lb.classList.remove('visible');
+  if (img) img.src = '';
+};
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') window.adminCloseLightbox();
+});
 
 // ─────────────────────────────────────────────────
 // AUTH GUARD
