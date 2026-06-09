@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function applyReturnUI(name) {
     if (dividerLabel)   dividerLabel.textContent  = "¡Hola de nuevo!";
-    if (avatarWrap)     avatarWrap.textContent     = "👋";
+    // No tocar avatarWrap — la foto ya fue puesta desde auth en el fast-path superior
     if (welcomeMessage) welcomeMessage.textContent = getMsgReturn(name);
   }
 
@@ -263,6 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const myReferralCode = 'VG' + user.uid.slice(0, 6).toUpperCase();
 
         if (isFirstTime) {
+          const welcomeBonus = 175;
           await userRef.set({
             uid:                 user.uid,
             displayName:         user.displayName || "Usuario",
@@ -272,8 +273,18 @@ document.addEventListener("DOMContentLoaded", () => {
             photoURL:            user.photoURL || "",
             referralCode:        myReferralCode,
             loginCount:          1,
+            points:              firebase.firestore.FieldValue.increment(welcomeBonus),
             lastLogin:           firebase.firestore.FieldValue.serverTimestamp(),
           }, { merge: true });
+          // Registrar en historial
+          try {
+            await db.collection("pointsHistory").add({
+              userId:    user.uid,
+              type:      "welcome_bonus",
+              points:    welcomeBonus,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            });
+          } catch (_) {}
 
           const name = user.displayName || "Usuario";
           if (userNameElem) userNameElem.textContent = name;
