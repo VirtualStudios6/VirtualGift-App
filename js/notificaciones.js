@@ -131,6 +131,8 @@
       chipCount.textContent = unread;
       chip.style.display    = unread > 0 ? "inline-flex" : "none";
     }
+
+    if (window.VGSounds) VGSounds.checkNotifBadge(unread);
   }
 
   function showEmptyState(message) {

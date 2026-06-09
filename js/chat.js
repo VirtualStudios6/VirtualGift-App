@@ -183,7 +183,9 @@ window.chatSendMessage = function () {
     unreadAdmin:FS.increment(1), status:'waiting', createdAt:now, typingUser:false,
   }, { merge:true });
 
-  batch.commit().catch(function (e) {
+  batch.commit().then(function () {
+    if (window.VGSounds) VGSounds.msgSent();
+  }).catch(function (e) {
     console.error('[chat] sendMessage:', e);
     if (input) input.value = text;
     _toast('No se pudo enviar. Intenta de nuevo.', 'error');
@@ -310,6 +312,7 @@ async function _chatUploadFile(file, type, caption) {
     }, { merge:true });
 
     await batch.commit();
+    if (window.VGSounds) VGSounds.msgSent();
   } catch (e) {
     console.error('[chat] uploadFile:', e);
     _toast('Error al subir archivo. Intenta de nuevo.', 'error');
@@ -585,6 +588,12 @@ function subscribeMessages() {
           _showScrollBtn(true);
         }
       });
+
+      // Sound: play when a new message from admin arrives (not on first load)
+      if (hasNewMsg && !isFirstRender) {
+        var lastMsg = snap.docs[snap.docs.length - 1]?.data();
+        if (lastMsg && lastMsg.from === 'admin' && window.VGSounds) VGSounds.msgReceived();
+      }
 
       // Mark as read
       window.db.collection('supportChats').doc(_chatUid)

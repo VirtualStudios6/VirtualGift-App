@@ -92,6 +92,33 @@
       tone(c, 1100, t + 0.17, 0.20, 0.11, 'sine');
     },
 
+    // ── Mensaje enviado (chat usuario) ───────────────────────
+    // Chirp ascendente corto y sutil
+    msgSent: function () {
+      var c = ctx(); if (!c || !enabled()) return;
+      var t = c.currentTime;
+      tone(c, 520, t,        0.07, 0.11, 'sine');
+      tone(c, 780, t + 0.05, 0.09, 0.09, 'sine');
+    },
+
+    // ── Mensaje recibido (chat usuario — respuesta del admin) ─
+    // Ding suave de dos notas ascendentes
+    msgReceived: function () {
+      var c = ctx(); if (!c || !enabled()) return;
+      var t = c.currentTime;
+      tone(c, 880,  t,        0.28, 0.17, 'sine');
+      tone(c, 1100, t + 0.15, 0.28, 0.13, 'sine');
+    },
+
+    // ── Admin: nuevo mensaje de usuario (soporte) ────────────
+    // Ping discreto para no distraer mientras se trabaja
+    adminPing: function () {
+      var c = ctx(); if (!c || !enabled()) return;
+      var t = c.currentTime;
+      tone(c, 660, t,        0.25, 0.16, 'sine');
+      tone(c, 880, t + 0.13, 0.28, 0.12, 'sine');
+    },
+
     // ── Utilidades ──────────────────────────────────────────
     enable:    function () { localStorage.setItem('vg_sounds', 'on');  },
     disable:   function () { localStorage.setItem('vg_sounds', 'off'); },

@@ -1351,12 +1351,17 @@ window.openSoporteChat = function (chatId) {
   const msgsEl = document.getElementById('soporteMessages');
   if (msgsEl) msgsEl.innerHTML = '<div class="sc2-msg-empty"><div class="sc2-msg-empty-icon">⏳</div><div class="sc2-msg-empty-text">Cargando mensajes…</div></div>';
 
+  let _soporteMsgPrevCount = 0;
+
   _unsubSoporteChat = window.db
     .collection('supportChats').doc(chatId)
     .collection('messages')
     .orderBy('createdAt', 'asc')
     .onSnapshot(snap => {
       if (!msgsEl) return;
+      const isFirstLoad = _soporteMsgPrevCount === 0;
+      const hasNew      = snap.size > _soporteMsgPrevCount;
+      _soporteMsgPrevCount = snap.size;
       _currentMsgsData = snap.docs.map(d => d.data());
       if (snap.empty) {
         msgsEl.innerHTML = '<div class="sc2-msg-empty"><div class="sc2-msg-empty-icon">💬</div><div class="sc2-msg-empty-text">Sin mensajes todavía</div></div>';
@@ -1364,6 +1369,11 @@ window.openSoporteChat = function (chatId) {
       }
       msgsEl.innerHTML = _currentMsgsData.map(buildAdminMsgBubble).join('');
       msgsEl.scrollTop = msgsEl.scrollHeight;
+      // Ping when a new user message arrives (not on initial load)
+      if (!isFirstLoad && hasNew) {
+        const last = _currentMsgsData[_currentMsgsData.length - 1];
+        if (last && last.from !== 'admin' && window.VGSounds) VGSounds.adminPing();
+      }
     }, err => {
       console.error('[admin] soporte messages:', err);
       if (msgsEl) msgsEl.innerHTML = '<div class="sc2-msg-empty"><div class="sc2-msg-empty-icon">⚠️</div><div class="sc2-msg-empty-text">Error al cargar mensajes</div></div>';
