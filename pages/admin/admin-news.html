@@ -3,287 +3,228 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#06011c" />
-  <title>🛠 Panel de Noticias · VirtualGift</title>
+  <meta name="theme-color" content="#03010f" />
+  <title>VirtualNews · Admin</title>
 
-  <!-- Firebase (defer para no bloquear render) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
+
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
 
-  <!-- withAppFlag disponible antes de cualquier onclick -->
-
   <style>
-    :root {
-      --bg1: #020515;
-      --bg2: #06011c;
-      --card: #1c1f2f;
-      --text: #dcefff;
-      --muted: #b6c6d9;
-      --border: #293244;
-      --primary: #8d17fb;
-      --danger: #ef4444;
-      --success: #10b981;
-      --warning: #f59e0b;
-      --shadow: 0 10px 35px rgba(0,0,0,.45);
+    /* ── News-page layout ── */
+    .an-main {
+      padding: 16px;
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+      min-height: calc(100dvh - var(--header-h));
     }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; font-family: Inter, Roboto, Arial, sans-serif; }
-
-    body {
-      min-height: 100vh;
-      background: linear-gradient(180deg, var(--bg1), var(--bg2));
-      color: var(--text);
-      padding: 18px;
-      padding-bottom: calc(18px + env(safe-area-inset-bottom));
-      padding-left:  calc(18px + env(safe-area-inset-left));
-      padding-right: calc(18px + env(safe-area-inset-right));
-    }
-
-    .wrap { max-width: 1100px; margin: 0 auto; }
-
-    /* ---- Gate (cargando / acceso denegado) ---- */
-    .gate {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 60vh;
-      gap: 12px;
-      text-align: center;
-    }
-    .gate-spinner {
-      width: 42px; height: 42px;
-      border: 3px solid rgba(41,50,68,.75);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin .9s linear infinite;
-    }
-    .gate-icon { font-size: 3em; }
-    .gate-title { font-size: 1.1em; font-weight: 900; }
-    .gate-sub   { font-size: .9em; color: var(--muted); }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ---- Header ---- */
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 12px; margin-bottom: 16px;
-    }
-    .title    { font-size: 22px; font-weight: 900; letter-spacing: .02em; }
-    .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; }
-    .top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-
-    /* ---- Botones ---- */
-    .btn {
-      border: 1px solid rgba(255,255,255,.08);
-      cursor: pointer; border-radius: 12px;
-      padding: 10px 14px; font-weight: 800;
-      background: rgba(255,255,255,.06); color: var(--text);
-      transition: .2s; font-family: Inter, Roboto, Arial, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn:active  { transform: scale(.985); }
-    .btn:hover   { transform: translateY(-1px); box-shadow: var(--shadow); border-color: rgba(141,23,251,.45); }
-    .btn:disabled { opacity: .55; pointer-events: none; }
-
-    .btn-primary { background: linear-gradient(90deg, var(--primary), #70189b); border: none; color: #fff; }
-    .btn-danger  { background: rgba(239,68,68,.12);  border: 1px solid rgba(239,68,68,.35);  color: #ffd5d5; }
-    .btn-success { background: rgba(16,185,129,.12); border: 1px solid rgba(16,185,129,.35); color: #d9fff0; }
-    .btn-warning { background: rgba(245,158,11,.12); border: 1px solid rgba(245,158,11,.35); color: #ffe9c2; }
-
-    /* ---- Grid ---- */
-    .grid {
+    .an-grid {
       display: grid;
       grid-template-columns: 470px 1fr;
       gap: 14px; align-items: start;
+      max-width: 1100px; margin: 0 auto;
     }
-    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+    @media (max-width: 980px) { .an-grid { grid-template-columns: 1fr; } }
 
-    /* ---- Card ---- */
-    .card {
-      background: rgba(28,31,47,.9);
-      border: 1px solid rgba(41,50,68,.7);
-      border-radius: 18px; padding: 14px;
-      box-shadow: 0 8px 28px rgba(0,0,0,.35);
-    }
-    .card h2 {
-      font-size: 16px; font-weight: 900; margin-bottom: 10px;
+    /* Card sub-headings */
+    .an-card-title {
+      font-size: .9rem; font-weight: 900;
       display: flex; align-items: center; gap: 10px;
+      color: #fff; margin-bottom: 14px;
     }
-    .badge {
-      font-size: 12px; padding: 4px 10px; border-radius: 999px;
+    .an-badge {
+      font-size: .68rem; padding: 3px 9px; border-radius: 999px;
       background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08);
-      color: var(--muted);
+      color: rgba(220,239,255,.5); font-weight: 700;
     }
 
-    /* ---- Form ---- */
-    label { display: block; margin-top: 10px; font-size: 12px; color: var(--muted); }
-    input, textarea, select {
-      width: 100%; margin-top: 6px; padding: 10px 12px;
-      border-radius: 12px; border: 1px solid rgba(255,255,255,.08);
-      background: rgba(2,5,21,.35); color: var(--text);
-      outline: none; font-family: Inter, Roboto, Arial, sans-serif;
-      transition: border-color .2s ease, box-shadow .2s ease;
+    /* Form fields */
+    .an-label {
+      display: block; margin-top: 10px;
+      font-size: .72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: .06em;
+      color: rgba(220,239,255,.5);
     }
-    input:focus, textarea:focus, select:focus {
-      border-color: rgba(141,23,251,.55);
-      box-shadow: 0 0 0 3px rgba(141,23,251,.10);
+    .an-input, .an-select, .an-textarea {
+      width: 100%; margin-top: 5px; padding: 10px 12px;
+      border-radius: 10px; border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.05); color: #fff;
+      font-family: var(--font); font-size: .85rem;
+      outline: none; transition: border-color .15s;
     }
-    textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
-    select option { background: #1c1f2f; }
+    .an-input:focus, .an-select:focus, .an-textarea:focus {
+      border-color: rgba(139,92,246,.6);
+    }
+    .an-textarea { min-height: 110px; resize: vertical; line-height: 1.5; }
+    .an-select option { background: #1a1230; }
+    .an-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 520px) { .an-row { grid-template-columns: 1fr; } }
 
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
-
-    /* ---- Preview ---- */
-    .preview {
-      margin-top: 10px; border-radius: 14px; overflow: hidden;
-      border: 1px solid rgba(255,255,255,.08);
-      background: rgba(2,5,21,.35);
-      height: 180px; display: flex; align-items: center; justify-content: center;
-      color: rgba(220,239,255,.7);
-    }
-    .preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .muted { color: var(--muted); font-size: 12px; }
-
-    .feed-meta {
-      display: flex; justify-content: space-between; align-items: center;
-      gap: 10px; margin-top: 6px; flex-wrap: wrap;
-    }
+    /* Feed counter */
+    .an-feed-meta { display: flex; justify-content: flex-end; margin-top: 4px; }
     .counter {
-      font-size: 12px; color: var(--muted);
-      padding: 4px 10px; border-radius: 999px;
-      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07);
+      font-size: .7rem; color: rgba(220,239,255,.4);
+      padding: 3px 9px; border-radius: 999px;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.06);
     }
     .counter.warn {
-      color: #ffd5d5; border-color: rgba(239,68,68,.35); background: rgba(239,68,68,.10);
+      color: #fda4af; border-color: rgba(244,63,94,.35);
+      background: rgba(244,63,94,.1);
     }
 
-    /* ---- Filtros ---- */
-    .filters { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
-    .filters .chip {
-      padding: 8px 12px; border-radius: 999px;
-      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08);
-      cursor: pointer; font-weight: 800; font-size: 12px; color: var(--text);
-      -webkit-tap-highlight-color: transparent;
-      transition: border-color .2s ease, box-shadow .2s ease;
-    }
-    .chip.active { border-color: rgba(141,23,251,.6); box-shadow: 0 0 0 3px rgba(141,23,251,.12); }
-
-    /* ---- Lista ---- */
-    .list { display: grid; gap: 10px; }
-    .item {
-      display: grid; grid-template-columns: 24px 92px 1fr; gap: 12px;
-      padding: 10px; border-radius: 16px;
+    /* Image previews */
+    .an-preview {
+      margin-top: 8px; border-radius: 12px; overflow: hidden;
       border: 1px solid rgba(255,255,255,.08);
-      background: rgba(2,5,21,.22);
-      transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
+      background: rgba(255,255,255,.04);
+      height: 180px; display: flex; align-items: center; justify-content: center;
+      color: rgba(220,239,255,.35); font-size: .8rem;
     }
-    .item:hover { border-color: rgba(141,23,251,.35); }
+    .an-preview.mini { height: 130px; }
+    .an-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .muted { color: rgba(220,239,255,.4); font-size: .78rem; }
 
-    /* ---- Drag & Drop ---- */
-    .drag-handle {
-      display: flex; align-items: center; justify-content: center;
-      color: rgba(182,198,217,0.28); cursor: grab;
-      border-radius: 6px; padding: 2px;
-      transition: color .15s;
-      user-select: none; -webkit-tap-highlight-color: transparent;
-    }
-    .drag-handle:hover { color: rgba(182,198,217,0.75); }
-    .drag-handle:active { cursor: grabbing; }
-    .drag-handle.drag-disabled { cursor: default; opacity: .3; }
-    .item[draggable="true"]:active { cursor: grabbing; }
-    .item.drag-dragging { opacity: 0.4; border-color: rgba(141,23,251,.55) !important; }
-    .item.drag-over {
-      border-color: rgba(141,23,251,.9) !important;
-      box-shadow: 0 0 0 2px rgba(141,23,251,.28);
-      transform: scale(1.005);
-    }
-    .drag-hint {
-      font-size: 11px; color: rgba(182,198,217,.4);
-      margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
-    }
-    .thumb {
-      width: 92px; height: 92px; border-radius: 14px; overflow: hidden;
-      border: 1px solid rgba(255,255,255,.08); background: rgba(28,31,47,.8);
-    }
-    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .meta { display: flex; flex-direction: column; gap: 6px; }
-    .meta strong { font-size: 14px; line-height: 1.2; }
-    .meta .small { font-size: 12px; color: var(--muted); line-height: 1.2; }
-    .item-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
-    .item-actions .btn { padding: 7px 10px; font-size: 12px; border-radius: 10px; }
+    /* Separator */
+    .an-sep { height: 1px; background: rgba(255,255,255,.06); margin: 14px 0; }
 
-    .sep { height: 1px; background: rgba(255,255,255,.06); margin: 10px 0; }
+    /* Block add buttons */
+    .an-block-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
 
-    /* ---- Toast ---- */
-    .toast {
-      position: fixed; left: 50%;
-      bottom: calc(18px + env(safe-area-inset-bottom));
-      transform: translateX(-50%);
-      background: rgba(28,31,47,.95);
-      border: 1px solid rgba(255,255,255,.10);
-      padding: 10px 16px; border-radius: 999px;
-      color: var(--text); box-shadow: var(--shadow);
-      display: none; z-index: 9999;
-      max-width: 92vw; font-size: 14px; font-weight: 700;
+    /* Generic button (used in JS-generated HTML) */
+    .btn {
+      border: 1px solid rgba(255,255,255,.1);
+      cursor: pointer; border-radius: 10px;
+      padding: 7px 12px; font-weight: 700; font-size: .8rem;
+      background: rgba(255,255,255,.06); color: rgba(220,239,255,.8);
+      transition: background .15s; font-family: var(--font);
+      -webkit-tap-highlight-color: transparent;
     }
+    .btn:active  { transform: scale(.985); }
+    .btn:hover   { background: rgba(255,255,255,.11); }
+    .btn:disabled { opacity: .4; pointer-events: none; }
+    .btn-danger  { background: rgba(244,63,94,.1);  border-color: rgba(244,63,94,.3);  color: #fda4af; }
+    .btn-danger:hover  { background: rgba(244,63,94,.2); }
+    .btn-success { background: rgba(34,197,94,.1);  border-color: rgba(34,197,94,.3);  color: #86efac; }
+    .btn-success:hover { background: rgba(34,197,94,.2); }
+    .btn-warning { background: rgba(245,158,11,.1); border-color: rgba(245,158,11,.3); color: #fcd34d; }
+    .btn-warning:hover { background: rgba(245,158,11,.2); }
 
-    /* ---- Bloques ---- */
-    .block-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-    .block-tools .btn { padding: 9px 12px; font-size: 12px; }
+    /* Content blocks (JS-generated) */
     .blocks { display: grid; gap: 10px; margin-top: 10px; }
     .block {
-      border-radius: 16px; border: 1px solid rgba(255,255,255,.08);
-      background: rgba(2,5,21,.22); overflow: hidden;
+      border-radius: 14px; border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.03); overflow: hidden;
     }
     .block-head {
       display: flex; align-items: center; justify-content: space-between;
-      gap: 10px; padding: 10px;
+      gap: 10px; padding: 9px 12px;
       background: rgba(255,255,255,.03);
       border-bottom: 1px solid rgba(255,255,255,.06);
     }
     .block-type {
       display: flex; align-items: center; gap: 8px;
-      font-weight: 900; font-size: 12px; color: rgba(220,239,255,.92);
+      font-weight: 800; font-size: .78rem; color: rgba(220,239,255,.9);
     }
     .block-mini {
-      font-size: 11px; color: var(--muted);
+      font-size: .68rem; color: rgba(220,239,255,.35);
       background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.07);
-      padding: 3px 8px; border-radius: 999px;
+      padding: 2px 7px; border-radius: 999px;
     }
-    .block-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-    .block-actions .btn { padding: 7px 10px; border-radius: 10px; font-size: 12px; }
+    .block-actions { display: flex; gap: 6px; }
     .block-body { padding: 10px; }
-    .block-body textarea, .block-body input { margin-top: 0; }
-
-    .hint { font-size: 12px; color: var(--muted); margin-top: 8px; line-height: 1.3; }
-
-    .mini-preview {
-      margin-top: 10px; border-radius: 14px; overflow: hidden;
-      border: 1px solid rgba(255,255,255,.08);
-      background: rgba(2,5,21,.35);
-      height: 140px; display: flex; align-items: center; justify-content: center;
-      color: rgba(220,239,255,.7);
+    .block-body textarea,
+    .block-body input {
+      width: 100%; padding: 9px 11px; margin-top: 0;
+      border-radius: 9px; border: 1px solid rgba(255,255,255,.08);
+      background: rgba(255,255,255,.05); color: #fff;
+      font-family: var(--font); font-size: .83rem; outline: none;
+      transition: border-color .15s;
     }
-    .mini-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .block-body textarea { min-height: 90px; resize: vertical; }
+    .block-body input:focus,
+    .block-body textarea:focus { border-color: rgba(139,92,246,.6); }
 
-    /* ---- Modal custom (reemplaza alert/confirm) ---- */
+    /* News list items (JS-generated) */
+    .list { display: grid; gap: 10px; }
+    .item {
+      display: grid; grid-template-columns: 24px 80px 1fr; gap: 12px;
+      padding: 10px; border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.07);
+      background: rgba(255,255,255,.02);
+      transition: border-color .2s, transform .15s;
+    }
+    .item:hover { border-color: rgba(139,92,246,.3); }
+    .thumb {
+      width: 80px; height: 80px; border-radius: 12px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.04);
+    }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .meta { display: flex; flex-direction: column; gap: 5px; }
+    .meta strong { font-size: .85rem; font-weight: 700; color: #fff; line-height: 1.2; }
+    .meta .small { font-size: .72rem; color: rgba(220,239,255,.4); }
+    .item-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .item-actions .btn { padding: 5px 9px; font-size: .73rem; border-radius: 8px; }
+
+    /* Drag & drop */
+    .drag-handle {
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(220,239,255,.2); cursor: grab;
+      border-radius: 6px; padding: 2px;
+      transition: color .15s;
+      user-select: none; -webkit-tap-highlight-color: transparent;
+    }
+    .drag-handle:hover { color: rgba(220,239,255,.65); }
+    .drag-handle:active { cursor: grabbing; }
+    .drag-handle.drag-disabled { cursor: default; opacity: .25; }
+    .item[draggable="true"]:active { cursor: grabbing; }
+    .item.drag-dragging { opacity: .35; border-color: rgba(139,92,246,.5) !important; }
+    .item.drag-over {
+      border-color: rgba(139,92,246,.9) !important;
+      box-shadow: 0 0 0 2px rgba(139,92,246,.25);
+      transform: scale(1.004);
+    }
+    .drag-hint {
+      font-size: .7rem; color: rgba(220,239,255,.3);
+      margin-bottom: 6px; display: flex; align-items: center; gap: 6px;
+    }
+
+    /* Hint */
+    .hint { font-size: .73rem; color: rgba(220,239,255,.35); margin-top: 8px; line-height: 1.4; }
+
+    /* Toast */
+    #toast {
+      position: fixed; left: 50%;
+      bottom: calc(20px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      background: rgba(14,10,35,.97);
+      border: 1px solid rgba(255,255,255,.1);
+      padding: 10px 18px; border-radius: 999px;
+      color: var(--text); font-size: .85rem; font-weight: 700;
+      display: none; z-index: 9999;
+      max-width: 90vw;
+      box-shadow: 0 8px 28px rgba(0,0,0,.5);
+    }
+
+    /* Custom modals */
     .vg-modal-overlay {
       position: fixed; inset: 0; z-index: 10000;
-      background: rgba(2,5,21,.82);
-      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      background: rgba(3,1,15,.88);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
       display: none; align-items: center; justify-content: center;
       padding: 20px;
       padding-bottom: calc(20px + env(safe-area-inset-bottom));
     }
     .vg-modal-box {
-      background: rgba(28,31,47,.98);
-      border: 1px solid rgba(41,50,68,.75);
-      border-radius: 22px; padding: 22px 18px 18px;
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 20px; padding: 22px 18px 18px;
       width: 100%; max-width: 340px;
-      box-shadow: 0 20px 60px rgba(0,0,0,.55);
+      box-shadow: 0 20px 60px rgba(0,0,0,.6);
       display: flex; flex-direction: column; gap: 16px;
       animation: modalIn .18s ease;
     }
@@ -292,178 +233,186 @@
       to   { opacity: 1; transform: scale(1) translateY(0); }
     }
     .vg-modal-msg {
-      font-size: .97em; font-weight: 700; color: var(--text);
+      font-size: .95rem; font-weight: 700; color: var(--text);
       line-height: 1.55; text-align: center; white-space: pre-line; margin: 0;
     }
     .vg-modal-actions { display: flex; gap: 10px; }
-    .vg-modal-actions .btn { flex: 1; padding: 13px 10px; border-radius: 14px; }
-
-    @media (max-width: 768px) {
-      .top-actions { flex-wrap: wrap; }
-      .top-actions .btn { flex: 1; min-width: 120px; text-align: center; }
+    .vg-modal-actions .btn { flex: 1; padding: 13px 10px; border-radius: 12px; font-size: .85rem; }
+    .vg-modal-actions .btn-primary {
+      background: linear-gradient(135deg,#7c3aed,#a855f7);
+      border: none; color: #fff; font-weight: 800;
     }
+    .vg-modal-actions .btn-primary:hover { opacity: .9; }
   </style>
 </head>
 
 <body>
-<!-- ============================================ -->
+
 <!-- GATE: CARGANDO -->
-<!-- ============================================ -->
-<div id="gateLoading" class="gate">
-  <div class="gate-spinner"></div>
-  <div class="gate-title">Verificando permisos...</div>
+<div id="gateLoading" class="admin-gate">
+  <div class="admin-gate-spinner"></div>
+  <p class="admin-gate-title">Verificando permisos...</p>
 </div>
 
-<!-- ============================================ -->
 <!-- GATE: ACCESO DENEGADO -->
-<!-- ============================================ -->
-<div id="gateDenied" class="gate" style="display:none;">
-  <div class="gate-icon">🚫</div>
-  <div class="gate-title">Acceso restringido</div>
-  <div class="gate-sub">Solo administradores pueden acceder a este panel.</div>
-  <button class="btn" onclick="window.location.href=withAppFlag('inicio.html')" style="margin-top:10px;">
-    ← Volver al inicio
-  </button>
+<div id="gateDenied" class="admin-gate" style="display:none">
+  <div class="admin-gate-icon">🚫</div>
+  <p class="admin-gate-title">Acceso restringido</p>
+  <p class="admin-gate-sub">Solo administradores pueden acceder a este panel.</p>
+  <a href="inicio.html" style="margin-top:14px;color:#8b5cf6;font-size:.85rem;font-weight:700;">← Volver al inicio</a>
 </div>
 
-<!-- ============================================ -->
-<!-- CONTENIDO ADMIN (solo visible si isAdmin)   -->
-<!-- ============================================ -->
-<div id="adminWrap" style="display:none;">
-<div class="wrap">
+<!-- PANEL PRINCIPAL -->
+<div id="adminWrap" style="display:none">
 
-  <header>
-    <div>
-      <div class="title">🛠 VirtualNews</div>
-      <div class="subtitle">Gestiona las noticias del feed.</div>
+  <!-- HEADER -->
+  <header class="admin-header">
+    <div class="adm-logo">
+      <img src="images/logo-virtual-login.png" alt="VG">
+      <span class="adm-logo-name">Virtual<em>Gift</em></span>
+      <span class="adm-logo-tag">News</span>
     </div>
-    <div class="top-actions">
-      <button class="btn" id="btnGoHome">← Panel Admin</button>
-      <button class="btn btn-danger" id="btnLogout">Cerrar sesión</button>
+    <div class="adm-actions">
+      <button class="adm-icon-btn" id="btnGoHome" title="← Panel Admin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="adm-sep"></div>
+      <button class="adm-icon-btn adm-icon-btn--danger" id="btnLogout" title="Cerrar sesión">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
     </div>
   </header>
 
-  <div class="grid">
+  <!-- CONTENT -->
+  <div class="an-main">
+    <div class="an-grid">
 
-    <!-- ======================================== -->
-    <!-- FORMULARIO / EDITOR                      -->
-    <!-- ======================================== -->
-    <section class="card">
-      <h2>📝 Editor <span id="modeBadge" class="badge">Crear</span></h2>
-
-      <label for="fTitle">Título (dentro de la noticia)</label>
-      <input id="fTitle" placeholder="El encabezado de la noticia." />
-
-      <label for="fFeedTitle">Título del feed (corto)</label>
-      <input id="fFeedTitle" placeholder="Título corto del feed." maxlength="45" />
-      <div class="feed-meta">
-        <span></span>
-        <span id="feedCounter" class="counter">0/45</span>
-      </div>
-
-      <div class="row">
-        <div>
-          <label for="fCategory">Categoría</label>
-          <select id="fCategory">
-            <option value="Gaming">Gaming</option>
-            <option value="General">General</option>
-          </select>
+      <!-- ======================================== -->
+      <!-- EDITOR                                   -->
+      <!-- ======================================== -->
+      <section class="admin-card">
+        <div class="an-card-title">
+          📝 Editor
+          <span id="modeBadge" class="an-badge">Crear</span>
         </div>
-        <div>
-          <label for="fPublished">Estado</label>
-          <select id="fPublished">
-            <option value="true">Publicado</option>
-            <option value="false">Borrador</option>
-          </select>
+
+        <label class="an-label" for="fTitle">Título (dentro de la noticia)</label>
+        <input id="fTitle" class="an-input" placeholder="El encabezado de la noticia." />
+
+        <label class="an-label" for="fFeedTitle">Título del feed (corto)</label>
+        <input id="fFeedTitle" class="an-input" placeholder="Título corto del feed." maxlength="45" />
+        <div class="an-feed-meta">
+          <span id="feedCounter" class="counter">0/45</span>
         </div>
-      </div>
 
-      <div class="row">
-        <div>
-          <label for="fHeaderImage">Imagen del header (URL)</label>
-          <input id="fHeaderImage" placeholder="https://..." />
+        <div class="an-row">
+          <div>
+            <label class="an-label" for="fCategory">Categoría</label>
+            <select id="fCategory" class="an-select">
+              <option value="Gaming">Gaming</option>
+              <option value="General">General</option>
+            </select>
+          </div>
+          <div>
+            <label class="an-label" for="fPublished">Estado</label>
+            <select id="fPublished" class="an-select">
+              <option value="true">Publicado</option>
+              <option value="false">Borrador</option>
+            </select>
+          </div>
         </div>
-        <div>
-          <label for="fStatusText">Status (opcional)</label>
-          <input id="fStatusText" placeholder="Noticia Exclusiva" />
+
+        <div class="an-row">
+          <div>
+            <label class="an-label" for="fHeaderImage">Imagen del header (URL)</label>
+            <input id="fHeaderImage" class="an-input" placeholder="https://..." />
+          </div>
+          <div>
+            <label class="an-label" for="fStatusText">Status (opcional)</label>
+            <input id="fStatusText" class="an-input" placeholder="Noticia Exclusiva" />
+          </div>
         </div>
-      </div>
 
-      <div id="headerPreview" class="mini-preview">
-        <span class="muted">Vista previa del header</span>
-      </div>
+        <div id="headerPreview" class="an-preview mini">
+          <span class="muted">Vista previa del header</span>
+        </div>
 
-      <label for="fCover">Cover (URL) — imagen del feed</label>
-      <input id="fCover" placeholder="https://..." />
+        <label class="an-label" for="fCover">Cover (URL) — imagen del feed</label>
+        <input id="fCover" class="an-input" placeholder="https://..." />
 
-      <div id="coverPreview" class="preview">
-        <span class="muted">Vista previa del cover</span>
-      </div>
+        <div id="coverPreview" class="an-preview">
+          <span class="muted">Vista previa del cover</span>
+        </div>
 
-      <div class="sep"></div>
+        <div class="an-sep"></div>
 
-      <h2>🧩 Contenido <span class="badge" id="blocksCount">0 bloques</span></h2>
+        <div class="an-card-title" style="margin-bottom:8px;">
+          🧩 Contenido
+          <span class="an-badge" id="blocksCount">0 bloques</span>
+        </div>
 
-      <div class="block-tools">
-        <button class="btn" id="addP">+ Párrafo</button>
-        <button class="btn" id="addH2">+ Subtítulo</button>
-        <button class="btn" id="addImg">+ Imagen</button>
-        <button class="btn" id="addHi">+ Caja destacada</button>
-        <button class="btn btn-warning" id="btnClearBlocks" disabled>Limpiar bloques</button>
-      </div>
+        <div class="an-block-tools">
+          <button class="btn" id="addP">+ Párrafo</button>
+          <button class="btn" id="addH2">+ Subtítulo</button>
+          <button class="btn" id="addImg">+ Imagen</button>
+          <button class="btn" id="addHi">+ Caja destacada</button>
+          <button class="btn btn-warning" id="btnClearBlocks" disabled>Limpiar bloques</button>
+        </div>
 
-      <div id="blocks" class="blocks"></div>
+        <div id="blocks" class="blocks"></div>
 
-      <p class="hint">Orden recomendado: <b>Párrafo</b> → <b>Imagen</b> → <b>Párrafo</b> → <b>Caja destacada</b> → <b>Subtítulo</b> → ...</p>
+        <p class="hint">Orden recomendado: <b>Párrafo</b> → <b>Imagen</b> → <b>Párrafo</b> → <b>Caja destacada</b> → <b>Subtítulo</b> → ...</p>
 
-      <div class="sep"></div>
+        <div class="an-sep"></div>
 
-      <label for="fGallery">Galería (URLs separadas por coma o por línea) (opcional)</label>
-      <textarea id="fGallery" placeholder="https://img1...&#10;https://img2..."></textarea>
+        <label class="an-label" for="fGallery">Galería (URLs separadas por coma o por línea)</label>
+        <textarea id="fGallery" class="an-textarea" placeholder="https://img1...&#10;https://img2..."></textarea>
 
-      <div class="sep"></div>
+        <div class="an-sep"></div>
 
-      <div class="row">
-        <button class="btn btn-primary" id="btnSave">💾 Guardar</button>
-        <button class="btn" id="btnNew">+ Nueva</button>
-      </div>
+        <div class="an-row">
+          <button class="btn-save" id="btnSave">💾 Guardar</button>
+          <button class="btn-cancel" id="btnNew">+ Nueva</button>
+        </div>
 
-      <div class="row" style="margin-top:10px;">
-        <button class="btn btn-success" id="btnPublishNow">🚀 Publicar ahora</button>
-        <button class="btn btn-warning" id="btnUnpublish">📦 Despublicar</button>
-      </div>
+        <div class="an-row" style="margin-top:10px;">
+          <button class="btn btn-success" id="btnPublishNow">🚀 Publicar ahora</button>
+          <button class="btn btn-warning" id="btnUnpublish">📦 Despublicar</button>
+        </div>
 
-      <button class="btn btn-danger" id="btnDelete" style="margin-top:10px;display:none;">🗑 Eliminar noticia</button>
+        <button class="btn btn-danger" id="btnDelete" style="margin-top:10px;display:none;width:100%;">🗑 Eliminar noticia</button>
 
-      <p class="muted" style="margin-top:10px;">"Publicar ahora" actualiza <b>date</b> para que suba al inicio del feed.</p>
-    </section>
+        <p class="muted" style="margin-top:10px;">"Publicar ahora" actualiza <b>date</b> para que suba al inicio del feed.</p>
+      </section>
 
-    <!-- ======================================== -->
-    <!-- LISTA DE NOTICIAS                        -->
-    <!-- ======================================== -->
-    <section class="card">
-      <h2>📰 Noticias <span id="countBadge" class="badge">0</span></h2>
+      <!-- ======================================== -->
+      <!-- LISTA DE NOTICIAS                        -->
+      <!-- ======================================== -->
+      <section class="admin-card">
+        <div class="an-card-title">
+          📰 Noticias
+          <span id="countBadge" class="an-badge">0</span>
+        </div>
 
-      <div class="filters">
-        <div class="chip active" data-filter="all">Todas</div>
-        <div class="chip" data-filter="published">Publicadas</div>
-        <div class="chip" data-filter="drafts">Borradores</div>
-      </div>
+        <div class="canje-filters">
+          <div class="chip canje-filter-btn active" data-filter="all">Todas</div>
+          <div class="chip canje-filter-btn" data-filter="published">Publicadas</div>
+          <div class="chip canje-filter-btn" data-filter="drafts">Borradores</div>
+        </div>
 
-      <div id="newsList" class="list"></div>
-      <p id="emptyState" class="muted" style="display:none; padding:10px;">No hay noticias todavía.</p>
-    </section>
+        <div id="newsList" class="list"></div>
+        <p id="emptyState" class="muted" style="display:none;padding:10px 0;">No hay noticias todavía.</p>
+      </section>
 
-  </div><!-- /grid -->
-</div><!-- /wrap -->
-</div><!-- /adminWrap -->
+    </div>
+  </div>
+
+</div>
 
 <!-- Toast -->
-<div id="toast" class="toast"></div>
+<div id="toast"></div>
 
-<!-- ============================================ -->
-<!-- MODALES CUSTOM (reemplazan alert/confirm)    -->
-<!-- ============================================ -->
+<!-- MODALES CUSTOM -->
 <div id="vg-confirm-overlay" class="vg-modal-overlay" role="dialog" aria-modal="true">
   <div class="vg-modal-box">
     <p id="vg-confirm-msg" class="vg-modal-msg"></p>
