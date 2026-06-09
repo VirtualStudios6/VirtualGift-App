@@ -420,7 +420,34 @@
     #imgPreviewCaption::placeholder { color: rgba(148,163,184,.45); }
     #imgPreviewCaption:focus { border-color: rgba(139,92,246,.45); }
 
-    /* ── QUICK REPLIES ────────────────────────────────── */
+    /* ── CHAT LIGHTBOX ───────────────────────────────── */
+    #chatLightbox {
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(2,0,12,.95);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s;
+    }
+    #chatLightbox.visible { opacity: 1; pointer-events: auto; }
+    #chatLightbox img {
+      max-width: min(94vw, 980px);
+      max-height: 86vh;
+      border-radius: 14px;
+      object-fit: contain;
+      box-shadow: 0 12px 60px rgba(0,0,0,.7);
+      user-select: none;
+    }
+    #chatLightboxClose {
+      position: absolute; top: 16px; right: 16px;
+      width: 38px; height: 38px; border-radius: 50%;
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+      color: #fff; font-size: 1.1rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ── QUICK REPLIES ───────────────────────────────── */
     #qrPanel {
       position: fixed;
       bottom: calc(62px + env(safe-area-inset-bottom, 0px));
@@ -602,6 +629,12 @@
         <button class="img-preview-btn img-preview-btn--send"   onclick="window.chatConfirmPreview()" type="button">Enviar</button>
       </div>
     </div>
+  </div>
+
+  <!-- ── CHAT IMAGE LIGHTBOX ─────────────────────────── -->
+  <div id="chatLightbox" onclick="window.chatCloseLightbox()">
+    <button id="chatLightboxClose" onclick="window.chatCloseLightbox()" aria-label="Cerrar">✕</button>
+    <img id="chatLightboxImg" src="" alt="Imagen" onclick="event.stopPropagation()">
   </div>
 
   <!-- TOAST -->

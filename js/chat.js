@@ -357,13 +357,13 @@ function _buildMsg(data, mid) {
     const cap = data.text ? `<div class="msg-img-caption">${_esc(data.text)}</div>` : '';
     if (isUser) return `<div class="msg-row msg-row--user msg-animate"${midAttr}>
       <div class="msg-bubble bubble--user bubble--img">
-        <img src="${su}" class="msg-image" alt="Imagen enviada" loading="lazy" onclick="window.open('${su}','_blank')" tabindex="0">
+        <img src="${su}" class="msg-image" alt="Imagen enviada" loading="lazy" onclick="window.chatOpenLightbox('${su}')" tabindex="0">
         ${cap}<div class="msg-time">${time}${ticks}</div>
       </div></div>`;
     return `<div class="msg-row msg-row--admin msg-animate"${midAttr}>${avatar}
       <div class="msg-bubble bubble--admin bubble--img">
         <div class="msg-sender">Soporte VirtualGift</div>
-        <img src="${su}" class="msg-image" alt="Imagen de soporte" loading="lazy" onclick="window.open('${su}','_blank')" tabindex="0">
+        <img src="${su}" class="msg-image" alt="Imagen de soporte" loading="lazy" onclick="window.chatOpenLightbox('${su}')" tabindex="0">
         ${cap}<div class="msg-time">${time}</div>
       </div></div>`;
   }
@@ -378,7 +378,7 @@ function _buildMsg(data, mid) {
           : (data.fileSize / 1048576).toFixed(1) + ' MB')
       : '';
     const su   = _esc(data.fileUrl);
-    const card = `<div class="msg-file-card" onclick="window.open('${su}','_blank')" role="button" tabindex="0" aria-label="Descargar ${_esc(raw)}">
+    const card = `<div class="msg-file-card" onclick="window.chatOpenLightbox('${su}')" role="button" tabindex="0" aria-label="Descargar ${_esc(raw)}">
       <div class="msg-file-icon" aria-hidden="true">📎</div>
       <div class="msg-file-info">
         <div class="msg-file-name">${_esc(_truncName(raw, 34))}</div>
@@ -821,3 +821,24 @@ var _pollTimer = setInterval(function () {
 
 document.addEventListener('DOMContentLoaded', startChat);
 window.addEventListener('load', startChat);
+
+// ── CHAT LIGHTBOX ──────────────────────────────────
+window.chatOpenLightbox = function (url) {
+  var lb  = document.getElementById('chatLightbox');
+  var img = document.getElementById('chatLightboxImg');
+  if (!lb || !img) return;
+  img.src = url;
+  lb.classList.add('visible');
+};
+
+window.chatCloseLightbox = function () {
+  var lb  = document.getElementById('chatLightbox');
+  var img = document.getElementById('chatLightboxImg');
+  if (!lb) return;
+  lb.classList.remove('visible');
+  if (img) img.src = '';
+};
+
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') window.chatCloseLightbox();
+});
