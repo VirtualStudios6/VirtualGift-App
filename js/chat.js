@@ -4,23 +4,21 @@
 'use strict';
 
 // ── State ──────────────────────────────────────────
-let _chatUid          = null;
-let _chatName         = '';
-let _chatEmail        = '';
-let _chatStatus       = 'open';
-let _prevStatus       = null;
-let _unsubMsgs        = null;
-let _unsubDoc         = null;
-let _chatInited       = false;
-let _userTypingTimer  = null;
-let _surveyRated      = false;
-let _inChatView       = false;
-let _renderedMsgIds   = new Set();
-let _lastRenderedDate = null;
-let _unreadAdmin      = 0;
-let _prevUnreadAdmin  = 0;
+let _chatUid         = null;
+let _chatName        = '';
+let _chatEmail       = '';
+let _chatStatus      = 'open';
+let _prevStatus      = null;
+let _unsubMsgs       = null;
+let _unsubDoc        = null;
+let _chatInited      = false;
+let _userTypingTimer = null;
+let _surveyRated     = false;
+let _inChatView      = false;
+let _unreadAdmin     = 0;
+let _prevUnreadAdmin = 0;
 let _imagePreviewFile = null;
-let _surveyRating     = 0;
+let _surveyRating    = 0;
 
 // ── NAVIGATION ─────────────────────────────────────
 window.chatGoBack = function () {
@@ -494,14 +492,14 @@ window.chatSubmitSurvey = async function () {
   }
 };
 
-// ── SUBSCRIBE MESSAGES (render incremental) ────────
+// ── SUBSCRIBE MESSAGES ─────────────────────────────
 function subscribeMessages() {
   if (_unsubMsgs) _unsubMsgs();
   const cc = document.getElementById('chatContent');
   if (!cc) return;
 
-  _renderedMsgIds.clear();
-  _lastRenderedDate = null;
+  // Track message count locally to detect new arrivals for smart scroll
+  var _prevCount = 0;
 
   _unsubMsgs = window.db
     .collection('supportChats').doc(_chatUid)
@@ -512,115 +510,79 @@ function subscribeMessages() {
 
       if (!snap.empty && !_inChatView) window.chatShowChat();
 
+      // Decide scroll behaviour BEFORE rebuilding DOM
+      var newCount      = snap.size;
+      var isFirstRender = _prevCount === 0;
+      var hasNewMsg     = newCount > _prevCount;
+      var wasNearBottom = _isNearBottom(cc);
+      _prevCount = newCount;
+
       // ── Empty state ──
       if (snap.empty) {
-        _renderedMsgIds.clear();
-        _lastRenderedDate = null;
         cc.innerHTML = _ticketBarHTML()
-          + `<div class="chat-welcome">
-               <div class="chat-welcome-title">¡Bienvenido al soporte! 👋</div>
-               <div class="chat-welcome-text">Cuéntanos cómo podemos ayudarte hoy.<br>Nuestro equipo responde en minutos.</div>
-             </div>`;
+          + '<div class="chat-welcome">'
+          + '<div class="chat-welcome-title">¡Bienvenido al soporte! 👋</div>'
+          + '<div class="chat-welcome-text">Cuéntanos cómo podemos ayudarte hoy.<br>Nuestro equipo responde en minutos.</div>'
+          + '</div>';
         return;
       }
 
-      // ── First full render ──
-      if (_renderedMsgIds.size === 0) {
-        _lastRenderedDate = null;
-        let html = _ticketBarHTML()
-          + `<div class="chat-divider" role="separator">Inicio de conversación</div>`
-          + `<div class="chat-welcome">
-               <div class="chat-welcome-title">Soporte VirtualGift</div>
-               <div class="chat-welcome-text">Estamos aquí para ayudarte. Responderemos lo antes posible.</div>
-             </div>`;
+      // ── Full rebuild on every snapshot ──────────────
+      // Always rebuilds — deterministic, no incremental state to track.
+      var lastDate = null;
+      var html = _ticketBarHTML()
+        + '<div class="chat-divider" role="separator">Inicio de conversación</div>'
+        + '<div class="chat-welcome">'
+        + '<div class="chat-welcome-title">Soporte VirtualGift</div>'
+        + '<div class="chat-welcome-text">Estamos aquí para ayudarte. Responderemos lo antes posible.</div>'
+        + '</div>';
 
-        snap.docs.forEach(function (d) {
-          const data    = d.data();
-          const dateKey = _getDateKey(data.createdAt);
-          if (dateKey && dateKey !== _lastRenderedDate) {
-            html += _dateSepHTML(data.createdAt);
-            _lastRenderedDate = dateKey;
-          }
-          html += _buildMsg(data, d.id);
-          _renderedMsgIds.add(d.id);
-        });
-
-        const isClosed = _chatStatus === 'closed';
-        html += _typingRowHTML();
-        html += `<div class="chat-closed-banner" id="chatClosedBanner"${isClosed ? '' : ' style="display:none"'}>
-          🔒 Esta conversación fue cerrada por el equipo de soporte.
-        </div>`;
-
-        cc.innerHTML = html;
-        if (isClosed && !_surveyRated) renderSurvey();
-        requestAnimationFrame(function () { _scrollToBottom(cc); });
-
-      } else {
-        // ── Incremental: append new messages only ──
-        const nearBottom = _isNearBottom(cc);
-        let addedNew = false;
-
-        snap.docChanges().forEach(function (change) {
-          if (change.type === 'added' && !_renderedMsgIds.has(change.doc.id)) {
-            const data    = change.doc.data();
-            const dateKey = _getDateKey(data.createdAt);
-            let   chunk   = '';
-            if (dateKey && dateKey !== _lastRenderedDate) {
-              chunk += _dateSepHTML(data.createdAt);
-              _lastRenderedDate = dateKey;
-            }
-            chunk += _buildMsg(data, change.doc.id);
-            _renderedMsgIds.add(change.doc.id);
-            addedNew = true;
-
-            // Insert before typing / closed / survey anchors
-            const anchor = document.getElementById('chatTypingRow')
-                        || document.getElementById('chatClosedBanner')
-                        || document.getElementById('chatSurvey');
-            if (anchor) anchor.insertAdjacentHTML('beforebegin', chunk);
-            else        cc.insertAdjacentHTML('beforeend', chunk);
-
-          } else if (change.type === 'modified') {
-            // Refresh tick status on modified message
-            const el = cc.querySelector(`[data-mid="${change.doc.id}"]`);
-            if (el) {
-              const tickEl = el.querySelector('.msg-ticks');
-              if (tickEl) {
-                const isRead = _unreadAdmin === 0;
-                tickEl.className = isRead ? 'msg-ticks msg-ticks--read' : 'msg-ticks';
-                tickEl.textContent = '✓✓';
-                tickEl.setAttribute('aria-label', isRead ? 'Leído' : 'Enviado');
-              }
-            }
-          }
-        });
-
-        // Refresh ticket bar text in place
-        const tb = document.getElementById('ticketBar');
-        if (tb) tb.outerHTML = _ticketBarHTML();
-
-        if (addedNew) {
-          if (nearBottom) {
-            requestAnimationFrame(function () { _scrollToBottom(cc, true); });
-            _showScrollBtn(false);
-          } else {
-            _showScrollBtn(true);
-          }
+      snap.docs.forEach(function (d) {
+        var data    = d.data();
+        var dateKey = _getDateKey(data.createdAt);
+        if (dateKey && dateKey !== lastDate) {
+          html += _dateSepHTML(data.createdAt);
+          lastDate = dateKey;
         }
-      }
+        html += _buildMsg(data, d.id);
+      });
 
-      // Mark messages as read (use set+merge to avoid error if doc missing)
+      var isClosed = _chatStatus === 'closed';
+      html += _typingRowHTML();
+      html += '<div class="chat-closed-banner" id="chatClosedBanner"'
+            + (isClosed ? '' : ' style="display:none"') + '>'
+            + '🔒 Esta conversación fue cerrada por el equipo de soporte.'
+            + '</div>';
+
+      cc.innerHTML = html;
+
+      // Re-insert survey after rebuild if needed
+      if (isClosed && !_surveyRated) renderSurvey();
+
+      // Smart scroll
+      requestAnimationFrame(function () {
+        if (isFirstRender || wasNearBottom) {
+          _scrollToBottom(cc);
+          _showScrollBtn(false);
+        } else if (hasNewMsg) {
+          _showScrollBtn(true);
+        }
+        // else: user is reading history, metadata update — don't touch scroll
+      });
+
+      // Mark as read
       window.db.collection('supportChats').doc(_chatUid)
         .set({ unreadUser: 0 }, { merge: true }).catch(function () {});
 
     }, function (err) {
       console.error('[chat] messages snapshot:', err);
-      cc.innerHTML = `<div class="chat-empty">
-        <div class="chat-empty-emoji">⚠️</div>
-        <div class="chat-empty-title">Error al cargar</div>
-        <div class="chat-empty-sub">${_esc(err.code || err.message || 'desconocido')}<br>
-          <button onclick="location.reload()" style="color:#8b5cf6;background:none;border:none;cursor:pointer;font-size:inherit;text-decoration:underline;margin-top:8px">Recargar</button>
-        </div></div>`;
+      cc.innerHTML = '<div class="chat-empty">'
+        + '<div class="chat-empty-emoji">⚠️</div>'
+        + '<div class="chat-empty-title">Error al cargar</div>'
+        + '<div class="chat-empty-sub">' + _esc(err.code || err.message || 'desconocido') + '<br>'
+        + '<button onclick="location.reload()" style="color:#8b5cf6;background:none;border:none;cursor:pointer;'
+        + 'font-size:inherit;text-decoration:underline;margin-top:8px">Recargar</button>'
+        + '</div></div>';
     });
 }
 
