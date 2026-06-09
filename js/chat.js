@@ -39,13 +39,17 @@ window.chatShowHelp = function () {
 };
 
 window.chatShowChat = function () {
+  console.log('[CHAT] chatShowChat() called — switching to chat view');
   _inChatView = true;
   document.getElementById('helpView').style.display   = 'none';
-  document.getElementById('chatView').style.display   = '';
+  // FIX: was '' which only removes inline override, leaving CSS display:none in effect.
+  // Must be 'block' to actually override the stylesheet rule.
+  document.getElementById('chatView').style.display   = 'block';
   document.getElementById('hdrHelpBtn').style.display = '';
   _hideQR();
   _updateHeaderStatus();
   const cc = document.getElementById('chatContent');
+  console.log('[CHAT] chatContent el:', cc, '| childCount after show:', cc ? cc.children.length : 'N/A');
   if (cc) requestAnimationFrame(function () { _scrollToBottom(cc); });
   const input = document.getElementById('chatInput');
   if (input) setTimeout(function () { input.focus(); }, 120);
@@ -494,9 +498,11 @@ window.chatSubmitSurvey = async function () {
 
 // ── SUBSCRIBE MESSAGES ─────────────────────────────
 function subscribeMessages() {
+  console.log('[CHAT] subscribeMessages() — uid:', _chatUid);
   if (_unsubMsgs) _unsubMsgs();
   const cc = document.getElementById('chatContent');
-  if (!cc) return;
+  console.log('[CHAT] chatContent el:', cc);
+  if (!cc) { console.error('[CHAT] chatContent NOT FOUND — aborting'); return; }
 
   // Track message count locally to detect new arrivals for smart scroll
   var _prevCount = 0;
@@ -506,9 +512,13 @@ function subscribeMessages() {
     .collection('messages')
     .orderBy('createdAt', 'asc')
     .onSnapshot(function (snap) {
-      if (!cc) return;
+      console.log('[CHAT] snapshot received — docs:', snap.size, '| empty:', snap.empty, '| fromCache:', snap.metadata.fromCache);
+      if (!cc) { console.error('[CHAT] cc is null inside snapshot'); return; }
 
-      if (!snap.empty && !_inChatView) window.chatShowChat();
+      if (!snap.empty && !_inChatView) {
+        console.log('[CHAT] auto-switching to chat view (had messages, was on help screen)');
+        window.chatShowChat();
+      }
 
       // Decide scroll behaviour BEFORE rebuilding DOM
       var newCount      = snap.size;
@@ -519,6 +529,7 @@ function subscribeMessages() {
 
       // ── Empty state ──
       if (snap.empty) {
+        console.log('[CHAT] empty snapshot — rendering welcome state');
         cc.innerHTML = _ticketBarHTML()
           + '<div class="chat-welcome">'
           + '<div class="chat-welcome-title">¡Bienvenido al soporte! 👋</div>'
@@ -528,7 +539,6 @@ function subscribeMessages() {
       }
 
       // ── Full rebuild on every snapshot ──────────────
-      // Always rebuilds — deterministic, no incremental state to track.
       var lastDate = null;
       var html = _ticketBarHTML()
         + '<div class="chat-divider" role="separator">Inicio de conversación</div>'
@@ -554,7 +564,9 @@ function subscribeMessages() {
             + '🔒 Esta conversación fue cerrada por el equipo de soporte.'
             + '</div>';
 
+      console.log('[CHAT] setting innerHTML — html length:', html.length, '| chatView display:', document.getElementById('chatView').style.display);
       cc.innerHTML = html;
+      console.log('[CHAT] innerHTML set — cc.children count:', cc.children.length);
 
       // Re-insert survey after rebuild if needed
       if (isClosed && !_surveyRated) renderSurvey();
@@ -567,7 +579,6 @@ function subscribeMessages() {
         } else if (hasNewMsg) {
           _showScrollBtn(true);
         }
-        // else: user is reading history, metadata update — don't touch scroll
       });
 
       // Mark as read
@@ -575,7 +586,7 @@ function subscribeMessages() {
         .set({ unreadUser: 0 }, { merge: true }).catch(function () {});
 
     }, function (err) {
-      console.error('[chat] messages snapshot:', err);
+      console.error('[CHAT] snapshot ERROR:', err.code, err.message);
       cc.innerHTML = '<div class="chat-empty">'
         + '<div class="chat-empty-emoji">⚠️</div>'
         + '<div class="chat-empty-title">Error al cargar</div>'
@@ -685,6 +696,7 @@ function _toast(msg, type) {
 
 // ── INIT ───────────────────────────────────────────
 function initChat(user) {
+  console.log('[CHAT] initChat() — uid:', user.uid, '| email:', user.email);
   _chatUid   = user.uid;
   _chatEmail = user.email || '';
   _chatName  = user.displayName || (user.email ? user.email.split('@')[0] : '') || 'Usuario';
@@ -762,6 +774,7 @@ var _chatLoadGuard = setTimeout(function () {
 }, 12000);
 
 function startChat() {
+  console.log('[CHAT] startChat() — inited:', _chatInited, '| db:', !!window.db, '| firebase:', typeof firebase);
   if (_chatInited) return;
   if (!window.db || typeof firebase === 'undefined' || typeof firebase.auth !== 'function') return;
   _chatInited = true;
