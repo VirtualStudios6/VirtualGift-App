@@ -334,6 +334,100 @@ exports.requestRedeem = onCall({ region: "us-central1" }, async (request) => {
 });
 
 // =====================
+// PROCESS REDEEM DECISION (admin only)
+// =====================
+
+exports.processRedeemDecision = onCall({ region: "us-central1" }, async (request) => {
+  const uid = assertAuthed(request);
+
+  // Verify admin
+  const adminSnap = await db.collection("users").doc(uid).get();
+  if (adminSnap.data()?.isAdmin !== true) {
+    throw new HttpsError("permission-denied", "Acceso denegado");
+  }
+
+  const requestId = safeStr(request.data?.requestId).trim();
+  const decision  = safeStr(request.data?.decision).trim();
+
+  if (!requestId) throw new HttpsError("invalid-argument", "requestId requerido");
+  if (decision !== "completed" && decision !== "rejected") {
+    throw new HttpsError("invalid-argument", "decision invalida");
+  }
+
+  const requestRef = db.collection("redeemRequests").doc(requestId);
+  const now = admin.firestore.Timestamp.now();
+
+  // Fetch linked pointsHistory doc BEFORE the transaction (queries not allowed inside txn reads)
+  const histSnap = await db.collection("pointsHistory")
+    .where("redeemRequestId", "==", requestId)
+    .limit(1)
+    .get();
+  const histRef = histSnap.empty ? null : histSnap.docs[0].ref;
+
+  let reqData;
+  await db.runTransaction(async (tx) => {
+    const reqSnap = await tx.get(requestRef);
+    if (!reqSnap.exists) throw new HttpsError("not-found", "Solicitud no encontrada");
+    reqData = reqSnap.data();
+
+    if (reqData.status !== "pending") {
+      throw new HttpsError("failed-precondition", "La solicitud ya fue procesada");
+    }
+
+    const upd = { status: decision, adminId: uid };
+    if (decision === "completed") upd.completedAt = now;
+    if (decision === "rejected")  upd.rejectedAt  = now;
+    tx.update(requestRef, upd);
+
+    // Stamp status on the original pointsHistory entry so the user can see it
+    if (histRef) {
+      tx.update(histRef, { status: decision });
+    }
+
+    if (decision === "rejected") {
+      // Devolver puntos al usuario
+      const userRef = db.collection("users").doc(reqData.userId);
+      tx.update(userRef, {
+        points: admin.firestore.FieldValue.increment(reqData.pointsAmount),
+      });
+
+      // Crear entrada de devolución en el historial
+      const refundRef = db.collection("pointsHistory").doc();
+      tx.set(refundRef, {
+        userId:          reqData.userId,
+        type:            "redeem_refund",
+        points:          reqData.pointsAmount,
+        platform:        reqData.platform,
+        redeemRequestId: requestId,
+        createdAt:       now,
+      });
+    }
+  });
+
+  // Notificación al usuario (fuera de la transacción)
+  const PLAT_NAMES = {
+    paypal: "PayPal", amazon: "Amazon Gift Card", steam: "Steam",
+    googleplay: "Google Play", psn: "PlayStation", xbox: "Xbox",
+    netflix: "Netflix", spotify: "Spotify",
+  };
+  const platName = PLAT_NAMES[reqData.platform] || reqData.platform || "plataforma";
+  const body = decision === "completed"
+    ? `¡Tu canje de $${(reqData.usdAmount || 0).toFixed(2)} USD en ${platName} fue procesado! Revisa tu cuenta ${reqData.account}.`
+    : `Tu solicitud de canje fue rechazada. Tus ${(reqData.pointsAmount || 0).toLocaleString()} coins han sido devueltos a tu cuenta.`;
+
+  await db.collection("notifications").add({
+    userId:    reqData.userId,
+    title:     decision === "completed" ? "🎉 Canje completado" : "❌ Canje rechazado",
+    body,
+    type:      "canje",
+    read:      false,
+    createdAt: now,
+  });
+
+  return { success: true };
+});
+
+// =====================
 // SERVER-SIDE GAMES
 // =====================
 

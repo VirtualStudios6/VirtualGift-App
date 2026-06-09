@@ -449,6 +449,7 @@ const HIST_META = {
   daily_checkin:       { icon: '<img src="images/coin.png" class="coin-img" alt="coin">', label: 'Check-in diario' },
   raffle_entry:        { icon: '🎟️', label: 'Entrada a sorteo' },
   redeem:              { icon: '💸', label: 'Canje' },
+  redeem_refund:       { icon: '↩️', label: 'Devolución de canje' },
   referral_bonus:      { icon: '👥', label: 'Bono de referido' },
   cpx_survey:          { icon: '📊', label: 'Encuesta CPX' },
   cpx_survey_reversal: { icon: '↩️', label: 'Reversión CPX' },
@@ -472,12 +473,14 @@ function buildHistItem(d) {
   const color = pts >= 0 ? '#22c55e' : '#f43f5e';
 
   let label = meta.label;
-  if (d.type === 'raffle_entry'  && d.raffleTitle) label = _histEsc(d.raffleTitle);
-  if (d.type === 'redeem'        && d.platform)    label = `Canje \u2014 ${_histEsc(PLATFORM_LABELS[d.platform]?.name || d.platform)}`;
+  if (d.type === 'raffle_entry'   && d.raffleTitle) label = _histEsc(d.raffleTitle);
+  if (d.type === 'redeem'         && d.platform)    label = `Canje \u2014 ${_histEsc(PLATFORM_LABELS[d.platform]?.name || d.platform)}`;
+  if (d.type === 'redeem_refund'  && d.platform)    label = `Devoluci\u00f3n \u2014 ${_histEsc(PLATFORM_LABELS[d.platform]?.name || d.platform)}`;
 
-  // Usar el logo real de la plataforma para canjes de gift cards
+  // Usar el logo real de la plataforma para canjes y devoluciones
   let icon = meta.icon;
-  if (d.type === 'redeem' && d.platform && PLATFORM_ICONS[d.platform]) {
+  const isRedeemType = d.type === 'redeem' || d.type === 'redeem_refund';
+  if (isRedeemType && d.platform && PLATFORM_ICONS[d.platform]) {
     const altText = _histEsc(PLATFORM_LABELS[d.platform]?.name || d.platform);
     icon = `<img src="${PLATFORM_ICONS[d.platform]}" class="hist-platform-icon" alt="${altText}">`;
   }
@@ -486,11 +489,27 @@ function buildHistItem(d) {
     ? d.createdAt.toDate().toLocaleDateString('es-DO', { day: '2-digit', month: 'short', year: 'numeric' })
     : '';
 
+  // Badge de estado (solo para canjes)
+  let statusBadge = '';
+  if (d.type === 'redeem') {
+    const s = d.status || 'pending';
+    const badgeMap = {
+      pending:   ['hist-status-pending',   '\u23f3 Pendiente'],
+      completed: ['hist-status-completed', '\u2705 Completado'],
+      rejected:  ['hist-status-rejected',  '\u274c Rechazado'],
+    };
+    const [cls, txt] = badgeMap[s] || badgeMap.pending;
+    statusBadge = `<span class="hist-status ${cls}">${txt}</span>`;
+  }
+
   return `<div class="hist-item">
     <div class="hist-icon">${icon}</div>
     <div class="hist-body">
       <span class="hist-label">${label}</span>
-      ${date ? `<span class="hist-date">${date}</span>` : ''}
+      <div class="hist-meta-row">
+        ${date ? `<span class="hist-date">${date}</span>` : ''}
+        ${statusBadge}
+      </div>
     </div>
     <span class="hist-pts" style="color:${color}">${sign}${pts.toLocaleString()}</span>
   </div>`;

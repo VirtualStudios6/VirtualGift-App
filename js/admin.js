@@ -230,32 +230,14 @@ function buildCanjeCard(id, d) {
 
 window.updateCanjeStatus = async function (id, status) {
   try {
-    const upd = { status, adminId: adminUser.uid };
-    if (status === 'completed') upd.completedAt = firebase.firestore.Timestamp.now();
-    if (status === 'rejected')  upd.rejectedAt  = firebase.firestore.Timestamp.now();
-    await window.db.collection('redeemRequests').doc(id).update(upd);
-
-    const docSnap = await window.db.collection('redeemRequests').doc(id).get();
-    const d = docSnap.data();
-    if (d?.userId) {
-      const plat = PLATFORM_NAME[d.platform] || d.platform || '';
-      const body = status === 'completed'
-        ? `¡Tu canje de $${(d.usdAmount || 0).toFixed(2)} USD en ${plat} fue procesado! Revisa tu correo ${d.account}.`
-        : `Tu solicitud de canje de $${(d.usdAmount || 0).toFixed(2)} USD fue rechazada. Contáctanos para más info.`;
-      await window.db.collection('notifications').add({
-        userId:    d.userId,
-        title:     status === 'completed' ? '🎉 Canje completado' : '❌ Canje rechazado',
-        body, type: 'canje', read: false,
-        createdAt: firebase.firestore.Timestamp.now(),
-      });
-    }
-
-    toast(status === 'completed' ? '✅ Marcado como completado' : '❌ Solicitud rechazada');
+    const fn = firebase.functions().httpsCallable('processRedeemDecision');
+    await fn({ requestId: id, decision: status });
+    toast(status === 'completed' ? '✅ Marcado como completado' : '❌ Rechazado — coins devueltos');
     window.loadCanjes();
     loadDashboard();
   } catch (e) {
     console.error('[admin] updateCanjeStatus', e);
-    toast('Error al actualizar', false);
+    toast('Error: ' + (e.message || 'No se pudo actualizar'), false);
   }
 };
 
