@@ -106,7 +106,7 @@ service cloud.firestore {
                     && (resource.data.userId == request.auth.uid || isAdmin());
       allow create: if false;
       allow update: if isAdmin();
-      allow delete: if false;
+      allow delete: if isAdmin();
     }
 
     // ─── SHOP (read-only) ─────────────────────────────────────

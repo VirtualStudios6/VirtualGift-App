@@ -306,6 +306,23 @@ body {
 .btn-canje-err { background: rgba(244,63,94,.15);  color: #fda4af; }
 .btn-canje-ok:hover  { background: rgba(34,197,94,.28); }
 .btn-canje-err:hover { background: rgba(244,63,94,.25); }
+.btn-canje-muted {
+  flex: 1; padding: 10px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.08);
+  font-size: .82rem; font-weight: 800; cursor: pointer; font-family: var(--font);
+  background: rgba(255,255,255,.05); color: rgba(220,239,255,.6);
+  transition: background .15s;
+}
+.btn-canje-muted:hover { background: rgba(255,255,255,.11); }
+
+/* Activity row delete */
+.arm-del-btn {
+  background: none; border: none; cursor: pointer;
+  color: rgba(220,239,255,.2); padding: 4px 5px;
+  border-radius: 6px; display: flex; align-items: center;
+  transition: color .15s, background .15s; flex-shrink: 0; margin-left: 4px;
+}
+.arm-del-btn:hover { color: #f87171; background: rgba(244,63,94,.1); }
 
 /* ── SORTEOS ── */
 .sorteo-list { display: flex; flex-direction: column; gap: 8px; }

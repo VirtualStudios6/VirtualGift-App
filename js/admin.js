@@ -190,15 +190,30 @@ function buildRowMini(id, d) {
   const platIcon = imgSrc
     ? `<img src="${imgSrc}" class="arm-plat-img" alt="${esc(plat)}" onerror="this.style.display='none'">`
     : '';
-  return `<div class="admin-row-mini">
+  return `<div class="admin-row-mini" id="arm-${id}">
     ${platIcon}
     <div class="arm-info">
       <span class="arm-name">${esc(d.fullName || '—')}</span>
       <span class="arm-plat">${esc(plat)} · $${(d.usdAmount || 0).toFixed(2)} USD</span>
     </div>
     <span class="admin-badge ${cls}">${STATUS_LABEL[s] || s}</span>
+    <button type="button" class="arm-del-btn" onclick="deleteRecentItem('${id}')" title="Eliminar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+    </button>
   </div>`;
 }
+
+window.deleteRecentItem = async function(id) {
+  try {
+    await window.db.collection('redeemRequests').doc(id).delete();
+    const el = document.getElementById('arm-' + id);
+    if (el) el.remove();
+    toast('Eliminado');
+  } catch (e) {
+    console.error('[admin] deleteRecentItem', e);
+    toast('Error al eliminar', false);
+  }
+};
 
 // ─────────────────────────────────────────────────
 // CANJES
@@ -241,11 +256,16 @@ function buildCanjeCard(id, d) {
   const platEl = imgSrc
     ? `<img src="${imgSrc}" class="canje-plat-img" alt="${esc(plat)}" onerror="this.outerHTML='<span class=canje-plat-icon>${PLATFORM_ICON[d.platform]||'💳'}</span>'">`
     : `<span class="canje-plat-icon">${PLATFORM_ICON[d.platform] || '💳'}</span>`;
-  const actions = status === 'pending' ? `
-    <div class="canje-actions">
-      <button type="button" class="btn-canje-ok"  onclick="updateCanjeStatus('${id}','completed')">✓ Completar</button>
-      <button type="button" class="btn-canje-err" onclick="updateCanjeStatus('${id}','rejected')">✗ Rechazar</button>
-    </div>` : '';
+  const actions = status === 'pending'
+    ? `<div class="canje-actions">
+        <button type="button" class="btn-canje-ok"  onclick="updateCanjeStatus('${id}','completed')">✓ Completar</button>
+        <button type="button" class="btn-canje-err" onclick="updateCanjeStatus('${id}','rejected')">✗ Rechazar</button>
+       </div>`
+    : `<div class="canje-actions">
+        ${status === 'rejected' ? `<button type="button" class="btn-canje-ok" onclick="forceCanjeStatus('${id}','completed')">✓ Marcar completado</button>` : ''}
+        ${status === 'completed' ? `<button type="button" class="btn-canje-err" onclick="forceCanjeStatus('${id}','rejected')">✗ Marcar rechazado</button>` : ''}
+        <button type="button" class="btn-canje-muted" onclick="forceCanjeStatus('${id}','pending')">↩ Mover a pendiente</button>
+       </div>`;
   const extraDate = d.completedAt
     ? `<div class="canje-row"><span>Completado</span><strong>${fmtDate(d.completedAt)}</strong></div>` : '';
   const emailRow = d.email
@@ -282,6 +302,22 @@ window.updateCanjeStatus = async function (id, status) {
   } catch (e) {
     console.error('[admin] updateCanjeStatus', e);
     toast('Error: ' + (e.message || 'No se pudo actualizar'), false);
+  }
+};
+
+window.forceCanjeStatus = async function (id, status) {
+  const labels = { completed: '✅ Marcado como completado', rejected: '❌ Marcado como rechazado', pending: '⏳ Movido a pendiente' };
+  try {
+    const FS = firebase.firestore.FieldValue;
+    const update = { status, updatedAt: FS.serverTimestamp() };
+    if (status === 'completed') update.completedAt = FS.serverTimestamp();
+    await window.db.collection('redeemRequests').doc(id).update(update);
+    toast(labels[status] || 'Estado actualizado');
+    window.loadCanjes();
+    loadDashboard();
+  } catch (e) {
+    console.error('[admin] forceCanjeStatus', e);
+    toast('Error al actualizar', false);
   }
 };
 
