@@ -235,6 +235,17 @@ const PLATFORM_LABELS = {
   psn:        { name: 'PlayStation',      field: 'Correo electrónico', placeholder: 'ejemplo@email.com'  },
 };
 
+const PLATFORM_ICONS = {
+  paypal:     'images/giftcards/paypal.png',
+  amazon:     'images/giftcards/amazon.png',
+  steam:      'images/giftcards/steam.png',
+  googleplay: 'images/giftcards/google.png',
+  psn:        'images/giftcards/psn.png',
+  xbox:       'images/giftcards/xbox.png',
+  netflix:    'images/giftcards/netflix.png',
+  spotify:    'images/giftcards/spotify.png',
+};
+
 function setupPlatformCards() {
   document.querySelectorAll('.platform-card').forEach(card => {
     card.addEventListener('click', () => {
@@ -445,12 +456,19 @@ function buildHistItem(d) {
   if (d.type === 'raffle_entry'  && d.raffleTitle) label = _histEsc(d.raffleTitle);
   if (d.type === 'redeem'        && d.platform)    label = `Canje \u2014 ${_histEsc(PLATFORM_LABELS[d.platform]?.name || d.platform)}`;
 
+  // Usar el logo real de la plataforma para canjes de gift cards
+  let icon = meta.icon;
+  if (d.type === 'redeem' && d.platform && PLATFORM_ICONS[d.platform]) {
+    const altText = _histEsc(PLATFORM_LABELS[d.platform]?.name || d.platform);
+    icon = `<img src="${PLATFORM_ICONS[d.platform]}" class="hist-platform-icon" alt="${altText}">`;
+  }
+
   const date = d.createdAt?.toDate
     ? d.createdAt.toDate().toLocaleDateString('es-DO', { day: '2-digit', month: 'short', year: 'numeric' })
     : '';
 
   return `<div class="hist-item">
-    <div class="hist-icon">${meta.icon}</div>
+    <div class="hist-icon">${icon}</div>
     <div class="hist-body">
       <span class="hist-label">${label}</span>
       ${date ? `<span class="hist-date">${date}</span>` : ''}
