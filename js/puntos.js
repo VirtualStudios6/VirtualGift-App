@@ -543,7 +543,38 @@ async function loadHistory(userId, append = false) {
 
     if (!snap.empty) {
       _histLastDoc = snap.docs[snap.docs.length - 1];
-      container.insertAdjacentHTML('beforeend', snap.docs.map(d => buildHistItem(d.data())).join(''));
+
+      // Para entradas de tipo 'redeem', leer el estado real desde redeemRequests
+      // (más confiable que el campo status denormalizado en pointsHistory)
+      const redeemEntries = snap.docs.filter(d => {
+        const data = d.data();
+        return data.type === 'redeem' && data.redeemRequestId;
+      });
+      const statusMap = {};
+      if (redeemEntries.length > 0) {
+        const ids = redeemEntries.map(d => d.data().redeemRequestId);
+        for (let i = 0; i < ids.length; i += 10) {
+          const batch = ids.slice(i, i + 10);
+          try {
+            const reqSnap = await window.db.collection('redeemRequests')
+              .where(firebase.firestore.FieldPath.documentId(), 'in', batch)
+              .get();
+            reqSnap.forEach(doc => {
+              statusMap[doc.id] = doc.data().status || 'pending';
+            });
+          } catch (e2) {
+            console.warn('[historial] no se pudo leer estado de canjes:', e2.message);
+          }
+        }
+      }
+
+      container.insertAdjacentHTML('beforeend', snap.docs.map(d => {
+        const data = Object.assign({}, d.data());
+        if (data.type === 'redeem' && data.redeemRequestId) {
+          data.status = statusMap[data.redeemRequestId] || data.status || 'pending';
+        }
+        return buildHistItem(data);
+      }).join(''));
     }
 
     if (loadMoreEl) loadMoreEl.style.display = snap.size < HIST_PAGE ? 'none' : 'block';
