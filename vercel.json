@@ -2,5 +2,6 @@
   "buildCommand": "node build.js",
   "outputDirectory": "www",
   "framework": null,
-  "installCommand": "echo skip"
+  "installCommand": "echo skip",
+  "cleanUrls": true
 }
