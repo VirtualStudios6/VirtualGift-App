@@ -520,7 +520,7 @@
         <span class="hdr-status-dot" aria-hidden="true"></span>En línea
       </div>
     </div>
-    <button class="hdr-home-btn" id="hdrHelpBtn" onclick="window.chatShowHelp()" style="display:none" aria-label="Volver a inicio del soporte" title="Inicio">
+    <button class="hdr-home-btn" id="hdrHelpBtn" onclick="location.href=typeof withAppFlag==='function'?withAppFlag('inicio.html'):'inicio.html'" style="display:none" aria-label="Ir a inicio" title="Inicio">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
     </button>
   </header>
