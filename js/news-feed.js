@@ -138,19 +138,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
   async function fetchAndUpdateNews(silent = false) {
     try {
-      const snap = await window.db
+      // Intentar con orden por sort (campo asignado desde el panel admin).
+      // Si no hay resultados (migración pendiente) o falla el índice,
+      // caer de vuelta a updatedAt desc.
+      let snap = await window.db
         .collection("news")
         .where("published", "==", true)
         .orderBy("sort", "asc")
         .limit(FEED_LIMIT)
         .get();
 
+      if (snap.empty) {
+        snap = await window.db
+          .collection("news")
+          .where("published", "==", true)
+          .orderBy("updatedAt", "desc")
+          .limit(FEED_LIMIT)
+          .get();
+      }
+
       const items = snap.docs.map((d) => ({ id: d.id, data: d.data() }));
       setCachedNews(items);
       if (!silent) renderNews(items);
     } catch (e) {
-      console.error("[news-feed] Error fetchAndUpdateNews:", e);
-      if (!silent) showError("No se pudieron cargar las noticias.");
+      // Índice no disponible aún — fallback a updatedAt
+      try {
+        const snap = await window.db
+          .collection("news")
+          .where("published", "==", true)
+          .orderBy("updatedAt", "desc")
+          .limit(FEED_LIMIT)
+          .get();
+        const items = snap.docs.map((d) => ({ id: d.id, data: d.data() }));
+        setCachedNews(items);
+        if (!silent) renderNews(items);
+      } catch (e2) {
+        console.error("[news-feed] Error fetchAndUpdateNews:", e2);
+        if (!silent) showError("No se pudieron cargar las noticias.");
+      }
     }
   }
 
