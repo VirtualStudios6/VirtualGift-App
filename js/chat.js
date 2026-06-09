@@ -26,52 +26,22 @@ window.chatGoBack = function () {
 
 window.chatShowHelp = function () {
   _inChatView = false;
-  document.getElementById('helpView').style.display = '';
-  document.getElementById('chatView').style.display = 'none';
+  document.getElementById('helpView').style.display  = '';
+  document.getElementById('chatView').style.display  = 'none';
   document.getElementById('hdrHelpBtn').style.display = 'none';
   _hideQR();
 };
 
 window.chatShowChat = function () {
   _inChatView = true;
-  document.getElementById('helpView').style.display = 'none';
-  document.getElementById('chatView').style.display = '';
+  document.getElementById('helpView').style.display  = 'none';
+  document.getElementById('chatView').style.display  = '';
   document.getElementById('hdrHelpBtn').style.display = '';
   _hideQR();
   const cc = document.getElementById('chatContent');
   if (cc) setTimeout(function () { cc.scrollTop = cc.scrollHeight; }, 50);
   const input = document.getElementById('chatInput');
   if (input) setTimeout(function () { input.focus(); }, 120);
-};
-
-// ── FAQ ACCORDION ──────────────────────────────────
-window.chatToggleFaq = function (btn) {
-  const item = btn.closest('.faq-item');
-  if (!item) return;
-  const wasOpen = item.classList.contains('open');
-  document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
-  if (!wasOpen) item.classList.add('open');
-};
-
-// ── QUICK TOPICS ───────────────────────────────────
-const _TOPIC_MSG = {
-  canje:  'Hola, tengo un problema con un canje de premios. ¿Pueden ayudarme?',
-  pago:   'Hola, tengo una consulta sobre un pago o cobro en mi cuenta.',
-  sorteo: 'Hola, tengo una pregunta sobre los sorteos de VirtualGift.',
-  cuenta: 'Hola, tengo un problema para acceder a mi cuenta.',
-  error:  'Hola, quiero reportar un error técnico en la aplicación.',
-  otro:   'Hola, tengo una consulta sobre VirtualGift.',
-};
-
-window.chatQuickTopic = function (topic) {
-  window.chatShowChat();
-  const input = document.getElementById('chatInput');
-  if (input) {
-    input.value = _TOPIC_MSG[topic] || _TOPIC_MSG.otro;
-    input.style.height = 'auto';
-    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
-    input.focus();
-  }
 };
 
 // ── QUICK REPLIES ──────────────────────────────────
@@ -562,14 +532,11 @@ function initChat(user) {
     });
   }
 
-  // If user has previous messages, update CTA label — but ALWAYS start on helpView
+  // If user already has messages, go directly to chat view
   window.db.collection('supportChats').doc(_chatUid)
     .collection('messages').limit(1).get()
     .then(function (snap) {
-      const ctaBtn = document.getElementById('helpCtaBtn');
-      if (!snap.empty && ctaBtn) {
-        ctaBtn.innerHTML = `<svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:#fff;flex-shrink:0"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>Ver mi conversación`;
-      }
+      if (!snap.empty) window.chatShowChat();
     })
     .catch(function () {});
 
