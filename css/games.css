@@ -1,4 +1,4 @@
-/* ── TOAST ── */
+﻿/* ── TOAST ── */
 .game-toast {
   position: fixed; bottom: 28px; left: 50%;
   transform: translateX(-50%) translateY(12px);
@@ -484,3 +484,4 @@ body {
   body { padding: 24px; }
   .game-wrap, .game-topbar { max-width: 460px; }
 }
+.coin-img{width:1.15em;height:1.15em;vertical-align:-0.2em;object-fit:contain;display:inline;flex-shrink:0}
