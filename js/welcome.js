@@ -71,7 +71,6 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ------------------------------------------ */
   function applyFirstTimeUI(name) {
     if (dividerLabel)   dividerLabel.textContent  = "¡Primera vez aquí!";
-    if (avatarWrap)     avatarWrap.textContent     = "🎉";
     if (welcomeMessage) welcomeMessage.textContent = getMsgFirstTime(name);
   }
 
@@ -252,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const prevData = snap.exists ? (snap.data() || {}) : {};
 
         const loginCount  = safeNumber(prevData.loginCount, 0);
-        const isFirstTime = !snap.exists || loginCount === 0;
+        const isFirstTime = !snap.exists;
 
         const provider = (() => {
           const pid = user.providerData?.[0]?.providerId || "password";
@@ -263,42 +262,26 @@ document.addEventListener("DOMContentLoaded", () => {
         const myReferralCode = 'VG' + user.uid.slice(0, 6).toUpperCase();
 
         if (isFirstTime) {
-          const welcomeBonus = 175;
           await userRef.set({
-            uid:                 user.uid,
-            displayName:         user.displayName || "Usuario",
-            username:            user.displayName || "Usuario",
-            email:               user.email || "",
+            uid:          user.uid,
+            displayName:  user.displayName || "Usuario",
+            username:     user.displayName || "Usuario",
+            email:        user.email || "",
             provider,
-            photoURL:            user.photoURL || "",
-            referralCode:        myReferralCode,
-            loginCount:          1,
-            points:              firebase.firestore.FieldValue.increment(welcomeBonus),
-            lastLogin:           firebase.firestore.FieldValue.serverTimestamp(),
-          }, { merge: true });
-          // Registrar en historial
-          try {
-            await db.collection("pointsHistory").add({
-              userId:    user.uid,
-              type:      "welcome_bonus",
-              points:    welcomeBonus,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            });
-          } catch (_) {}
+            photoURL:     user.photoURL || "",
+            referralCode: myReferralCode,
+            loginCount:   1,
+            points:       175,
+            level:        1,
+            experience:   0,
+            nextLevel:    200,
+            lastLogin:    firebase.firestore.FieldValue.serverTimestamp(),
+          });
 
           const name = user.displayName || "Usuario";
           if (userNameElem) userNameElem.textContent = name;
           applyFirstTimeUI(name);
-
-          // Mostrar foto si tiene
-          if (avatarWrap && user.photoURL) {
-            const img = document.createElement("img");
-            img.src = user.photoURL; img.className = "user-photo"; img.alt = name;
-            img.onerror = () => { avatarWrap.textContent = "🎉"; };
-            avatarWrap.innerHTML = ""; avatarWrap.appendChild(img);
-          } else if (avatarWrap) {
-            avatarWrap.textContent = "🎉";
-          }
+          if (avatarWrap && !user.photoURL) avatarWrap.textContent = "🎉";
 
         } else {
           await userRef.set({
@@ -319,6 +302,17 @@ document.addEventListener("DOMContentLoaded", () => {
         const points    = safeNumber(data.points, 0);
         setCachedPoints(points);
         animatePoints(points);
+
+        // Si no hay foto de auth, usar la guardada en Firestore (ej. foto subida en perfil)
+        if (avatarWrap && !user.photoURL && data.photoURL) {
+          const img = document.createElement("img");
+          img.src = data.photoURL;
+          img.className = "user-photo";
+          img.alt = quickName;
+          img.onerror = () => {};
+          avatarWrap.innerHTML = "";
+          avatarWrap.appendChild(img);
+        }
 
       } catch (e) {
         console.error("[welcome] Firestore error:", e);
