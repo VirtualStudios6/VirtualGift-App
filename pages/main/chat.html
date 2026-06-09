@@ -23,12 +23,34 @@
 
     html, body {
       height: 100%;
-      background: #03010f;
       font-family: 'Inter', -apple-system, sans-serif;
       color: #dcefff;
       -webkit-text-size-adjust: 100%;
       overscroll-behavior: none;
     }
+
+    /* ── BACKGROUND ── */
+    body {
+      /* Radial blobs matching brand purple palette */
+      background:
+        radial-gradient(ellipse 65% 55% at 10% 5%,  rgba(109, 40, 217, 0.22) 0%, transparent 60%),
+        radial-gradient(ellipse 55% 45% at 90% 90%, rgba(139, 92, 246, 0.18) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 70% 30%, rgba(76,  29, 149, 0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 40% 35% at 25% 70%, rgba(99,  40, 217, 0.10) 0%, transparent 50%),
+        #03010f;
+    }
+    /* Subtle dot-grid on top of blobs */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,.028) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    /* Everything above the dot-grid */
+    .top-bar, .chat-msgs, .chat-input-bar { z-index: 1; }
 
     /* ── FIXED LAYOUT: top-bar + scrollable messages + input bar ── */
     /* This avoids flex/min-height quirks on mobile browsers */

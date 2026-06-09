@@ -22,7 +22,18 @@ window.chatGoBack = function () {
 window.chatSendMessage = function () {
   const input = document.getElementById('chatInput');
   const text  = (input?.value || '').trim();
-  if (!text || !_chatUid || _chatStatus === 'closed') return;
+  if (!text) return;
+
+  // If uid not set, try to recover from currentUser before failing visibly
+  if (!_chatUid) {
+    try {
+      const cu = window.db && firebase.auth().currentUser;
+      if (cu) { initChat(cu); }
+    } catch (e) {}
+    if (!_chatUid) { chatShowErr('Conectando… espera un momento'); return; }
+  }
+
+  if (_chatStatus === 'closed') { chatShowErr('El chat está cerrado.'); return; }
 
   input.value = '';
   input.style.height = 'auto';
@@ -336,12 +347,33 @@ function startChat() {
   _chatInited = true;
   clearTimeout(_chatLoadGuard);
 
+  // With LOCAL persistence, currentUser is populated synchronously from localStorage
+  // the moment firebase.auth() is created — no need to wait for the async listener.
+  try {
+    const cu = firebase.auth().currentUser;
+    if (cu) {
+      initChat(cu);
+      // Keep listener active to catch logout / token expiry
+      firebase.auth().onAuthStateChanged(function (user) {
+        if (!user && _chatUid) {
+          location.href = typeof withAppFlag === 'function'
+            ? withAppFlag('login.html') : 'login.html';
+        }
+      });
+      return;
+    }
+  } catch (e) {
+    console.warn('[chat] currentUser check:', e);
+  }
+
+  // Fallback: async listener (fires when auth state resolves from network)
   firebase.auth().onAuthStateChanged(function (user) {
     if (!user) {
       location.href = typeof withAppFlag === 'function'
         ? withAppFlag('login.html') : 'login.html';
       return;
     }
+    if (_chatUid) return; // already initialized via currentUser path above
     initChat(user);
   });
 }
