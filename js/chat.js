@@ -247,17 +247,20 @@ window.chatCancelPreview = function () {
   _imagePreviewFile = null;
   var overlay = document.getElementById('imgPreviewOverlay');
   if (overlay) overlay.classList.remove('visible');
+  var cap = document.getElementById('imgPreviewCaption');
+  if (cap) cap.value = '';
 };
 
 window.chatConfirmPreview = function () {
   var file = _imagePreviewFile;
   if (!file) return;
+  var cap = (document.getElementById('imgPreviewCaption')?.value || '').trim();
   window.chatCancelPreview();
   if (!_inChatView) window.chatShowChat();
-  _chatUploadFile(file, 'image');
+  _chatUploadFile(file, 'image', cap);
 };
 
-async function _chatUploadFile(file, type) {
+async function _chatUploadFile(file, type, caption) {
   if (!_chatUid) return;
 
   const cc    = document.getElementById('chatContent');
@@ -269,7 +272,7 @@ async function _chatUploadFile(file, type) {
     const uploadHtml = `<div id="${tmpId}" class="msg-row msg-row--user">
       <div class="msg-uploading">
         <div class="spin-ring-sm"></div>
-        <span>Subiendo ${type === 'image' ? 'imagen' : 'archivo'}…</span>
+        <span>Enviando…</span>
       </div>
     </div>`;
     if (anchor) anchor.insertAdjacentHTML('beforebegin', uploadHtml);
@@ -289,7 +292,7 @@ async function _chatUploadFile(file, type) {
     const now   = FS.serverTimestamp();
     const batch = window.db.batch();
 
-    const msgData = { from:'user', text:'', senderName:_chatName, createdAt:now, status:'sent' };
+    const msgData = { from:'user', text: caption || '', senderName:_chatName, createdAt:now, status:'sent' };
     if (type === 'image') {
       msgData.type = 'image'; msgData.imageUrl = url;
     } else {
@@ -300,7 +303,9 @@ async function _chatUploadFile(file, type) {
     batch.set(window.db.collection('supportChats').doc(_chatUid).collection('messages').doc(), msgData);
     batch.set(window.db.collection('supportChats').doc(_chatUid), {
       userId:_chatUid, userName:_chatName, userEmail:_chatEmail,
-      lastMessage: type === 'image' ? '📷 Imagen' : '📎 ' + file.name.slice(0,40),
+      lastMessage: type === 'image'
+        ? (caption ? '📷 ' + caption.slice(0,60) : '📷 Imagen')
+        : '📎 ' + file.name.slice(0,40),
       lastMessageAt:now, unreadAdmin:FS.increment(1), status:'waiting', createdAt:now,
     }, { merge:true });
 

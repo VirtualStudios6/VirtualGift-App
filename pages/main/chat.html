@@ -409,6 +409,16 @@
     .img-preview-btn--cancel { background: rgba(255,255,255,.08); color: rgba(226,232,240,.8); border: 1px solid rgba(255,255,255,.1); }
     .img-preview-btn--send   { background: linear-gradient(135deg,#6d28d9,#a855f7); color: #fff; box-shadow: 0 2px 12px rgba(139,92,246,.3); }
     .img-preview-btn--send:hover { opacity: .9; }
+    #imgPreviewCaption {
+      width: 100%; box-sizing: border-box;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 13px; padding: 10px 14px;
+      color: #e2e8f0; font-family: inherit; font-size: .87rem;
+      resize: none; outline: none; line-height: 1.45;
+      transition: border-color .15s;
+    }
+    #imgPreviewCaption::placeholder { color: rgba(148,163,184,.45); }
+    #imgPreviewCaption:focus { border-color: rgba(139,92,246,.45); }
 
     /* ── QUICK REPLIES ────────────────────────────────── */
     #qrPanel {
@@ -583,9 +593,13 @@
     <div id="imgPreviewContent">
       <img id="imgPreviewEl" src="" alt="Vista previa">
       <div id="imgPreviewName"></div>
+      <textarea id="imgPreviewCaption" rows="2" maxlength="500"
+        placeholder="Añade un comentario… (opcional)"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();window.chatConfirmPreview()}"
+      ></textarea>
       <div class="img-preview-actions">
         <button class="img-preview-btn img-preview-btn--cancel" onclick="window.chatCancelPreview()" type="button">Cancelar</button>
-        <button class="img-preview-btn img-preview-btn--send"   onclick="window.chatConfirmPreview()" type="button">Enviar imagen</button>
+        <button class="img-preview-btn img-preview-btn--send"   onclick="window.chatConfirmPreview()" type="button">Enviar</button>
       </div>
     </div>
   </div>
