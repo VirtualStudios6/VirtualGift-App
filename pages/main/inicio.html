@@ -371,7 +371,7 @@
         card.className = 'fn-strip-item';
         card.style.background = bg;
         card.innerHTML = `
-            <img src="${item.imageUrl}" alt="${name}" loading="lazy" onerror="this.style.display='none'">
+            <img src="${item.imageUrl}" alt="${name}" loading="eager" decoding="async" onerror="this.style.display='none'">
             <div class="fn-strip-item-info">
                 <div class="fn-strip-item-name">${name}</div>
                 ${price ? `<div class="fn-strip-item-price">
@@ -413,32 +413,67 @@
         _stripRotationTimer = setInterval(renderStripPage, STRIP_ROTATE_MS);
     }
 
+    // ============================================
+    // CACHÉ LOCAL (30 min) — visita repetida = ítems al instante
+    // ============================================
+    const _SHOP_CACHE_KEY = 'vg_shop_strip';
+    const _SHOP_CACHE_TTL = 30 * 60 * 1000;
+
+    function _getShopCache() {
+        try {
+            const raw = localStorage.getItem(_SHOP_CACHE_KEY);
+            if (!raw) return null;
+            const { items, ts } = JSON.parse(raw);
+            return Date.now() - ts < _SHOP_CACHE_TTL ? items : null;
+        } catch { return null; }
+    }
+
+    function _setShopCache(items) {
+        try { localStorage.setItem(_SHOP_CACHE_KEY, JSON.stringify({ items, ts: Date.now() })); } catch {}
+    }
+
     function loadShopStrip() {
         const strip = document.getElementById('fnShopStrip');
         if (!strip || !window.db) return;
+
+        // Renderizar caché de inmediato si existe
+        const cached = _getShopCache();
+        if (cached && cached.length) {
+            _allStripItems = cached;
+            _stripOffset = Math.floor(Math.random() * _allStripItems.length);
+            startStripRotation();
+        }
+
         window.db.collection("shopDailyItems")
             .orderBy("sort", "asc")
             .onSnapshot(snap => {
-                _allStripItems = [];
+                const fresh = [];
                 snap.forEach(doc => {
                     const item = { id: doc.id, ...doc.data() };
-                    if (item.imageUrl) _allStripItems.push(item);
+                    if (item.imageUrl) fresh.push(item);
                 });
+                _setShopCache(fresh);
+                _allStripItems = fresh;
                 _stripOffset = Math.floor(Math.random() * _allStripItems.length);
                 startStripRotation();
             }, err => { console.error("ShopStrip error:", err); });
     }
 
-    function waitDbStrip(max = 80) {
-        let i = 0;
-        const t = setInterval(() => {
-            i++;
-            if (window.db) { clearInterval(t); loadShopStrip(); }
-            else if (i >= max) clearInterval(t);
-        }, 100);
-    }
-
-    window.addEventListener('load', () => waitDbStrip());
+    // DOMContentLoaded en lugar de window.load:
+    // los scripts defer (incluido firebase-config.js) ya corrieron,
+    // así que window.db y window.waitForFirebase están disponibles.
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof window.waitForFirebase === 'function') {
+            window.waitForFirebase(() => loadShopStrip());
+        } else {
+            let i = 0;
+            const t = setInterval(() => {
+                i++;
+                if (window.db) { clearInterval(t); loadShopStrip(); }
+                else if (i >= 80) clearInterval(t);
+            }, 100);
+        }
+    });
 
     // ============================================
     // FLECHAS DEL STRIP
