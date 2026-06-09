@@ -184,21 +184,11 @@
           <p class="ref-enter-msg" id="refEnterMsg"></p>
         </div>
       </div>
-<!-- Notificaciones push -->
-      <div class="section">
-        <h2 class="section-title"><i data-lucide="bell"></i> Notificaciones push</h2>
-        <div class="action-buttons">
-          <button type="button" class="btn" id="btnPush"
-            onclick="togglePushNotifications(window.auth?.currentUser?.uid)">
-            <i data-lucide="bell"></i> Activar notificaciones push
-          </button>
-        </div>
-      </div>
-
       <!-- Soporte -->
       <div class="section">
         <h2 class="section-title"><i data-lucide="life-buoy"></i> Soporte</h2>
         <div class="action-buttons">
+          <button type="button" class="btn btn-primary" onclick="window.location.href=withAppFlag('chat.html')"><i data-lucide="message-circle"></i> Chat en vivo</button>
           <button type="button" class="btn" onclick="window.location.href=withAppFlag('soporte.html')"><i data-lucide="circle-help"></i> Centro de Ayuda</button>
           <button type="button" class="btn" id="btnReport"><i data-lucide="bug"></i> Reportar un problema</button>
           <button class="btn btn-ghost-danger" id="btnDeleteAccount">Eliminar mi cuenta</button>
@@ -213,10 +203,8 @@
   <input id="avatarInput" type="file" accept="image/*" style="display:none;" />
 
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js" defer></script>
   <script defer src="js/notification-badge.js"></script>
   <script defer src="js/deleteUserData.js"></script>
-  <script defer src="js/push-notifications.js"></script>
   <script defer src="js/profile.js"></script>
 <script>document.addEventListener('DOMContentLoaded', function() { if(window.lucide)lucide.createIcons(); });</script>
 <script defer src="js/bottom-nav.js"></script>
