@@ -26,23 +26,18 @@ window.chatGoBack = function () {
 
 window.chatShowHelp = function () {
   _inChatView = false;
-  document.getElementById('helpView').style.display     = '';
-  document.getElementById('chatView').style.display     = 'none';
-  document.getElementById('chatInputBar').style.display = 'none';
-  document.getElementById('hdrHelpBtn').style.display   = 'none';
-  const helpCta = document.getElementById('helpCta');
-  if (helpCta) helpCta.style.display = '';
+  document.getElementById('helpView').style.display = '';
+  document.getElementById('chatView').style.display = 'none';
+  document.getElementById('hdrHelpBtn').style.display = 'none';
   _hideQR();
 };
 
 window.chatShowChat = function () {
   _inChatView = true;
-  document.getElementById('helpView').style.display     = 'none';
-  document.getElementById('chatView').style.display     = '';
-  document.getElementById('chatInputBar').style.display = '';
-  document.getElementById('hdrHelpBtn').style.display   = '';
-  const helpCta = document.getElementById('helpCta');
-  if (helpCta) helpCta.style.display = 'none';
+  document.getElementById('helpView').style.display = 'none';
+  document.getElementById('chatView').style.display = '';
+  document.getElementById('hdrHelpBtn').style.display = '';
+  _hideQR();
   const cc = document.getElementById('chatContent');
   if (cc) setTimeout(function () { cc.scrollTop = cc.scrollHeight; }, 50);
   const input = document.getElementById('chatInput');

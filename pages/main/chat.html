@@ -445,14 +445,14 @@
     }
     .qr-chip:active { background:rgba(139,92,246,.2); border-color:rgba(139,92,246,.35); }
 
-    /* ── INPUT BAR ── */
+    /* ── INPUT BAR — always visible ── */
     .chat-input-bar {
       position: fixed; bottom: 0; left: 0; right: 0;
       padding: 8px 12px;
       padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
       background: rgba(3,1,15,.98);
       border-top: 1px solid rgba(255,255,255,.07);
-      z-index: 60; display: none;
+      z-index: 60;
     }
     .chat-input-row {
       display: flex; align-items: flex-end; gap: 6px;
@@ -621,25 +621,17 @@
         </div>
       </div>
 
-      <div style="height:90px"></div>
+      <div style="height:80px"></div>
     </div>
   </div>
 
   <!-- ═══════════════════════════════════════════ -->
-  <!-- CHAT VIEW                                   -->
+  <!-- CHAT VIEW (fixed overlay, shown after first message) -->
   <!-- ═══════════════════════════════════════════ -->
   <div id="chatView">
     <div class="chat-content" id="chatContent">
       <div class="chat-loading"><div class="spin-ring"></div></div>
     </div>
-  </div>
-
-  <!-- HELP CTA (body-level so it's never clipped by overflow container) -->
-  <div class="help-cta" id="helpCta">
-    <button class="btn-start-chat" id="helpCtaBtn" onclick="window.chatShowChat()">
-      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
-      Iniciar conversación
-    </button>
   </div>
 
   <!-- QUICK REPLIES PANEL -->
