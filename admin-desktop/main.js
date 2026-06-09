@@ -2,7 +2,7 @@ const { app, BrowserWindow, Menu, shell } = require('electron');
 const path = require('path');
 
 // ── Cambia esto a tu dominio real de Vercel ──────────────────────────────────
-const ADMIN_URL = 'https://TU-DOMINIO.vercel.app/admin';
+const ADMIN_URL = 'https://virtualgift.pro/admin';
 // ─────────────────────────────────────────────────────────────────────────────
 
 let mainWindow;
