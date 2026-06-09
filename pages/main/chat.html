@@ -21,12 +21,14 @@
   <style>
     /* ── RESET ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      height: 100%;
+    html { -webkit-text-size-adjust: 100%; }
+    body {
       font-family: 'Inter', -apple-system, sans-serif;
       color: #dcefff;
-      -webkit-text-size-adjust: 100%;
       overscroll-behavior: none;
+      /* push content below the fixed topbar */
+      padding-top: calc(60px + env(safe-area-inset-top, 0px));
+      min-height: 100dvh;
     }
 
     /* ── BACKGROUND ── */
@@ -103,21 +105,28 @@
     .hdr-help-btn:active { background: rgba(139,92,246,.25); }
 
     /* ── VIEWS ── */
-    #helpView, #chatView {
-      position: fixed;
-      top: calc(60px + env(safe-area-inset-top, 0px));
-      bottom: 0; left: 0; right: 0;
-      overflow-y: auto; overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
+    /* helpView: normal document flow so mobile browsers always render it */
+    #helpView {
+      display: block;
+      position: relative;
       z-index: 1;
     }
+
+    /* chatView: fixed overlay shown on demand */
     #chatView {
       display: none;
+      position: fixed;
+      top: calc(60px + env(safe-area-inset-top, 0px));
       bottom: calc(68px + env(safe-area-inset-bottom, 0px));
+      left: 0; right: 0;
+      overflow-y: auto; overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      background: #03010f;
+      z-index: 10;
     }
 
     /* ── HELP VIEW ── */
-    .help-content { padding: 14px 14px 130px; display: flex; flex-direction: column; gap: 14px; }
+    .help-content { padding: 14px 14px 110px; display: flex; flex-direction: column; gap: 14px; }
 
     /* Hero */
     .help-hero {

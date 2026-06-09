@@ -470,9 +470,9 @@ function subscribeChatDoc() {
         badge.dataset.s = newStatus;
       }
 
-      // Header status line
+      // Header status line — only show ticket state when user is in the chat view
       const statusEl = document.getElementById('hdrStatusLine');
-      if (statusEl) {
+      if (statusEl && _inChatView) {
         if (isClosed) {
           statusEl.className = 'hdr-status st-closed';
           statusEl.innerHTML = '<span class="hdr-status-dot"></span>Chat cerrado';
