@@ -80,6 +80,11 @@
     }
     .stat-chip-val { color: #a78bfa; font-weight: 900; }
 
+    .c-section-ico {
+      width: 16px; height: 16px; flex-shrink: 0;
+      color: #a78bfa; stroke: currentColor;
+    }
+
     /* -- SECTION -- */
     .c-section { margin: 22px 0; }
     .c-section-head {
@@ -281,11 +286,6 @@
       <span class="hero-emoji">&#x1F31F;</span>
       <h1 class="hero-title">Comunidad</h1>
       <p class="hero-sub">Ve qui&eacute;n lidera y qu&eacute; est&aacute; pasando</p>
-      <div class="stats-chips">
-        <div class="stat-chip">&#x1F465; <span class="stat-chip-val" id="statUsers">--</span> usuarios</div>
-        <div class="stat-chip">&#x1F381; <span class="stat-chip-val" id="statSorteos">--</span> sorteos activos</div>
-        <div class="stat-chip">&#x1F3B0; <span class="stat-chip-val" id="statGiros">--</span> giros hoy</div>
-      </div>
     </div>
 
     <div class="c-divider"></div>
@@ -293,7 +293,10 @@
     <!-- RANKING -->
     <div class="c-section">
       <div class="c-section-head">
-        <span class="c-section-title">&#x1F4CA; Ranking de Coins</span>
+        <span class="c-section-title">
+          <svg class="c-section-ico" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+          Ranking de Coins
+        </span>
         <button class="refresh-btn" onclick="loadRanking()">&#x21BB; Actualizar</button>
       </div>
 
@@ -318,7 +321,10 @@
     <!-- ACTIVIDAD -->
     <div class="c-section">
       <div class="c-section-head">
-        <span class="c-section-title">&#x1F3A1; Actividad Reciente</span>
+        <span class="c-section-title">
+          <svg class="c-section-ico" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Actividad Reciente
+        </span>
         <span class="c-badge-live">EN VIVO</span>
       </div>
       <div class="activity-list" id="activityList">

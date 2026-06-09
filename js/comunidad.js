@@ -55,38 +55,6 @@ function avatarColor(uid) {
   return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
 }
 
-// ── Stats ──
-
-async function loadStats() {
-  try {
-    const [sorteosSnap, todayGirosSnap] = await Promise.all([
-      window.db.collection('raffles').where('active', '==', true).get(),
-      window.db.collection('pointsHistory')
-        .where('type', '==', 'roulette_win')
-        .where('createdAt', '>=', firebase.firestore.Timestamp.fromDate(
-          new Date(new Date().setHours(0, 0, 0, 0))
-        ))
-        .get(),
-    ]);
-
-    document.getElementById('statSorteos').textContent = sorteosSnap.size;
-    document.getElementById('statGiros').textContent   = todayGirosSnap.size || '0';
-
-    // User count: try stats/global, fallback to a readable approximate
-    try {
-      const statsDoc = await window.db.collection('stats').doc('global').get();
-      const count = statsDoc.exists ? (statsDoc.data().userCount || null) : null;
-      document.getElementById('statUsers').textContent = count ? count.toLocaleString() : '500+';
-    } catch (_) {
-      document.getElementById('statUsers').textContent   = '--';
-    }
-  } catch (e) {
-    console.warn('[comunidad] loadStats', e);
-    document.getElementById('statSorteos').textContent = '--';
-    document.getElementById('statGiros').textContent   = '--';
-    document.getElementById('statUsers').textContent   = '--';
-  }
-}
 
 // ── Ranking ──
 
@@ -268,7 +236,6 @@ window.addEventListener('load', () => {
         return;
       }
       currentUid = user.uid;
-      loadStats();
       loadRanking();
       loadActivity();
     });
