@@ -39,25 +39,50 @@
 
     <!-- ── HEADER ─────────────────────────────────── -->
     <header class="admin-header">
-      <div class="admin-header-logo">
+      <!-- Logo -->
+      <div class="adm-logo">
         <img src="images/logo-virtual-login.png" alt="VG">
-        <span>VIRTUAL<em>GIFT</em></span>
+        <span class="adm-logo-name">Virtual<em>Gift</em></span>
+        <span class="adm-logo-tag">Admin</span>
       </div>
-      <span class="admin-header-badge">Admin</span>
 
-      <!-- Desktop: título de la sección actual -->
-      <span class="admin-header-section" id="headerSectionTitle">Dashboard</span>
+      <!-- Global search -->
+      <div class="adm-search">
+        <svg class="adm-search-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input class="adm-search-input" id="adminGlobalSearch" type="search" placeholder="Buscar usuario, canje, sorteo…" autocomplete="off">
+        <kbd class="adm-search-kbd">⌘K</kbd>
+      </div>
 
-      <div class="admin-header-actions">
-        <!-- Desktop: nombre del admin -->
-        <span class="admin-header-user" id="headerAdminName"></span>
-        <button class="admin-header-btn"
-          onclick="window.location.href=typeof withAppFlag==='function'?withAppFlag('inicio.html'):'inicio.html'">
-          🏠 Inicio
+      <!-- Right actions -->
+      <div class="adm-actions">
+        <!-- Pending canjes bell -->
+        <button class="adm-icon-btn" onclick="switchTab('tabCanjes')" title="Canjes pendientes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="adm-icon-badge" id="canjeBadge" style="display:none">0</span>
         </button>
-        <button class="admin-header-btn"
+        <!-- Chat badge bell -->
+        <button class="adm-icon-btn" onclick="switchTab('tabSoporte')" title="Chat soporte">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span class="adm-icon-badge adm-icon-badge--blue" id="chatBadge" style="display:none">0</span>
+        </button>
+
+        <div class="adm-sep"></div>
+
+        <!-- Admin profile -->
+        <div class="adm-profile-wrap">
+          <div class="adm-avatar" id="adminAvatarEl">A</div>
+          <span class="adm-profile-name" id="headerAdminName"></span>
+        </div>
+
+        <!-- Home -->
+        <button class="adm-icon-btn" title="Ir al inicio"
+          onclick="window.location.href=typeof withAppFlag==='function'?withAppFlag('inicio.html'):'inicio.html'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        </button>
+        <!-- Sign out -->
+        <button class="adm-icon-btn adm-icon-btn--danger" title="Cerrar sesión"
           onclick="firebase.auth().signOut().then(()=>window.location.href='login.html')">
-          Salir
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         </button>
       </div>
     </header>
@@ -65,54 +90,64 @@
     <!-- ── LAYOUT: SIDEBAR + MAIN ─────────────────── -->
     <div class="admin-layout">
 
-      <!-- SIDEBAR (visible solo en desktop) -->
+      <!-- SIDEBAR -->
       <nav class="admin-sidebar">
 
-        <div class="admin-sidebar-section">
-          <span class="admin-sidebar-label">Resumen</span>
+        <div class="adm-nav">
+
+          <!-- Dashboard -->
           <button class="admin-sidebar-btn active" data-tab="tabDashboard" onclick="switchTab('tabDashboard')">
-            <span class="admin-sidebar-icon">📊</span> Dashboard
+            <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span>Dashboard</span>
           </button>
+
+          <div class="adm-nav-divider"></div>
+          <span class="admin-sidebar-label">Gestión</span>
+
           <button class="admin-sidebar-btn" data-tab="tabCanjes" onclick="switchTab('tabCanjes')">
-            <span class="admin-sidebar-icon">💳</span> Canjes
+            <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            <span>Canjes</span>
             <span class="admin-sidebar-badge" id="canjeBadgeSidebar" style="display:none">0</span>
           </button>
-        </div>
 
-        <div class="admin-sidebar-section">
-          <span class="admin-sidebar-label">Contenido</span>
           <button class="admin-sidebar-btn" data-tab="tabNoticias" onclick="switchTab('tabNoticias')">
-            <span class="admin-sidebar-icon">📰</span> Noticias
+            <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span>Noticias</span>
           </button>
+
           <button class="admin-sidebar-btn" data-tab="tabNotificaciones" onclick="switchTab('tabNotificaciones')">
-            <span class="admin-sidebar-icon">🔔</span> Notificaciones
+            <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span>Notificaciones</span>
           </button>
-        </div>
 
-        <div class="admin-sidebar-section">
-          <span class="admin-sidebar-label">Juegos y premios</span>
           <button class="admin-sidebar-btn" data-tab="tabSorteos" onclick="switchTab('tabSorteos')">
-            <span class="admin-sidebar-icon">🏆</span> Sorteos
+            <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+            <span>Sorteos</span>
           </button>
-        </div>
 
-        <div class="admin-sidebar-section">
-          <span class="admin-sidebar-label">Usuarios</span>
+          <div class="adm-nav-divider"></div>
+          <span class="admin-sidebar-label">Personas</span>
+
           <button class="admin-sidebar-btn" data-tab="tabUsuarios" onclick="switchTab('tabUsuarios')">
-            <span class="admin-sidebar-icon">👥</span> Usuarios
+            <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Usuarios</span>
           </button>
-          <button class="admin-sidebar-btn" data-tab="tabTrabajadores" onclick="switchTab('tabTrabajadores')">
-            <span class="admin-sidebar-icon">👷</span> Trabajadores
-          </button>
-        </div>
 
-        <div class="admin-sidebar-section">
+          <button class="admin-sidebar-btn" data-tab="tabTrabajadores" onclick="switchTab('tabTrabajadores')">
+            <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+            <span>Trabajadores</span>
+          </button>
+
+          <div class="adm-nav-divider"></div>
           <span class="admin-sidebar-label">Soporte</span>
+
           <button class="admin-sidebar-btn" data-tab="tabSoporte" onclick="switchTab('tabSoporte')">
-            <span class="admin-sidebar-icon">💬</span> Chat Soporte
+            <svg class="adm-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>Chat Soporte</span>
             <span class="admin-sidebar-badge" id="chatBadgeSidebar" style="display:none">0</span>
           </button>
-        </div>
+
+        </div><!-- /adm-nav -->
 
       </nav><!-- /admin-sidebar -->
 
@@ -152,83 +187,212 @@
         <!-- ── TAB: DASHBOARD ─────────────────────── -->
         <div class="admin-panel active" id="tabDashboard">
 
-          <div class="panel-header">
-            <p class="admin-section-title">Resumen general</p>
-          </div>
+          <!-- KPI GRID -->
+          <div class="dash-kpi-grid">
 
-          <div class="dash-stats">
-            <div class="dash-stat-card" onclick="switchTab('tabUsuarios')" style="cursor:pointer">
-              <span class="dash-stat-val" id="dashUsers">···</span>
-              <span class="dash-stat-label">Usuarios</span>
+            <!-- 1 Usuarios registrados -->
+            <div class="dash-kpi-card kpi-c--purple" onclick="switchTab('tabUsuarios')" style="cursor:pointer">
+              <div class="kpi-top">
+                <div class="kpi-icon-wrap kpi-ic--purple">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+              </div>
+              <div class="kpi-val" id="dashUsers">···</div>
+              <div class="kpi-label">Usuarios registrados</div>
+              <svg class="kpi-spark" viewBox="0 0 80 28" preserveAspectRatio="none"><polyline points="0,24 12,20 24,18 36,14 48,10 60,7 72,5 80,3" fill="none" stroke="rgba(139,92,246,.45)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
-            <div class="dash-stat-card warn" onclick="switchTab('tabCanjes')" style="cursor:pointer">
-              <span class="dash-stat-val" id="dashPending">···</span>
-              <span class="dash-stat-label">Canjes pendientes</span>
-            </div>
-            <div class="dash-stat-card ok" onclick="switchTab('tabSorteos')" style="cursor:pointer">
-              <span class="dash-stat-val" id="dashSorteos">···</span>
-              <span class="dash-stat-label">Sorteos activos</span>
-            </div>
-            <div class="dash-stat-card purple" onclick="switchTab('tabCanjes')" style="cursor:pointer">
-              <span class="dash-stat-val" id="dashCompleted">···</span>
-              <span class="dash-stat-label">Canjes completados</span>
-            </div>
-            <div class="dash-stat-card gold">
-              <span class="dash-stat-val" id="dashUsdPaid">···</span>
-              <span class="dash-stat-label">USD pagado</span>
-            </div>
-            <div class="dash-stat-card accent" onclick="switchTab('tabNoticias')" style="cursor:pointer">
-              <span class="dash-stat-val" id="dashNews">···</span>
-              <span class="dash-stat-label">Noticias</span>
-            </div>
-          </div>
 
-          <!-- Acciones rápidas -->
-          <p class="admin-section-title">Acciones rápidas</p>
-          <div class="quick-actions">
-            <button class="quick-action" onclick="switchTab('tabCanjes')">
-              <span class="qa-icon">💳</span>
-              <span class="qa-label">Aprobar canjes</span>
-            </button>
-            <a class="quick-action"
-              href="admin-news.html"
-              onclick="this.href=typeof withAppFlag==='function'?withAppFlag('admin-news.html'):'admin-news.html'">
-              <span class="qa-icon">📝</span>
-              <span class="qa-label">Nueva noticia</span>
-            </a>
-            <button class="quick-action" onclick="switchTab('tabNotificaciones')">
-              <span class="qa-icon">📢</span>
-              <span class="qa-label">Notificación</span>
-            </button>
-            <button class="quick-action" onclick="switchTab('tabSorteos');newSorteo()">
-              <span class="qa-icon">🏆</span>
-              <span class="qa-label">Nuevo sorteo</span>
-            </button>
-            <button class="quick-action" onclick="switchTab('tabUsuarios')">
-              <span class="qa-icon">👤</span>
-              <span class="qa-label">Buscar usuario</span>
-            </button>
-            <button class="quick-action" onclick="switchTab('tabTrabajadores')">
-              <span class="qa-icon">👥</span>
-              <span class="qa-label">Equipo</span>
-            </button>
-            <button class="quick-action" onclick="switchTab('tabSoporte')">
-              <span class="qa-icon">💬</span>
-              <span class="qa-label">Chat soporte</span>
-            </button>
-          </div>
-
-          <p class="admin-section-title">Últimas solicitudes de canje</p>
-          <div class="admin-card">
-            <div id="dashRecentList">
-              <div class="admin-loading">Cargando...</div>
+            <!-- 2 Usuarios activos hoy -->
+            <div class="dash-kpi-card kpi-c--blue">
+              <div class="kpi-top">
+                <div class="kpi-icon-wrap kpi-ic--blue">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
+              </div>
+              <div class="kpi-val" id="dashActiveToday">···</div>
+              <div class="kpi-label">Activos hoy</div>
+              <svg class="kpi-spark" viewBox="0 0 80 28" preserveAspectRatio="none"><polyline points="0,18 12,14 24,20 36,10 48,16 60,8 72,12 80,6" fill="none" stroke="rgba(96,165,250,.45)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
-          </div>
-          <div style="margin-top:12px;text-align:center">
-            <button class="btn-new" onclick="switchTab('tabCanjes')">
-              Ver todos los canjes →
-            </button>
-          </div>
+
+            <!-- 3 Canjes pendientes -->
+            <div class="dash-kpi-card kpi-c--amber" onclick="switchTab('tabCanjes')" style="cursor:pointer">
+              <div class="kpi-top">
+                <div class="kpi-icon-wrap kpi-ic--amber">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <span class="kpi-alert-dot" id="kpiPendingDot" style="display:none"></span>
+              </div>
+              <div class="kpi-val" id="dashPending">···</div>
+              <div class="kpi-label">Canjes pendientes</div>
+              <svg class="kpi-spark" viewBox="0 0 80 28" preserveAspectRatio="none"><polyline points="0,8 12,12 24,10 36,14 48,9 60,13 72,11 80,8" fill="none" stroke="rgba(251,191,36,.45)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <!-- 4 Canjes completados -->
+            <div class="dash-kpi-card kpi-c--green" onclick="switchTab('tabCanjes')" style="cursor:pointer">
+              <div class="kpi-top">
+                <div class="kpi-icon-wrap kpi-ic--green">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                </div>
+              </div>
+              <div class="kpi-val" id="dashCompleted">···</div>
+              <div class="kpi-label">Canjes completados</div>
+              <svg class="kpi-spark" viewBox="0 0 80 28" preserveAspectRatio="none"><polyline points="0,22 12,19 24,16 36,13 48,10 60,7 72,5 80,3" fill="none" stroke="rgba(74,222,128,.45)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <!-- 5 Sorteos activos -->
+            <div class="dash-kpi-card kpi-c--cyan" onclick="switchTab('tabSorteos')" style="cursor:pointer">
+              <div class="kpi-top">
+                <div class="kpi-icon-wrap kpi-ic--cyan">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                </div>
+              </div>
+              <div class="kpi-val" id="dashSorteos">···</div>
+              <div class="kpi-label">Sorteos activos</div>
+              <svg class="kpi-spark" viewBox="0 0 80 28" preserveAspectRatio="none"><polyline points="0,14 12,12 24,16 36,10 48,14 60,10 72,12 80,10" fill="none" stroke="rgba(34,211,238,.45)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <!-- 6 USD pagado -->
+            <div class="dash-kpi-card kpi-c--gold">
+              <div class="kpi-top">
+                <div class="kpi-icon-wrap kpi-ic--gold">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+              </div>
+              <div class="kpi-val" id="dashUsdPaid">···</div>
+              <div class="kpi-label">USD pagado</div>
+              <svg class="kpi-spark" viewBox="0 0 80 28" preserveAspectRatio="none"><polyline points="0,22 12,18 24,15 36,12 48,9 60,7 72,5 80,3" fill="none" stroke="rgba(245,158,11,.45)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <!-- 7 Tickets abiertos -->
+            <div class="dash-kpi-card kpi-c--rose" onclick="switchTab('tabSoporte')" style="cursor:pointer">
+              <div class="kpi-top">
+                <div class="kpi-icon-wrap kpi-ic--rose">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+              </div>
+              <div class="kpi-val" id="dashTickets">···</div>
+              <div class="kpi-label">Tickets abiertos</div>
+              <svg class="kpi-spark" viewBox="0 0 80 28" preserveAspectRatio="none"><polyline points="0,8 12,10 24,9 36,12 48,8 60,11 72,9 80,7" fill="none" stroke="rgba(248,113,113,.45)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+            <!-- 8 Noticias -->
+            <div class="dash-kpi-card kpi-c--indigo" onclick="switchTab('tabNoticias')" style="cursor:pointer">
+              <div class="kpi-top">
+                <div class="kpi-icon-wrap kpi-ic--indigo">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 0-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+                </div>
+              </div>
+              <div class="kpi-val" id="dashNews">···</div>
+              <div class="kpi-label">Noticias publicadas</div>
+              <svg class="kpi-spark" viewBox="0 0 80 28" preserveAspectRatio="none"><polyline points="0,16 12,12 24,18 36,10 48,16 60,8 72,14 80,10" fill="none" stroke="rgba(129,140,248,.45)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+
+          </div><!-- /dash-kpi-grid -->
+
+          <!-- MAIN BODY: 2-col -->
+          <div class="dash-body-grid">
+
+            <!-- Left: Activity feed -->
+            <div class="dash-col-main">
+              <div class="dash-widget">
+                <div class="dash-widget-hdr">
+                  <span class="dash-widget-ttl">Actividad reciente</span>
+                  <span class="dash-live-badge">
+                    <span class="dash-live-dot"></span>En vivo
+                  </span>
+                </div>
+                <div id="dashRecentList">
+                  <div class="admin-loading">Cargando…</div>
+                </div>
+                <div class="dash-widget-footer">
+                  <button class="dash-footer-btn" onclick="switchTab('tabCanjes')">Ver todos los canjes →</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Quick actions + Support widget -->
+            <div class="dash-col-side">
+
+              <!-- Quick actions -->
+              <div class="dash-widget">
+                <div class="dash-widget-hdr">
+                  <span class="dash-widget-ttl">Acciones rápidas</span>
+                </div>
+                <div class="dash-qa-list">
+
+                  <button class="dash-qa-item" onclick="switchTab('tabCanjes')">
+                    <div class="dash-qa-icon dash-qa-ic--amber">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    </div>
+                    <div class="dash-qa-text">
+                      <span class="dash-qa-name">Aprobar canjes</span>
+                      <span class="dash-qa-sub">Revisar solicitudes pendientes</span>
+                    </div>
+                    <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+
+                  <button class="dash-qa-item" onclick="switchTab('tabNotificaciones')">
+                    <div class="dash-qa-icon dash-qa-ic--purple">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </div>
+                    <div class="dash-qa-text">
+                      <span class="dash-qa-name">Enviar notificación</span>
+                      <span class="dash-qa-sub">Notificar a usuarios</span>
+                    </div>
+                    <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+
+                  <button class="dash-qa-item" onclick="switchTab('tabSorteos');window.newSorteo&&window.newSorteo()">
+                    <div class="dash-qa-icon dash-qa-ic--cyan">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+                    </div>
+                    <div class="dash-qa-text">
+                      <span class="dash-qa-name">Crear sorteo</span>
+                      <span class="dash-qa-sub">Nuevo sorteo premiado</span>
+                    </div>
+                    <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+
+                  <button class="dash-qa-item" onclick="switchTab('tabUsuarios')">
+                    <div class="dash-qa-icon dash-qa-ic--blue">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    </div>
+                    <div class="dash-qa-text">
+                      <span class="dash-qa-name">Buscar usuario</span>
+                      <span class="dash-qa-sub">Ver perfil y puntos</span>
+                    </div>
+                    <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+
+                  <a class="dash-qa-item" href="admin-news.html"
+                    onclick="this.href=typeof withAppFlag==='function'?withAppFlag('admin-news.html'):'admin-news.html'">
+                    <div class="dash-qa-icon dash-qa-ic--green">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    </div>
+                    <div class="dash-qa-text">
+                      <span class="dash-qa-name">Crear noticia</span>
+                      <span class="dash-qa-sub">Editor completo</span>
+                    </div>
+                    <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </a>
+
+                  <button class="dash-qa-item" onclick="switchTab('tabSoporte')">
+                    <div class="dash-qa-icon dash-qa-ic--rose">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    </div>
+                    <div class="dash-qa-text">
+                      <span class="dash-qa-name">Chat soporte</span>
+                      <span class="dash-qa-sub">Atender tickets abiertos</span>
+                    </div>
+                    <svg class="dash-qa-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                  </button>
+
+                </div>
+              </div><!-- /quick actions widget -->
+
+            </div><!-- /dash-col-side -->
+
+          </div><!-- /dash-body-grid -->
 
         </div>
 

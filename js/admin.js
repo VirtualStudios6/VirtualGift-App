@@ -122,25 +122,44 @@ window.switchTab = function (id) {
 // ─────────────────────────────────────────────────
 async function loadDashboard() {
   try {
-    const [usersSnap, pendingSnap, activeSnap, completedSnap, newsSnap] = await Promise.all([
+    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+    const todayTs    = firebase.firestore.Timestamp.fromDate(todayStart);
+
+    const [usersSnap, pendingSnap, activeSnap, completedSnap, newsSnap, activeTodaySnap, ticketsSnap] = await Promise.all([
       window.db.collection('users').get(),
       window.db.collection('redeemRequests').where('status', '==', 'pending').get(),
       window.db.collection('raffles').where('endDate', '>', new Date()).get(),
       window.db.collection('redeemRequests').where('status', '==', 'completed').get(),
       window.db.collection('news').get(),
+      window.db.collection('users').where('lastLogin', '>=', todayTs).get(),
+      window.db.collection('supportChats').where('status', 'in', ['open', 'waiting', 'replied']).get(),
     ]);
 
-    setStat('dashUsers',     usersSnap.size);
-    setStat('dashPending',   pendingSnap.size);
-    setStat('dashSorteos',   activeSnap.size);
-    setStat('dashCompleted', completedSnap.size);
-    setStat('dashNews',      newsSnap.size);
+    setStat('dashUsers',       usersSnap.size);
+    setStat('dashActiveToday', activeTodaySnap.size);
+    setStat('dashPending',     pendingSnap.size);
+    setStat('dashSorteos',     activeSnap.size);
+    setStat('dashCompleted',   completedSnap.size);
+    setStat('dashNews',        newsSnap.size);
+    setStat('dashTickets',     ticketsSnap.size);
 
-    // Total USD pagado
+    // USD pagado
     let totalUsd = 0;
     completedSnap.forEach(d => { totalUsd += (d.data().usdAmount || 0); });
     setStat('dashUsdPaid', '$' + totalUsd.toFixed(2));
 
+    // Pending alert dot on KPI card
+    const alertDot = document.getElementById('kpiPendingDot');
+    if (alertDot) alertDot.style.display = pendingSnap.size > 0 ? 'block' : 'none';
+
+    // Update admin avatar initial
+    const avatarEl = document.getElementById('adminAvatarEl');
+    if (avatarEl && adminUser) {
+      const name = adminUser.displayName || adminUser.email || 'A';
+      avatarEl.textContent = name.charAt(0).toUpperCase();
+    }
+
+    // Canje badges (header + sidebar)
     ['canjeBadge', 'canjeBadgeSidebar'].forEach(id => {
       const badge = document.getElementById(id);
       if (badge) {
@@ -149,12 +168,13 @@ async function loadDashboard() {
       }
     });
 
+    // Recent activity
     const recentSnap = await window.db.collection('redeemRequests')
-      .orderBy('createdAt', 'desc').limit(5).get();
+      .orderBy('createdAt', 'desc').limit(6).get();
     const list = document.getElementById('dashRecentList');
     if (list) {
       list.innerHTML = recentSnap.empty
-        ? '<p class="admin-empty">Sin solicitudes aún</p>'
+        ? '<p class="admin-empty" style="padding:20px 18px">Sin solicitudes aún</p>'
         : recentSnap.docs.map(d => buildRowMini(d.id, d.data())).join('');
     }
   } catch (e) {
