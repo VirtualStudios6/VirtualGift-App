@@ -14,7 +14,7 @@ function createWindow() {
     minWidth: 1024,
     minHeight: 640,
     title: 'VirtualGift Admin',
-    icon: path.join(__dirname, 'assets', 'icon.png'),
+    icon: path.join(__dirname, 'assets', 'icon.ico'),
     backgroundColor: '#06011c',
     show: false,
     webPreferences: {

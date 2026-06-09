@@ -21,16 +21,26 @@
     ],
     "win": {
       "target": [
-        { "target": "nsis",     "arch": ["x64"] },
-        { "target": "portable", "arch": ["x64"] }
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
-      "icon": "assets/icon.png"
+      "icon": "assets/icon.ico"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
-      "installerIcon": "assets/icon.png",
-      "installerHeaderIcon": "assets/icon.png",
+      "installerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "VirtualGift Admin"
@@ -41,6 +51,7 @@
   },
   "devDependencies": {
     "electron": "^28.3.3",
-    "electron-builder": "^24.13.3"
+    "electron-builder": "^24.13.3",
+    "png-to-ico": "^3.0.1"
   }
 }
