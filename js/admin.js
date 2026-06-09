@@ -1004,12 +1004,81 @@ window.removeWorker = async function (uid) {
 };
 
 // ─────────────────────────────────────────────────
-// SOPORTE (CHAT DE SOPORTE)
+// SOPORTE — Enterprise Chat System
 // ─────────────────────────────────────────────────
 let _soporteSnap         = null;
 let _unsubSoporte        = null;
 let _soporteCurrentChat  = null;
 let _unsubSoporteChat    = null;
+let _unsubSoporteDoc     = null;
+let _soporteFilter       = 'all';
+let _soportePrioFilter   = 'all';
+let _sc2InfoVisible      = false;
+let _adminTypingTimer    = null;
+let _currentMsgsData     = [];
+
+// AI suggestion templates keyed by detected topic
+const _AI_TOPICS = {
+  canje: {
+    label: '🎁 Canje',
+    kw: ['canje','canjear','regalo','card','tarjeta','google play','amazon','steam','robux','paypal','redeem','código','code'],
+    suggestions: [
+      '¡Hola! Entiendo que tienes una consulta sobre un canje. ¿Puedes indicarme el ID del canje o el producto que intentas canjear para revisarlo de inmediato?',
+      'Voy a revisar el estado de tu canje ahora mismo. ¿Puedes compartir el número de ticket o una captura de pantalla de la transacción?',
+      'Tu canje ha sido verificado y procesado correctamente. En las próximas 24 horas recibirás tu recompensa. ¡Gracias por tu paciencia!',
+    ],
+  },
+  pago: {
+    label: '💰 Pago',
+    kw: ['pago','cobro','dinero','balance','saldo','transferencia','nequi','binance','recibir','retirar','withdraw'],
+    suggestions: [
+      'Entiendo tu consulta sobre el pago. Para procesarlo correctamente necesito verificar tus datos. ¿Puedes confirmar el monto y el método de pago seleccionado?',
+      'He revisado tu historial de pagos. ¿Puedes indicarme la fecha aproximada y el monto de la transacción en cuestión?',
+      'Los pagos se procesan en un plazo de 1-3 días hábiles. Si ya pasó ese tiempo y no has recibido nada, escríbenos y revisamos el caso de inmediato.',
+    ],
+  },
+  sorteo: {
+    label: '🎰 Sorteo',
+    kw: ['sorteo','ganado','premio','winner','ganador','raffle','lotería'],
+    suggestions: [
+      '¡Felicitaciones por participar! Para reclamar tu premio del sorteo necesito verificar tu identidad. Por favor comparte tu UID y capturas del sorteo.',
+      'He revisado los resultados del sorteo. Tu participación está confirmada. El proceso de entrega de premios puede tomar hasta 7 días hábiles.',
+      'Los ganadores son seleccionados de forma aleatoria y verificados manualmente. Te contactaremos directamente cuando tu premio esté listo para ser entregado.',
+    ],
+  },
+  error: {
+    label: '🐛 Error técnico',
+    kw: ['error','falla','bug','problema','no funciona','crash','pantalla','blanco','negro','lento','fallo'],
+    suggestions: [
+      'Lamentamos los inconvenientes técnicos que experimentas. ¿Puedes compartir una captura del error y los pasos que realizaste antes de que ocurriera?',
+      'Hemos escalado este problema a nuestro equipo técnico. En breve te contactaremos con una solución. ¿Qué dispositivo y sistema operativo usas?',
+      'Para reproducir y resolver este error lo antes posible, necesito que me indiques: 1) qué dispositivo usas, 2) qué versión del sistema operativo, 3) qué acción realizabas.',
+    ],
+  },
+  cuenta: {
+    label: '👤 Cuenta',
+    kw: ['cuenta','perfil','acceso','contraseña','login','entrar','verificar','correo','email','registrar'],
+    suggestions: [
+      'Para ayudarte con tu cuenta, necesito verificar tu identidad. ¿Puedes proporcionarme el correo electrónico asociado y tu UID?',
+      'Por seguridad hemos verificado tu cuenta. Para recuperar el acceso, intenta cerrar sesión completamente y volver a iniciar sesión con tus credenciales.',
+      'He revisado tu cuenta y todo parece estar en orden. Si el problema persiste, borra la caché de la aplicación y vuelve a intentarlo.',
+    ],
+  },
+};
+
+const _AI_GENERAL = [
+  '¡Hola! Soy parte del equipo de soporte de VirtualGift. Estoy revisando tu consulta y en breve te doy una respuesta detallada. ¡Gracias por tu paciencia!',
+  'Entiendo tu situación y voy a hacer todo lo posible para ayudarte. ¿Puedes proporcionarme más detalles sobre lo que necesitas?',
+  'Tu caso ha sido registrado en nuestro sistema. Te contactaremos en las próximas horas con una resolución. ¡Gracias por usar VirtualGift!',
+];
+
+function _detectAITopic(msgs) {
+  const text = msgs.filter(m => m.from === 'user').map(m => (m.text || '').toLowerCase()).join(' ');
+  for (const [key, data] of Object.entries(_AI_TOPICS)) {
+    if (data.kw.some(kw => text.includes(kw))) return { key, ...data };
+  }
+  return { key: 'general', label: '💬 General', suggestions: _AI_GENERAL };
+}
 
 function updateChatBadges(count) {
   ['chatBadge', 'chatBadgeSidebar'].forEach(id => {
@@ -1018,6 +1087,35 @@ function updateChatBadges(count) {
     el.textContent = count;
     el.style.display = count > 0 ? 'inline-flex' : 'none';
   });
+  const total = document.getElementById('sc2TotalBadge');
+  if (total) {
+    total.textContent = count;
+    total.style.display = count > 0 ? 'inline-flex' : 'none';
+  }
+}
+
+function updateSoporteMetrics(snap) {
+  if (!snap) return;
+  const today = new Date(); today.setHours(0,0,0,0);
+  let total = 0, active = 0, waiting = 0, unread = 0, closedToday = 0;
+  snap.forEach(d => {
+    const data = d.data();
+    total++;
+    const st = data.status || 'waiting';
+    if (st !== 'closed') active++;
+    if (st === 'waiting') waiting++;
+    if (data.unreadAdmin > 0) unread++;
+    if (st === 'closed' && data.lastMessageAt) {
+      const t = data.lastMessageAt.toDate ? data.lastMessageAt.toDate() : new Date(data.lastMessageAt);
+      if (t >= today) closedToday++;
+    }
+  });
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('sc2MetTotal',   total);
+  set('sc2MetOpen',    active);
+  set('sc2MetWaiting', waiting);
+  set('sc2MetUnread',  unread);
+  set('sc2MetClosed',  closedToday);
 }
 
 function initSoporteListener() {
@@ -1029,111 +1127,189 @@ function initSoporteListener() {
       let unread = 0;
       snap.forEach(d => { unread += (d.data().unreadAdmin || 0); });
       updateChatBadges(unread);
+      updateSoporteMetrics(snap);
+      if (document.getElementById('soporteChatList')) renderSoporteList(snap);
     }, err => {
       console.error('[admin] soporte listener:', err);
     });
 }
 
 window.loadSoporte = function () {
-  const listWrap = document.getElementById('soporteListWrap');
-  const chatWrap = document.getElementById('soporteChatWrap');
-  if (listWrap) listWrap.style.display = 'block';
-  if (chatWrap) chatWrap.style.display = 'none';
+  const emptyState = document.getElementById('soporteListWrap');
+  const chatWrap   = document.getElementById('soporteChatWrap');
+  const infoPanel  = document.getElementById('sc2InfoPanel');
+  if (emptyState) emptyState.style.display = '';
+  if (chatWrap)   chatWrap.style.display = 'none';
+  if (infoPanel)  { infoPanel.style.display = 'none'; _sc2InfoVisible = false; }
 
   const listEl = document.getElementById('soporteChatList');
+  if (!listEl) return;
 
   if (_soporteSnap) {
+    updateSoporteMetrics(_soporteSnap);
     renderSoporteList(_soporteSnap);
     return;
   }
 
-  if (listEl) listEl.innerHTML = '<div class="admin-loading">Cargando...</div>';
+  listEl.innerHTML = '<div class="sc2-list-empty"><div class="sc2-list-empty-icon">⏳</div><div class="sc2-list-empty-text">Cargando...</div></div>';
 
-  // Fallback: one-time get
   window.db.collection('supportChats')
     .orderBy('lastMessageAt', 'desc')
     .get()
-    .then(snap => { _soporteSnap = snap; renderSoporteList(snap); })
+    .then(snap => { _soporteSnap = snap; updateSoporteMetrics(snap); renderSoporteList(snap); })
     .catch(() => {
-      if (listEl) listEl.innerHTML = '<p class="admin-empty">Error al cargar chats</p>';
+      listEl.innerHTML = '<div class="sc2-list-empty"><div class="sc2-list-empty-icon">⚠️</div><div class="sc2-list-empty-text">Error al cargar chats</div></div>';
     });
 };
 
 function renderSoporteList(snap) {
   const listEl = document.getElementById('soporteChatList');
   if (!listEl) return;
-  if (!snap || snap.empty) {
-    listEl.innerHTML = `<div class="sc-empty">
-      <div class="sc-empty-icon">💬</div>
-      <div class="sc-empty-text">Ningún usuario ha iniciado un chat todavía.<br>Cuando lo hagan aparecerán aquí.</div>
-    </div>`;
+
+  const search = (document.getElementById('sc2SearchInput')?.value || '').toLowerCase().trim();
+  let docs = snap ? snap.docs : [];
+
+  // Status filter
+  if (_soporteFilter === 'active') {
+    docs = docs.filter(d => (d.data().status || 'waiting') !== 'closed');
+  } else if (_soporteFilter === 'waiting') {
+    docs = docs.filter(d => (d.data().status || 'waiting') === 'waiting');
+  } else if (_soporteFilter !== 'all') {
+    docs = docs.filter(d => (d.data().status || 'waiting') === _soporteFilter);
+  }
+
+  // Priority filter
+  if (_soportePrioFilter !== 'all') {
+    docs = docs.filter(d => (d.data().priority || 'low') === _soportePrioFilter);
+  }
+
+  // Search
+  if (search) {
+    docs = docs.filter(d => {
+      const data = d.data();
+      return (data.userName  || '').toLowerCase().includes(search)
+          || (data.userEmail || '').toLowerCase().includes(search);
+    });
+  }
+
+  // Sort: urgent first, then by lastMessageAt desc
+  const prioOrder = { urgent:0, high:1, medium:2, low:3 };
+  docs.sort((a, b) => {
+    const pa = prioOrder[a.data().priority || 'low'] || 3;
+    const pb = prioOrder[b.data().priority || 'low'] || 3;
+    if (pa !== pb) return pa - pb;
+    const ta = a.data().lastMessageAt?.toMillis?.() || 0;
+    const tb = b.data().lastMessageAt?.toMillis?.() || 0;
+    return tb - ta;
+  });
+
+  if (!docs.length) {
+    const msg = search || _soporteFilter !== 'all' || _soportePrioFilter !== 'all' ? 'Sin resultados' : 'Ningún usuario ha iniciado un chat todavía';
+    listEl.innerHTML = `<div class="sc2-list-empty"><div class="sc2-list-empty-icon">💬</div><div class="sc2-list-empty-text">${msg}</div></div>`;
     return;
   }
-  listEl.innerHTML = snap.docs.map(d => buildChatRow(d.id, d.data())).join('');
+
+  listEl.innerHTML = docs.map(d => buildConvItem(d.id, d.data())).join('');
+
+  if (_soporteCurrentChat) {
+    const active = listEl.querySelector(`[data-chat-id="${_soporteCurrentChat}"]`);
+    if (active) active.classList.add('active');
+  }
 }
 
-function buildChatRow(chatId, data) {
-  const name      = esc(data.userName || 'Usuario');
-  const email     = esc(data.userEmail || '');
-  const lastMsg   = esc(data.lastMessage || 'Sin mensajes');
-  const time      = data.lastMessageAt ? fmtDate(data.lastMessageAt) : '—';
-  const unread    = data.unreadAdmin || 0;
-  const isClosed  = (data.status || 'open') === 'closed';
-  const initial   = name.charAt(0).toUpperCase();
+function buildConvItem(chatId, data) {
+  const name     = esc(data.userName  || 'Usuario');
+  const lastMsg  = esc((data.lastMessage || 'Sin mensajes').replace(/^\[Admin\] /, ''));
+  const unread   = data.unreadAdmin || 0;
+  const status   = data.status || 'waiting';
+  const prio     = data.priority || 'low';
+  const initial  = name.charAt(0).toUpperCase();
+  const tags     = data.tags || [];
 
-  return `<div class="sc-chat-row" onclick="window.openSoporteChat('${esc(chatId)}')">
-    <div class="sc-avatar">${initial}</div>
-    <div class="sc-info">
-      <div class="sc-name">${name}</div>
-      <div class="sc-email">${email}</div>
-      <div class="sc-last">${lastMsg}</div>
+  let timeStr = '—';
+  if (data.lastMessageAt) {
+    const d    = data.lastMessageAt.toDate ? data.lastMessageAt.toDate() : new Date(data.lastMessageAt);
+    const diff = Date.now() - d.getTime();
+    if      (diff < 60000)    timeStr = 'Ahora';
+    else if (diff < 3600000)  timeStr = Math.floor(diff / 60000) + 'm';
+    else if (diff < 86400000) timeStr = Math.floor(diff / 3600000) + 'h';
+    else timeStr = d.toLocaleDateString('es-DO', { day: '2-digit', month: 'short' });
+  }
+
+  const tagHtml = tags.slice(0,2).map(t => `<span class="sc2-topbar-tag" style="font-size:.55rem;padding:1px 5px">${esc(t)}</span>`).join('');
+
+  const safeId = esc(chatId);
+  return `<div class="sc2-conv-item" data-chat-id="${safeId}" onclick="window.openSoporteChat('${safeId}')">
+    <div class="sc2-conv-avatar">${initial}</div>
+    <div class="sc2-conv-body">
+      <div class="sc2-conv-name">
+        <span>${name}</span>
+        ${tagHtml}
+      </div>
+      <div class="sc2-conv-preview">${lastMsg}</div>
     </div>
-    <div class="sc-meta">
-      <span class="admin-badge ${isClosed ? 'muted' : 'ok'}" style="font-size:.6rem;padding:2px 8px">${isClosed ? '⚫ Cerrado' : '🟢 Abierto'}</span>
-      ${unread > 0 ? `<span class="sc-unread-badge">${unread}</span>` : ''}
-      <span class="sc-time">${time}</span>
+    <div class="sc2-conv-meta">
+      <span class="sc2-conv-time">${timeStr}</span>
+      <div style="display:flex;gap:4px;align-items:center">
+        ${unread > 0 ? `<span class="sc2-conv-unread">${unread}</span>` : ''}
+        <span class="sc2-conv-sdot" data-s="${esc(status)}"></span>
+        <span class="sc2-prio-dot" data-p="${esc(prio)}"></span>
+      </div>
     </div>
   </div>`;
 }
 
+window.setSoporteFilter = function (filter) {
+  _soporteFilter = filter;
+  document.querySelectorAll('.sc2-ftab').forEach(b => {
+    b.classList.toggle('active', b.dataset.sf === filter);
+  });
+  if (_soporteSnap) renderSoporteList(_soporteSnap);
+};
+
+window.setSoportePrioFilter = function (pf) {
+  _soportePrioFilter = pf;
+  document.querySelectorAll('.sc2-pfil').forEach(b => {
+    b.classList.toggle('active', b.dataset.pf === pf);
+  });
+  if (_soporteSnap) renderSoporteList(_soporteSnap);
+};
+
+window.filterSoporteChats = function () {
+  if (_soporteSnap) renderSoporteList(_soporteSnap);
+};
+
 window.openSoporteChat = function (chatId) {
   _soporteCurrentChat = chatId;
+  _currentMsgsData    = [];
 
-  const listWrap = document.getElementById('soporteListWrap');
-  const chatWrap = document.getElementById('soporteChatWrap');
-  if (listWrap) listWrap.style.display = 'none';
-  if (chatWrap) chatWrap.style.display = 'block';
+  const emptyState = document.getElementById('soporteListWrap');
+  const chatWrap   = document.getElementById('soporteChatWrap');
+  if (emptyState) emptyState.style.display = 'none';
+  if (chatWrap)   chatWrap.style.display = 'flex';
 
-  // Reset unread for admin
+  // Hide AI panel and quick replies when switching chats
+  const aiPanel = document.getElementById('sc2AiPanel');
+  const qr      = document.getElementById('sc2QuickReplies');
+  if (aiPanel) aiPanel.style.display = 'none';
+  if (qr)      qr.style.display = 'none';
+
+  document.querySelectorAll('.sc2-conv-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.chatId === chatId);
+  });
+
   window.db.collection('supportChats').doc(chatId)
     .update({ unreadAdmin: 0 })
     .catch(() => {});
 
-  // Load chat metadata
-  window.db.collection('supportChats').doc(chatId).get().then(doc => {
-    if (!doc.exists) return;
-    const d = doc.data();
-    const nameEl   = document.getElementById('scChatName');
-    const emailEl  = document.getElementById('scChatEmail');
-    const avatarEl = document.getElementById('scChatAvatar');
-    const toggleBtn = document.getElementById('scToggleStatusBtn');
+  // Start real-time doc listener (typing, tags, status updates)
+  _startSoporteDocListener(chatId);
 
-    if (nameEl)   nameEl.textContent  = d.userName || 'Usuario';
-    if (emailEl)  emailEl.textContent = d.userEmail || '';
-    if (avatarEl) avatarEl.textContent = (d.userName || 'U').charAt(0).toUpperCase();
-
-    const isClosed = d.status === 'closed';
-    if (toggleBtn) {
-      toggleBtn.textContent  = isClosed ? '🔓 Reabrir' : '🔒 Cerrar';
-      toggleBtn.dataset.closed = isClosed ? '1' : '0';
-    }
-  });
-
-  // Subscribe to messages
+  // Messages subscription
   if (_unsubSoporteChat) { _unsubSoporteChat(); _unsubSoporteChat = null; }
 
   const msgsEl = document.getElementById('soporteMessages');
-  if (msgsEl) msgsEl.innerHTML = '<div class="admin-loading">Cargando mensajes...</div>';
+  if (msgsEl) msgsEl.innerHTML = '<div class="sc2-msg-empty"><div class="sc2-msg-empty-icon">⏳</div><div class="sc2-msg-empty-text">Cargando mensajes…</div></div>';
 
   _unsubSoporteChat = window.db
     .collection('supportChats').doc(chatId)
@@ -1141,59 +1317,279 @@ window.openSoporteChat = function (chatId) {
     .orderBy('createdAt', 'asc')
     .onSnapshot(snap => {
       if (!msgsEl) return;
+      _currentMsgsData = snap.docs.map(d => d.data());
       if (snap.empty) {
-        msgsEl.innerHTML = '<p class="admin-empty" style="text-align:center;padding:24px">Sin mensajes todavía</p>';
+        msgsEl.innerHTML = '<div class="sc2-msg-empty"><div class="sc2-msg-empty-icon">💬</div><div class="sc2-msg-empty-text">Sin mensajes todavía</div></div>';
         return;
       }
-      msgsEl.innerHTML = snap.docs.map(d => buildAdminMsgBubble(d.data())).join('');
+      msgsEl.innerHTML = _currentMsgsData.map(buildAdminMsgBubble).join('');
       msgsEl.scrollTop = msgsEl.scrollHeight;
     }, err => {
       console.error('[admin] soporte messages:', err);
+      if (msgsEl) msgsEl.innerHTML = '<div class="sc2-msg-empty"><div class="sc2-msg-empty-icon">⚠️</div><div class="sc2-msg-empty-text">Error al cargar mensajes</div></div>';
     });
 };
 
+function _startSoporteDocListener(chatId) {
+  if (_unsubSoporteDoc) { _unsubSoporteDoc(); _unsubSoporteDoc = null; }
+
+  _unsubSoporteDoc = window.db.collection('supportChats').doc(chatId)
+    .onSnapshot(doc => {
+      if (!doc.exists) return;
+      const d = doc.data();
+
+      // ── Topbar info ──
+      const nameEl    = document.getElementById('scChatName');
+      const emailEl   = document.getElementById('scChatEmail');
+      const avatarEl  = document.getElementById('scChatAvatar');
+      const toggleBtn = document.getElementById('scToggleStatusBtn');
+
+      if (nameEl)   nameEl.textContent  = d.userName  || 'Usuario';
+      if (emailEl)  emailEl.textContent = d.userEmail || '';
+      if (avatarEl) avatarEl.textContent = (d.userName || 'U').charAt(0).toUpperCase();
+
+      // ── Status badge ──
+      const status    = d.status || 'waiting';
+      const isClosed  = status === 'closed';
+      const statusCfg = {
+        open:    { label: '🟢 Abierto',    cls: 'sc2-tbtn--close' },
+        waiting: { label: '⏳ Esperando',  cls: 'sc2-tbtn--close' },
+        replied: { label: '🔵 Respondido', cls: 'sc2-tbtn--close' },
+        closed:  { label: '⚫ Cerrado',    cls: 'sc2-tbtn--open'  },
+      };
+      const cfg = statusCfg[status] || statusCfg.waiting;
+
+      const badge = document.getElementById('sc2ChatStatusBadge');
+      if (badge) { badge.textContent = cfg.label; badge.dataset.s = status; }
+
+      const ipChip = document.getElementById('sc2IpStatusChip');
+      if (ipChip) { ipChip.textContent = cfg.label; ipChip.dataset.s = status; }
+
+      if (toggleBtn) {
+        toggleBtn.innerHTML = isClosed
+          ? `<svg viewBox="0 0 24 24"><path d="M12 1C8.676 1 6 3.676 6 7v1H4c-1.103 0-2 .897-2 2v11c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V10c0-1.103-.897-2-2-2h-2V7c0-3.324-2.676-6-6-6zm4 8H8V7c0-2.206 1.794-4 4-4s4 1.794 4 4v2zm-4 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg><span>Reabrir</span>`
+          : `<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg><span>Cerrar ticket</span>`;
+        toggleBtn.dataset.closed = isClosed ? '1' : '0';
+        toggleBtn.className = 'sc2-tbtn ' + cfg.cls;
+      }
+
+      // ── Typing indicator ──
+      const typingBar = document.getElementById('sc2TypingBar');
+      const typingLbl = document.getElementById('sc2TypingLabel');
+      if (typingBar) {
+        const isTyping = d.typingUser === true;
+        typingBar.style.display = isTyping ? 'flex' : 'none';
+        if (typingLbl) typingLbl.textContent = (d.userName || 'Usuario') + ' está escribiendo…';
+      }
+
+      // ── Tags ──
+      _renderTagsUI(d.tags || []);
+
+      // ── Wait time ──
+      const waitEl = document.getElementById('sc2IpWait');
+      if (waitEl && d.createdAt) {
+        const created = d.createdAt.toDate ? d.createdAt.toDate() : new Date(d.createdAt);
+        const mins    = Math.floor((Date.now() - created.getTime()) / 60000);
+        waitEl.textContent = mins < 60 ? `${mins} min` : `${Math.floor(mins / 60)}h ${mins % 60}m`;
+      }
+
+      // ── Priority ──
+      const prio = d.priority || 'low';
+      document.querySelectorAll('.sc2-prio-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.p === prio);
+      });
+
+      // ── Load extended user info (only on first load) ──
+      if (!document.getElementById('sc2IpName')?.dataset.loaded) {
+        _loadSoporteUserInfo(doc.id, d);
+        const nm = document.getElementById('sc2IpName');
+        if (nm) nm.dataset.loaded = '1';
+      }
+    }, err => { console.error('[admin] soporteDoc listener:', err); });
+}
+
+function _renderTagsUI(tags) {
+  // Topbar tags
+  const topbarTags = document.getElementById('sc2TopbarTags');
+  if (topbarTags) {
+    topbarTags.innerHTML = tags.map(t =>
+      `<span class="sc2-topbar-tag">${esc(t)}</span>`
+    ).join('');
+  }
+  // Info panel tags
+  const tagsWrap = document.getElementById('sc2TagsWrap');
+  if (tagsWrap) {
+    tagsWrap.innerHTML = tags.map(t =>
+      `<span class="sc2-tag-chip">${esc(t)}<button class="sc2-tag-remove" onclick="window.removeSoporteTag('${esc(t)}')" title="Eliminar">×</button></span>`
+    ).join('');
+  }
+}
+
+window.addSoporteTag = async function (tag) {
+  if (!_soporteCurrentChat) return;
+  try {
+    await window.db.collection('supportChats').doc(_soporteCurrentChat)
+      .update({ tags: firebase.firestore.FieldValue.arrayUnion(tag) });
+  } catch (e) { toast('Error al agregar etiqueta', false); }
+};
+
+window.removeSoporteTag = async function (tag) {
+  if (!_soporteCurrentChat) return;
+  try {
+    await window.db.collection('supportChats').doc(_soporteCurrentChat)
+      .update({ tags: firebase.firestore.FieldValue.arrayRemove(tag) });
+  } catch (e) { toast('Error al eliminar etiqueta', false); }
+};
+
+function _loadSoporteUserInfo(chatId, chatData) {
+  const set = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val || '—';
+  };
+
+  set('sc2IpAvatar',   (chatData.userName || 'U').charAt(0).toUpperCase());
+  set('sc2IpName',     chatData.userName  || 'Usuario');
+  set('sc2IpEmail',    chatData.userEmail || '—');
+  set('sc2IpUid',      chatId);
+  set('sc2IpLevel',    'Nv. —');
+  set('sc2IpCoins',    '🪙 —');
+  set('sc2IpGames',    '—');
+  set('sc2IpCreated',  '—');
+  set('sc2IpLastLogin','—');
+  set('sc2IpCanjes',   '—');
+  set('sc2IpApproved', '—');
+
+  const uidEl = document.getElementById('sc2IpUid');
+  if (uidEl) uidEl.title = chatId;
+
+  window.db.collection('users').doc(chatId).get().then(doc => {
+    if (!doc.exists) return;
+    const u = doc.data();
+    set('sc2IpLevel', 'Nv. ' + (u.level || 1));
+    set('sc2IpCoins', '🪙 ' + ((u.points || 0).toLocaleString('es-DO')));
+    set('sc2IpGames', (u.gamesPlayed || 0).toLocaleString('es-DO'));
+    if (u.createdAt) {
+      const d = u.createdAt.toDate ? u.createdAt.toDate() : new Date(u.createdAt);
+      set('sc2IpCreated', d.toLocaleDateString('es-DO', { day: '2-digit', month: 'short', year: 'numeric' }));
+    }
+    if (u.lastLogin) {
+      const d = u.lastLogin.toDate ? u.lastLogin.toDate() : new Date(u.lastLogin);
+      set('sc2IpLastLogin', d.toLocaleDateString('es-DO', { day: '2-digit', month: 'short', year: 'numeric' }));
+    }
+  }).catch(() => {});
+
+  window.db.collection('redeemRequests')
+    .where('userId', '==', chatId)
+    .get()
+    .then(snap => {
+      set('sc2IpCanjes', snap.size + (snap.size === 1 ? ' canje' : ' canjes'));
+      const approved = snap.docs.filter(d => d.data().status === 'approved').length;
+      set('sc2IpApproved', approved + ' aprobado' + (approved !== 1 ? 's' : ''));
+
+      // Recent canjes activity list
+      const recEl = document.getElementById('sc2RecentCanjes');
+      if (!recEl) return;
+      const recent = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        .sort((a, b) => {
+          const ta = a.createdAt?.toDate?.() || new Date(0);
+          const tb = b.createdAt?.toDate?.() || new Date(0);
+          return tb - ta;
+        })
+        .slice(0, 5);
+      if (recent.length === 0) {
+        recEl.innerHTML = '<div class="sc2-activity-empty">Sin actividad reciente</div>';
+        return;
+      }
+      recEl.innerHTML = recent.map(r => {
+        const statusColors = { approved: '#4ade80', rejected: '#f87171', pending: '#fbbf24' };
+        const statusLabels = { approved: 'Aprobado', rejected: 'Rechazado', pending: 'Pendiente' };
+        const color = statusColors[r.status] || '#60a5fa';
+        const label = statusLabels[r.status] || r.status || '?';
+        const dateStr = r.createdAt ? fmtDate(r.createdAt) : '—';
+        return `<div class="sc2-activity-item">
+          <div class="sc2-activity-dot" style="background:${color}"></div>
+          <div class="sc2-activity-info">
+            <div class="sc2-activity-name">${esc(r.itemName || r.productName || 'Canje')}</div>
+            <div class="sc2-activity-date">${dateStr}</div>
+          </div>
+          <div class="sc2-activity-status" style="color:${color}">${label}</div>
+        </div>`;
+      }).join('');
+    })
+    .catch(() => {});
+}
+
 function buildAdminMsgBubble(data) {
   const isAdmin = data.from === 'admin';
+  const name    = isAdmin
+    ? (adminUser?.displayName || (adminUser?.email ? adminUser.email.split('@')[0] : '') || 'Admin')
+    : esc(data.senderName || 'Usuario');
   const time    = fmtDate(data.createdAt);
-  const name    = isAdmin ? 'Tú (Admin)' : esc(data.senderName || 'Usuario');
 
-  let body;
+  let bodyHtml;
   if (data.type === 'image' && data.imageUrl) {
     const safeUrl = esc(data.imageUrl);
-    const caption = data.text ? `<div class="sc-msg-text" style="margin-top:6px">${esc(data.text)}</div>` : '';
-    body = `<img src="${safeUrl}" class="sc-msg-img" alt="Imagen"
-      onclick="window.open('${safeUrl}','_blank')" loading="lazy">${caption}`;
+    const caption = data.text ? `<div style="margin-top:6px;font-size:.82rem">${esc(data.text)}</div>` : '';
+    bodyHtml = `<div class="sc2-bubble-body" style="padding:6px">
+      <img src="${safeUrl}" class="sc2-bubble-img" alt="Imagen"
+        onclick="window.open('${safeUrl}','_blank')" loading="lazy">${caption}
+    </div>`;
+  } else if (data.type === 'file' && data.fileUrl) {
+    const ext  = (data.fileName || '').split('.').pop().toUpperCase() || 'FILE';
+    const size = data.fileSize ? (data.fileSize / 1024 < 1024
+      ? (data.fileSize / 1024).toFixed(1) + ' KB'
+      : (data.fileSize / 1048576).toFixed(1) + ' MB') : '';
+    bodyHtml = `<div class="sc2-bubble-body sc2-file-card" onclick="window.open('${esc(data.fileUrl)}','_blank')">
+      <div class="sc2-file-icon">📎</div>
+      <div class="sc2-file-meta">
+        <div class="sc2-file-name">${esc(data.fileName || 'Archivo')}</div>
+        <div class="sc2-file-size">${ext}${size ? ' · ' + size : ''}</div>
+      </div>
+      <div class="sc2-file-dl">⬇</div>
+    </div>`;
   } else {
-    body = `<div class="sc-msg-text">${esc(data.text || '').replace(/\n/g, '<br>')}</div>`;
+    bodyHtml = `<div class="sc2-bubble-body">${esc(data.text || '').replace(/\n/g, '<br>')}</div>`;
   }
 
-  return `<div class="sc-msg ${isAdmin ? 'sc-msg--admin' : 'sc-msg--user'}">
-    <div class="sc-msg-sender">${name}</div>
-    ${body}
-    <div class="sc-msg-time">${time}</div>
+  return `<div class="sc2-bubble ${isAdmin ? 'sc2-bubble--admin' : 'sc2-bubble--user'}">
+    <div class="sc2-bubble-meta">
+      <span class="sc2-bubble-sender">${name}</span>
+      <span class="sc2-bubble-time">${time}</span>
+    </div>
+    ${bodyHtml}
   </div>`;
 }
 
 window.closeSoporteChat = function () {
   if (_unsubSoporteChat) { _unsubSoporteChat(); _unsubSoporteChat = null; }
+  if (_unsubSoporteDoc)  { _unsubSoporteDoc();  _unsubSoporteDoc  = null; }
+  if (_adminTypingTimer) { clearTimeout(_adminTypingTimer); _adminTypingTimer = null; }
   _soporteCurrentChat = null;
+  _currentMsgsData    = [];
 
   const input = document.getElementById('soporteReplyInput');
-  if (input) input.value = '';
+  if (input) { input.value = ''; input.style.height = 'auto'; }
 
-  const listWrap = document.getElementById('soporteListWrap');
-  const chatWrap = document.getElementById('soporteChatWrap');
-  if (listWrap) listWrap.style.display = 'block';
-  if (chatWrap) chatWrap.style.display = 'none';
+  const emptyState = document.getElementById('soporteListWrap');
+  const chatWrap   = document.getElementById('soporteChatWrap');
+  const infoPanel  = document.getElementById('sc2InfoPanel');
+  if (emptyState) emptyState.style.display = '';
+  if (chatWrap)   chatWrap.style.display = 'none';
+  if (infoPanel)  { infoPanel.style.display = 'none'; _sc2InfoVisible = false; }
 
-  // Refresh list from latest snapshot
+  const infoToggle = document.getElementById('sc2InfoToggle');
+  if (infoToggle) infoToggle.classList.remove('active');
+
+  document.querySelectorAll('.sc2-conv-item').forEach(el => el.classList.remove('active'));
+
   if (_soporteSnap) renderSoporteList(_soporteSnap);
 };
 
 window.toggleSoporteStatus = async function () {
   if (!_soporteCurrentChat) return;
-  const btn      = document.getElementById('scToggleStatusBtn');
-  const isClosed = btn?.dataset.closed === '1';
+  const btn       = document.getElementById('scToggleStatusBtn');
+  const isClosed  = btn?.dataset.closed === '1';
   const newStatus = isClosed ? 'open' : 'closed';
 
   try {
@@ -1201,8 +1597,11 @@ window.toggleSoporteStatus = async function () {
       .update({ status: newStatus });
 
     if (btn) {
-      btn.textContent    = newStatus === 'closed' ? '🔓 Reabrir' : '🔒 Cerrar';
+      btn.innerHTML = newStatus === 'closed'
+        ? `<svg viewBox="0 0 24 24"><path d="M12 1C8.676 1 6 3.676 6 7v1H4c-1.103 0-2 .897-2 2v11c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V10c0-1.103-.897-2-2-2h-2V7c0-3.324-2.676-6-6-6zm4 8H8V7c0-2.206 1.794-4 4-4s4 1.794 4 4v2zm-4 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/></svg><span>Reabrir</span>`
+        : `<svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg><span>Cerrar ticket</span>`;
       btn.dataset.closed = newStatus === 'closed' ? '1' : '0';
+      btn.className = 'sc2-tbtn ' + (newStatus === 'closed' ? 'sc2-tbtn--open' : 'sc2-tbtn--close');
     }
     toast(newStatus === 'closed' ? '🔒 Chat cerrado' : '🔓 Chat reabierto');
   } catch (e) {
@@ -1211,14 +1610,59 @@ window.toggleSoporteStatus = async function () {
   }
 };
 
+window.toggleSoporteInfo = function () {
+  const panel  = document.getElementById('sc2InfoPanel');
+  const toggle = document.getElementById('sc2InfoToggle');
+  if (!panel) return;
+  _sc2InfoVisible = !_sc2InfoVisible;
+  panel.style.display = _sc2InfoVisible ? 'flex' : 'none';
+  if (toggle) toggle.classList.toggle('active', _sc2InfoVisible);
+};
+
+window.toggleSoporteQuickReplies = function () {
+  const el = document.getElementById('sc2QuickReplies');
+  if (el) el.style.display = el.style.display === 'none' ? 'flex' : 'none';
+};
+
+window.insertSoporteQuickReply = function (text) {
+  const input = document.getElementById('soporteReplyInput');
+  if (!input) return;
+  input.value = text;
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 130) + 'px';
+  input.focus();
+  const qr = document.getElementById('sc2QuickReplies');
+  if (qr) qr.style.display = 'none';
+};
+
+window.setSoportePriority = async function (priority) {
+  if (!_soporteCurrentChat) return;
+  try {
+    await window.db.collection('supportChats').doc(_soporteCurrentChat)
+      .update({ priority });
+    document.querySelectorAll('.sc2-prio-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.p === priority);
+    });
+    toast('Prioridad actualizada');
+  } catch (e) {
+    console.error('[admin] setSoportePriority:', e);
+    toast('Error al actualizar prioridad', false);
+  }
+};
+
 window.sendAdminReply = async function () {
   const input = document.getElementById('soporteReplyInput');
   const text  = (input?.value || '').trim();
   if (!text || !_soporteCurrentChat) return;
 
-  const btn = document.querySelector('.sc-send-btn');
+  // Clear typing indicator
+  if (_adminTypingTimer) { clearTimeout(_adminTypingTimer); _adminTypingTimer = null; }
+  setAdminTyping(_soporteCurrentChat, false);
+
+  const btn = document.querySelector('.sc2-send-btn');
   if (btn) btn.disabled = true;
   input.value = '';
+  input.style.height = 'auto';
 
   try {
     const FS  = firebase.firestore.FieldValue;
@@ -1240,7 +1684,8 @@ window.sendAdminReply = async function () {
       lastMessage:   '[Admin] ' + text.slice(0, 80),
       lastMessageAt: now,
       unreadUser:    FS.increment(1),
-      status:        'open',
+      status:        'replied',
+      typingAdmin:   false,
     });
 
     await batch.commit();
@@ -1268,14 +1713,14 @@ async function adminUploadImage(file) {
   const tmpId  = 'adminimg-' + Date.now();
   if (msgsEl) {
     msgsEl.insertAdjacentHTML('beforeend',
-      `<div id="${tmpId}" class="sc-msg sc-msg--admin" style="display:flex;align-items:center;gap:8px;opacity:.6">
-        <div class="spin-ring-sm"></div><span style="font-size:.78rem">Subiendo imagen…</span>
+      `<div id="${tmpId}" class="sc2-upload-placeholder">
+        <div class="spin-ring-sm"></div><span>Subiendo imagen…</span>
       </div>`
     );
     msgsEl.scrollTop = msgsEl.scrollHeight;
   }
 
-  const sendBtn = document.querySelector('.sc-send-btn');
+  const sendBtn = document.querySelector('.sc2-send-btn');
   if (sendBtn) sendBtn.disabled = true;
 
   try {
@@ -1317,6 +1762,204 @@ async function adminUploadImage(file) {
     if (sendBtn) sendBtn.disabled = false;
   }
 }
+
+// ── TYPING INDICATOR ─────────────────────────────
+window._onAdminTyping = function () {
+  if (!_soporteCurrentChat) return;
+  setAdminTyping(_soporteCurrentChat, true);
+  clearTimeout(_adminTypingTimer);
+  _adminTypingTimer = setTimeout(() => {
+    setAdminTyping(_soporteCurrentChat, false);
+    _adminTypingTimer = null;
+  }, 3000);
+};
+
+function setAdminTyping(chatId, typing) {
+  if (!chatId) return;
+  window.db.collection('supportChats').doc(chatId)
+    .update({ typingAdmin: typing })
+    .catch(() => {});
+}
+
+// ── FILE UPLOAD (all types) ───────────────────────
+window.adminPickFile = function (fileInput) {
+  const file = fileInput?.files?.[0];
+  if (!file) return;
+  fileInput.value = '';
+  if (!_soporteCurrentChat) return;
+  if (file.size > 16 * 1024 * 1024) { toast('Archivo muy grande (máx. 16 MB)', false); return; }
+  if (file.type.startsWith('image/')) {
+    adminUploadFile(file, 'image');
+  } else {
+    adminUploadFile(file, 'file');
+  }
+};
+
+async function adminUploadFile(file, type) {
+  const msgsEl = document.getElementById('soporteMessages');
+  const tmpId  = 'adminfile-' + Date.now();
+  if (msgsEl) {
+    msgsEl.insertAdjacentHTML('beforeend',
+      `<div id="${tmpId}" class="sc2-upload-placeholder">
+        <div class="spin-ring-sm"></div><span>Subiendo ${type === 'image' ? 'imagen' : 'archivo'}…</span>
+      </div>`
+    );
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+  }
+
+  const sendBtn = document.querySelector('.sc2-send-btn');
+  if (sendBtn) sendBtn.disabled = true;
+
+  try {
+    const ext  = file.name.split('.').pop().toLowerCase() || 'bin';
+    const path = `supportChats/${_soporteCurrentChat}/admin_${Date.now()}.${ext}`;
+    const snap = await firebase.storage().ref(path).put(file);
+    const url  = await snap.ref.getDownloadURL();
+
+    const FS  = firebase.firestore.FieldValue;
+    const now = FS.serverTimestamp();
+    const batch = window.db.batch();
+
+    const msgData = {
+      from:      'admin',
+      type,
+      text:      '',
+      senderName: adminUser?.displayName || adminUser?.email?.split('@')[0] || 'Soporte VirtualGift',
+      createdAt: now,
+    };
+    if (type === 'image') {
+      msgData.imageUrl = url;
+    } else {
+      msgData.fileUrl  = url;
+      msgData.fileName = file.name;
+      msgData.fileSize = file.size;
+    }
+
+    const msgRef = window.db
+      .collection('supportChats').doc(_soporteCurrentChat)
+      .collection('messages').doc();
+    batch.set(msgRef, msgData);
+
+    batch.update(window.db.collection('supportChats').doc(_soporteCurrentChat), {
+      lastMessage:   type === 'image' ? '[Admin] 📷 Imagen' : '[Admin] 📎 ' + file.name.slice(0, 40),
+      lastMessageAt: now,
+      unreadUser:    FS.increment(1),
+      status:        'replied',
+    });
+
+    await batch.commit();
+    toast(type === 'image' ? 'Imagen enviada ✅' : 'Archivo enviado ✅');
+  } catch (e) {
+    console.error('[admin] adminUploadFile:', e);
+    toast('Error al subir archivo', false);
+  } finally {
+    document.getElementById(tmpId)?.remove();
+    if (sendBtn) sendBtn.disabled = false;
+  }
+}
+
+// ── AI SUPPORT PANEL ──────────────────────────────
+window.toggleSoporteAI = function () {
+  const panel = document.getElementById('sc2AiPanel');
+  if (!panel) return;
+  const visible = panel.style.display !== 'none';
+  panel.style.display = visible ? 'none' : 'flex';
+  if (!visible) window.generateAISuggestions();
+};
+
+window.generateAISuggestions = function () {
+  const topicEl  = document.getElementById('sc2AiTopic');
+  const suggsEl  = document.getElementById('sc2AiSuggestions');
+  if (!suggsEl) return;
+
+  const result = _detectAITopic(_currentMsgsData);
+  if (topicEl) topicEl.textContent = result.label;
+
+  suggsEl.innerHTML = result.suggestions.map((s, i) =>
+    `<div class="sc2-ai-suggestion" onclick="window._applyAISuggestion(${i})">${esc(s)}</div>`
+  ).join('');
+};
+
+window._applyAISuggestion = function (idx) {
+  const result = _detectAITopic(_currentMsgsData);
+  const text   = result.suggestions[idx];
+  if (!text) return;
+  const input = document.getElementById('soporteReplyInput');
+  if (!input) return;
+  input.value = text;
+  input.style.height = 'auto';
+  input.style.height = Math.min(input.scrollHeight, 130) + 'px';
+  input.focus();
+  const panel = document.getElementById('sc2AiPanel');
+  if (panel) panel.style.display = 'none';
+};
+
+// ── QUICK ACTIONS ────────────────────────────────
+window.soporteViewProfile = function () {
+  if (!_soporteCurrentChat) return;
+  window.switchTab('tabUsuarios');
+  const input = document.getElementById('userSearch');
+  if (input) {
+    input.value = _soporteCurrentChat;
+    window.searchUsers();
+  }
+};
+
+window.soporteSendNotification = async function () {
+  if (!_soporteCurrentChat) return;
+  const msg = prompt('Mensaje de notificación para este usuario:');
+  if (!msg?.trim()) return;
+  try {
+    await window.db.collection('notifications').add({
+      userId:    _soporteCurrentChat,
+      title:     '📢 Soporte VirtualGift',
+      message:   msg.trim(),
+      type:      'support',
+      read:      false,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    toast('Notificación enviada ✅');
+  } catch (e) {
+    console.error('[admin] soporteSendNotification:', e);
+    toast('Error al enviar notificación', false);
+  }
+};
+
+window.soporteSuspendUser = async function () {
+  if (!_soporteCurrentChat) return;
+  const nameEl = document.getElementById('sc2IpName');
+  const name   = nameEl?.textContent || _soporteCurrentChat;
+  if (!confirm(`¿Suspender a ${name}? Esto marcará su cuenta como suspendida.`)) return;
+  try {
+    await window.db.collection('users').doc(_soporteCurrentChat)
+      .update({ suspended: true, suspendedAt: firebase.firestore.FieldValue.serverTimestamp() });
+    toast('Usuario suspendido');
+  } catch (e) {
+    console.error('[admin] soporteSuspendUser:', e);
+    toast('Error al suspender usuario', false);
+  }
+};
+
+window.soporteBanUser = async function () {
+  if (!_soporteCurrentChat) return;
+  const nameEl = document.getElementById('sc2IpName');
+  const name   = nameEl?.textContent || _soporteCurrentChat;
+  const reason = prompt(`¿Razón para banear a ${name}?`);
+  if (!reason?.trim()) return;
+  if (!confirm(`¿Confirmar ban permanente para ${name}?`)) return;
+  try {
+    await window.db.collection('users').doc(_soporteCurrentChat)
+      .update({
+        banned:    true,
+        bannedAt:  firebase.firestore.FieldValue.serverTimestamp(),
+        banReason: reason.trim(),
+      });
+    toast('Usuario baneado');
+  } catch (e) {
+    console.error('[admin] soporteBanUser:', e);
+    toast('Error al banear usuario', false);
+  }
+};
 
 // ─────────────────────────────────────────────────
 // AUTH GUARD

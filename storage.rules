@@ -28,16 +28,14 @@ service firebase.storage {
     // ── SUPPORT CHAT IMAGES ──────────────────────────
     match /supportChats/{userId}/{fileName} {
       allow read: if isAuth();
-      // Owner can upload their own images
+      // Owner can upload images and documents (max 16 MB)
       allow write: if isAuth()
         && request.auth.uid == userId
-        && request.resource.size < 8 * 1024 * 1024
-        && request.resource.contentType.matches("image/.*");
-      // Admins can upload images for any chat (fileName starts with "admin_")
+        && request.resource.size < 16 * 1024 * 1024;
+      // Admins can upload any file for any chat (fileName starts with "admin_")
       allow write: if isAuth()
         && fileName.matches("admin_.*")
-        && request.resource.size < 8 * 1024 * 1024
-        && request.resource.contentType.matches("image/.*");
+        && request.resource.size < 16 * 1024 * 1024;
     }
 
     match /{allPaths=**} {

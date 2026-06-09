@@ -485,60 +485,310 @@
         <!-- ── TAB: SOPORTE ─────────────────────────── -->
         <div class="admin-panel" id="tabSoporte">
 
-          <!-- LIST VIEW -->
-          <div id="soporteListWrap">
-            <div class="panel-header">
-              <p class="admin-section-title">Chats de soporte</p>
+          <!-- METRICS BAR -->
+          <div class="sc2-metrics-bar">
+            <div class="sc2-mcard sc2-mcard--purple">
+              <svg class="sc2-mcard-ico" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+              <div><div class="sc2-mcard-val" id="sc2MetTotal">—</div><div class="sc2-mcard-lbl">Total tickets</div></div>
             </div>
-            <div id="soporteChatList">
-              <div class="admin-loading">Cargando...</div>
+            <div class="sc2-mcard sc2-mcard--green">
+              <svg class="sc2-mcard-ico" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <div><div class="sc2-mcard-val" id="sc2MetOpen">—</div><div class="sc2-mcard-lbl">Activos</div></div>
+            </div>
+            <div class="sc2-mcard sc2-mcard--yellow">
+              <svg class="sc2-mcard-ico" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+              <div><div class="sc2-mcard-val" id="sc2MetWaiting">—</div><div class="sc2-mcard-lbl">Esperando</div></div>
+            </div>
+            <div class="sc2-mcard sc2-mcard--red">
+              <svg class="sc2-mcard-ico" viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+              <div><div class="sc2-mcard-val" id="sc2MetUnread">—</div><div class="sc2-mcard-lbl">Sin responder</div></div>
+            </div>
+            <div class="sc2-mcard sc2-mcard--grey">
+              <svg class="sc2-mcard-ico" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+              <div><div class="sc2-mcard-val" id="sc2MetClosed">—</div><div class="sc2-mcard-lbl">Cerrados hoy</div></div>
             </div>
           </div>
 
-          <!-- CHAT DETAIL VIEW -->
-          <div id="soporteChatWrap" style="display:none">
-            <div class="sc-chat-header">
-              <button class="btn-cancel" onclick="window.closeSoporteChat()">← Volver</button>
-              <div class="sc-chat-hdr-info">
-                <div class="sc-chat-hdr-avatar" id="scChatAvatar">U</div>
-                <div>
-                  <div class="admin-section-title" id="scChatName" style="margin:0;font-size:.95rem;line-height:1.2"></div>
-                  <div style="font-size:.72rem;color:var(--text2)" id="scChatEmail"></div>
+          <div class="sc2-layout">
+
+            <!-- ── LEFT SIDEBAR ── -->
+            <aside class="sc2-sidebar">
+              <div class="sc2-sidebar-head">
+                <span class="sc2-sidebar-title">Conversaciones</span>
+                <span class="sc2-total-badge" id="sc2TotalBadge" style="display:none">0</span>
+              </div>
+
+              <div class="sc2-search-wrap">
+                <svg class="sc2-search-ico" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input class="sc2-search" id="sc2SearchInput" type="text" placeholder="Buscar usuario, email…" oninput="window.filterSoporteChats()">
+              </div>
+
+              <div class="sc2-filter-strip">
+                <button class="sc2-ftab active" data-sf="all"     onclick="window.setSoporteFilter('all')">Todos</button>
+                <button class="sc2-ftab"        data-sf="active"  onclick="window.setSoporteFilter('active')">Activos</button>
+                <button class="sc2-ftab"        data-sf="waiting" onclick="window.setSoporteFilter('waiting')">⏳</button>
+                <button class="sc2-ftab"        data-sf="closed"  onclick="window.setSoporteFilter('closed')">Cerrados</button>
+              </div>
+
+              <!-- Priority filter -->
+              <div class="sc2-prio-filter-row">
+                <button class="sc2-pfil active" data-pf="all"    onclick="window.setSoportePrioFilter('all')">Todas</button>
+                <button class="sc2-pfil"        data-pf="urgent" onclick="window.setSoportePrioFilter('urgent')" title="Urgente">🔴</button>
+                <button class="sc2-pfil"        data-pf="high"   onclick="window.setSoportePrioFilter('high')"   title="Alta">🟠</button>
+                <button class="sc2-pfil"        data-pf="medium" onclick="window.setSoportePrioFilter('medium')" title="Media">🟡</button>
+                <button class="sc2-pfil"        data-pf="low"    onclick="window.setSoportePrioFilter('low')"    title="Baja">🟢</button>
+              </div>
+
+              <div class="sc2-conv-list" id="soporteChatList">
+                <div class="sc2-list-empty">
+                  <div class="sc2-list-empty-icon">💬</div>
+                  <div class="sc2-list-empty-text">Cargando...</div>
                 </div>
               </div>
-              <button class="btn-icon" id="scToggleStatusBtn"
-                onclick="window.toggleSoporteStatus()" data-closed="0"
-                title="Cerrar/reabrir chat">
-                🔒 Cerrar
-              </button>
-            </div>
+            </aside>
 
-            <div class="sc-messages" id="soporteMessages"></div>
+            <!-- ── CENTER: MAIN AREA ── -->
+            <main class="sc2-main">
 
-            <div class="sc-reply-wrap">
-              <textarea
-                class="sc-reply-input"
-                id="soporteReplyInput"
-                placeholder="Escribe tu respuesta... (Enter para enviar, Shift+Enter nueva línea)"
-                rows="3"
-                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();window.sendAdminReply()}"
-              ></textarea>
-              <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px;align-items:center">
-                <label class="btn-cancel" for="adminImageInput" title="Enviar imagen"
-                  style="cursor:pointer;display:inline-flex;align-items:center;gap:5px;margin:0">
-                  <svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-                  Imagen
-                </label>
-                <input type="file" id="adminImageInput" accept="image/*" style="display:none"
-                  onchange="window.adminPickImage(this)">
-                <button class="btn-save sc-send-btn" onclick="window.sendAdminReply()">
-                  ➤ Enviar respuesta
+              <!-- Empty / no chat selected -->
+              <div id="soporteListWrap" class="sc2-no-chat">
+                <div class="sc2-no-chat-icon">
+                  <svg viewBox="0 0 24 24" style="width:40px;height:40px;fill:rgba(139,92,246,.35)"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+                </div>
+                <div class="sc2-no-chat-title">Ninguna conversación seleccionada</div>
+                <div class="sc2-no-chat-sub">Selecciona un chat de la lista para comenzar</div>
+              </div>
+
+              <!-- Active chat -->
+              <div id="soporteChatWrap" style="display:none">
+
+                <!-- Top bar -->
+                <div class="sc2-topbar">
+                  <button class="sc2-back" onclick="window.closeSoporteChat()" title="Volver">
+                    <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+                  </button>
+                  <div class="sc2-topbar-user">
+                    <div class="sc2-topbar-avatar" id="scChatAvatar">U</div>
+                    <div class="sc2-topbar-meta">
+                      <div class="sc2-topbar-name-row">
+                        <span class="sc2-topbar-name" id="scChatName">Usuario</span>
+                        <span class="sc2-status-badge" id="sc2ChatStatusBadge" data-s="waiting">⏳ Esperando</span>
+                      </div>
+                      <div class="sc2-topbar-email" id="scChatEmail"></div>
+                    </div>
+                  </div>
+                  <!-- Tag chips row -->
+                  <div class="sc2-topbar-tags" id="sc2TopbarTags"></div>
+                  <div class="sc2-topbar-actions">
+                    <button class="sc2-tbtn sc2-tbtn--info" id="sc2InfoToggle" onclick="window.toggleSoporteInfo()">
+                      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+                      <span>Info</span>
+                    </button>
+                    <button class="sc2-tbtn sc2-tbtn--close" id="scToggleStatusBtn" onclick="window.toggleSoporteStatus()" data-closed="0">
+                      <svg viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+                      <span>Cerrar ticket</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Typing indicator -->
+                <div class="sc2-typing-bar" id="sc2TypingBar" style="display:none">
+                  <div class="sc2-typing-dots"><span></span><span></span><span></span></div>
+                  <span class="sc2-typing-label" id="sc2TypingLabel">Usuario está escribiendo…</span>
+                </div>
+
+                <!-- Messages -->
+                <div class="sc2-messages" id="soporteMessages">
+                  <div class="sc2-msg-empty"><div class="sc2-msg-empty-icon">💬</div><div class="sc2-msg-empty-text">Cargando…</div></div>
+                </div>
+
+                <!-- Reply bar -->
+                <div class="sc2-replybar">
+
+                  <!-- AI panel -->
+                  <div class="sc2-ai-panel" id="sc2AiPanel" style="display:none">
+                    <div class="sc2-ai-header">
+                      <div class="sc2-ai-badge">✨ IA</div>
+                      <span class="sc2-ai-title">Asistente de Soporte</span>
+                      <span class="sc2-ai-topic" id="sc2AiTopic"></span>
+                      <button class="sc2-ai-close" onclick="window.toggleSoporteAI()">
+                        <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                      </button>
+                    </div>
+                    <div class="sc2-ai-suggestions" id="sc2AiSuggestions">
+                      <div class="sc2-ai-hint">Presiona "Analizar" para obtener sugerencias basadas en la conversación.</div>
+                    </div>
+                    <button class="sc2-ai-gen-btn" id="sc2AiGenBtn" onclick="window.generateAISuggestions()">
+                      <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
+                      Analizar y sugerir
+                    </button>
+                  </div>
+
+                  <!-- Quick replies -->
+                  <div class="sc2-quickreplies" id="sc2QuickReplies" style="display:none">
+                    <button class="sc2-qr" onclick="window.insertSoporteQuickReply('¡Hola! ¿En qué te puedo ayudar hoy?')">👋 Saludo</button>
+                    <button class="sc2-qr" onclick="window.insertSoporteQuickReply('Entiendo tu consulta, voy a revisarlo y te respondo en breve.')">⏳ Revisando</button>
+                    <button class="sc2-qr" onclick="window.insertSoporteQuickReply('Tu solicitud ha sido procesada exitosamente. ¡Gracias por contactarnos!')">✅ Resuelto</button>
+                    <button class="sc2-qr" onclick="window.insertSoporteQuickReply('Lamentamos los inconvenientes. Estamos trabajando para solucionar esto lo antes posible.')">🙏 Disculpa</button>
+                    <button class="sc2-qr" onclick="window.insertSoporteQuickReply('Para continuar necesito verificar tu identidad. ¿Puedes proporcionarme tu correo registrado?')">🔍 Verificar</button>
+                  </div>
+
+                  <!-- Input row -->
+                  <div class="sc2-input-row">
+                    <div class="sc2-input-tools">
+                      <label class="sc2-tool-btn" for="adminFileInput" title="Adjuntar archivo">
+                        <svg viewBox="0 0 24 24"><path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z"/></svg>
+                      </label>
+                      <input type="file" id="adminFileInput" accept="image/*,application/pdf,.zip,.doc,.docx,.txt" style="display:none" onchange="window.adminPickFile(this)">
+                      <!-- keep old id for compat -->
+                      <input type="file" id="adminImageInput" accept="image/*" style="display:none" onchange="window.adminPickFile(this)">
+                      <button class="sc2-tool-btn" onclick="window.toggleSoporteQuickReplies()" title="Respuestas rápidas">
+                        <svg viewBox="0 0 24 24"><path d="M7 14H5v5l-1 1h3v-6zm-2-4h2V4H4l1 6zm16 2h-8v2h8v-2zm0 4h-8v2h8v-2zM5 8h2V6H5v2zm0 4h2v-2H5v2zm12-8H9v2h8V4zm0 4H9v2h8V8z"/></svg>
+                      </button>
+                      <button class="sc2-tool-btn sc2-tool-ai" onclick="window.toggleSoporteAI()" title="Asistente IA">
+                        <svg viewBox="0 0 24 24"><path d="M11.5 2C6.81 2 3 5.81 3 10.5S6.81 19 11.5 19h.5v3c4.86-2.34 8-7 8-11.5C20 5.81 16.19 2 11.5 2zm1 14.5h-2v-2h2v2zm0-4h-2c0-3.25 3-3 3-5 0-1.1-.9-2-2-2s-2 .9-2 2h-2c0-2.21 1.79-4 4-4s4 1.79 4 4c0 2.5-3 2.75-3 5z"/></svg>
+                      </button>
+                    </div>
+                    <textarea
+                      class="sc2-textarea"
+                      id="soporteReplyInput"
+                      placeholder="Escribe tu respuesta… (Enter para enviar)"
+                      rows="1"
+                      maxlength="2000"
+                      oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,130)+'px';window._onAdminTyping()"
+                      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();window.sendAdminReply()}"
+                    ></textarea>
+                    <button class="sc2-send-btn" onclick="window.sendAdminReply()" title="Enviar">
+                      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                    </button>
+                  </div>
+                </div>
+
+              </div><!-- /soporteChatWrap -->
+            </main>
+
+            <!-- ── RIGHT: USER INFO PANEL (EXPANDED) ── -->
+            <aside class="sc2-infopanel" id="sc2InfoPanel" style="display:none">
+
+              <div class="sc2-ip-head">
+                <span class="sc2-ip-title">Perfil del usuario</span>
+                <button class="sc2-ip-close" onclick="window.toggleSoporteInfo()">
+                  <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
                 </button>
               </div>
-            </div>
-          </div>
 
-        </div>
+              <!-- Identity -->
+              <div class="sc2-ip-user">
+                <div class="sc2-ip-avatar" id="sc2IpAvatar">U</div>
+                <div class="sc2-ip-name"  id="sc2IpName">—</div>
+                <div class="sc2-ip-email" id="sc2IpEmail">—</div>
+                <div class="sc2-ip-chips">
+                  <span class="sc2-chip sc2-chip--purple" id="sc2IpLevel">Nv. —</span>
+                  <span class="sc2-status-chip" id="sc2IpStatusChip">⏳ Esperando</span>
+                </div>
+              </div>
+
+              <!-- Stats grid -->
+              <div class="sc2-ip-section">
+                <div class="sc2-ip-section-title">Estadísticas</div>
+                <div class="sc2-stats-grid">
+                  <div class="sc2-stat-card sc2-stat--gold">
+                    <div class="sc2-stat-val" id="sc2IpCoins">—</div>
+                    <div class="sc2-stat-lbl">Monedas</div>
+                  </div>
+                  <div class="sc2-stat-card sc2-stat--blue">
+                    <div class="sc2-stat-val" id="sc2IpGames">—</div>
+                    <div class="sc2-stat-lbl">Juegos</div>
+                  </div>
+                  <div class="sc2-stat-card">
+                    <div class="sc2-stat-val" id="sc2IpCanjes">—</div>
+                    <div class="sc2-stat-lbl">Canjes</div>
+                  </div>
+                  <div class="sc2-stat-card">
+                    <div class="sc2-stat-val" id="sc2IpApproved">—</div>
+                    <div class="sc2-stat-lbl">Aprobados</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Account info -->
+              <div class="sc2-ip-section">
+                <div class="sc2-ip-section-title">Cuenta</div>
+                <div class="sc2-ip-rows">
+                  <div class="sc2-ip-row"><span class="sc2-ip-label">Registro</span><span class="sc2-ip-val" id="sc2IpCreated">—</span></div>
+                  <div class="sc2-ip-row"><span class="sc2-ip-label">Último acceso</span><span class="sc2-ip-val" id="sc2IpLastLogin">—</span></div>
+                  <div class="sc2-ip-row"><span class="sc2-ip-label">Tiempo de espera</span><span class="sc2-ip-val sc2-wait-time" id="sc2IpWait">—</span></div>
+                </div>
+              </div>
+
+              <!-- Recent canjes -->
+              <div class="sc2-ip-section">
+                <div class="sc2-ip-section-title">Últimos canjes</div>
+                <div class="sc2-activity-list" id="sc2RecentCanjes">
+                  <div class="sc2-activity-empty">Cargando…</div>
+                </div>
+              </div>
+
+              <!-- UID -->
+              <div class="sc2-ip-section">
+                <div class="sc2-ip-section-title">UID</div>
+                <div class="sc2-mono" id="sc2IpUid" title="">—</div>
+              </div>
+
+              <!-- Tags -->
+              <div class="sc2-ip-section">
+                <div class="sc2-ip-section-title">Etiquetas</div>
+                <div class="sc2-tags-wrap" id="sc2TagsWrap"></div>
+                <div class="sc2-tag-presets">
+                  <button class="sc2-tag-preset" onclick="window.addSoporteTag('canje')">Canje</button>
+                  <button class="sc2-tag-preset" onclick="window.addSoporteTag('pago')">Pago</button>
+                  <button class="sc2-tag-preset" onclick="window.addSoporteTag('error')">Error</button>
+                  <button class="sc2-tag-preset" onclick="window.addSoporteTag('sorteo')">Sorteo</button>
+                  <button class="sc2-tag-preset" onclick="window.addSoporteTag('cuenta')">Cuenta</button>
+                  <button class="sc2-tag-preset" onclick="window.addSoporteTag('bug')">Bug</button>
+                  <button class="sc2-tag-preset" onclick="window.addSoporteTag('consulta')">Consulta</button>
+                  <button class="sc2-tag-preset" onclick="window.addSoporteTag('reporte')">Reporte</button>
+                </div>
+              </div>
+
+              <!-- Quick actions -->
+              <div class="sc2-ip-section">
+                <div class="sc2-ip-section-title">Acciones</div>
+                <div class="sc2-actions-grid">
+                  <button class="sc2-action-btn" onclick="window.soporteViewProfile()">
+                    <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    Ver perfil
+                  </button>
+                  <button class="sc2-action-btn" onclick="window.soporteSendNotification()">
+                    <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                    Notificar
+                  </button>
+                  <button class="sc2-action-btn sc2-action--warn" onclick="window.soporteSuspendUser()">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/></svg>
+                    Suspender
+                  </button>
+                  <button class="sc2-action-btn sc2-action--danger" onclick="window.soporteBanUser()">
+                    <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zM4 18V8l8 5 8-5v10H4zm8-7L4 6h16l-8 5z"/></svg>
+                    Bloquear
+                  </button>
+                </div>
+              </div>
+
+              <!-- Priority -->
+              <div class="sc2-ip-section">
+                <div class="sc2-ip-section-title">Prioridad</div>
+                <div class="sc2-priority-grid">
+                  <button class="sc2-prio-btn" data-p="low"    onclick="window.setSoportePriority('low')">🟢 Baja</button>
+                  <button class="sc2-prio-btn" data-p="medium" onclick="window.setSoportePriority('medium')">🟡 Media</button>
+                  <button class="sc2-prio-btn" data-p="high"   onclick="window.setSoportePriority('high')">🟠 Alta</button>
+                  <button class="sc2-prio-btn" data-p="urgent" onclick="window.setSoportePriority('urgent')">🔴 Urgente</button>
+                </div>
+              </div>
+
+            </aside><!-- /sc2InfoPanel -->
+
+          </div><!-- /sc2-layout -->
+        </div><!-- /tabSoporte -->
 
 
       </div><!-- /admin-main -->
