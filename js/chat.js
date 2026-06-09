@@ -235,7 +235,7 @@ function _fmtTime(ts) {
 function _buildMsg(data) {
   const isUser = data.from === 'user';
   const time   = _fmtTime(data.createdAt);
-  const adminAvatar = `<div class="msg-avatar"><img src="images/logo-virtual-login.png" alt="S" onerror="this.style.display='none'"></div>`;
+  const adminAvatar = `<div class="msg-avatar"><img src="images/logo soporte.png" alt="S" onerror="this.style.display='none'"></div>`;
 
   // Image
   if (data.type === 'image' && data.imageUrl) {
@@ -315,7 +315,7 @@ function _ticketBarHTML() {
 // ── TYPING ROW ─────────────────────────────────────
 function _typingRowHTML() {
   return `<div class="chat-typing-row" id="chatTypingRow">
-    <div class="msg-avatar"><img src="images/logo-virtual-login.png" alt="S" onerror="this.style.display='none'"></div>
+    <div class="msg-avatar"><img src="images/logo soporte.png" alt="S" onerror="this.style.display='none'"></div>
     <div class="chat-typing-bubble">
       <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
     </div>
