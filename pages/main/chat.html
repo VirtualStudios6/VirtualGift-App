@@ -612,15 +612,7 @@
         </div>
       </div>
 
-      <div style="height:80px"></div>
-    </div>
-
-    <!-- CTA fixed button -->
-    <div class="help-cta">
-      <button class="btn-start-chat" id="helpCtaBtn" onclick="window.chatShowChat()">
-        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
-        Iniciar conversación
-      </button>
+      <div style="height:90px"></div>
     </div>
   </div>
 
@@ -631,6 +623,14 @@
     <div class="chat-content" id="chatContent">
       <div class="chat-loading"><div class="spin-ring"></div></div>
     </div>
+  </div>
+
+  <!-- HELP CTA (body-level so it's never clipped by overflow container) -->
+  <div class="help-cta" id="helpCta">
+    <button class="btn-start-chat" id="helpCtaBtn" onclick="window.chatShowChat()">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+      Iniciar conversación
+    </button>
   </div>
 
   <!-- QUICK REPLIES PANEL -->

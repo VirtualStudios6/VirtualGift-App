@@ -30,6 +30,8 @@ window.chatShowHelp = function () {
   document.getElementById('chatView').style.display     = 'none';
   document.getElementById('chatInputBar').style.display = 'none';
   document.getElementById('hdrHelpBtn').style.display   = 'none';
+  const helpCta = document.getElementById('helpCta');
+  if (helpCta) helpCta.style.display = '';
   _hideQR();
 };
 
@@ -39,10 +41,12 @@ window.chatShowChat = function () {
   document.getElementById('chatView').style.display     = '';
   document.getElementById('chatInputBar').style.display = '';
   document.getElementById('hdrHelpBtn').style.display   = '';
+  const helpCta = document.getElementById('helpCta');
+  if (helpCta) helpCta.style.display = 'none';
   const cc = document.getElementById('chatContent');
-  if (cc) setTimeout(() => { cc.scrollTop = cc.scrollHeight; }, 50);
+  if (cc) setTimeout(function () { cc.scrollTop = cc.scrollHeight; }, 50);
   const input = document.getElementById('chatInput');
-  if (input) setTimeout(() => input.focus(), 120);
+  if (input) setTimeout(function () { input.focus(); }, 120);
 };
 
 // ── FAQ ACCORDION ──────────────────────────────────
@@ -563,14 +567,13 @@ function initChat(user) {
     });
   }
 
-  // Check if user has existing messages → go directly to chat view
+  // If user has previous messages, update CTA label — but ALWAYS start on helpView
   window.db.collection('supportChats').doc(_chatUid)
     .collection('messages').limit(1).get()
     .then(function (snap) {
-      if (!snap.empty) {
-        window.chatShowChat();
-        const ctaBtn = document.getElementById('helpCtaBtn');
-        if (ctaBtn) ctaBtn.innerHTML = `<svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:#fff;flex-shrink:0"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>Ver mi conversación`;
+      const ctaBtn = document.getElementById('helpCtaBtn');
+      if (!snap.empty && ctaBtn) {
+        ctaBtn.innerHTML = `<svg viewBox="0 0 24 24" style="width:19px;height:19px;fill:#fff;flex-shrink:0"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>Ver mi conversación`;
       }
     })
     .catch(function () {});
