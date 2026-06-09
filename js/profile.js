@@ -291,20 +291,19 @@ function renderEmail() {
 /* ============================================ */
 
 function setProviderChip(user) {
-  const chip     = document.getElementById('chipProvider');
-  const btnReset = document.getElementById('btnResetPassword');
+  const chip      = document.getElementById('chipProvider');
+  const btnReset  = document.getElementById('btnResetPassword');
   const providers = (user.providerData || []).map(p => p.providerId);
 
-  if (providers.includes('password')) {
-    chip.textContent       = '🔐 Cuenta con contraseña';
-    btnReset.style.display = 'flex';
-  } else if (providers.includes('google.com')) {
-    chip.textContent       = '🔵 Cuenta Google';
-    btnReset.style.display = 'none';
+  if (providers.includes('google.com')) {
+    chip.textContent = '🔵 Cuenta Google';
+  } else if (providers.includes('password')) {
+    chip.textContent = '🔐 Cuenta con contraseña';
   } else {
-    chip.textContent       = '🔐 Cuenta segura';
-    btnReset.style.display = 'none';
+    chip.textContent = '🔐 Cuenta segura';
   }
+
+  if (btnReset) btnReset.style.display = 'flex';
 }
 
 /* ============================================ */
