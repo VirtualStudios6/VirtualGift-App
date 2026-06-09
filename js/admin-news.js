@@ -340,6 +340,8 @@ let currentUser  = null;
 let selectedId   = null;
 let lastDocs     = [];
 let currentFilter = "all";
+let _dragSrc             = null;
+let _dragListenersAdded  = false;
 
 async function saveNews() {
   const data       = getFormData();
@@ -372,6 +374,8 @@ async function saveNews() {
     if (data.published) payload.date = now;
 
     if (!selectedId) {
+      const maxSort = lastDocs.reduce((m, { data }) => Math.max(m, typeof data.sort === "number" ? data.sort : 0), 0);
+      payload.sort = maxSort + 10;
       payload.createdAt = now;
       const ref = await firebase.firestore().collection("news").add(payload);
       selectedId = ref.id;
@@ -455,6 +459,23 @@ async function loadNews() {
       .get();
 
     lastDocs = snap.docs.map((d) => ({ id: d.id, data: d.data() }));
+
+    // Asignar sort a noticias que no lo tienen (migración única)
+    const needsSort = lastDocs.some(({ data }) => typeof data.sort !== "number");
+    if (needsSort) {
+      const batch = firebase.firestore().batch();
+      lastDocs.forEach(({ id, data }, i) => {
+        if (typeof data.sort !== "number") {
+          batch.update(firebase.firestore().collection("news").doc(id), { sort: (i + 1) * 10 });
+          data.sort = (i + 1) * 10;
+        }
+      });
+      await batch.commit();
+    }
+
+    // Ordenar por sort ascendente localmente
+    lastDocs.sort((a, b) => (a.data.sort || 0) - (b.data.sort || 0));
+
     applyFilterAndRender();
   } catch (e) {
     console.error("[admin-news] load error:", e);
@@ -484,6 +505,15 @@ function applyFilterAndRender() {
   }
   if (empty) empty.style.display = "none";
 
+  const isDraggable = currentFilter === "all";
+
+  if (isDraggable) {
+    const hint = document.createElement("p");
+    hint.className = "drag-hint";
+    hint.innerHTML = `<svg viewBox="0 0 10 16" width="8" height="12" fill="currentColor" style="flex-shrink:0"><circle cx="3" cy="3" r="1.5"/><circle cx="7" cy="3" r="1.5"/><circle cx="3" cy="8" r="1.5"/><circle cx="7" cy="8" r="1.5"/><circle cx="3" cy="13" r="1.5"/><circle cx="7" cy="13" r="1.5"/></svg> Arrastra para reordenar`;
+    list.appendChild(hint);
+  }
+
   filtered.forEach(({ id, data }) => {
     const title        = data.title || "Noticia";
     const displayTitle = data.feedTitle || title;
@@ -492,7 +522,16 @@ function applyFilterAndRender() {
 
     const el = document.createElement("div");
     el.className = "item";
+    el.dataset.id = id;
+    if (isDraggable) el.draggable = true;
+
+    const handleTitle = isDraggable ? 'title="Arrastra para reordenar"' : 'title="Activa el filtro Todas para reordenar"';
+    const handleClass = isDraggable ? "drag-handle" : "drag-handle drag-disabled";
+
     el.innerHTML = `
+      <div class="${handleClass}" ${handleTitle}>
+        <svg viewBox="0 0 10 16" width="10" height="16" fill="currentColor"><circle cx="3" cy="3" r="1.5"/><circle cx="7" cy="3" r="1.5"/><circle cx="3" cy="8" r="1.5"/><circle cx="7" cy="8" r="1.5"/><circle cx="3" cy="13" r="1.5"/><circle cx="7" cy="13" r="1.5"/></svg>
+      </div>
       <div class="thumb">
         ${cover ? `<img src="${escapeHtml(cover)}" alt="" loading="lazy" onerror="this.style.display='none'">` : ""}
       </div>
@@ -514,6 +553,86 @@ function applyFilterAndRender() {
     `;
     list.appendChild(el);
   });
+
+  // Drag-and-drop listeners (event delegation, se agrega una sola vez)
+  if (list && !_dragListenersAdded) {
+    _dragListenersAdded = true;
+    setupDragAndDrop(list);
+  }
+}
+
+/* ============================================ */
+/* DRAG & DROP                                  */
+/* ============================================ */
+
+function setupDragAndDrop(list) {
+  list.addEventListener("dragstart", (e) => {
+    const item = e.target.closest(".item[draggable]");
+    if (!item) return;
+    _dragSrc = item;
+    item.classList.add("drag-dragging");
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", item.dataset.id || "");
+  });
+
+  list.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    const target = e.target.closest(".item[draggable]");
+    if (!target || target === _dragSrc) return;
+    list.querySelectorAll(".item").forEach((el) => el.classList.remove("drag-over"));
+    target.classList.add("drag-over");
+  });
+
+  list.addEventListener("dragleave", (e) => {
+    if (!e.relatedTarget || !list.contains(e.relatedTarget)) {
+      list.querySelectorAll(".item").forEach((el) => el.classList.remove("drag-over"));
+    }
+  });
+
+  list.addEventListener("drop", (e) => {
+    e.preventDefault();
+    const target = e.target.closest(".item[draggable]");
+    if (!target || !_dragSrc || target === _dragSrc) return;
+    list.querySelectorAll(".item").forEach((el) => el.classList.remove("drag-over"));
+    const rect = target.getBoundingClientRect();
+    if (e.clientY < rect.top + rect.height / 2) {
+      list.insertBefore(_dragSrc, target);
+    } else {
+      list.insertBefore(_dragSrc, target.nextSibling);
+    }
+  });
+
+  list.addEventListener("dragend", async () => {
+    list.querySelectorAll(".item").forEach((el) => {
+      el.classList.remove("drag-dragging", "drag-over");
+    });
+    if (_dragSrc) {
+      _dragSrc = null;
+      await saveNewOrder(list);
+    }
+  });
+}
+
+async function saveNewOrder(list) {
+  const items = list.querySelectorAll(".item[data-id]");
+  if (!items.length) return;
+  const batch = firebase.firestore().batch();
+  items.forEach((el, i) => {
+    const id = el.dataset.id;
+    if (!id) return;
+    const sortVal = (i + 1) * 10;
+    batch.update(firebase.firestore().collection("news").doc(id), { sort: sortVal });
+    const found = lastDocs.find((x) => x.id === id);
+    if (found) found.data.sort = sortVal;
+  });
+  try {
+    await batch.commit();
+    toast("✅ Orden guardado");
+  } catch (e) {
+    console.error("[admin-news] saveNewOrder:", e);
+    toast("❌ No se pudo guardar el orden");
+  }
 }
 
 // Delegación de clicks en la lista

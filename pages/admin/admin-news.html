@@ -12,7 +12,7 @@
   <script defer src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
   <script defer src="js/firebase-config.js"></script>
 
-  <!-- withAppFlag disponible antes de cualquier onclick -->
+  <!-- withAppFlag disponible antes de cualquier onclick -->
 
   <style>
     :root {
@@ -174,13 +174,36 @@
     /* ---- Lista ---- */
     .list { display: grid; gap: 10px; }
     .item {
-      display: grid; grid-template-columns: 92px 1fr; gap: 12px;
+      display: grid; grid-template-columns: 24px 92px 1fr; gap: 12px;
       padding: 10px; border-radius: 16px;
       border: 1px solid rgba(255,255,255,.08);
       background: rgba(2,5,21,.22);
-      transition: border-color .2s ease;
+      transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
     }
     .item:hover { border-color: rgba(141,23,251,.35); }
+
+    /* ---- Drag & Drop ---- */
+    .drag-handle {
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(182,198,217,0.28); cursor: grab;
+      border-radius: 6px; padding: 2px;
+      transition: color .15s;
+      user-select: none; -webkit-tap-highlight-color: transparent;
+    }
+    .drag-handle:hover { color: rgba(182,198,217,0.75); }
+    .drag-handle:active { cursor: grabbing; }
+    .drag-handle.drag-disabled { cursor: default; opacity: .3; }
+    .item[draggable="true"]:active { cursor: grabbing; }
+    .item.drag-dragging { opacity: 0.4; border-color: rgba(141,23,251,.55) !important; }
+    .item.drag-over {
+      border-color: rgba(141,23,251,.9) !important;
+      box-shadow: 0 0 0 2px rgba(141,23,251,.28);
+      transform: scale(1.005);
+    }
+    .drag-hint {
+      font-size: 11px; color: rgba(182,198,217,.4);
+      margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+    }
     .thumb {
       width: 92px; height: 92px; border-radius: 14px; overflow: hidden;
       border: 1px solid rgba(255,255,255,.08); background: rgba(28,31,47,.8);

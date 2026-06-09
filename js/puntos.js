@@ -320,8 +320,20 @@ function openRedeemModal() {
   if (!modal) return;
 
   if (modalPlatName) modalPlatName.textContent = `Canjear · ${platform.name || ''}`;
-  if (modalPts)      modalPts.textContent      = points.toLocaleString() + ' <img src="images/coin.png" class="coin-img" alt="coin">';
+  if (modalPts)      modalPts.innerHTML        = `${points.toLocaleString()} <img src="images/coin.png" class="coin-img" alt="coin">`;
   if (modalUSD)      modalUSD.textContent      = `$${pointsToUSD(points)} USD`;
+
+  const logoEl = document.getElementById('modalPlatformLogo');
+  if (logoEl) {
+    const logoSrc = PLATFORM_ICONS[selectedPlatform];
+    if (logoSrc) {
+      logoEl.src = logoSrc;
+      logoEl.alt = platform.name || '';
+      logoEl.style.display = 'block';
+    } else {
+      logoEl.style.display = 'none';
+    }
+  }
 
   const label = document.getElementById('redeemAccountLabel');
   const input = document.getElementById('redeemAccount');
@@ -398,8 +410,15 @@ async function processRedeem(e) {
 function openRedeemSuccess(points, usdAmt, platform, account) {
   const screen = document.getElementById('redeemSuccess');
   if (!screen) return;
-  document.getElementById('rsChip').textContent     = platform.name || 'Canje exitoso';
-  document.getElementById('rsCoins').textContent    = points.toLocaleString() + ' <img src="images/coin.png" class="coin-img" alt="coin">';
+  const logoSrc  = PLATFORM_ICONS[selectedPlatform] || '';
+  const chipEl   = document.getElementById('rsChip');
+  if (chipEl) {
+    chipEl.innerHTML = logoSrc
+      ? `<img src="${logoSrc}" class="rs-chip-logo" alt="${platform.name || ''}">${platform.name || 'Canje exitoso'}`
+      : (platform.name || 'Canje exitoso');
+  }
+  const coinsEl = document.getElementById('rsCoins');
+  if (coinsEl) coinsEl.innerHTML = `${points.toLocaleString()} <img src="images/coin.png" class="coin-img" alt="coin">`;
   document.getElementById('rsUsd').textContent      = '$' + usdAmt + ' USD';
   document.getElementById('rsPlatform').textContent = platform.name || '';
   document.getElementById('rsAccount').textContent  = account;

@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const snap = await window.db
         .collection("news")
         .where("published", "==", true)
-        .orderBy("updatedAt", "desc")
+        .orderBy("sort", "asc")
         .limit(FEED_LIMIT)
         .get();
 
