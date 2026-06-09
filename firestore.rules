@@ -135,6 +135,11 @@ service cloud.firestore {
       allow read: if request.auth != null;
     }
 
+    // ─── GLOBAL NOTIFICATIONS (admin only) ───────────────────
+    match /globalNotifications/{docId} {
+      allow read, write: if isAdmin();
+    }
+
     // ─── TRANSACTIONS (server-side only) ─────────────────────
     match /ayetTransactions/{docId} {
       allow read, write: if false;
