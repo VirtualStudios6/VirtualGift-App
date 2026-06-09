@@ -688,7 +688,22 @@ async function checkAndInitAdmin(user) {
     currentUser = user;
     showAdmin();
     await loadNews();
-    toast("Panel listo ✅");
+
+    // Auto-open article if URL has ?id=...
+    const urlId = new URLSearchParams(window.location.search).get('id');
+    if (urlId) {
+      const found = lastDocs.find(x => x.id === urlId);
+      if (found) {
+        selectedId = urlId;
+        fillForm(found.data);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        toast('Editando artículo ✏️');
+      } else {
+        toast('Panel listo ✅');
+      }
+    } else {
+      toast('Panel listo ✅');
+    }
   } catch (e) {
     console.error("[admin-news] checkAndInitAdmin error:", e);
     showGateDenied();

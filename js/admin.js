@@ -15,9 +15,21 @@ let currentPartRaffle = null; // {id, title} del sorteo con participantes abiert
 const PLATFORM_NAME = {
   paypal: 'PayPal', amazon: 'Amazon Gift Card',
   steam: 'Steam Wallet', googleplay: 'Google Play', psn: 'PlayStation',
+  xbox: 'Xbox', netflix: 'Netflix', spotify: 'Spotify',
 };
 const PLATFORM_ICON = {
   paypal: '💳', amazon: '📦', steam: '🎮', googleplay: '📱', psn: '🎮',
+  xbox: '🎮', netflix: '🎬', spotify: '🎵',
+};
+const PLATFORM_IMG = {
+  paypal:     'images/giftcards/paypal.png',
+  amazon:     'images/giftcards/amazon.png',
+  steam:      'images/giftcards/steam.png',
+  googleplay: 'images/giftcards/googleplay.png',
+  psn:        'images/giftcards/psn.png',
+  xbox:       'images/giftcards/xbox.png',
+  netflix:    'images/giftcards/netflix.png',
+  spotify:    'images/giftcards/spotify.png',
 };
 const STATUS_LABEL = {
   pending: '⏳ Pendiente', completed: '✅ Completado', rejected: '❌ Rechazado',
@@ -79,8 +91,6 @@ const TAB_TITLES = {
   tabSorteos:        'Sorteos',
   tabUsuarios:       'Usuarios',
   tabTrabajadores:   'Equipo de Trabajo',
-  tabConfig:         'Configuración',
-  tabHerramientas:   'Herramientas',
 };
 
 window.switchTab = function (id) {
@@ -103,7 +113,6 @@ window.switchTab = function (id) {
   if (id === 'tabSorteos')        loadSorteos();
   if (id === 'tabUsuarios')       resetUsersTab();
   if (id === 'tabTrabajadores')   loadTrabajadores();
-  if (id === 'tabConfig')         loadConfig();
 };
 
 // ─────────────────────────────────────────────────
@@ -130,11 +139,13 @@ async function loadDashboard() {
     completedSnap.forEach(d => { totalUsd += (d.data().usdAmount || 0); });
     setStat('dashUsdPaid', '$' + totalUsd.toFixed(2));
 
-    const badge = document.getElementById('canjeBadge');
-    if (badge) {
-      badge.textContent = pendingSnap.size;
-      badge.style.display = pendingSnap.size > 0 ? 'inline-flex' : 'none';
-    }
+    ['canjeBadge', 'canjeBadgeSidebar'].forEach(id => {
+      const badge = document.getElementById(id);
+      if (badge) {
+        badge.textContent = pendingSnap.size;
+        badge.style.display = pendingSnap.size > 0 ? 'inline-flex' : 'none';
+      }
+    });
 
     const recentSnap = await window.db.collection('redeemRequests')
       .orderBy('createdAt', 'desc').limit(5).get();
@@ -150,10 +161,15 @@ async function loadDashboard() {
 }
 
 function buildRowMini(id, d) {
-  const plat = PLATFORM_NAME[d.platform] || d.platform || '—';
-  const s    = d.status || 'pending';
-  const cls  = { pending: 'warn', completed: 'ok', rejected: 'err' }[s] || 'warn';
+  const plat   = PLATFORM_NAME[d.platform] || d.platform || '—';
+  const s      = d.status || 'pending';
+  const cls    = { pending: 'warn', completed: 'ok', rejected: 'err' }[s] || 'warn';
+  const imgSrc = PLATFORM_IMG[d.platform];
+  const platIcon = imgSrc
+    ? `<img src="${imgSrc}" class="arm-plat-img" alt="${esc(plat)}" onerror="this.style.display='none'">`
+    : '';
   return `<div class="admin-row-mini">
+    ${platIcon}
     <div class="arm-info">
       <span class="arm-name">${esc(d.fullName || '—')}</span>
       <span class="arm-plat">${esc(plat)} · $${(d.usdAmount || 0).toFixed(2)} USD</span>
@@ -196,21 +212,26 @@ window.loadCanjes = async function (filter) {
 };
 
 function buildCanjeCard(id, d) {
-  const plat    = PLATFORM_NAME[d.platform] || d.platform || '—';
-  const icon    = PLATFORM_ICON[d.platform] || '💳';
-  const status  = d.status || 'pending';
-  const scls    = { pending: 'warn', completed: 'ok', rejected: 'err' }[status] || 'warn';
+  const plat   = PLATFORM_NAME[d.platform] || d.platform || '—';
+  const status = d.status || 'pending';
+  const scls   = { pending: 'warn', completed: 'ok', rejected: 'err' }[status] || 'warn';
+  const imgSrc = PLATFORM_IMG[d.platform];
+  const platEl = imgSrc
+    ? `<img src="${imgSrc}" class="canje-plat-img" alt="${esc(plat)}" onerror="this.outerHTML='<span class=canje-plat-icon>${PLATFORM_ICON[d.platform]||'💳'}</span>'">`
+    : `<span class="canje-plat-icon">${PLATFORM_ICON[d.platform] || '💳'}</span>`;
   const actions = status === 'pending' ? `
     <div class="canje-actions">
-      <button type="button" class="btn-canje-ok"  onclick="updateCanjeStatus('${id}','completed')">✓ Completado</button>
+      <button type="button" class="btn-canje-ok"  onclick="updateCanjeStatus('${id}','completed')">✓ Completar</button>
       <button type="button" class="btn-canje-err" onclick="updateCanjeStatus('${id}','rejected')">✗ Rechazar</button>
     </div>` : '';
   const extraDate = d.completedAt
     ? `<div class="canje-row"><span>Completado</span><strong>${fmtDate(d.completedAt)}</strong></div>` : '';
+  const emailRow = d.email
+    ? `<div class="canje-row"><span>Correo</span><strong>${esc(d.email)}</strong></div>` : '';
 
   return `<div class="canje-card" id="canje-${id}">
     <div class="canje-card-head">
-      <span class="canje-plat-icon">${icon}</span>
+      ${platEl}
       <div class="canje-head-info">
         <span class="canje-name">${esc(d.fullName || '—')}</span>
         <span class="canje-plat">${esc(plat)}</span>
@@ -218,7 +239,8 @@ function buildCanjeCard(id, d) {
       <span class="admin-badge ${scls}">${STATUS_LABEL[status] || status}</span>
     </div>
     <div class="canje-card-body">
-      <div class="canje-row"><span>Cuenta</span><strong>${esc(d.account || '—')}</strong></div>
+      <div class="canje-row"><span>Cuenta / Email</span><strong>${esc(d.account || '—')}</strong></div>
+      ${emailRow}
       <div class="canje-row"><span>Coins</span><strong>${(d.pointsAmount || 0).toLocaleString()} 🪙</strong></div>
       <div class="canje-row"><span>Monto</span><strong>$${(d.usdAmount || 0).toFixed(2)} USD</strong></div>
       <div class="canje-row"><span>Solicitado</span><strong>${fmtDate(d.createdAt)}</strong></div>
@@ -607,93 +629,12 @@ window.toggleAdmin = async function (uid, currentlyAdmin) {
   }
 };
 
-// ─────────────────────────────────────────────────
-// CONFIGURACIÓN
-// ─────────────────────────────────────────────────
-let _cfgData = {};
-
-async function loadConfig() {
-  try {
-    const doc = await window.db.collection('config').doc('app').get();
-    _cfgData = doc.exists ? doc.data() : {};
-
-    // Toggles
-    setToggle('cfgToggleMaintenance', _cfgData.maintenanceMode === true);
-
-    // Texto
-    setVal('cfgAnnouncement',   _cfgData.announcement      || '');
-    setVal('cfgAdReward',       _cfgData.adRewardCoins     ?? 100);
-    setVal('cfgAdDaily',        _cfgData.adDailyLimit      ?? 5);
-    setVal('cfgMinRedeem',      _cfgData.minRedeemPoints   ?? 20000);
-    setVal('cfgReferralBonus',  _cfgData.referralBonus     ?? 500);
-    setVal('cfgInitialCoins',   _cfgData.initialCoins      ?? 175);
-    setVal('cfgRouletteSpins',  _cfgData.rouletteFreeSpins ?? 3);
-    setVal('cfgSlotSpins',      _cfgData.slotFreeSpins     ?? 5);
-    setVal('cfgExtraPerAd',     _cfgData.extraPlaysPerAd   ?? 3);
-
-    const rewards = _cfgData.checkinRewards || [10, 15, 20, 25, 30, 40, 75];
-    setVal('cfgCheckinRewards', rewards.join(','));
-  } catch (e) {
-    console.error('[admin] loadConfig', e);
-    toast('Error al cargar configuración', false);
-  }
-}
-
-function setToggle(id, on) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.classList.toggle('on', on);
-}
-
-window.toggleCfg = function (field, btnId) {
-  _cfgData[field] = !_cfgData[field];
-  setToggle(btnId, _cfgData[field]);
-};
-
-window.saveConfig = async function () {
-  const btn = document.getElementById('cfgSaveBtn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
-
-  try {
-    const getN = (id, fallback) => {
-      const v = parseInt(document.getElementById(id)?.value, 10);
-      return Number.isFinite(v) && v > 0 ? v : fallback;
-    };
-
-    const rawRewards = (document.getElementById('cfgCheckinRewards')?.value || '10,15,20,25,30,40,75')
-      .split(',').map(n => parseInt(n.trim(), 10)).filter(n => Number.isFinite(n) && n >= 0);
-
-    const data = {
-      maintenanceMode:    _cfgData.maintenanceMode === true,
-      announcement:       document.getElementById('cfgAnnouncement')?.value.trim() || '',
-      adRewardCoins:      getN('cfgAdReward',      100),
-      adDailyLimit:       getN('cfgAdDaily',        5),
-      minRedeemPoints:    getN('cfgMinRedeem',   20000),
-      referralBonus:      getN('cfgReferralBonus',  500),
-      initialCoins:       getN('cfgInitialCoins',   175),
-      rouletteFreeSpins:  getN('cfgRouletteSpins',    3),
-      slotFreeSpins:      getN('cfgSlotSpins',         5),
-      extraPlaysPerAd:    getN('cfgExtraPerAd',        3),
-      checkinRewards:     rawRewards.length === 7 ? rawRewards : [10, 15, 20, 25, 30, 40, 75],
-      updatedAt:          firebase.firestore.Timestamp.now(),
-      updatedBy:          adminUser.uid,
-    };
-
-    await window.db.collection('config').doc('app').set(data, { merge: true });
-    _cfgData = data;
-    toast('✅ Configuración guardada');
-  } catch (e) {
-    console.error('[admin] saveConfig', e);
-    toast('Error al guardar configuración', false);
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '💾 Guardar configuración'; }
-  }
-};
 
 // ─────────────────────────────────────────────────
 // NOTICIAS (lista inline)
 // ─────────────────────────────────────────────────
 let noticiaFilter = 'all';
+let noticiaSearch = '';
 
 window.loadNoticias = async function (filter) {
   if (filter !== undefined) noticiaFilter = filter;
@@ -717,11 +658,11 @@ window.loadNoticias = async function (filter) {
 
     let q;
     if (noticiaFilter === 'published') {
-      q = window.db.collection('news').where('published', '==', true).orderBy('date', 'desc').limit(40);
+      q = window.db.collection('news').where('published', '==', true).orderBy('date', 'desc').limit(80);
     } else if (noticiaFilter === 'draft') {
-      q = window.db.collection('news').where('published', '==', false).orderBy('date', 'desc').limit(40);
+      q = window.db.collection('news').where('published', '==', false).orderBy('date', 'desc').limit(80);
     } else {
-      q = window.db.collection('news').orderBy('date', 'desc').limit(40);
+      q = window.db.collection('news').orderBy('date', 'desc').limit(80);
     }
 
     const snap = await q.get();
@@ -729,28 +670,53 @@ window.loadNoticias = async function (filter) {
       list.innerHTML = '<p class="admin-empty">No hay noticias en esta categoría</p>';
       return;
     }
-    list.innerHTML = snap.docs.map(d => buildNoticiaRow(d.id, d.data())).join('');
+
+    let docs = snap.docs;
+    const search = noticiaSearch.trim().toLowerCase();
+    if (search) {
+      docs = docs.filter(d => {
+        const data = d.data();
+        return (data.feedTitle || data.title || '').toLowerCase().includes(search)
+          || (data.category || '').toLowerCase().includes(search);
+      });
+    }
+
+    if (docs.length === 0) {
+      list.innerHTML = '<p class="admin-empty">No hay resultados para esa búsqueda</p>';
+      return;
+    }
+    list.innerHTML = docs.map(d => buildNoticiaRow(d.id, d.data())).join('');
   } catch (e) {
     console.error('[admin] loadNoticias', e);
     list.innerHTML = '<p class="admin-empty">Error al cargar noticias. Verifica índices de Firestore.</p>';
   }
 };
 
+window.filterNoticias = function () {
+  noticiaSearch = document.getElementById('noticiaSearchInput')?.value || '';
+  window.loadNoticias();
+};
+
 function buildNoticiaRow(id, d) {
-  const pub   = d.published === true;
-  const title = esc(d.feedTitle || d.title || '(sin título)');
-  const cat   = esc(d.category || 'General');
-  const date  = fmtDate(d.date || d.createdAt);
-  const idS   = esc(id);
-  const cover = d.cover ? `<img src="${esc(d.cover)}" alt="" loading="lazy">` : '📰';
+  const pub      = d.published === true;
+  const title    = esc(d.feedTitle || d.title || '(sin título)');
+  const cat      = esc(d.category || 'General');
+  const date     = fmtDate(d.date || d.createdAt);
+  const idS      = esc(id);
+  const coverSrc = d.coverImageUrl || d.cover || '';
+  const cover    = coverSrc ? `<img src="${esc(coverSrc)}" alt="" loading="lazy">` : '<span style="font-size:1.5rem">📰</span>';
+  const editHref = typeof withAppFlag === 'function'
+    ? withAppFlag(`admin-news.html?id=${encodeURIComponent(id)}`)
+    : `admin-news.html?id=${encodeURIComponent(id)}`;
   return `<div class="noticia-row" id="nrow-${idS}">
     <div class="noticia-thumb">${cover}</div>
     <div class="noticia-info">
       <span class="noticia-title">${title}</span>
-      <span class="noticia-meta">${cat} · ${date}</span>
+      <span class="noticia-meta"><span class="noticia-cat-badge">${cat}</span> · ${date}</span>
     </div>
     <div class="noticia-actions">
-      <span class="admin-badge ${pub ? 'ok' : 'muted'}">${pub ? '✅ Publicada' : '📦 Borrador'}</span>
+      <span class="admin-badge ${pub ? 'ok' : 'muted'}">${pub ? 'Publicada' : 'Borrador'}</span>
+      <a href="${editHref}" class="btn-icon" title="Editar artículo">✏️</a>
       <button type="button" class="btn-icon" title="${pub ? 'Despublicar' : 'Publicar'}"
         onclick="toggleNoticiaPublish('${idS}',${pub})">${pub ? '📦' : '🚀'}</button>
       <button type="button" class="btn-icon btn-del" title="Eliminar"
