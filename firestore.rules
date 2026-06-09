@@ -150,8 +150,8 @@ service cloud.firestore {
     }
     match /supportChats/{chatId}/messages/{msgId} {
       allow read, create: if request.auth != null && request.auth.uid == chatId;
-      allow read, create: if isAdmin();
-      allow update, delete: if false;
+      allow read, create, delete: if isAdmin();
+      allow update: if false;
     }
 
     // ─── TRANSACTIONS (server-side only) ─────────────────────
