@@ -295,6 +295,46 @@
             </div>
         </div>
     </section>
+
+    <!-- SOPORTE -->
+    <section class="section" id="soporte">
+      <a class="soporte-strip" href="chat.html" onclick="this.href=withAppFlag('chat.html')">
+        <div class="soporte-strip-left">
+          <div class="soporte-strip-icon">💬</div>
+          <div>
+            <p class="soporte-strip-title">¿Necesitas ayuda?</p>
+            <p class="soporte-strip-sub">Soporte en tiempo real</p>
+          </div>
+        </div>
+        <span class="soporte-strip-btn">Chat en vivo →</span>
+      </a>
+    </section>
+    <style>
+      .soporte-strip {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        background: linear-gradient(135deg, rgba(109,40,217,.18), rgba(139,92,246,.1));
+        border: 1px solid rgba(139,92,246,.28);
+        border-radius: 18px; padding: 14px 16px;
+        text-decoration: none; transition: border-color .15s;
+      }
+      .soporte-strip:active { border-color: rgba(139,92,246,.5); }
+      .soporte-strip-left { display: flex; align-items: center; gap: 12px; }
+      .soporte-strip-icon {
+        width: 42px; height: 42px; border-radius: 14px;
+        background: linear-gradient(135deg, #6d28d9, #a855f7);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.3rem; flex-shrink: 0;
+        box-shadow: 0 4px 14px rgba(139,92,246,.35);
+      }
+      .soporte-strip-title { font-size: .9rem; font-weight: 800; color: #fff; margin-bottom: 1px; }
+      .soporte-strip-sub { font-size: .72rem; color: rgba(196,181,253,.6); font-weight: 500; }
+      .soporte-strip-btn {
+        font-size: .78rem; font-weight: 800; color: #c4b5fd; white-space: nowrap;
+        background: rgba(139,92,246,.15); border: 1px solid rgba(139,92,246,.3);
+        border-radius: 20px; padding: 7px 14px;
+      }
+    </style>
+
 <script defer src="js/carousel.js"></script>
     <script defer src="js/news-feed.js"></script>
     <script defer src="js/notification-badge.js"></script>

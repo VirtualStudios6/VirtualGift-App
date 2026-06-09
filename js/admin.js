@@ -91,6 +91,7 @@ const TAB_TITLES = {
   tabSorteos:        'Sorteos',
   tabUsuarios:       'Usuarios',
   tabTrabajadores:   'Equipo de Trabajo',
+  tabSoporte:        'Chat de Soporte',
 };
 
 window.switchTab = function (id) {
@@ -113,6 +114,7 @@ window.switchTab = function (id) {
   if (id === 'tabSorteos')        loadSorteos();
   if (id === 'tabUsuarios')       resetUsersTab();
   if (id === 'tabTrabajadores')   loadTrabajadores();
+  if (id === 'tabSoporte')        loadSoporte();
 };
 
 // ─────────────────────────────────────────────────
@@ -1002,6 +1004,321 @@ window.removeWorker = async function (uid) {
 };
 
 // ─────────────────────────────────────────────────
+// SOPORTE (CHAT DE SOPORTE)
+// ─────────────────────────────────────────────────
+let _soporteSnap         = null;
+let _unsubSoporte        = null;
+let _soporteCurrentChat  = null;
+let _unsubSoporteChat    = null;
+
+function updateChatBadges(count) {
+  ['chatBadge', 'chatBadgeSidebar'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = count;
+    el.style.display = count > 0 ? 'inline-flex' : 'none';
+  });
+}
+
+function initSoporteListener() {
+  if (_unsubSoporte) return;
+  _unsubSoporte = window.db.collection('supportChats')
+    .orderBy('lastMessageAt', 'desc')
+    .onSnapshot(snap => {
+      _soporteSnap = snap;
+      let unread = 0;
+      snap.forEach(d => { unread += (d.data().unreadAdmin || 0); });
+      updateChatBadges(unread);
+    }, err => {
+      console.error('[admin] soporte listener:', err);
+    });
+}
+
+window.loadSoporte = function () {
+  const listWrap = document.getElementById('soporteListWrap');
+  const chatWrap = document.getElementById('soporteChatWrap');
+  if (listWrap) listWrap.style.display = 'block';
+  if (chatWrap) chatWrap.style.display = 'none';
+
+  const listEl = document.getElementById('soporteChatList');
+
+  if (_soporteSnap) {
+    renderSoporteList(_soporteSnap);
+    return;
+  }
+
+  if (listEl) listEl.innerHTML = '<div class="admin-loading">Cargando...</div>';
+
+  // Fallback: one-time get
+  window.db.collection('supportChats')
+    .orderBy('lastMessageAt', 'desc')
+    .get()
+    .then(snap => { _soporteSnap = snap; renderSoporteList(snap); })
+    .catch(() => {
+      if (listEl) listEl.innerHTML = '<p class="admin-empty">Error al cargar chats</p>';
+    });
+};
+
+function renderSoporteList(snap) {
+  const listEl = document.getElementById('soporteChatList');
+  if (!listEl) return;
+  if (!snap || snap.empty) {
+    listEl.innerHTML = `<div class="sc-empty">
+      <div class="sc-empty-icon">💬</div>
+      <div class="sc-empty-text">Ningún usuario ha iniciado un chat todavía.<br>Cuando lo hagan aparecerán aquí.</div>
+    </div>`;
+    return;
+  }
+  listEl.innerHTML = snap.docs.map(d => buildChatRow(d.id, d.data())).join('');
+}
+
+function buildChatRow(chatId, data) {
+  const name      = esc(data.userName || 'Usuario');
+  const email     = esc(data.userEmail || '');
+  const lastMsg   = esc(data.lastMessage || 'Sin mensajes');
+  const time      = data.lastMessageAt ? fmtDate(data.lastMessageAt) : '—';
+  const unread    = data.unreadAdmin || 0;
+  const isClosed  = (data.status || 'open') === 'closed';
+  const initial   = name.charAt(0).toUpperCase();
+
+  return `<div class="sc-chat-row" onclick="window.openSoporteChat('${esc(chatId)}')">
+    <div class="sc-avatar">${initial}</div>
+    <div class="sc-info">
+      <div class="sc-name">${name}</div>
+      <div class="sc-email">${email}</div>
+      <div class="sc-last">${lastMsg}</div>
+    </div>
+    <div class="sc-meta">
+      <span class="admin-badge ${isClosed ? 'muted' : 'ok'}" style="font-size:.6rem;padding:2px 8px">${isClosed ? '⚫ Cerrado' : '🟢 Abierto'}</span>
+      ${unread > 0 ? `<span class="sc-unread-badge">${unread}</span>` : ''}
+      <span class="sc-time">${time}</span>
+    </div>
+  </div>`;
+}
+
+window.openSoporteChat = function (chatId) {
+  _soporteCurrentChat = chatId;
+
+  const listWrap = document.getElementById('soporteListWrap');
+  const chatWrap = document.getElementById('soporteChatWrap');
+  if (listWrap) listWrap.style.display = 'none';
+  if (chatWrap) chatWrap.style.display = 'block';
+
+  // Reset unread for admin
+  window.db.collection('supportChats').doc(chatId)
+    .update({ unreadAdmin: 0 })
+    .catch(() => {});
+
+  // Load chat metadata
+  window.db.collection('supportChats').doc(chatId).get().then(doc => {
+    if (!doc.exists) return;
+    const d = doc.data();
+    const nameEl   = document.getElementById('scChatName');
+    const emailEl  = document.getElementById('scChatEmail');
+    const avatarEl = document.getElementById('scChatAvatar');
+    const toggleBtn = document.getElementById('scToggleStatusBtn');
+
+    if (nameEl)   nameEl.textContent  = d.userName || 'Usuario';
+    if (emailEl)  emailEl.textContent = d.userEmail || '';
+    if (avatarEl) avatarEl.textContent = (d.userName || 'U').charAt(0).toUpperCase();
+
+    const isClosed = d.status === 'closed';
+    if (toggleBtn) {
+      toggleBtn.textContent  = isClosed ? '🔓 Reabrir' : '🔒 Cerrar';
+      toggleBtn.dataset.closed = isClosed ? '1' : '0';
+    }
+  });
+
+  // Subscribe to messages
+  if (_unsubSoporteChat) { _unsubSoporteChat(); _unsubSoporteChat = null; }
+
+  const msgsEl = document.getElementById('soporteMessages');
+  if (msgsEl) msgsEl.innerHTML = '<div class="admin-loading">Cargando mensajes...</div>';
+
+  _unsubSoporteChat = window.db
+    .collection('supportChats').doc(chatId)
+    .collection('messages')
+    .orderBy('createdAt', 'asc')
+    .onSnapshot(snap => {
+      if (!msgsEl) return;
+      if (snap.empty) {
+        msgsEl.innerHTML = '<p class="admin-empty" style="text-align:center;padding:24px">Sin mensajes todavía</p>';
+        return;
+      }
+      msgsEl.innerHTML = snap.docs.map(d => buildAdminMsgBubble(d.data())).join('');
+      msgsEl.scrollTop = msgsEl.scrollHeight;
+    }, err => {
+      console.error('[admin] soporte messages:', err);
+    });
+};
+
+function buildAdminMsgBubble(data) {
+  const isAdmin = data.from === 'admin';
+  const time    = fmtDate(data.createdAt);
+  const name    = isAdmin ? 'Tú (Admin)' : esc(data.senderName || 'Usuario');
+
+  let body;
+  if (data.type === 'image' && data.imageUrl) {
+    const safeUrl = esc(data.imageUrl);
+    const caption = data.text ? `<div class="sc-msg-text" style="margin-top:6px">${esc(data.text)}</div>` : '';
+    body = `<img src="${safeUrl}" class="sc-msg-img" alt="Imagen"
+      onclick="window.open('${safeUrl}','_blank')" loading="lazy">${caption}`;
+  } else {
+    body = `<div class="sc-msg-text">${esc(data.text || '').replace(/\n/g, '<br>')}</div>`;
+  }
+
+  return `<div class="sc-msg ${isAdmin ? 'sc-msg--admin' : 'sc-msg--user'}">
+    <div class="sc-msg-sender">${name}</div>
+    ${body}
+    <div class="sc-msg-time">${time}</div>
+  </div>`;
+}
+
+window.closeSoporteChat = function () {
+  if (_unsubSoporteChat) { _unsubSoporteChat(); _unsubSoporteChat = null; }
+  _soporteCurrentChat = null;
+
+  const input = document.getElementById('soporteReplyInput');
+  if (input) input.value = '';
+
+  const listWrap = document.getElementById('soporteListWrap');
+  const chatWrap = document.getElementById('soporteChatWrap');
+  if (listWrap) listWrap.style.display = 'block';
+  if (chatWrap) chatWrap.style.display = 'none';
+
+  // Refresh list from latest snapshot
+  if (_soporteSnap) renderSoporteList(_soporteSnap);
+};
+
+window.toggleSoporteStatus = async function () {
+  if (!_soporteCurrentChat) return;
+  const btn      = document.getElementById('scToggleStatusBtn');
+  const isClosed = btn?.dataset.closed === '1';
+  const newStatus = isClosed ? 'open' : 'closed';
+
+  try {
+    await window.db.collection('supportChats').doc(_soporteCurrentChat)
+      .update({ status: newStatus });
+
+    if (btn) {
+      btn.textContent    = newStatus === 'closed' ? '🔓 Reabrir' : '🔒 Cerrar';
+      btn.dataset.closed = newStatus === 'closed' ? '1' : '0';
+    }
+    toast(newStatus === 'closed' ? '🔒 Chat cerrado' : '🔓 Chat reabierto');
+  } catch (e) {
+    console.error('[admin] toggleSoporteStatus:', e);
+    toast('Error al cambiar estado', false);
+  }
+};
+
+window.sendAdminReply = async function () {
+  const input = document.getElementById('soporteReplyInput');
+  const text  = (input?.value || '').trim();
+  if (!text || !_soporteCurrentChat) return;
+
+  const btn = document.querySelector('.sc-send-btn');
+  if (btn) btn.disabled = true;
+  input.value = '';
+
+  try {
+    const FS  = firebase.firestore.FieldValue;
+    const now = FS.serverTimestamp();
+    const batch = window.db.batch();
+
+    const msgRef = window.db
+      .collection('supportChats').doc(_soporteCurrentChat)
+      .collection('messages').doc();
+    batch.set(msgRef, {
+      from:       'admin',
+      text,
+      type:       'text',
+      senderName: adminUser?.displayName || adminUser?.email?.split('@')[0] || 'Soporte VirtualGift',
+      createdAt:  now,
+    });
+
+    batch.update(window.db.collection('supportChats').doc(_soporteCurrentChat), {
+      lastMessage:   '[Admin] ' + text.slice(0, 80),
+      lastMessageAt: now,
+      unreadUser:    FS.increment(1),
+      status:        'open',
+    });
+
+    await batch.commit();
+  } catch (e) {
+    console.error('[admin] sendAdminReply:', e);
+    toast('Error al enviar respuesta', false);
+  } finally {
+    if (btn) btn.disabled = false;
+    input?.focus();
+  }
+};
+
+window.adminPickImage = function (fileInput) {
+  const file = fileInput?.files?.[0];
+  if (!file) return;
+  fileInput.value = '';
+  if (!_soporteCurrentChat) return;
+  if (!file.type.startsWith('image/')) { toast('Solo se pueden subir imágenes', false); return; }
+  if (file.size > 8 * 1024 * 1024) { toast('Imagen muy grande (máx. 8 MB)', false); return; }
+  adminUploadImage(file);
+};
+
+async function adminUploadImage(file) {
+  const msgsEl = document.getElementById('soporteMessages');
+  const tmpId  = 'adminimg-' + Date.now();
+  if (msgsEl) {
+    msgsEl.insertAdjacentHTML('beforeend',
+      `<div id="${tmpId}" class="sc-msg sc-msg--admin" style="display:flex;align-items:center;gap:8px;opacity:.6">
+        <div class="spin-ring-sm"></div><span style="font-size:.78rem">Subiendo imagen…</span>
+      </div>`
+    );
+    msgsEl.scrollTop = msgsEl.scrollHeight;
+  }
+
+  const sendBtn = document.querySelector('.sc-send-btn');
+  if (sendBtn) sendBtn.disabled = true;
+
+  try {
+    const ext  = file.name.split('.').pop().toLowerCase() || 'jpg';
+    const path = `supportChats/${_soporteCurrentChat}/admin_${Date.now()}.${ext}`;
+    const snap = await firebase.storage().ref(path).put(file);
+    const imageUrl = await snap.ref.getDownloadURL();
+
+    const FS  = firebase.firestore.FieldValue;
+    const now = FS.serverTimestamp();
+    const batch = window.db.batch();
+
+    const msgRef = window.db
+      .collection('supportChats').doc(_soporteCurrentChat)
+      .collection('messages').doc();
+    batch.set(msgRef, {
+      from:      'admin',
+      type:      'image',
+      imageUrl,
+      text:      '',
+      senderName: adminUser?.displayName || adminUser?.email?.split('@')[0] || 'Soporte VirtualGift',
+      createdAt: now,
+    });
+
+    batch.update(window.db.collection('supportChats').doc(_soporteCurrentChat), {
+      lastMessage:   '[Admin] 📷 Imagen',
+      lastMessageAt: now,
+      unreadUser:    FS.increment(1),
+      status:        'open',
+    });
+
+    await batch.commit();
+    toast('Imagen enviada ✅');
+  } catch (e) {
+    console.error('[admin] adminUploadImage:', e);
+    toast('Error al enviar imagen', false);
+  } finally {
+    document.getElementById(tmpId)?.remove();
+    if (sendBtn) sendBtn.disabled = false;
+  }
+}
+
+// ─────────────────────────────────────────────────
 // AUTH GUARD
 // ─────────────────────────────────────────────────
 async function checkAdmin(user) {
@@ -1020,6 +1337,7 @@ async function checkAdmin(user) {
     showAdmin();
     window.switchTab('tabDashboard');
     initNotifCounters();
+    initSoporteListener(); // start badge tracking immediately
   } catch (e) {
     console.error('[admin] checkAdmin', e);
     showDenied();

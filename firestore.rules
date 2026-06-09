@@ -140,6 +140,20 @@ service cloud.firestore {
       allow read, write: if isAdmin();
     }
 
+    // ─── SUPPORT CHATS ───────────────────────────────────────
+    // Users read/write their own chat doc (chatId == uid). Admins access all.
+    match /supportChats/{chatId} {
+      allow read, write: if request.auth != null
+                         && (request.auth.uid == chatId || isAdmin());
+    }
+    match /supportChats/{chatId}/messages/{msgId} {
+      allow read:          if request.auth != null
+                           && (request.auth.uid == chatId || isAdmin());
+      allow create:        if request.auth != null
+                           && (request.auth.uid == chatId || isAdmin());
+      allow update, delete: if false;
+    }
+
     // ─── TRANSACTIONS (server-side only) ─────────────────────
     match /ayetTransactions/{docId} {
       allow read, write: if false;

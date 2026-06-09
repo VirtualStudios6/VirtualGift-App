@@ -227,13 +227,13 @@
 
     <!-- QUICK LINKS -->
     <div class="quick-links">
+      <a class="quick-card" href="chat.html" onclick="this.href=withAppFlag('chat.html')">
+        <span class="quick-card-icon">💬</span>
+        <span class="quick-card-label">Chat en vivo</span>
+      </a>
       <a class="quick-card" href="#faq" onclick="scrollToSection('faq')">
         <span class="quick-card-icon">❓</span>
         <span class="quick-card-label">Preguntas frecuentes</span>
-      </a>
-      <a class="quick-card" href="#contacto" onclick="scrollToSection('contacto')">
-        <span class="quick-card-icon">✉️</span>
-        <span class="quick-card-label">Contactar soporte</span>
       </a>
       <a class="quick-card" href="#legal" onclick="scrollToSection('legal')">
         <span class="quick-card-icon">📄</span>
@@ -297,17 +297,36 @@
 
     <!-- CONTACTO -->
     <div id="contacto">
-      <div class="s-title">✉️ Contacto</div>
+      <div class="s-title">💬 Contacto</div>
+
+      <!-- Chat en vivo (destacado) -->
+      <div class="contact-card" style="margin-bottom:12px">
+        <div class="contact-icon">🎧</div>
+        <div class="contact-title">Chat en vivo</div>
+        <div class="contact-desc">
+          Habla directamente con el equipo de soporte.<br>
+          Respuestas en tiempo real.
+        </div>
+        <a class="contact-btn" href="chat.html"
+           onclick="this.href=withAppFlag('chat.html')">
+          <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2z"/></svg>
+          Abrir chat
+        </a>
+      </div>
+
+      <!-- Email -->
       <div class="contact-card">
-        <div class="contact-icon">💬</div>
-        <div class="contact-title">¿No encontraste tu respuesta?</div>
+        <div class="contact-icon">✉️</div>
+        <div class="contact-title">¿Preferís el email?</div>
         <div class="contact-desc">
           Escríbenos y te responderemos lo antes posible.<br>
-          Tiempo de respuesta habitual: <strong style="color:rgba(196,181,253,.8);">24–48 horas</strong>.
+          Tiempo habitual: <strong style="color:rgba(196,181,253,.8);">24–48 horas</strong>.
         </div>
-        <a class="contact-btn" href="mailto:ceovirtualstudios@gmail.com?subject=Soporte%20VirtualGift">
+        <a class="contact-btn"
+           href="mailto:ceovirtualstudios@gmail.com?subject=Soporte%20VirtualGift"
+           style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14)">
           <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-          Enviar mensaje
+          Enviar email
         </a>
       </div>
     </div>

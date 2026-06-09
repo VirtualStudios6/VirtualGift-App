@@ -25,6 +25,17 @@ service firebase.storage {
         && request.resource.contentType.matches("image/(jpeg|png|webp)");
     }
 
+    // ── SUPPORT CHAT IMAGES ──────────────────────────
+    match /supportChats/{userId}/{fileName} {
+      // Any authenticated user can read (admins need access to all chat images)
+      allow read: if isAuth();
+      // Only the owner can upload, with image-type and size limits
+      allow write: if isAuth()
+        && request.auth.uid == userId
+        && request.resource.size < 8 * 1024 * 1024
+        && request.resource.contentType.matches("image/.*");
+    }
+
     match /{allPaths=**} {
       allow read, write: if false;
     }
