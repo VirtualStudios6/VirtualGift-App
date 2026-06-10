@@ -32,53 +32,76 @@
 
     /* ── Hero ── */
     .trivia-hero {
-      text-align: center; margin-bottom: 20px; position: relative;
+      text-align: center; margin-bottom: 16px; position: relative;
     }
     .trivia-hero-glow {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      width: 240px; height: 60px;
-      background: radial-gradient(ellipse, rgba(0,212,255,.3) 0%, transparent 70%);
-      filter: blur(22px); pointer-events: none;
+      width: 260px; height: 70px;
+      background: radial-gradient(ellipse, rgba(0,212,255,.28) 0%, transparent 70%);
+      filter: blur(24px); pointer-events: none;
     }
     .trivia-hero-badge {
       display: inline-block; margin-bottom: 8px;
-      background: rgba(0,212,255,.1); border: 1px solid rgba(0,212,255,.3);
+      background: rgba(0,212,255,.1); border: 1px solid rgba(0,212,255,.28);
       border-radius: 999px; padding: 4px 14px;
-      font-size: .72rem; font-weight: 800; color: var(--blue); letter-spacing: .06em;
+      font-size: .7rem; font-weight: 800; color: var(--blue); letter-spacing: .06em;
     }
     .trivia-hero-title {
-      font-size: 1.6rem; font-weight: 900; color: #fff;
+      font-size: 1.65rem; font-weight: 900; color: #fff;
       letter-spacing: -.02em; margin-bottom: 4px;
-      text-shadow: 0 0 28px rgba(0,212,255,.5);
+      text-shadow: 0 0 28px rgba(0,212,255,.45);
     }
-    .trivia-hero-sub { font-size: .8rem; color: rgba(220,239,255,.45); }
+    .trivia-hero-sub { font-size: .78rem; color: rgba(220,239,255,.42); }
+
+    /* ── Plays row ── */
+    .plays-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 10px;
+      margin: 0 0 14px;
+    }
+    .plays-left {
+      display: flex; flex-direction: column; gap: 3px;
+    }
+    .plays-label { font-size: .75rem; font-weight: 800; color: rgba(220,239,255,.55); }
+    .plays-pips  { display: flex; align-items: center; gap: 5px; }
+    .plays-pip   {
+      width: 10px; height: 10px; border-radius: 999px;
+      background: rgba(255,255,255,.12); transition: background .2s;
+    }
+    .plays-pip.used { background: rgba(255,255,255,.06); }
+
+    .session-info {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+    }
+    .session-coins-val {
+      font-size: .78rem; font-weight: 900; color: var(--gold);
+    }
+    .session-streak-val {
+      font-size: .9rem; line-height: 1;
+    }
 
     /* ── Question card ── */
     .trivia-card {
-      background: linear-gradient(155deg, #0d1527 0%, #0a0f20 100%);
-      border: 1px solid rgba(0,212,255,.2);
-      border-radius: 20px; padding: 20px 18px 18px;
-      box-shadow: 0 0 40px rgba(0,212,255,.07);
+      background: linear-gradient(155deg, #0e1930 0%, #090f1e 100%);
+      border: 1px solid rgba(0,212,255,.18);
+      border-radius: 22px; padding: 18px 16px 16px;
+      box-shadow: 0 0 50px rgba(0,212,255,.06), 0 8px 30px rgba(0,0,0,.35);
       margin-bottom: 12px;
     }
     .trivia-card.hidden { display: none; }
 
     .question-header {
       display: flex; justify-content: space-between; align-items: center;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
     }
     .question-num {
-      font-size: .72rem; font-weight: 700; color: var(--blue); opacity: .7;
+      font-size: .68rem; font-weight: 800; color: var(--blue); opacity: .65;
     }
-    .timer-wrap {
-      display: flex; align-items: center; gap: 6px;
-    }
-    .timer-num {
-      font-size: .82rem; font-weight: 900; color: var(--gold); min-width: 18px; text-align: right;
-    }
+    .timer-wrap { display: flex; align-items: center; gap: 7px; }
+    .timer-num  { font-size: .82rem; font-weight: 900; color: var(--gold); min-width: 18px; text-align: right; }
     .timer-track {
-      width: 80px; height: 5px; border-radius: 999px;
-      background: rgba(255,255,255,.08); overflow: hidden;
+      width: 72px; height: 5px; border-radius: 999px;
+      background: rgba(255,255,255,.07); overflow: hidden;
     }
     .timer-bar {
       height: 100%; border-radius: 999px;
@@ -87,75 +110,179 @@
     }
     .timer-bar.danger { background: var(--red); }
 
+    /* meta: category + difficulty */
+    .q-meta {
+      display: flex; align-items: center; gap: 7px; margin-bottom: 12px;
+    }
+    .q-cat-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: .66rem; font-weight: 800;
+      background: rgba(0,212,255,.08); border: 1px solid rgba(0,212,255,.18);
+      padding: 3px 10px; border-radius: 999px; color: var(--blue);
+      letter-spacing: .02em;
+    }
+    .q-diff {
+      font-size: .6rem; font-weight: 800; padding: 3px 9px;
+      border-radius: 999px; letter-spacing: .04em; flex-shrink: 0;
+    }
+    .q-diff.easy   { background: rgba(34,197,94,.1);  color: #4ade80; border: 1px solid rgba(34,197,94,.2); }
+    .q-diff.medium { background: rgba(255,200,55,.1);  color: var(--gold); border: 1px solid rgba(255,200,55,.22); }
+    .q-diff.hard   { background: rgba(244,63,94,.1);   color: var(--red);  border: 1px solid rgba(244,63,94,.22); }
+
     .question-text {
-      font-size: 1rem; font-weight: 700; color: #fff;
-      line-height: 1.45; margin-bottom: 18px; text-align: center;
+      font-size: .97rem; font-weight: 700; color: #f0f6ff;
+      line-height: 1.5; margin-bottom: 16px; text-align: center;
     }
 
     /* ── Options ── */
-    .options-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-    }
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
     .opt-btn {
-      padding: 13px 10px; border-radius: 14px;
+      display: flex; align-items: center; gap: 0;
+      padding: 12px 10px; border-radius: 14px;
       border: 1px solid rgba(255,255,255,.1);
-      background: rgba(255,255,255,.05);
-      color: rgba(255,255,255,.85); font-size: .85rem; font-weight: 700;
-      cursor: pointer; font-family: inherit; text-align: center;
-      transition: all .15s; line-height: 1.3;
+      background: rgba(255,255,255,.04);
+      color: rgba(255,255,255,.82); font-size: .83rem; font-weight: 700;
+      cursor: pointer; font-family: inherit; text-align: left;
+      transition: all .14s; line-height: 1.3;
       -webkit-tap-highlight-color: transparent;
     }
     .opt-btn:active:not(:disabled) { transform: scale(.96); }
-    .opt-btn:hover:not(:disabled) { background: rgba(0,212,255,.1); border-color: rgba(0,212,255,.3); }
+    .opt-btn:hover:not(:disabled)  { background: rgba(0,212,255,.09); border-color: rgba(0,212,255,.28); }
     .opt-btn.correct {
-      background: rgba(34,197,94,.18); border-color: rgba(34,197,94,.5);
-      color: var(--green);
+      background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.5);
+      color: #4ade80;
     }
     .opt-btn.wrong {
-      background: rgba(244,63,94,.15); border-color: rgba(244,63,94,.4);
+      background: rgba(244,63,94,.13); border-color: rgba(244,63,94,.4);
       color: var(--red);
     }
     .opt-btn:disabled { cursor: default; }
 
+    .opt-label {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; min-width: 22px; border-radius: 7px;
+      background: rgba(255,255,255,.08); font-size: .67rem; font-weight: 900;
+      color: rgba(255,255,255,.45); margin-right: 7px; flex-shrink: 0;
+      transition: all .14s;
+    }
+    .opt-btn:hover:not(:disabled) .opt-label { background: rgba(0,212,255,.18); color: var(--blue); }
+    .opt-btn.correct .opt-label { background: rgba(34,197,94,.25); color: #4ade80; }
+    .opt-btn.wrong   .opt-label { background: rgba(244,63,94,.22); color: var(--red); }
+    .opt-text { flex: 1; }
+
     /* ── Result screen ── */
     .result-screen {
-      text-align: center; padding: 28px 20px;
-      background: linear-gradient(155deg, #0d1527, #0a0f20);
-      border: 1px solid rgba(0,212,255,.15);
-      border-radius: 20px; margin-bottom: 12px;
+      text-align: center; padding: 26px 20px 22px;
+      background: linear-gradient(155deg, #0e1930, #090f1e);
+      border: 1px solid rgba(0,212,255,.14);
+      border-radius: 22px; margin-bottom: 12px;
     }
     .result-screen.hidden { display: none; }
-    .result-emoji { font-size: 3rem; margin-bottom: 10px; }
-    .result-title { font-size: 1.4rem; font-weight: 900; color: #fff; margin-bottom: 6px; }
-    .result-coins { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
+
+    .result-emoji { font-size: 3rem; margin-bottom: 8px; }
+    .result-title { font-size: 1.35rem; font-weight: 900; color: #fff; margin-bottom: 6px; }
+    .result-coins { font-size: 1.15rem; font-weight: 900; margin-bottom: 8px; }
     .result-coins.win  { color: var(--green); }
-    .result-coins.miss { color: rgba(255,255,255,.35); }
-    .result-answer { font-size: .82rem; color: rgba(255,255,255,.45); margin-bottom: 20px; }
+    .result-coins.miss { color: rgba(255,255,255,.3); }
+
+    .result-badges {
+      display: flex; gap: 7px; justify-content: center;
+      margin-bottom: 10px; flex-wrap: wrap;
+    }
+    .result-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: .68rem; font-weight: 800; padding: 3px 11px; border-radius: 999px;
+    }
+    .result-badge.streak { background: rgba(255,200,55,.13); color: var(--gold); border: 1px solid rgba(255,200,55,.28); }
+    .result-badge.speed  { background: rgba(0,212,255,.1);   color: var(--blue); border: 1px solid rgba(0,212,255,.22); }
+
+    .result-answer {
+      font-size: .8rem; color: rgba(255,255,255,.42); margin-bottom: 20px; line-height: 1.5;
+    }
 
     .next-btn {
       display: block; width: 100%; padding: 14px;
       border-radius: 14px; border: none;
-      background: linear-gradient(135deg, #0055b3, #00a0d4);
-      color: #fff; font-size: .95rem; font-weight: 800;
+      background: linear-gradient(135deg, #0055b3, #0097c4);
+      color: #fff; font-size: .92rem; font-weight: 800;
       cursor: pointer; font-family: inherit;
-      box-shadow: 0 4px 20px rgba(0,160,212,.25);
+      box-shadow: 0 4px 22px rgba(0,150,200,.22);
       -webkit-tap-highlight-color: transparent;
+      transition: opacity .15s, transform .12s;
     }
     .next-btn:active { transform: scale(.97); }
 
+    /* ── Session summary ── */
+    .session-screen {
+      text-align: center; padding: 28px 18px 24px;
+      background: linear-gradient(155deg, #0e1930, #090f1e);
+      border: 1px solid rgba(0,212,255,.16);
+      border-radius: 22px; margin-bottom: 12px;
+    }
+    .session-screen.hidden { display: none; }
+
+    .summary-stars {
+      font-size: 2rem; margin-bottom: 10px; letter-spacing: 6px;
+    }
+    .summary-star      { opacity: .2; transition: opacity .25s; }
+    .summary-star.lit  { opacity: 1; }
+
+    .summary-msg {
+      font-size: .88rem; font-weight: 700; color: rgba(220,239,255,.72);
+      margin-bottom: 20px; line-height: 1.5;
+    }
+
+    .summary-stat-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px; margin-bottom: 22px;
+    }
+    .summary-stat {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 14px; padding: 14px 6px;
+    }
+    .summary-stat-val {
+      font-size: 1.3rem; font-weight: 900; color: #fff;
+      line-height: 1;
+    }
+    .summary-stat-val.gold { color: var(--gold); }
+    .summary-stat-label {
+      font-size: .6rem; font-weight: 700;
+      color: rgba(255,255,255,.38); margin-top: 5px;
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+
+    .summary-home-btn {
+      display: block; width: 100%; padding: 14px;
+      border-radius: 14px; border: none;
+      background: linear-gradient(135deg, #0055b3, #0097c4);
+      color: #fff; font-size: .92rem; font-weight: 800;
+      cursor: pointer; font-family: inherit;
+      box-shadow: 0 4px 22px rgba(0,150,200,.22);
+      -webkit-tap-highlight-color: transparent;
+    }
+    .summary-home-btn:active { transform: scale(.97); }
+
     /* ── No plays screen ── */
     .no-plays-screen {
-      text-align: center; padding: 40px 20px;
+      text-align: center; padding: 44px 20px 36px;
+      background: linear-gradient(155deg, #0e1930, #090f1e);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 22px;
     }
     .no-plays-screen.hidden { display: none; }
-    .no-plays-emoji { font-size: 3.5rem; margin-bottom: 14px; }
-    .no-plays-title { font-size: 1.2rem; font-weight: 900; color: #fff; margin-bottom: 8px; }
-    .no-plays-sub   { font-size: .85rem; color: rgba(255,255,255,.4); line-height: 1.6; }
+
+    .no-plays-emoji  { font-size: 3.6rem; margin-bottom: 14px; }
+    .no-plays-title  { font-size: 1.2rem; font-weight: 900; color: #fff; margin-bottom: 8px; }
+    .no-plays-sub    { font-size: .83rem; color: rgba(255,255,255,.4); line-height: 1.65; margin-bottom: 6px; }
+    .no-plays-cd     { font-size: .8rem; font-weight: 800; color: var(--blue); opacity: .7; margin-bottom: 22px; }
+
     .back-btn {
-      display: inline-block; margin-top: 20px; padding: 12px 28px;
-      border-radius: 14px; border: none;
-      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
-      color: #fff; font-size: .9rem; font-weight: 700;
+      display: inline-block; padding: 12px 28px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      color: #fff; font-size: .88rem; font-weight: 700;
       cursor: pointer; font-family: inherit;
     }
   </style>
@@ -179,13 +306,19 @@
       <div class="trivia-hero-glow" aria-hidden="true"></div>
       <div class="trivia-hero-badge">+75 🪙 por respuesta correcta</div>
       <p class="trivia-hero-title">Trivia Gamer 🎮</p>
-      <p class="trivia-hero-sub">5 preguntas gratis al día · ¡Pon a prueba tu conocimiento!</p>
+      <p class="trivia-hero-sub">5 preguntas gratis al día · 4 categorías · ¡Pon a prueba tu conocimiento!</p>
     </div>
 
-    <!-- PLAYS -->
+    <!-- PLAYS ROW -->
     <div class="plays-row">
-      <span class="plays-label" id="playsLabel">Cargando...</span>
-      <div class="plays-pips" id="playsPips"></div>
+      <div class="plays-left">
+        <span class="plays-label" id="playsLabel">Cargando…</span>
+        <div class="plays-pips" id="playsPips"></div>
+      </div>
+      <div class="session-info">
+        <span class="session-coins-val" id="sessionCoinsVal">+0 🪙</span>
+        <span class="session-streak-val" id="sessionStreakVal" style="display:none"></span>
+      </div>
     </div>
 
     <!-- QUESTION CARD -->
@@ -199,6 +332,10 @@
           <span class="timer-num" id="timerNum">15</span>
         </div>
       </div>
+      <div class="q-meta">
+        <span class="q-cat-badge" id="qCatBadge">🎮</span>
+        <span class="q-diff easy" id="qDiffBadge">Fácil</span>
+      </div>
       <p class="question-text" id="questionText"></p>
       <div class="options-grid">
         <button type="button" class="opt-btn"></button>
@@ -208,13 +345,40 @@
       </div>
     </div>
 
-    <!-- RESULT -->
+    <!-- PER-QUESTION RESULT -->
     <div class="result-screen hidden" id="resultScreen">
       <div class="result-emoji" id="resultEmoji">🎉</div>
       <p class="result-title" id="resultTitle">¡Correcto!</p>
       <p class="result-coins win" id="resultCoins">+75 🪙</p>
+      <div class="result-badges">
+        <span class="result-badge streak" id="resultStreakBadge" style="display:none">🔥 Racha ×2</span>
+        <span class="result-badge speed"  id="resultSpeedBadge"  style="display:none">⚡ ¡Rápido!</span>
+      </div>
       <p class="result-answer" id="resultAnswer"></p>
-      <button type="button" class="next-btn" id="nextBtn">Siguiente pregunta</button>
+      <button type="button" class="next-btn" id="nextBtn">Siguiente pregunta →</button>
+    </div>
+
+    <!-- SESSION SUMMARY -->
+    <div class="session-screen hidden" id="sessionScreen">
+      <div class="summary-stars" id="summaryStars">⭐⭐⭐</div>
+      <p class="summary-msg" id="summaryMsg">¡Buen juego!</p>
+      <div class="summary-stat-grid">
+        <div class="summary-stat">
+          <div class="summary-stat-val" id="summaryCorrect">0/5</div>
+          <div class="summary-stat-label">Correctas</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-stat-val gold" id="summaryCoins">+0 🪙</div>
+          <div class="summary-stat-label">VirtualCoins</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-stat-val" id="summaryStreak">0 🔥</div>
+          <div class="summary-stat-label">Mejor racha</div>
+        </div>
+      </div>
+      <button class="summary-home-btn" onclick="window.location.href=typeof withAppFlag==='function'?withAppFlag('inicio.html'):'inicio.html'">
+        Volver al inicio
+      </button>
     </div>
 
     <!-- NO PLAYS -->
@@ -222,6 +386,7 @@
       <div class="no-plays-emoji">🧠</div>
       <p class="no-plays-title">¡Ya completaste tus preguntas de hoy!</p>
       <p class="no-plays-sub">Vuelve mañana para 5 preguntas nuevas.<br>Sigue ganando coins con la Ruleta y el Tragamonedas.</p>
+      <p class="no-plays-cd" id="noPlaysCountdown"></p>
       <button type="button" class="back-btn" onclick="window.location.href=typeof withAppFlag==='function'?withAppFlag('inicio.html'):'inicio.html'">Volver al inicio</button>
     </div>
 
