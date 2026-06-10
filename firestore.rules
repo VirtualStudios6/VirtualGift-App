@@ -52,7 +52,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read:  if request.auth != null;
       allow create: if validUserCreate(userId);
-      allow update: if isOwner(userId) && validUserUpdate();
+      allow update: if (isOwner(userId) && validUserUpdate()) || isAdmin();
       allow delete: if false;
     }
 
@@ -60,7 +60,8 @@ service cloud.firestore {
     // Own records only.
     match /pointsHistory/{docId} {
       allow read:   if request.auth != null && resource.data.userId == request.auth.uid;
-      allow create, update, delete: if false;
+      allow create: if isAdmin();
+      allow update, delete: if false;
     }
 
     // ─── NOTIFICATIONS ───────────────────────────────────────
