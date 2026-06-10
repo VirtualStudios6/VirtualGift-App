@@ -444,41 +444,260 @@
         </div>
 
         <!-- ── TAB: NOTIFICACIONES ─────────────────── -->
-        <div class="admin-panel" id="tabNotificaciones">
-          <div class="panel-header">
-            <p class="admin-section-title">Enviar notificación global</p>
+        <div class="admin-panel nc-panel" id="tabNotificaciones">
+
+          <!-- KPI Strip -->
+          <div class="nc-kpi-strip">
+            <div class="nc-kpi" style="--nc-kpi-clr:#8b5cf6;--nc-kpi-bg:rgba(139,92,246,.12)">
+              <div class="nc-kpi-row"><div class="nc-kpi-ico">📨</div></div>
+              <div class="nc-kpi-val" id="ncKpiToday">—</div>
+              <div class="nc-kpi-label">Enviadas hoy</div>
+              <div class="nc-kpi-sub" id="ncKpiTodaySub">Cargando…</div>
+            </div>
+            <div class="nc-kpi" style="--nc-kpi-clr:#22c55e;--nc-kpi-bg:rgba(34,197,94,.1)">
+              <div class="nc-kpi-row"><div class="nc-kpi-ico">📬</div></div>
+              <div class="nc-kpi-val" id="ncKpiTotal">—</div>
+              <div class="nc-kpi-label">Total enviadas</div>
+              <div class="nc-kpi-sub">Historial completo</div>
+            </div>
+            <div class="nc-kpi" style="--nc-kpi-clr:#60a5fa;--nc-kpi-bg:rgba(96,165,250,.1)">
+              <div class="nc-kpi-row"><div class="nc-kpi-ico">👥</div></div>
+              <div class="nc-kpi-val" id="ncKpiReach">—</div>
+              <div class="nc-kpi-label">Usuarios totales</div>
+              <div class="nc-kpi-sub">Base de usuarios</div>
+            </div>
+            <div class="nc-kpi" style="--nc-kpi-clr:#f59e0b;--nc-kpi-bg:rgba(245,158,11,.1)">
+              <div class="nc-kpi-row"><div class="nc-kpi-ico">🕐</div></div>
+              <div class="nc-kpi-val" id="ncKpiLast">—</div>
+              <div class="nc-kpi-label">Última enviada</div>
+              <div class="nc-kpi-sub" id="ncKpiLastSub">Sin envíos</div>
+            </div>
           </div>
 
-          <!-- Formulario envío -->
-          <div class="admin-card" style="margin-bottom:20px">
-            <div class="cfg-grid" style="margin-bottom:10px">
-              <div class="cfg-card">
-                <label>Título <span style="color:var(--err)">*</span></label>
-                <input type="text" id="notifTitle" maxlength="60" placeholder="¡Doble puntos hoy!">
-                <small style="font-size:.68rem;color:var(--text2)" id="notifTitleCount">0/60</small>
-              </div>
-              <div class="cfg-card">
-                <label>Imagen (URL, opcional)</label>
-                <input type="url" id="notifImage" placeholder="https://...">
-              </div>
-            </div>
-            <div class="cfg-card" style="margin-bottom:12px">
-              <label>Mensaje <span style="color:var(--err)">*</span></label>
-              <textarea id="notifBody" maxlength="160" placeholder="Descripción de la notificación..." style="min-height:80px"></textarea>
-              <small style="font-size:.68rem;color:var(--text2)" id="notifBodyCount">0/160</small>
-            </div>
-            <div style="display:flex;gap:10px">
-              <button class="btn-cancel" onclick="clearNotifForm()">Limpiar</button>
-              <button class="btn-save" id="btnSendNotif" onclick="sendNotificacion()" style="flex:1">
-                📤 Enviar a todos los usuarios
-              </button>
-            </div>
-          </div>
+          <!-- Main 3-col grid -->
+          <div class="nc-grid">
 
-          <p class="admin-section-title">Enviadas recientemente</p>
-          <div id="notifRecentList">
-            <div class="admin-loading">Cargando...</div>
-          </div>
+            <!-- ═══ COL 1: EDITOR ═══ -->
+            <div class="nc-editor-col">
+
+              <!-- Quick templates -->
+              <div class="admin-card" style="margin-bottom:12px">
+                <div class="nc-card-hdr">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                  Plantillas rápidas
+                </div>
+                <div class="nc-tpl-wrap" id="ncTplWrap"><!-- JS --></div>
+              </div>
+
+              <!-- Composer -->
+              <div class="admin-card" style="margin-bottom:12px">
+                <div class="nc-card-hdr">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Redactar mensaje
+                  <span class="nc-card-badge" id="ncModeBadge">Nueva</span>
+                </div>
+
+                <!-- Title field -->
+                <div class="nc-fld">
+                  <div class="nc-label">Título <span style="color:var(--err)">*</span><span class="nc-counter" id="notifTitleCount">0/60</span></div>
+                  <input class="nc-input" id="notifTitle" maxlength="60" placeholder="🎉 ¡Doble puntos hoy!"
+                    oninput="ncUpdatePreview();ncUpdateCounter(this,'notifTitleCount',60)">
+                  <div class="nc-toolbar">
+                    <span class="nc-emoji" title="Emojis" onclick="ncToggleEmojiPicker('title')">😊</span>
+                    <span class="nc-sep-v"></span>
+                    <span class="nc-var" onclick="ncInsert('notifTitle','{username}')">username</span>
+                    <span class="nc-var" onclick="ncInsert('notifTitle','{reward}')">reward</span>
+                  </div>
+                </div>
+
+                <!-- Body field -->
+                <div class="nc-fld">
+                  <div class="nc-label">Mensaje <span style="color:var(--err)">*</span><span class="nc-counter" id="notifBodyCount">0/160</span></div>
+                  <textarea class="nc-textarea" id="notifBody" maxlength="160" placeholder="Escribe tu mensaje aquí…"
+                    oninput="ncUpdatePreview();ncUpdateCounter(this,'notifBodyCount',160)"></textarea>
+                  <div class="nc-toolbar">
+                    <span class="nc-emoji" onclick="ncToggleEmojiPicker('body')">😊</span>
+                    <span class="nc-sep-v"></span>
+                    <span class="nc-var" onclick="ncInsert('notifBody','{username}')">username</span>
+                    <span class="nc-var" onclick="ncInsert('notifBody','{coins}')">coins</span>
+                    <span class="nc-var" onclick="ncInsert('notifBody','{level}')">level</span>
+                    <span class="nc-var" onclick="ncInsert('notifBody','{reward}')">reward</span>
+                  </div>
+                </div>
+
+                <!-- Emoji picker -->
+                <div id="ncEmojiPicker" style="display:none;margin-bottom:10px">
+                  <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px">
+                    <div style="font-size:.64rem;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px">Emojis frecuentes</div>
+                    <div style="display:flex;flex-wrap:wrap;gap:4px" id="ncEmojiGrid"><!-- JS --></div>
+                  </div>
+                </div>
+
+                <!-- Image URL -->
+                <div class="nc-fld">
+                  <div class="nc-label">Imagen adjunta <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--text2)">(opcional)</span></div>
+                  <input class="nc-input" id="notifImage" type="url" placeholder="https://..." oninput="ncUpdatePreview()">
+                  <div class="nc-img-prev" id="ncImgPrev"><img id="ncImgPrevImg" src="" alt="preview"></div>
+                </div>
+
+                <!-- Send actions -->
+                <div style="display:flex;gap:8px;margin-top:4px">
+                  <button class="btn-cancel" onclick="ncClearForm()" style="padding:11px 16px">Limpiar</button>
+                  <button class="btn-save" id="btnSendNotif" onclick="ncSend()" style="flex:1">
+                    <span id="btnSendNotifLabel">📤 Enviar notificación</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Segmentation -->
+              <div class="admin-card">
+                <div class="nc-card-hdr">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+                  Segmentación
+                </div>
+                <div class="nc-seg-grid" id="ncSegGrid"><!-- JS --></div>
+                <div class="nc-individual-row" id="ncIndividualRow">
+                  <div class="nc-label" style="margin-bottom:5px">UID del usuario</div>
+                  <input class="nc-input" id="ncIndividualId" placeholder="Pega el UID de Firestore…">
+                </div>
+                <div class="nc-reach">
+                  <span class="nc-reach-ico">🎯</span>
+                  <span class="nc-reach-txt">Esta notificación será enviada a</span>
+                  <span class="nc-reach-num" id="ncReachNum">todos los usuarios</span>
+                </div>
+              </div>
+
+            </div><!-- /editor col -->
+
+            <!-- ═══ COL 2: PREVIEW ═══ -->
+            <div class="nc-preview-col">
+              <div class="admin-card" style="position:sticky;top:16px">
+                <div class="nc-card-hdr">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                  Vista previa en vivo
+                </div>
+
+                <!-- Device tabs -->
+                <div class="nc-dev-tabs">
+                  <button class="nc-dev-tab active" onclick="ncSwitchDevice('android',this)">Android</button>
+                  <button class="nc-dev-tab" onclick="ncSwitchDevice('iphone',this)">iPhone</button>
+                  <button class="nc-dev-tab" onclick="ncSwitchDevice('app',this)">App</button>
+                </div>
+
+                <!-- Android preview -->
+                <div class="nc-phone-wrap" id="ncPreviewAndroid">
+                  <div class="nc-android">
+                    <div class="nc-and-topbar">
+                      <span id="ncAndTime">12:00</span>
+                      <div class="nc-and-cam"></div>
+                      <div class="nc-and-status">
+                        <svg viewBox="0 0 24 24" fill="rgba(255,255,255,.5)" width="8" height="8"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 0 0-6 0zm-4-4 2 2a7.074 7.074 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+                      </div>
+                    </div>
+                    <div style="height:10px;background:#0a0a1a"></div>
+                    <div class="nc-and-notif">
+                      <div class="nc-notif-hdr">
+                        <div class="nc-notif-appico">VG</div>
+                        <span class="nc-notif-appname">VirtualGift</span>
+                        <span class="nc-notif-time-lbl">ahora</span>
+                      </div>
+                      <div class="nc-notif-title-lbl" id="ncPrevTitle">Tu notificación</div>
+                      <div class="nc-notif-body-lbl" id="ncPrevBody">El mensaje aparecerá aquí</div>
+                      <div class="nc-notif-img-wrap" id="ncPrevImg"><img id="ncPrevImgEl" src="" alt=""></div>
+                    </div>
+                    <div style="height:8px;background:#0a0a1a"></div>
+                    <div class="nc-and-home">
+                      <div style="width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.15)"></div>
+                      <div style="width:24px;height:3px;border-radius:2px;background:rgba(255,255,255,.18)"></div>
+                      <div style="width:18px;height:18px;border-radius:3px;background:rgba(255,255,255,.15)"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- iPhone preview -->
+                <div class="nc-phone-wrap" id="ncPreviewIphone" style="display:none">
+                  <div class="nc-iphone">
+                    <div class="nc-iph-top">
+                      <div class="nc-iph-notch">
+                        <div class="nc-iph-cam"></div>
+                        <div style="width:30px;height:4px;background:#1a1a30;border-radius:3px"></div>
+                        <div class="nc-iph-cam"></div>
+                      </div>
+                    </div>
+                    <div class="nc-iph-bar">
+                      <span id="ncIphTime">12:00</span>
+                      <div style="display:flex;gap:4px;align-items:center">
+                        <svg viewBox="0 0 24 24" fill="rgba(255,255,255,.6)" width="8" height="8"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 0 0-6 0zm-4-4 2 2a7.074 7.074 0 0 1 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+                      </div>
+                    </div>
+                    <div class="nc-iph-notif">
+                      <div class="nc-notif-hdr">
+                        <div class="nc-notif-appico">VG</div>
+                        <span class="nc-notif-appname">VirtualGift</span>
+                        <span class="nc-notif-time-lbl">ahora</span>
+                      </div>
+                      <div class="nc-notif-title-lbl" id="ncPrevTitleIph">Tu notificación</div>
+                      <div class="nc-notif-body-lbl" id="ncPrevBodyIph">El mensaje aparecerá aquí</div>
+                      <div class="nc-notif-img-wrap" id="ncPrevImgIph"><img id="ncPrevImgElIph" src="" alt=""></div>
+                    </div>
+                    <div style="height:20px;background:#08081a"></div>
+                    <div class="nc-iph-bottom"><div class="nc-iph-pill"></div></div>
+                  </div>
+                </div>
+
+                <!-- App notification center preview -->
+                <div id="ncPreviewApp" style="display:none">
+                  <div class="nc-app-frame">
+                    <div class="nc-app-bar">
+                      <div class="nc-app-dot"></div>
+                      Centro de notificaciones
+                    </div>
+                    <div class="nc-app-notif" id="ncAppNotif">
+                      <div class="nc-app-ico" id="ncAppIco">🔔</div>
+                      <div class="nc-app-content">
+                        <div class="nc-app-title" id="ncPrevTitleApp">Tu notificación</div>
+                        <div class="nc-app-body"  id="ncPrevBodyApp">El mensaje aparecerá aquí</div>
+                        <div class="nc-app-img" id="ncPrevImgApp"><img id="ncPrevImgElApp" src="" alt=""></div>
+                        <div class="nc-app-ts">Ahora mismo</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Impact metrics -->
+                <div style="margin-top:14px">
+                  <div style="font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:var(--text2);margin-bottom:8px">Impacto estimado</div>
+                  <div class="nc-impact-grid">
+                    <div class="nc-impact"><div class="nc-impact-val" id="ncImpactReach">—</div><div class="nc-impact-lbl">Alcance</div></div>
+                    <div class="nc-impact"><div class="nc-impact-val" id="ncImpactOpen">78%</div><div class="nc-impact-lbl">Apertura est.</div></div>
+                    <div class="nc-impact"><div class="nc-impact-val" id="ncImpactClick">42%</div><div class="nc-impact-lbl">Clics est.</div></div>
+                    <div class="nc-impact"><div class="nc-impact-val" id="ncImpactRel">⭐⭐⭐</div><div class="nc-impact-lbl">Relevancia</div></div>
+                  </div>
+                </div>
+
+              </div>
+            </div><!-- /preview col -->
+
+            <!-- ═══ COL 3: HISTORY ═══ -->
+            <div class="nc-hist-col">
+              <div class="admin-card">
+                <div class="nc-card-hdr">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3m6-3a9 9 0 1 1-18 0 9 9 0 0 1 18 0z"/></svg>
+                  Historial de envíos
+                  <span class="nc-card-badge" id="ncHistBadge">0</span>
+                </div>
+
+                <div class="canje-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+                  <button class="canje-filter-btn active" data-nhfilter="all"        onclick="ncFilterHist('all',this)">Todas</button>
+                  <button class="canje-filter-btn"        data-nhfilter="global"     onclick="ncFilterHist('global',this)">Globales</button>
+                  <button class="canje-filter-btn"        data-nhfilter="individual" onclick="ncFilterHist('individual',this)">Individuales</button>
+                </div>
+
+                <div id="ncHistList"><div class="admin-loading">Cargando…</div></div>
+              </div>
+            </div><!-- /history col -->
+
+          </div><!-- /nc-grid -->
         </div>
 
         <!-- ── TAB: SORTEOS ─────────────────────────── -->
