@@ -1374,63 +1374,76 @@ let _currentMsgsData     = [];
 const _AI_TOPICS = {
   canje: {
     label: '🎁 Canje',
-    kw: ['canje','canjear','regalo','card','tarjeta','google play','amazon','steam','robux','paypal','redeem','código','code'],
+    kw: ['canje','canjear','regalo','card','tarjeta','google play','amazon','steam','robux','paypal','redeem','código','code','gift','voucher','premio','recompensa','premios','retirar','retiro','canjeo'],
     suggestions: [
-      '¡Hola! Entiendo que tienes una consulta sobre un canje. ¿Puedes indicarme el ID del canje o el producto que intentas canjear para revisarlo de inmediato?',
-      'Voy a revisar el estado de tu canje ahora mismo. ¿Puedes compartir el número de ticket o una captura de pantalla de la transacción?',
-      'Tu canje ha sido verificado y procesado correctamente. En las próximas 24 horas recibirás tu recompensa. ¡Gracias por tu paciencia!',
+      { cat: 'Verificar',     text: 'Para revisar tu solicitud de canje necesito confirmar algunos datos. ¿Puedes indicarme el correo de tu cuenta y la plataforma que seleccionaste ([plataforma])?' },
+      { cat: 'En proceso',    text: 'Tu solicitud de canje está siendo procesada por nuestro equipo. El tiempo promedio es de 24-48 horas hábiles. Te avisaremos cuando esté listo 👍' },
+      { cat: 'Aprobado ✅',   text: '¡Buenas noticias! Tu canje ha sido aprobado y procesado exitosamente. Recibirás tu recompensa en [plataforma] en las próximas horas. ¡Gracias por usar VirtualGift!' },
+      { cat: 'Pendiente',     text: 'Revisé tu cuenta y tu solicitud aparece como pendiente de revisión. Nuestro equipo la procesará en las próximas horas. Gracias por tu paciencia 🙏' },
+      { cat: 'Rechazado',     text: 'Lamentablemente tu solicitud no pudo completarse. Por favor verifica que cumples el mínimo requerido y que tus datos de perfil estén actualizados, luego vuelve a intentarlo.' },
+      { cat: 'Pedir captura', text: '¿Puedes compartirme una captura de pantalla de la solicitud? Eso nos ayuda a ubicar el caso más rápido en el sistema.' },
     ],
   },
   pago: {
-    label: '💰 Pago',
-    kw: ['pago','cobro','dinero','balance','saldo','transferencia','nequi','binance','recibir','retirar','withdraw'],
+    label: '💳 Pago',
+    kw: ['pago','cobro','dinero','transferencia','nequi','binance','recibir','no he recibido','no llegó','donde está','cuándo llega','cuando llega','withdraw','retirar','acreditar','acreditado'],
     suggestions: [
-      'Entiendo tu consulta sobre el pago. Para procesarlo correctamente necesito verificar tus datos. ¿Puedes confirmar el monto y el método de pago seleccionado?',
-      'He revisado tu historial de pagos. ¿Puedes indicarme la fecha aproximada y el monto de la transacción en cuestión?',
-      'Los pagos se procesan en un plazo de 1-3 días hábiles. Si ya pasó ese tiempo y no has recibido nada, escríbenos y revisamos el caso de inmediato.',
+      { cat: 'Solicitar info', text: '¿Puedes indicarme el ID de tu solicitud y el correo o cuenta destino que tienes registrado? Así verifico el estado del pago directamente.' },
+      { cat: 'En tránsito',   text: 'El pago fue procesado desde nuestro lado. Los tiempos de acreditación varían: [plataforma] puede demorar 1-3 días hábiles. ¿Revisaste también tu carpeta de spam?' },
+      { cat: 'Confirmado',    text: 'Confirmo que el pago fue enviado exitosamente a tu cuenta de [plataforma]. Si no lo ves reflejado aún, contacta el soporte de esa plataforma con tu ID de transacción.' },
+      { cat: 'Revisar datos', text: 'Los datos de pago ingresados no coinciden con tu perfil. Por favor actualízalos y vuelve a intentar, o cuéntame más para corregirlo juntos.' },
     ],
   },
-  sorteo: {
-    label: '🎰 Sorteo',
-    kw: ['sorteo','ganado','premio','winner','ganador','raffle','lotería'],
+  puntos: {
+    label: '🪙 VirtualCoins',
+    kw: ['puntos','coins','monedas','saldo','balance','créditos','creditos','points','ganar','gané','no me acreditan','no llegaron','perdí mis','me faltan','me quitaron','acreditación','recompensa diaria','check-in','checkin'],
     suggestions: [
-      '¡Felicitaciones por participar! Para reclamar tu premio del sorteo necesito verificar tu identidad. Por favor comparte tu UID y capturas del sorteo.',
-      'He revisado los resultados del sorteo. Tu participación está confirmada. El proceso de entrega de premios puede tomar hasta 7 días hábiles.',
-      'Los ganadores son seleccionados de forma aleatoria y verificados manualmente. Te contactaremos directamente cuando tu premio esté listo para ser entregado.',
-    ],
-  },
-  error: {
-    label: '🐛 Error técnico',
-    kw: ['error','falla','bug','problema','no funciona','crash','pantalla','blanco','negro','lento','fallo'],
-    suggestions: [
-      'Lamentamos los inconvenientes técnicos que experimentas. ¿Puedes compartir una captura del error y los pasos que realizaste antes de que ocurriera?',
-      'Hemos escalado este problema a nuestro equipo técnico. En breve te contactaremos con una solución. ¿Qué dispositivo y sistema operativo usas?',
-      'Para reproducir y resolver este error lo antes posible, necesito que me indiques: 1) qué dispositivo usas, 2) qué versión del sistema operativo, 3) qué acción realizabas.',
+      { cat: 'Revisando',      text: 'Estoy revisando el historial de tu cuenta ahora mismo. ¿Puedes decirme qué actividad realizaste y en qué fecha aproximadamente para localizarlo más rápido?' },
+      { cat: 'Acreditados',    text: 'Revisé tu historial y los VirtualCoins aparecen acreditados correctamente. Puedes verificarlo en "Mis Puntos" dentro de la app. ¿Ves alguna diferencia con lo esperado?' },
+      { cat: 'Retraso',        text: 'Identificamos un pequeño retraso en la acreditación. Los coins deberían aparecer en tu cuenta en las próximas horas. Disculpa el inconveniente 🙏' },
+      { cat: 'Ajuste manual',  text: 'Revisé el caso y corresponde hacer un ajuste manual en tu saldo. Ya estamos procesando la corrección y verás los coins reflejados en breve.' },
     ],
   },
   cuenta: {
     label: '👤 Cuenta',
-    kw: ['cuenta','perfil','acceso','contraseña','login','entrar','verificar','correo','email','registrar'],
+    kw: ['cuenta','acceso','login','contraseña','password','entrar','acceder','email','correo','olvidé','recuperar','bloqueado','suspendido','perfil','foto','nombre','verificación','verificado','no puedo entrar','inicio de sesión'],
     suggestions: [
-      'Para ayudarte con tu cuenta, necesito verificar tu identidad. ¿Puedes proporcionarme el correo electrónico asociado y tu UID?',
-      'Por seguridad hemos verificado tu cuenta. Para recuperar el acceso, intenta cerrar sesión completamente y volver a iniciar sesión con tus credenciales.',
-      'He revisado tu cuenta y todo parece estar en orden. Si el problema persiste, borra la caché de la aplicación y vuelve a intentarlo.',
+      { cat: 'Recuperar acceso',  text: '¿Intentaste la opción "¿Olvidaste tu contraseña?" en la pantalla de inicio? Te enviará un correo para restablecerla. También revisa tu carpeta de spam 📧' },
+      { cat: 'Verificar',         text: 'Para ayudarte a recuperar el acceso necesito verificar algunos datos. ¿Cuál es el correo con el que te registraste y cuándo fue aproximadamente?' },
+      { cat: 'Cuenta suspendida', text: 'Revisé tu cuenta y aparece suspendida temporalmente por actividad inusual. Si crees que es un error cuéntame más detalles y lo revisamos con el equipo.' },
+      { cat: 'Todo en orden',     text: 'Revisé tu cuenta y todo parece estar bien desde nuestro lado. Te recomiendo: borrar caché de la app, cerrar sesión y volver a ingresar. ¿Se resolvió el problema?' },
+    ],
+  },
+  error: {
+    label: '⚙️ Error técnico',
+    kw: ['error','bug','falla','problema','no funciona','no carga','pantalla','app','aplicación','crash','cerrar','congelar','lento','tarda','blanco','negro','roto','fallo','se cierra','no abre'],
+    suggestions: [
+      { cat: 'Recopilar info', text: '¿Puedes describir con detalle qué ocurre y en qué paso? Una captura del error sería de gran ayuda. También dime tu dispositivo y versión del sistema operativo.' },
+      { cat: 'Pasos básicos',  text: 'Prueba estos pasos: 1️⃣ Cierra y vuelve a abrir la app. 2️⃣ Verifica tu conexión. 3️⃣ Borra el caché de la app. ¿El problema persiste después de eso?' },
+      { cat: 'Escalado',       text: 'Registré el error que describes y lo escalé a nuestro equipo técnico con prioridad. Te notificamos cuando tengamos solución. ¡Gracias por reportarlo, nos ayuda mucho! 🛠️' },
+      { cat: 'Actualizar app', text: 'Es posible que el error se resuelva actualizando a la última versión de VirtualGift. ¿Tienes la versión más reciente instalada?' },
+    ],
+  },
+  sorteo: {
+    label: '🎟️ Sorteo',
+    kw: ['sorteo','rifa','lotería','participar','ticket','boleto','ganador','resultado','sortear','no me registré','participación','raffle'],
+    suggestions: [
+      { cat: 'Cómo participar',  text: 'Para participar en los sorteos necesitas VirtualCoins y canjearlos por tickets en la sección de sorteos activos. ¿Tienes algún problema al intentar registrarte?' },
+      { cat: 'Verificar tickets', text: 'Revisé tu cuenta y tienes participaciones registradas en el sorteo activo. Los resultados se publican en la app automáticamente al cerrarse el período.' },
+      { cat: 'Sobre resultados',  text: 'Los ganadores son seleccionados aleatoriamente de forma transparente entre todos los participantes registrados. ¿Tienes alguna pregunta específica sobre el resultado?' },
     ],
   },
 };
 
-const _AI_GENERAL = [
-  '¡Hola! Soy parte del equipo de soporte de VirtualGift. Estoy revisando tu consulta y en breve te doy una respuesta detallada. ¡Gracias por tu paciencia!',
-  'Entiendo tu situación y voy a hacer todo lo posible para ayudarte. ¿Puedes proporcionarme más detalles sobre lo que necesitas?',
-  'Tu caso ha sido registrado en nuestro sistema. Te contactaremos en las próximas horas con una resolución. ¡Gracias por usar VirtualGift!',
-];
-
-function _detectAITopic(msgs) {
+function _detectAITopics(msgs) {
   const text = msgs.filter(m => m.from === 'user').map(m => (m.text || '').toLowerCase()).join(' ');
-  for (const [key, data] of Object.entries(_AI_TOPICS)) {
-    if (data.kw.some(kw => text.includes(kw))) return { key, ...data };
+  const PLATFORMS = { paypal: 'PayPal', amazon: 'Amazon', steam: 'Steam', 'google play': 'Google Play', psn: 'PSN', robux: 'Robux', nequi: 'Nequi', binance: 'Binance' };
+  let platform = '';
+  for (const [kw, label] of Object.entries(PLATFORMS)) {
+    if (text.includes(kw)) { platform = label; break; }
   }
-  return { key: 'general', label: '💬 General', suggestions: _AI_GENERAL };
+  const topics = Object.values(_AI_TOPICS).filter(d => d.kw.some(kw => text.includes(kw)));
+  return { topics, platform };
 }
 
 function updateChatBadges(count) {
@@ -2047,11 +2060,6 @@ window.toggleSoporteInfo = function () {
   if (toggle) toggle.classList.toggle('active', _sc2InfoVisible);
 };
 
-window.toggleSoporteQuickReplies = function () {
-  const el = document.getElementById('sc2QuickReplies');
-  if (el) el.style.display = el.style.display === 'none' ? 'flex' : 'none';
-};
-
 window.insertSoporteQuickReply = function (text) {
   const input = document.getElementById('soporteReplyInput');
   if (!input) return;
@@ -2320,25 +2328,63 @@ window.toggleSoporteAI = function () {
 };
 
 window.generateAISuggestions = function () {
-  const topicEl  = document.getElementById('sc2AiTopic');
-  const suggsEl  = document.getElementById('sc2AiSuggestions');
+  const suggsEl = document.getElementById('sc2AiSuggestions');
+  const topicEl = document.getElementById('sc2AiTopic');
+  const genBtn  = document.getElementById('sc2AiGenBtn');
   if (!suggsEl) return;
 
-  const result = _detectAITopic(_currentMsgsData);
-  if (topicEl) topicEl.textContent = result.label;
+  suggsEl.innerHTML = '<div class="sc2-ai-loading"><div class="sc2-ai-spinner"></div><span>Analizando conversación…</span></div>';
+  if (topicEl) topicEl.textContent = '';
+  if (genBtn) { genBtn.disabled = true; genBtn.classList.add('loading'); }
 
-  suggsEl.innerHTML = result.suggestions.map((s, i) =>
-    `<div class="sc2-ai-suggestion" onclick="window._applyAISuggestion(${i})">${esc(s)}</div>`
-  ).join('');
+  setTimeout(() => {
+    const { topics, platform } = _detectAITopics(_currentMsgsData);
+    let allSuggs = [];
+    let labels   = [];
+
+    if (!topics.length) {
+      labels = ['💬 General'];
+      allSuggs = [
+        { cat: 'Bienvenida', text: '¡Hola! Soy del equipo de soporte de VirtualGift. Estoy revisando tu consulta y te respondo en breve. ¡Gracias por tu paciencia!' },
+        { cat: 'Más info',   text: 'Para ayudarte mejor necesito algunos datos. ¿Puedes darme más detalles sobre lo que ocurre y en qué sección de la app?' },
+        { cat: 'Registrado', text: 'Tu caso ha sido registrado y será atendido lo antes posible. ¿Hay algo más que puedas compartirme para agilizar la resolución?' },
+        { cat: 'Disculpa',   text: 'Lamentamos los inconvenientes que estás experimentando. Estamos revisando tu caso con prioridad y te daremos una respuesta lo antes posible 🙏' },
+      ];
+    } else {
+      labels = topics.slice(0, 3).map(d => d.label);
+      topics.slice(0, 2).forEach(d => allSuggs.push(...d.suggestions.slice(0, 3)));
+    }
+
+    allSuggs = allSuggs.map(s => ({
+      ...s,
+      text: s.text.replace(/\[plataforma\]/g, platform || 'la plataforma elegida'),
+    }));
+
+    window._aiLastSuggs = allSuggs;
+    if (topicEl) topicEl.textContent = labels.join(' · ');
+
+    suggsEl.innerHTML = allSuggs.map((s, i) =>
+      `<div class="sc2-ai-sugg" onclick="window._applyAISugg(${i})">` +
+        `<span class="sc2-ai-cat">${esc(s.cat)}</span>` +
+        `<span class="sc2-ai-sugg-text">${esc(s.text)}</span>` +
+        `<button class="sc2-ai-use-btn" onclick="event.stopPropagation();window._applyAISugg(${i})">Usar</button>` +
+      `</div>`
+    ).join('');
+
+    if (genBtn) {
+      genBtn.disabled = false;
+      genBtn.classList.remove('loading');
+      genBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg> Regenerar';
+    }
+  }, 650);
 };
 
-window._applyAISuggestion = function (idx) {
-  const result = _detectAITopic(_currentMsgsData);
-  const text   = result.suggestions[idx];
-  if (!text) return;
+window._applyAISugg = function (idx) {
+  const sugg = (window._aiLastSuggs || [])[idx];
+  if (!sugg) return;
   const input = document.getElementById('soporteReplyInput');
   if (!input) return;
-  input.value = text;
+  input.value = sugg.text;
   input.style.height = 'auto';
   input.style.height = Math.min(input.scrollHeight, 130) + 'px';
   input.focus();

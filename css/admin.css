@@ -2100,7 +2100,45 @@ body {
 }
 .sc2-ai-gen-btn:hover { background: linear-gradient(135deg, rgba(91,33,182,.6), rgba(147,51,234,.5)); }
 .sc2-ai-gen-btn svg { width: 14px; height: 14px; fill: #c4b5fd; flex-shrink: 0; }
-.sc2-ai-gen-btn.loading { opacity: .6; cursor: wait; }
+.sc2-ai-gen-btn.loading { opacity: .6; cursor: wait; pointer-events: none; }
+.sc2-ai-gen-btn:disabled { opacity: .6; cursor: wait; pointer-events: none; }
+
+.sc2-ai-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 20px 12px;
+  color: rgba(220,239,255,.35);
+  font-size: .72rem;
+  font-style: italic;
+}
+
+@keyframes sc2Spin { to { transform: rotate(360deg); } }
+.sc2-ai-spinner {
+  width: 16px; height: 16px;
+  border: 2px solid rgba(139,92,246,.18);
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  flex-shrink: 0;
+  animation: sc2Spin .7s linear infinite;
+}
+
+.sc2-ai-sugg { cursor: pointer; }
+
+.sc2-ai-cat {
+  font-size: .58rem;
+  font-weight: 800;
+  color: #a78bfa;
+  background: rgba(139,92,246,.14);
+  border-radius: 5px;
+  padding: 2px 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin-top: 1px;
+  letter-spacing: .02em;
+}
 
 /* AI icon in toolbar */
 .sc2-tool-ai svg { fill: rgba(196,181,253,.55) !important; }
