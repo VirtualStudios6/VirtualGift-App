@@ -39,7 +39,7 @@ function showModal(title, message, buttons = [{ label: 'OK', primary: true }]) {
 
     const msgEl = document.createElement('div');
     msgEl.style.cssText = 'font-size:14px;color:rgba(255,255,255,0.65);line-height:1.6;margin-bottom:20px;white-space:pre-line;';
-    msgEl.textContent = message;
+    msgEl.innerHTML = message;
 
     const btnsEl = document.createElement('div');
     btnsEl.style.cssText = 'display:flex;gap:10px;';
