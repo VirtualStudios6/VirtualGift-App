@@ -64,7 +64,7 @@
         .checkin-day-label   { font-size: 9px; color: rgba(220,239,255,0.45); font-weight: 600; font-family: var(--font); }
         .checkin-day.today .checkin-day-label { color: rgba(192,132,252,0.85); }
         .checkin-day-coins   { font-size: 11px; font-weight: 800; color: #ffc837; margin-top: 3px; font-family: var(--font); }
-        .checkin-day.done .checkin-day-coins::before { content: '? '; }
+        .checkin-day.done .checkin-day-coins { opacity: .55; }
         .checkin-btn {
             width: 100%; padding: 13px; border-radius: 12px;
             background: linear-gradient(90deg, #8d17fb, #70189b);
@@ -300,11 +300,11 @@
                         </div>
                         <div class="redeem-usd-preview" id="redeemUsdPreview">$0.00 USD</div>
                         <div class="redeem-error" id="redeemError"></div>
-                        <div class="redeem-hint">Mínimo 20.000 · Múltiplo de 1.000 · 1.000 puntos = $1 USD</div>
+                        <div class="redeem-hint">Mínimo de retiro: 20,000 VirtualCoins ($20 USD)
                     </div>
 
                     <label class="form-label" style="display:block; margin-bottom: 10px;">
-                        ¿Dónde quieres recibir el dinero?
+                        ¿Dónde deseas recibir tu pago?
                     </label>
 
                     <div class="platforms-grid">

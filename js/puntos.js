@@ -147,7 +147,7 @@ function buildCheckinUI(streak, alreadyDone) {
   const badge = document.getElementById('streakBadge');
   if (!days || !btn || !badge) return;
 
-  badge.textContent = `?? ${streak} día${streak !== 1 ? 's' : ''}`;
+  badge.innerHTML = `🔥 ${streak} día${streak !== 1 ? 's' : ''}`;
 
   let html = '';
   CHECKIN_REWARDS.forEach((coins, i) => {
