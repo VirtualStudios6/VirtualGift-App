@@ -813,7 +813,14 @@
         </div>
 
         <!-- ── TAB: TRABAJADORES ───────────────────── -->
-        <div class="admin-panel" id="tabTrabajadores">
+        <div class="admin-panel" id="tabTrabajadores" style="position:relative;overflow:hidden;min-height:300px">
+
+          <!-- Lock overlay -->
+          <div style="position:absolute;inset:0;z-index:10;background:rgba(6,1,28,.93);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;backdrop-filter:blur(6px);border-radius:inherit">
+            <div style="font-size:2.8rem">🔒</div>
+            <div style="font-size:1.05rem;font-weight:900;color:#fff">Módulo en desarrollo</div>
+            <div style="font-size:.82rem;color:rgba(220,239,255,.4);text-align:center;max-width:220px;line-height:1.5">Esta sección estará disponible próximamente</div>
+          </div>
 
           <div class="panel-header">
             <p class="admin-section-title">Equipo de trabajo</p>
@@ -1042,19 +1049,26 @@
                     <div class="sc2-stat-val" id="sc2IpCoins">—</div>
                     <div class="sc2-stat-lbl">Monedas</div>
                   </div>
-                  <div class="sc2-stat-card sc2-stat--blue">
-                    <div class="sc2-stat-val" id="sc2IpGames">—</div>
-                    <div class="sc2-stat-lbl">Juegos</div>
-                  </div>
                   <div class="sc2-stat-card">
                     <div class="sc2-stat-val" id="sc2IpCanjes">—</div>
                     <div class="sc2-stat-lbl">Canjes</div>
                   </div>
-                  <div class="sc2-stat-card">
-                    <div class="sc2-stat-val" id="sc2IpApproved">—</div>
-                    <div class="sc2-stat-lbl">Aprobados</div>
-                  </div>
                 </div>
+              </div>
+
+              <!-- Give coins -->
+              <div class="sc2-ip-section">
+                <div class="sc2-ip-section-title">Dar VirtualCoins</div>
+                <div style="display:flex;gap:6px;margin-bottom:4px">
+                  <input type="number" id="sc2GiveCoinsAmount" min="1" max="50000"
+                    placeholder="Cantidad (ej. 200)"
+                    style="flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:8px 10px;color:#fff;font-family:var(--font);font-size:.82rem;outline:none;min-width:0">
+                  <button onclick="window.giveSoporteCoins()"
+                    style="background:linear-gradient(135deg,#7c3aed,#a855f7);border:none;border-radius:8px;padding:8px 12px;color:#fff;font-size:.78rem;font-weight:800;cursor:pointer;white-space:nowrap;font-family:var(--font);flex-shrink:0">
+                    + Dar coins
+                  </button>
+                </div>
+                <div style="font-size:.63rem;color:rgba(220,239,255,.3)">Se añaden directamente al saldo del usuario</div>
               </div>
 
               <!-- Account info -->

@@ -1365,6 +1365,7 @@ let _unsubSoporteChat    = null;
 let _unsubSoporteDoc     = null;
 let _soporteFilter       = 'all';
 let _soportePrioFilter   = 'all';
+let _scPhotoCache        = {};
 let _sc2InfoVisible      = false;
 let _adminTypingTimer    = null;
 let _currentMsgsData     = [];
@@ -1574,9 +1575,13 @@ function buildConvItem(chatId, data) {
 
   const tagHtml = tags.slice(0,2).map(t => `<span class="sc2-topbar-tag" style="font-size:.55rem;padding:1px 5px">${esc(t)}</span>`).join('');
 
-  const safeId = esc(chatId);
+  const safeId      = esc(chatId);
+  const cachedPhoto = _scPhotoCache[chatId];
+  const avatarContent = cachedPhoto
+    ? `<img src="${esc(cachedPhoto)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block" loading="lazy" onerror="this.parentElement.textContent='${initial}'">`
+    : initial;
   return `<div class="sc2-conv-item" data-chat-id="${safeId}" onclick="window.openSoporteChat('${safeId}')">
-    <div class="sc2-conv-avatar">${initial}</div>
+    <div class="sc2-conv-avatar">${avatarContent}</div>
     <div class="sc2-conv-body">
       <div class="sc2-conv-name">
         <span>${name}</span>
@@ -1825,12 +1830,16 @@ function _loadSoporteUserInfo(chatId, chatData) {
 
     // Show real profile photo if available
     if (u.photoURL) {
+      _scPhotoCache[chatId] = u.photoURL;
       const initial = (chatData.userName || 'U').charAt(0).toUpperCase();
-      const imgHtml = `<img src="${esc(u.photoURL)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block" onerror="this.parentElement.textContent='${initial}'">`;
+      const imgHtml = `<img src="${esc(u.photoURL)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block" onerror="this.parentElement.textContent='${initial}'" loading="lazy">`;
       const ipAv = document.getElementById('sc2IpAvatar');
       if (ipAv) ipAv.innerHTML = imgHtml;
       const topAv = document.getElementById('scChatAvatar');
       if (topAv) topAv.innerHTML = imgHtml;
+      // Also update the avatar in the conversation list
+      const listAv = document.querySelector(`.sc2-conv-item[data-chat-id="${chatId}"] .sc2-conv-avatar`);
+      if (listAv) listAv.innerHTML = imgHtml;
     }
   }).catch(() => {});
 
@@ -1877,6 +1886,42 @@ function _loadSoporteUserInfo(chatId, chatData) {
     })
     .catch(() => {});
 }
+
+window.giveSoporteCoins = async function () {
+  const amountRaw = document.getElementById('sc2GiveCoinsAmount')?.value;
+  const amount    = parseInt(amountRaw);
+  if (!amount || amount < 1 || amount > 50000) {
+    toast('Ingresa una cantidad válida (1 – 50,000)', false); return;
+  }
+  if (!_soporteCurrentChat) { toast('Ningún usuario seleccionado', false); return; }
+  const uid = _soporteCurrentChat;
+  try {
+    await window.db.collection('users').doc(uid).update({
+      points: firebase.firestore.FieldValue.increment(amount),
+    });
+    await window.db.collection('notifications').add({
+      userId:      uid,
+      title:       '🎁 Bonus de VirtualCoins',
+      message:     `Has recibido ${amount.toLocaleString('es-DO')} VirtualCoins de regalo del equipo de soporte.`,
+      type:        'bonus',
+      sentByAdmin: true,
+      read:        false,
+      timestamp:   firebase.firestore.Timestamp.now(),
+    });
+    toast(`✅ +${amount.toLocaleString('es-DO')} coins enviados`);
+    document.getElementById('sc2GiveCoinsAmount').value = '';
+    // Refresh coins display in the info panel
+    window.db.collection('users').doc(uid).get().then(doc => {
+      if (doc.exists) {
+        const el = document.getElementById('sc2IpCoins');
+        if (el) el.textContent = '🪙 ' + (doc.data().points || 0).toLocaleString('es-DO');
+      }
+    });
+  } catch (e) {
+    console.error('[admin] giveSoporteCoins', e);
+    toast('Error: ' + (e.message || ''), false);
+  }
+};
 
 function buildAdminMsgBubble(data) {
   const isAdmin = data.from === 'admin';
