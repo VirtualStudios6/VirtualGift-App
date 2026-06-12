@@ -1,9 +1,9 @@
 /* ============================================================
    VirtualGift Service Worker — Cache-First para assets estáticos
-   Version: v4 — actualizar CACHE_VER al desplegar cambios grandes
+   Version: v6 — actualizar CACHE_VER al desplegar cambios grandes
    ============================================================ */
 
-const CACHE_VER     = 'vg-v5';
+const CACHE_VER     = 'vg-v6';
 const CACHE_STATIC  = CACHE_VER + '-static';
 const CACHE_DYNAMIC = CACHE_VER + '-dynamic';
 

@@ -618,6 +618,26 @@ exports.grantUnityAdReward = onCall({ region: "us-central1" }, async (request) =
 // DELETE OWN ACCOUNT
 // =====================
 
+async function deleteSupportChatMessages(uid) {
+  try {
+    const msgsSnap = await db.collection("supportChats").doc(uid)
+      .collection("messages").get();
+    if (!msgsSnap.empty) {
+      let batch = db.batch();
+      let ops = 0;
+      for (const doc of msgsSnap.docs) {
+        batch.delete(doc.ref);
+        ops++;
+        if (ops >= 450) { await batch.commit(); batch = db.batch(); ops = 0; }
+      }
+      if (ops > 0) await batch.commit();
+    }
+    await db.collection("supportChats").doc(uid).delete();
+  } catch (err) {
+    console.warn("[deleteOwnAccount] supportChats cleanup:", err.message);
+  }
+}
+
 exports.deleteOwnAccount = onCall({ region: "us-central1" }, async (request) => {
   const uid = assertAuthed(request);
 
@@ -626,6 +646,7 @@ exports.deleteOwnAccount = onCall({ region: "us-central1" }, async (request) => 
     deleteQueryInBatches(db.collection("pointsHistory").where("userId", "==", uid)),
     deleteQueryInBatches(db.collection("raffleParticipants").where("userId", "==", uid)),
     deleteQueryInBatches(db.collection("redeemRequests").where("userId", "==", uid)),
+    deleteSupportChatMessages(uid),
   ]);
 
   await deleteKnownUserStorage(uid);
@@ -1190,7 +1211,7 @@ exports.offermaruPostback = onRequest(
     // ── 3. Parsear y validar coins ────────────────────────────────────────
     const coins = Math.round(parseFloat(user_reward));
     if (!Number.isFinite(coins) || coins <= 0) {
-      console.warn("[offermaruPostback] Amount inválido:", amount);
+      console.warn("[offermaruPostback] Amount inválido:", user_reward);
       return res.status(400).send("Invalid amount");
     }
 

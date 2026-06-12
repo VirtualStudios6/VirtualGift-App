@@ -155,6 +155,24 @@ service cloud.firestore {
       allow update: if false;
     }
 
+    // ─── AD REWARDS (server-side only) ───────────────────────
+    // Written by grantUnityAdReward Cloud Function.
+    match /adRewards/{docId} {
+      allow read, write: if false;
+    }
+
+    // ─── OFFERWALL DAILY CAPS (server-side only) ─────────────
+    // Written by CPX/Offermaru/Tapjoy/IronSource postbacks.
+    match /offerwallDailyCaps/{docId} {
+      allow read, write: if false;
+    }
+
+    // ─── SUSPICIOUS ACTIVITY LOG (server-side only) ──────────
+    // Written by postback handlers when fraud is detected.
+    match /suspiciousActivity/{docId} {
+      allow read, write: if false;
+    }
+
     // ─── TRANSACTIONS (server-side only) ─────────────────────
     match /ayetTransactions/{docId} {
       allow read, write: if false;

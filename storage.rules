@@ -5,6 +5,11 @@ service firebase.storage {
       return request.auth != null;
     }
 
+    function isAdmin() {
+      return isAuth()
+        && firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
     function isOwnAvatar(fileName) {
       return isAuth()
         && fileName.matches(request.auth.uid + "\\.(jpg|jpeg|png|webp)");
@@ -25,16 +30,15 @@ service firebase.storage {
         && request.resource.contentType.matches("image/(jpeg|png|webp)");
     }
 
-    // ── SUPPORT CHAT IMAGES ──────────────────────────
+    // ── SUPPORT CHAT FILES ───────────────────────────
     match /supportChats/{userId}/{fileName} {
       allow read: if isAuth();
-      // Owner can upload images and documents (max 16 MB)
+      // Owner can upload files (max 16 MB)
       allow write: if isAuth()
         && request.auth.uid == userId
         && request.resource.size < 16 * 1024 * 1024;
-      // Admins can upload any file for any chat (fileName starts with "admin_")
-      allow write: if isAuth()
-        && fileName.matches("admin_.*")
+      // Admins can upload to any chat (verified via Firestore isAdmin flag)
+      allow write: if isAdmin()
         && request.resource.size < 16 * 1024 * 1024;
     }
 

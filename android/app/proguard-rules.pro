@@ -47,8 +47,24 @@
     @com.google.gson.annotations.SerializedName <fields>;
 }
 
-# Unity Ads
+# ── Unity Ads ─────────────────────────────────────────────────────────────────
 -keep class com.unity3d.** { *; }
 -keep class com.unity3d.services.** { *; }
 -dontwarn com.unity3d.**
 -dontwarn com.unity3d.services.**
+
+# ── IronSource ────────────────────────────────────────────────────────────────
+-keep class com.ironsource.** { *; }
+-keep class com.ironsource.mediationsdk.** { *; }
+-keep class com.ironsource.adapters.** { *; }
+-dontwarn com.ironsource.**
+-keepclassmembers class com.ironsource.** { *; }
+
+# ── FCM / Push Notifications ──────────────────────────────────────────────────
+-keep class com.google.firebase.messaging.** { *; }
+-keep class com.google.firebase.installations.** { *; }
+
+# ── Custom Capacitor Plugins (VirtualGift) ────────────────────────────────────
+-keep class com.virtualgift.UnityAdsPlugin { *; }
+-keep class com.virtualgift.IronSourcePlugin { *; }
+-keep class com.virtualgift.ConsentPlugin { *; }
